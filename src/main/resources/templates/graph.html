@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style type="text/css">
+
+        table {
+            border-collapse: collapse;
+            border: solid 3px #808080;
+            -webkit-box-shadow: 3px 3px 6px #dedede;
+            -moz-box-shadow: 3px 3px 6px #dedede;
+            box-shadow: 3px 3px 6px #dedede;
+        }
+
+        table td {
+            padding: 3px;
+        }
+
+        .keyCol {
+            background-color: #e8e8e8;
+        }
+    </style>
+</head>
+<body>
+    <p>Displaying assertion:</p>
+    <table>
+        <col class="keyCol" />
+        <col class="valueCol" />
+        <tr><td>ID</td><td th:text="${assertion.id}"></td></tr>
+        <tr><td>Title</td><td th:text="${assertion.title}"></td></tr>
+    </table>
+</body>
+</html>

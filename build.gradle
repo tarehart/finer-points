@@ -1,0 +1,47 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+
+buildscript {
+    repositories {
+        maven { url "https://repo.spring.io/libs-release" }
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.1.9.RELEASE")
+    }
+}
+
+jar {
+    baseName = 'node-stand'
+    version =  '0.1.0'
+}
+
+run {
+    jvmArgs = ['-Xdebug', '-Xrunjdwp:server=y,transport=dt_socket,address=5005,suspend=n']
+}
+
+bootRun {
+    jvmArgs = ['-Xdebug', '-Xrunjdwp:server=y,transport=dt_socket,address=5005,suspend=n']
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://repo.spring.io/libs-release" }
+    maven { url "http://m2.neo4j.org" }
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+    compile("org.springframework:spring-context")
+    compile("org.springframework:spring-tx")
+    compile("org.springframework.data:spring-data-neo4j")
+    compile("org.springframework:spring-webmvc")
+    testCompile("junit:junit")
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.11'
+}
