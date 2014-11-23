@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Node List</title>
+    <style type="text/css">
+
+        table {
+            border-collapse: collapse;
+            border: solid 3px #808080;
+            -webkit-box-shadow: 3px 3px 6px #dedede;
+            -moz-box-shadow: 3px 3px 6px #dedede;
+            box-shadow: 3px 3px 6px #dedede;
+        }
+
+        table td {
+            padding: 3px;
+            padding-right: 10px;
+            border-right: solid 1px gray;
+        }
+    </style>
+</head>
+<body>
+    <p>Displaying all nodes.</p>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Type</th>
+        </tr>
+        <tr th:each="node : ${nodes}">
+            <td><a th:text="${node.id}" th:href="|/graph?rootId=${node.id}|"></a></td>
+            <td th:text="${node.title}"></td>
+            <td th:text="${node.type}"></td>
+        </tr>
+    </table>
+
+    <form action="/generateTestData" method="post">
+        <p>Click to generate test data:</p>
+        <input type="submit" value="Generate test data" />
+    </form>
+</body>
+</html>
