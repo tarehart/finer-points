@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Node List</title>
     <style type="text/css">
@@ -36,6 +36,7 @@
 
     <form action="/generateTestData" method="post">
         <p>Click to generate test data:</p>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="submit" value="Generate test data" />
     </form>
 </body>

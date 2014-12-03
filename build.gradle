@@ -35,6 +35,8 @@ repositories {
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+    compile("org.springframework.boot:spring-boot-starter-security")
+    compile("org.springframework:spring-jdbc") // Possibly unnecessary
     compile("org.springframework:spring-context")
     compile("org.springframework:spring-tx")
     compile("org.springframework.data:spring-data-neo4j")

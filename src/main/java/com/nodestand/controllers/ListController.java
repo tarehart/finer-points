@@ -1,6 +1,8 @@
 package com.nodestand.controllers;
 
 import com.nodestand.nodes.*;
+import com.nodestand.nodes.ArgumentNodeRepository;
+import com.nodestand.service.DatabasePopulator;
 import org.neo4j.graphdb.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.Result;
@@ -20,6 +22,9 @@ public class ListController {
 
     @Autowired
     GraphDatabase graphDatabase;
+
+    @Autowired
+    DatabasePopulator populator;
 
     @RequestMapping("/list")
     public String getGraph(Model model) {
@@ -45,29 +50,31 @@ public class ListController {
     @RequestMapping(value = "/generateTestData", method = RequestMethod.POST)
     public String createTestData(Model model) {
 
-        Assertion tablesHelpful = new Assertion("Tables are helpful for meals.");
+//        Assertion tablesHelpful = new Assertion("Tables are helpful for meals.");
+//
+//        Assertion mealsBenefit = new Assertion("It is easier to eat a meal if you have a flat surface");
+//        Interpretation tablesInterp = new Interpretation("Tables weekly says that tables provide a flat surface");
+//
+//        Source tablesWeekly = new Source("Tables Weekly, vol 32", "http://www.google.com");
+//
+//        try (Transaction tx = graphDatabase.beginTx()) {
+//            repo.save(tablesHelpful);
+//            repo.save(mealsBenefit);
+//            repo.save(tablesInterp);
+//            repo.save(tablesWeekly);
+//
+//            tablesHelpful.supportedBy(tablesInterp);
+//            tablesHelpful.supportedBy(mealsBenefit);
+//
+//            tablesInterp.setSource(tablesWeekly);
+//
+//            repo.save(tablesHelpful);
+//            repo.save(tablesInterp);
+//
+//            tx.success();
+//        }
 
-        Assertion mealsBenefit = new Assertion("It is easier to eat a meal if you have a flat surface");
-        Interpretation tablesInterp = new Interpretation("Tables weekly says that tables provide a flat surface");
-
-        Source tablesWeekly = new Source("Tables Weekly, vol 32", "http://www.google.com");
-
-        try (Transaction tx = graphDatabase.beginTx()) {
-            repo.save(tablesHelpful);
-            repo.save(mealsBenefit);
-            repo.save(tablesInterp);
-            repo.save(tablesWeekly);
-
-            tablesHelpful.supportedBy(tablesInterp);
-            tablesHelpful.supportedBy(mealsBenefit);
-
-            tablesInterp.setSource(tablesWeekly);
-
-            repo.save(tablesHelpful);
-            repo.save(tablesInterp);
-
-            tx.success();
-        }
+        populator.populateDatabase();
 
         return "redirect:list";
     }
