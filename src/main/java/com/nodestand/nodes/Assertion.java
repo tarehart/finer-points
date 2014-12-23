@@ -18,8 +18,8 @@ public class Assertion extends ArgumentNode {
 
     public Assertion() {}
 
-    public Assertion(String title) {
-        super(title);
+    public Assertion(String title, User author) {
+        super(title, author);
     }
 
     @Override

@@ -7,8 +7,8 @@ public class Source extends ArgumentNode {
 
     public Source() {}
 
-    public Source(String title, String url) {
-        super(title);
+    public Source(String title, User author, String url) {
+        super(title, author);
         this.url = url;
     }
 

@@ -13,8 +13,8 @@ public class Interpretation extends ArgumentNode {
 
     public Interpretation() {}
 
-    public Interpretation(String title) {
-        super(title);
+    public Interpretation(String title, User author) {
+        super(title, author);
     }
 
     @Override
