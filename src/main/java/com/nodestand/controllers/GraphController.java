@@ -29,10 +29,6 @@ public class GraphController {
             Map<String, Object> params = new HashMap<>();
             params.put( "id", Integer.parseInt(rootId) );
 
-//            Result<Map<String, Object>> result = graphDatabase.queryEngine().query("start n=node({id}) " +
-//                    "match n-[:SUPPORTED_BY*0..5]->argument-[:AUTHORED_BY*0..]->author " +
-//                    "return argument, author", params);
-
             Result<Map<String, Object>> result = graphDatabase.queryEngine().query("start n=node({id}) " +
                     "match n-[support:SUPPORTED_BY|INTERPRETS*0..5]->argument-[:AUTHORED_BY*1..]->author " +
                     "return {" +
@@ -43,14 +39,16 @@ public class GraphController {
 
 
             List<Map<String, Object>> nodes = new LinkedList<>();
-            Set<long[]> edges = new HashSet<>();
+            Set<List<Long>> edges = new HashSet<>();
             Map<String, Object> everything = new HashMap<>();
 
             for (Map<String, Object> map: result) {
                 nodes.add((Map<String, Object>) map.get("ArgumentNode"));
                 List<RelationshipProxy> rels = (List<RelationshipProxy>) map.get("support");
                 for (RelationshipProxy rel: rels) {
-                    edges.add(new long[] { rel.getStartNode().getId(), rel.getEndNode().getId()});
+                    edges.add(Arrays.asList(
+                            rel.getStartNode().getId(),
+                            rel.getEndNode().getId()));
                 }
             }
 
