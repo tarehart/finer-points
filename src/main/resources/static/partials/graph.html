@@ -1,0 +1,14 @@
+<div>
+    <h4>Nodes</h4>
+    <ul>
+        <li ng-repeat="node in nodes">
+            {{node.id}}: {{node.title}}
+        </li>
+    </ul>
+    <h4>Edges</h4>
+    <ul>
+        <li ng-repeat="edge in edges">
+            {{edge[0]}}, {{edge[1]}}
+        </li>
+    </ul>
+</div>
