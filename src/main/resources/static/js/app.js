@@ -14,6 +14,14 @@ nodeStandApp.config(['$routeProvider',
                 templateUrl: 'partials/graph.html',
                 controller: 'GraphController'
             }).
+            when('/graphDiagnostic/:rootId', {
+                templateUrl: 'partials/graphDiagnostic.html',
+                controller: 'GraphController'
+            }).
+            when('/d/:id', {
+                templateUrl: 'partials/detail.html',
+                controller: 'DetailController'
+            }).
             otherwise({
                 redirectTo: '/graph'
             });

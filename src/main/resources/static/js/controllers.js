@@ -2,27 +2,70 @@
 
 var nodeStandControllers = angular.module('nodeStandControllers', []);
 
-nodeStandControllers.controller('SampleController', ['$scope', function ($scope) {
-    $scope.fruits = [
-        {'name': 'Apple',
-            'snippet': 'Red and juicy'},
-        {'name': 'Orange',
-            'snippet': 'Full of citric acid'},
-        {'name': 'Grape',
-            'snippet': 'Bite-sized'}
-    ];
-
-}]);
+nodeStandControllers.controller('DetailController', ['$scope', '$routeParams', '$http',
+    function ($scope, $routeParams, $http) {
+        $http.get('/detail', {params:{"id": $routeParams.id}}).success(function(data) {
+            $scope.node = data;
+        });
+    }
+]);
 
 
 nodeStandControllers.controller('GraphController', ['$scope', '$routeParams', '$http',
     function ($scope, $routeParams, $http) {
 
-    $http.get('/graph', {params:{"rootId": $routeParams.rootId}}).success(function(data) {
-        $scope.nodes = data.nodes;
-        $scope.edges = data.edges;
-    });
-}]);
+        $http.get('/graph', {params:{"rootId": $routeParams.rootId}}).success(function(data) {
+            var nodes = {};
+            for (var i = 0; i < data.nodes.length; i++) {
+                nodes[data.nodes[i].id] = data.nodes[i];
+            }
+
+            $scope.nodes = nodes;
+            $scope.edges = data.edges;
+
+            Object.keys(nodes).forEach(function(id) {
+                var node = nodes[id];
+                node.children = [];
+                var edges = $scope.edges.filter(function(el) {
+                    return el[0] == node.id;
+                });
+
+                for (var j = 0; j < edges.length; j++) {
+                    node.children.push(nodes[edges[j][1]]);
+                }
+            });
+
+            $scope.rootNodes = [];
+            $scope.rootNodes.push($scope.nodes[$routeParams.rootId]);
+        });
+
+        $scope.addChild = function(node) {
+            var newNode = {};
+            node.children.push(newNode);
+            newNode.title = "Empty";
+            newNode.children = [];
+        };
+
+        $scope.hasChild = function(node) {
+            return node.children && node.children.length;
+        };
+
+        // Selection stuff. I have functions for these even though they could
+        // fit in the html because in html there are a bunch of nested scopes
+        // and access to $scope there is weird.
+        $scope.selectedNode = null;
+
+        $scope.isSelected = function(node) {
+            return $scope.selectedNode === node;
+        }
+
+        $scope.selectNode = function(node) {
+            $scope.selectedNode = node;
+        }
+
+
+    }
+]);
 
 nodeStandControllers.controller('NodeMenuController', ['$scope', '$http',
     function ($scope, $http) {
@@ -30,4 +73,5 @@ nodeStandControllers.controller('NodeMenuController', ['$scope', '$http',
         $http.get('/nodeMenu').success(function(data) {
             $scope.nodes = data;
         });
-    }]);
+    }
+]);

@@ -1,0 +1,28 @@
+<div>
+
+    <h4>Nodes</h4>
+    <ul>
+        <li ng-repeat="node in nodes">
+            {{node.id}}: {{node.title}}
+        </li>
+    </ul>
+    <h4>Edges</h4>
+    <ul>
+        <li ng-repeat="edge in edges">
+            {{edge[0]}}, {{edge[1]}}
+        </li>
+    </ul>
+
+    <script type="text/ng-template"  id="listTree">
+        Title: {{node.title}}
+        <ul>
+            <li ng-repeat="node in node.children" ng-include="'listTree'"></li>
+        </ul>
+    </script>
+
+    <h2>Tree</h2>
+    <ul>
+        <li ng-repeat="node in rootNodes" ng-include="'listTree'"></li>
+    </ul>
+
+</div>

@@ -1,14 +1,128 @@
+<style>
+    @media (min-width: 800px) {
+
+        .nodeDiv, .childrenDiv {
+            position:relative;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .nodeDiv {
+            width: 200px;
+            box-shadow: gray 3px 3px 10px;
+            border: solid 1px lightgray;
+            padding: 5px;
+            margin: 4px 10px;
+            background-color:white;
+            white-space: normal;
+        }
+
+        .childrenDiv {
+            margin-bottom: 15px;
+        }
+
+        .childrenDiv:before, .nodeDiv:after {
+            content: '';
+            width: 40px;
+            background-color: rgb(200, 228, 214);
+            position: absolute;
+            z-index: -1;
+
+        }
+
+        .childrenDiv:before {
+            top: 10px;
+            bottom: 4px;
+            left: -20px;
+            border-bottom-left-radius: 15px;
+            width: 120px;
+
+            background: -moz-linear-gradient(left,  rgba(200,228,214,1) 0%, rgba(200,228,214,1) 23%, rgba(188,229,183,0) 100%); /* FF3.6+ */
+            background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(200,228,214,1)), color-stop(23%,rgba(200,228,214,1)), color-stop(100%,rgba(188,229,183,0))); /* Chrome,Safari4+ */
+            background: -webkit-linear-gradient(left,  rgba(200,228,214,1) 0%,rgba(200,228,214,1) 23%,rgba(188,229,183,0) 100%); /* Chrome10+,Safari5.1+ */
+            background: -o-linear-gradient(left,  rgba(200,228,214,1) 0%,rgba(200,228,214,1) 23%,rgba(188,229,183,0) 100%); /* Opera 11.10+ */
+            background: -ms-linear-gradient(left,  rgba(200,228,214,1) 0%,rgba(200,228,214,1) 23%,rgba(188,229,183,0) 100%); /* IE10+ */
+            background: linear-gradient(to right,  rgba(200,228,214,1) 0%,rgba(200,228,214,1) 23%,rgba(188,229,183,0) 100%); /* W3C */
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bce5b7', endColorstr='#00bce5b7',GradientType=1 ); /* IE6-9 */
+
+        }
+
+        .nodeDiv:after {
+            top: 0;
+            bottom: 0;
+            right: -31px;
+            border-bottom-right-radius: 15px;
+            width: 40px;
+        }
+
+        .noWrap {
+            white-space: nowrap;
+        }
+
+    }
+
+    @media (max-width: 800px) {
+        .childrenDiv {
+            margin-left: 15px;
+            position: relative;
+        }
+
+        .nodeDiv {
+            background-color:white;
+            border: solid 1px gray;
+            padding: 5px;
+            margin: 5px;
+        }
+
+        .childrenDiv:before {
+            content: "";
+            position: absolute;
+            top: -10px;
+            bottom: 1px;
+            left: -10px;
+            width: 10px;
+            z-index: -1;
+
+            background: -moz-linear-gradient(left,  rgba(200,228,214,1) 0%, rgba(200,228,214,1) 23%, rgba(188,229,183,0) 100%); /* FF3.6+ */
+            background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(200,228,214,1)), color-stop(23%,rgba(200,228,214,1)), color-stop(100%,rgba(188,229,183,0))); /* Chrome,Safari4+ */
+            background: -webkit-linear-gradient(left,  rgba(200,228,214,1) 0%,rgba(200,228,214,1) 23%,rgba(188,229,183,0) 100%); /* Chrome10+,Safari5.1+ */
+            background: -o-linear-gradient(left,  rgba(200,228,214,1) 0%,rgba(200,228,214,1) 23%,rgba(188,229,183,0) 100%); /* Opera 11.10+ */
+            background: -ms-linear-gradient(left,  rgba(200,228,214,1) 0%,rgba(200,228,214,1) 23%,rgba(188,229,183,0) 100%); /* IE10+ */
+            background: linear-gradient(to right,  rgba(200,228,214,1) 0%,rgba(200,228,214,1) 23%,rgba(188,229,183,0) 100%); /* W3C */
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bce5b7', endColorstr='#00bce5b7',GradientType=1 ); /* IE6-9 */
+
+        }
+
+    }
+
+    .selected {
+        background-color:yellow;
+    }
+</style>
+
 <div>
-    <h4>Nodes</h4>
-    <ul>
-        <li ng-repeat="node in nodes">
-            {{node.id}}: {{node.title}}
-        </li>
-    </ul>
-    <h4>Edges</h4>
-    <ul>
-        <li ng-repeat="edge in edges">
-            {{edge[0]}}, {{edge[1]}}
-        </li>
-    </ul>
+
+    <script type="text/ng-template" id="floatTree">
+        <div class="noWrap">
+            <div ng-click="selectNode(node)" ng-class="{nodeDiv:true,selected:isSelected(node)}">
+                <span>{{node.title}}</span>
+                <div ng-if="isSelected(node)">
+                    <a href="#/d/{{node.id}}">Detail</a>
+                    <button ng-click="addChild(node)">Add child</button>
+                </div>
+
+            </div>
+            <div class="childrenDiv" ng-if="hasChild(node)">
+                <div ng-repeat="node in node.children" ng-include="'floatTree'"></div>
+            </div>
+        </div>
+    </script>
+
+    <div ng-repeat="node in rootNodes" ng-include="'floatTree'"></div>
+
+    <p>
+        <a href="#/graphDiagnostic/{{rootNodes[0].id}}">Debug info</a>
+    </p>
+
+
 </div>
