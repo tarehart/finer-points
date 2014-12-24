@@ -1,7 +1,7 @@
 <style>
     @media (min-width: 800px) {
 
-        .childrenDiv, .nodeAndControls {
+        .childrenDiv, .nodeDiv {
             position:relative;
             display: inline-block;
             vertical-align: top;
@@ -48,8 +48,8 @@
         }
 
         .nodeDiv:after {
-            top: 5px;
-            bottom: 3px;
+            top: 2px;
+            bottom: 0px;
             right: -31px;
             border-bottom-right-radius: 15px;
             width: 40px;
@@ -95,8 +95,9 @@
 
         .toggleChildren {
             position: absolute;
-            top: 10px;
-            right: -20px;
+            top: 0;
+            right: -27px;
+            z-index: 2;
         }
 
     }
@@ -147,23 +148,38 @@
     .toggleChildren {
         display: inline-block;
     }
+
+    .nodeDiv .btn {
+        padding: 3px;
+        border-radius: 20px;
+        width: 30px;
+        height: 30px;
+        text-align:center;
+        background: none;
+    }
 </style>
 
 <div>
 
     <script type="text/ng-template" id="floatTree">
         <div class="noWrap">
-            <div class="nodeAndControls">
-                <div ng-click="toggleSelect(node); $event.stopPropagation();" ng-class="{nodeDiv:true,selected:isSelected(node)}">
-                    <div class="toggleChildren" ng-if="hasChild(node)">
-                        <button ng-click="toggleChildren(node); $event.stopPropagation();">Tgl</button>
-                    </div>
-                    <div class="nodeContent">
-                        <span>{{node.title}}</span>
-                        <div ng-if="isSelected(node)">
-                            <a href="#/d/{{node.id}}">Detail</a>
-                            <button ng-click="addChild(node); $event.stopPropagation();">Add child</button>
-                        </div>
+            <div ng-click="toggleSelect(node); $event.stopPropagation();" ng-class="{nodeDiv:true,selected:isSelected(node)}">
+                <div class="toggleChildren" ng-if="hasChild(node)">
+
+                    <button class="btn" ng-click="toggleChildren(node); $event.stopPropagation();">
+                        <span ng-if="node.hideChildren">
+                            <i class="fa fa-lg fa-plus-circle"></i>
+                        </span>
+                        <span ng-if="!node.hideChildren">
+                            <i class="fa fa-lg fa-minus-circle"></i>
+                        </span>
+                    </button>
+                </div>
+                <div class="nodeContent">
+                    <span>{{node.title}}</span>
+                    <div ng-if="isSelected(node)">
+                        <a href="#/d/{{node.id}}">Detail</a>
+                        <button ng-click="addChild(node); $event.stopPropagation();">Add child</button>
                     </div>
                 </div>
             </div>
