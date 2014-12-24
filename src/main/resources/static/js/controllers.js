@@ -44,6 +44,7 @@ nodeStandControllers.controller('GraphController', ['$scope', '$routeParams', '$
             node.children.push(newNode);
             newNode.title = "Empty";
             newNode.children = [];
+            return false;
         };
 
         $scope.hasChild = function(node) {
@@ -53,14 +54,17 @@ nodeStandControllers.controller('GraphController', ['$scope', '$routeParams', '$
         // Selection stuff. I have functions for these even though they could
         // fit in the html because in html there are a bunch of nested scopes
         // and access to $scope there is weird.
-        $scope.selectedNode = null;
 
         $scope.isSelected = function(node) {
-            return $scope.selectedNode === node;
+            return node.isSelected;
         }
 
-        $scope.selectNode = function(node) {
-            $scope.selectedNode = node;
+        $scope.toggleSelect = function(node) {
+            node.isSelected = !node.isSelected;
+        }
+
+        $scope.toggleChildren = function(node) {
+            node.hideChildren = !node.hideChildren;
         }
 
 

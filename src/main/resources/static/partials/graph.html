@@ -1,7 +1,7 @@
 <style>
     @media (min-width: 800px) {
 
-        .nodeDiv, .childrenDiv {
+        .childrenDiv, .nodeAndControls {
             position:relative;
             display: inline-block;
             vertical-align: top;
@@ -48,8 +48,8 @@
         }
 
         .nodeDiv:after {
-            top: 0;
-            bottom: 0;
+            top: 5px;
+            bottom: 3px;
             right: -31px;
             border-bottom-right-radius: 15px;
             width: 40px;
@@ -57,6 +57,46 @@
 
         .noWrap {
             white-space: nowrap;
+        }
+
+        .selected.nodeDiv {
+            -webkit-animation: upsize 100ms forwards;
+            animation: upsize 100ms forwards;
+            min-height: 100px;
+            width: 380px;
+        }
+
+        .selected.nodeDiv .nodeContent {
+            -webkit-animation: fadein 200ms forwards linear;
+            animation: fadein 200ms forwards linear;
+        }
+
+        @-webkit-keyframes upsize {
+            from {min-height: 50px; width: 200px;}
+            to {min-height: 100px; width: 380px;}
+        }
+
+        @keyframes upsize {
+            from {min-height: 50px; width: 200px;}
+            to {min-height: 100px; width: 380px;}
+        }
+
+        @-webkit-keyframes fadein {
+            0% {opacity: 0}
+            50% {opacity: 0}
+            100% {opacity: 1}
+        }
+
+        @keyframes fadein {
+            0% {opacity: 0}
+            50% {opacity: 0}
+            100% {opacity: 1}
+        }
+
+        .toggleChildren {
+            position: absolute;
+            top: 10px;
+            right: -20px;
         }
 
     }
@@ -69,9 +109,10 @@
 
         .nodeDiv {
             background-color:white;
-            border: solid 1px gray;
+            border: solid 1px lightgray;
             padding: 5px;
-            margin: 5px;
+            margin-bottom: 5px;
+            box-shadow: 3px 3px 5px gray;
         }
 
         .childrenDiv:before {
@@ -93,10 +134,18 @@
 
         }
 
+        .nodeContent {
+            display: inline-block;
+        }
+
     }
 
     .selected {
-        background-color:yellow;
+        background-color: #ecffc4;
+    }
+
+    .toggleChildren {
+        display: inline-block;
     }
 </style>
 
@@ -104,15 +153,21 @@
 
     <script type="text/ng-template" id="floatTree">
         <div class="noWrap">
-            <div ng-click="selectNode(node)" ng-class="{nodeDiv:true,selected:isSelected(node)}">
-                <span>{{node.title}}</span>
-                <div ng-if="isSelected(node)">
-                    <a href="#/d/{{node.id}}">Detail</a>
-                    <button ng-click="addChild(node)">Add child</button>
+            <div class="nodeAndControls">
+                <div ng-click="toggleSelect(node); $event.stopPropagation();" ng-class="{nodeDiv:true,selected:isSelected(node)}">
+                    <div class="toggleChildren" ng-if="hasChild(node)">
+                        <button ng-click="toggleChildren(node); $event.stopPropagation();">Tgl</button>
+                    </div>
+                    <div class="nodeContent">
+                        <span>{{node.title}}</span>
+                        <div ng-if="isSelected(node)">
+                            <a href="#/d/{{node.id}}">Detail</a>
+                            <button ng-click="addChild(node); $event.stopPropagation();">Add child</button>
+                        </div>
+                    </div>
                 </div>
-
             </div>
-            <div class="childrenDiv" ng-if="hasChild(node)">
+            <div class="childrenDiv" ng-if="hasChild(node) && !node.hideChildren">
                 <div ng-repeat="node in node.children" ng-include="'floatTree'"></div>
             </div>
         </div>
