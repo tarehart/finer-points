@@ -27,8 +27,37 @@ public class DetailController {
     @RequestMapping("/detail")
     public Object getGraph(@RequestParam(value="id", required=true) String id) {
 
-        ArgumentNode node = repo.findOne(Long.parseLong(id));
-        return node;
+        Map<String, Object> params = new HashMap<>();
+        params.put( "id", Long.parseLong(id) );
+
+        Result<Map<String, Object>> result = graphDatabase.queryEngine().query("start n=node({id}) " +
+                "match n<-[resp:RESPONDS_TO*0..5]-commentable-[:AUTHORED_BY*1..]->author " +
+                "return {" +
+                "id: id(commentable), " +
+                "body: commentable.body, " +
+                "author: author.name" +
+                "} as Commentable, resp", params);
+
+        List<Map<String, Object>> nodes = new LinkedList<>();
+        Set<List<Long>> edges = new HashSet<>();
+        Map<String, Object> everything = new HashMap<>();
+
+        for (Map<String, Object> map: result) {
+            nodes.add((Map<String, Object>) map.get("Commentable"));
+            List<RelationshipProxy> rels = (List<RelationshipProxy>) map.get("resp");
+            for (RelationshipProxy rel: rels) {
+                edges.add(Arrays.asList(
+                        rel.getStartNode().getId(),
+                        rel.getEndNode().getId()));
+            }
+        }
+
+        everything.put("nodes", nodes);
+        everything.put("edges", edges);
+
+
+
+        return everything;
 
     }
 

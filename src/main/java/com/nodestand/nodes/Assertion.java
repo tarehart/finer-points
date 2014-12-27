@@ -16,10 +16,14 @@ public class Assertion extends ArgumentNode {
     @RelatedTo(type="SUPPORTED_BY", direction = Direction.OUTGOING)
     Set<ArgumentNode> supportingNodes;
 
+    String body;
+
     public Assertion() {}
 
-    public Assertion(String title, User author) {
+    public Assertion(String title, String body, User author) {
         super(title, author);
+
+        this.body = body;
     }
 
     @Override

@@ -102,7 +102,7 @@
 
     }
 
-    @media (max-width: 800px) {
+    @media (max-width: 799px) {
         .childrenDiv {
             margin-left: 15px;
             position: relative;
@@ -157,9 +157,47 @@
         text-align:center;
         background: none;
     }
+
+    .subCommentsContainer {
+        margin-left: 15px;
+    }
+
+    .commentDiv {
+
+        border-left: solid 1px;
+        border-bottom: solid 1px;
+        padding: 3px;
+    }
+
+    .nodeDiv .commentDiv .btn {
+        width: 18px;
+        height: 18px;
+    }
+
 </style>
 
 <div>
+
+    <script type="text/ng-template" id="commentTree">
+        <div class="commentDiv">
+            <span ng-if="hasComment(comment)">
+
+                <button class="btn" ng-click="toggleComments(comment); $event.stopPropagation();">
+                    <span ng-if="comment.hideComments">
+                        <i class="fa fa-plus-circle"></i>
+                    </span>
+                    <span ng-if="!comment.hideComments">
+                        <i class="fa fa-minus-circle"></i>
+                    </span>
+                </button>
+            </span>
+            <span>{{comment.body}}</span>
+
+        </div>
+        <div class="subCommentsContainer" ng-if="hasComment(comment) && !comment.hideComments">
+            <div ng-repeat="comment in comment.comments" ng-include="'commentTree'"></div>
+        </div>
+    </script>
 
     <script type="text/ng-template" id="floatTree">
         <div class="noWrap">
@@ -175,11 +213,16 @@
                         </span>
                     </button>
                 </div>
+                <span>{{node.title}}</span>
                 <div class="nodeContent">
-                    <span>{{node.title}}</span>
                     <div ng-if="isSelected(node)">
                         <a href="#/d/{{node.id}}">Detail</a>
                         <button ng-click="addChild(node); $event.stopPropagation();">Add child</button>
+                        <p>{{node.body}}</p>
+                        <div class="commentSection" ng-if="hasComment(node)">
+                            <span style="font-weight:bold">Comments</span>
+                            <div ng-repeat="comment in node.comments" ng-include="'commentTree'"></div>
+                        </div>
                     </div>
                 </div>
             </div>

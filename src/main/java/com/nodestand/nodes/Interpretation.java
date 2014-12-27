@@ -11,10 +11,14 @@ public class Interpretation extends ArgumentNode {
     @RelatedTo(type="INTERPRETS", direction = Direction.OUTGOING)
     Source source;
 
+    String body;
+
     public Interpretation() {}
 
-    public Interpretation(String title, User author) {
+    public Interpretation(String title, String body, User author) {
         super(title, author);
+
+        this.body = body;
     }
 
     @Override

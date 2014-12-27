@@ -35,22 +35,22 @@ public class DatabasePopulator {
         User me = userRepository.save(new User("tarehart", "Tyler", "pw", passwordService, User.Roles.ROLE_ADMIN, User.Roles.ROLE_USER));
         User charles = udService.register("charles", "Charles", "pw"); // register automatically makes it a non-admin
 
-        //User charles = new User("charles", "Charles", "password",User.Roles.ROLE_USER);
-        //userRepository.save(me);
-        //userRepository.save(charles);
-
-        Assertion tablesHelpful = new Assertion("Tables are helpful for meals.", me);
-
-        Assertion mealsBenefit = new Assertion("It is easier to eat a meal if you have a flat surface", me);
-        Interpretation tablesInterp = new Interpretation("Tables weekly says that tables provide a flat surface", charles);
+        Assertion mealsBenefit = new Assertion("It is easier to eat a meal if you have a flat surface",
+                "Meals are easier to eat if you have a flat surface because your sandwich won't roll around.", me);
+        Interpretation tablesInterp = new Interpretation("Tables provide a flat surface",
+                "Tables Weekly suggests that tables provide a flat surface based on my reading of the third paragraph.", charles);
 
         Source tablesWeekly = new Source("Tables Weekly, vol 32", charles, "http://www.google.com");
 
-
-        argumentRepository.save(tablesHelpful);
         argumentRepository.save(mealsBenefit);
         argumentRepository.save(tablesInterp);
         argumentRepository.save(tablesWeekly);
+
+        Assertion tablesHelpful = new Assertion("Tables are helpful for meals.",
+                "Tables help with meals because {{[" + tablesInterp.getId() +
+                        "]They provide a flat surface}} which is {{[" + mealsBenefit.getId() + "]helpful}}.", me);
+
+        argumentRepository.save(tablesHelpful);
 
         tablesHelpful.supportedBy(tablesInterp);
         tablesHelpful.supportedBy(mealsBenefit);

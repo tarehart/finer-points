@@ -22,7 +22,7 @@ public class Comment implements Commentable {
     @RelatedTo(type="UPVOTED_BY", direction = Direction.OUTGOING)
     public HashSet<User> upVoters;
 
-    public String content;
+    public String body;
 
     public Comment() {}
 
@@ -35,10 +35,10 @@ public class Comment implements Commentable {
     }
 
 
-    public Comment(Commentable parent, User author, String content) {
+    public Comment(Commentable parent, User author, String body) {
         this.parent = parent;
         this.author = author;
-        this.content = content;
+        this.body = body;
     }
 
 }
