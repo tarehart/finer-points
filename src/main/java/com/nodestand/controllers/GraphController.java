@@ -34,7 +34,8 @@ public class GraphController {
                     "return {" +
                         "id: id(argument), " +
                         "title: body.title, " +
-                        "author: author.name" +
+                        "author: author.name, " +
+                        "labels: labels(argument)" +
                     "} as ArgumentNode, support", params);
 
 

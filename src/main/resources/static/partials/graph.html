@@ -201,7 +201,7 @@
 
     <script type="text/ng-template" id="floatTree">
         <div class="noWrap">
-            <div ng-click="toggleSelect(node); $event.stopPropagation();" ng-class="{nodeDiv:true,selected:isSelected(node)}">
+            <div ng-click="toggleSelect(node); $event.stopPropagation();" ng-class="[{selected:isSelected(node)}, 'nodeDiv'].concat(node.labels)">
                 <div class="toggleChildren" ng-if="hasChild(node)">
 
                     <button class="btn" ng-click="toggleChildren(node); $event.stopPropagation();">
