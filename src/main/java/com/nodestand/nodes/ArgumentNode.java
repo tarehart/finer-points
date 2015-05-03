@@ -1,26 +1,50 @@
 package com.nodestand.nodes;
 
+import com.nodestand.nodes.assertion.AssertionBody;
+import com.nodestand.version.Build;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import java.util.Set;
+
 @NodeEntity
-public abstract class ArgumentNode implements Commentable {
+public abstract class ArgumentNode {
 
     @GraphId
     protected Long id;
-    public String title;
 
-    @RelatedTo(type="AUTHORED_BY", direction = Direction.OUTGOING)
-    public User author;
+    protected int buildVersion;
+
+    @RelatedTo(type="BUILT_BY", direction = Direction.OUTGOING)
+    protected Build build;
+
+    @RelatedTo(type="DEFINED_BY", direction = Direction.OUTGOING)
+    protected ArgumentBody body;
 
     public ArgumentNode() {}
 
-    public ArgumentNode(String title, User author) {
-        this.title = title;
-        this.author = author;
+    public ArgumentNode(ArgumentBody body, Build build) {
+        this.body = body;
+        this.build = build;
+    }
+
+    public ArgumentBody getBody() {
+        return body;
+    }
+
+    public Build getBuild() {
+        return build;
+    }
+
+    public void setVersion(int buildVersion) {
+        this.buildVersion = buildVersion;
+    }
+
+    public String getVersion() {
+        return body.getMajorVersion() + "." + body.getMinorVersion() + "." + buildVersion;
     }
 
     public Long getId() {

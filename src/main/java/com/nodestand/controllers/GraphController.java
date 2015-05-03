@@ -30,10 +30,10 @@ public class GraphController {
             params.put( "id", Integer.parseInt(rootId) );
 
             Result<Map<String, Object>> result = graphDatabase.queryEngine().query("start n=node({id}) " +
-                    "match n-[support:SUPPORTED_BY|INTERPRETS*0..5]->argument-[:AUTHORED_BY*1..]->author " +
+                    "match n-[support:SUPPORTED_BY|INTERPRETS*0..5]->(argument:ArgumentNode)-[:DEFINED_BY]->(body:ArgumentBody)-[:AUTHORED_BY]->(author:User) " +
                     "return {" +
                         "id: id(argument), " +
-                        "title: argument.title, " +
+                        "title: body.title, " +
                         "author: author.name" +
                     "} as ArgumentNode, support", params);
 

@@ -31,7 +31,7 @@
         <tr th:each="node : ${nodes}">
             <td><a th:text="${node.id}" th:href="|/graph?rootId=${node.id}|"></a></td>
             <td th:text="${node.title}"></td>
-            <td th:text="${node.type}"></td>
+            <td th:text="${node.labels}"></td>
             <td th:text="${node.author.name}"></td>
         </tr>
     </table>

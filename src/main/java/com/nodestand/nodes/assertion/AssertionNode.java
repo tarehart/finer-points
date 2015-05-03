@@ -1,5 +1,8 @@
-package com.nodestand.nodes;
+package com.nodestand.nodes.assertion;
 
+import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.source.SourceNode;
+import com.nodestand.version.Build;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
@@ -9,21 +12,17 @@ import java.util.Set;
 
 
 @NodeEntity
-public class Assertion extends ArgumentNode {
+public class AssertionNode extends ArgumentNode {
 
     private static final String TYPE = "assertion";
 
     @RelatedTo(type="SUPPORTED_BY", direction = Direction.OUTGOING)
     Set<ArgumentNode> supportingNodes;
 
-    String body;
+    public AssertionNode() {}
 
-    public Assertion() {}
-
-    public Assertion(String title, String body, User author) {
-        super(title, author);
-
-        this.body = body;
+    public AssertionNode(AssertionBody body, Build build) {
+        super(body, build);
     }
 
     @Override
@@ -33,7 +32,7 @@ public class Assertion extends ArgumentNode {
 
     public void supportedBy(ArgumentNode a) {
 
-        assert !(a instanceof Source);
+        assert !(a instanceof SourceNode);
 
         if (supportingNodes == null) {
             supportingNodes = new HashSet<>();
