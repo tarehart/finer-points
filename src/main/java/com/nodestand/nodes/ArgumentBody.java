@@ -1,5 +1,6 @@
 package com.nodestand.nodes;
 
+import com.nodestand.nodes.comment.Commentable;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.NodeEntity;

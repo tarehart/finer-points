@@ -3,6 +3,8 @@ package com.nodestand.service;
 import com.nodestand.nodes.*;
 import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.assertion.AssertionNode;
+import com.nodestand.nodes.comment.Comment;
+import com.nodestand.nodes.comment.CommentRepository;
 import com.nodestand.nodes.interpretation.InterpretationBody;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.source.SourceBody;
@@ -28,7 +30,8 @@ public class DatabasePopulator {
 
     @Autowired ArgumentNodeRepository argumentRepository;
 
-    @Autowired CommentRepository commentRepository;
+    @Autowired
+    CommentRepository commentRepository;
 
     private final static Logger log = LoggerFactory.getLogger(DatabasePopulator.class);
 

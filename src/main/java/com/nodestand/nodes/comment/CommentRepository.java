@@ -1,4 +1,4 @@
-package com.nodestand.nodes;
+package com.nodestand.nodes.comment;
 
 import org.springframework.data.neo4j.repository.GraphRepository;
 
