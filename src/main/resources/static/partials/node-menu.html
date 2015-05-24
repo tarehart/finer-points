@@ -1,31 +1,19 @@
-
-<style type="text/css">
-
-    table {
-        border-collapse: collapse;
-        border: solid 3px #808080;
-        -webkit-box-shadow: 3px 3px 6px #dedede;
-        -moz-box-shadow: 3px 3px 6px #dedede;
-        box-shadow: 3px 3px 6px #dedede;
-    }
-
-    table td {
-        padding: 3px;
-        padding-right: 10px;
-        border-right: solid 1px gray;
-    }
-</style>
-
 <p>Displaying all nodes.</p>
-<table>
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Author</th>
-    </tr>
-    <tr ng-repeat="node in nodes">
-        <td><a href="#/graph/{{node.id}}">{{node.id}}</a></td>
-        <td>{{node.title}}</td>
-        <td>{{node.author.login}}</td>
-    </tr>
-</table>
+<div class="panel panel-default">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Author</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="node in nodes">
+                <td><a href="#/graph/{{node.id}}">{{node.id}}</a></td>
+                <td>{{node.title}}</td>
+                <td>{{node.author}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

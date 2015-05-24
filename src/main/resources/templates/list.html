@@ -25,14 +25,14 @@
         <tr>
             <th>ID</th>
             <th>Name</th>
-            <th>Type</th>
+            <th>Labels</th>
             <th>Author</th>
         </tr>
         <tr th:each="node : ${nodes}">
             <td><a th:text="${node.id}" th:href="|/graph?rootId=${node.id}|"></a></td>
             <td th:text="${node.title}"></td>
             <td th:text="${node.labels}"></td>
-            <td th:text="${node.author.name}"></td>
+            <td th:text="${node.author}"></td>
         </tr>
     </table>
 

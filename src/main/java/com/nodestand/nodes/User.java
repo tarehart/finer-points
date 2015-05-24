@@ -1,51 +1,44 @@
 package com.nodestand.nodes;
 
-import com.nodestand.service.PasswordEncoderService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.annotation.*;
+import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.Indexed;
+import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.security.core.GrantedAuthority;
 
 @NodeEntity
 public class User {
     @GraphId Long nodeId;
 
-    @Indexed(unique = true)
-    String login;
+    @Indexed
+    String displayName;
 
-    String name;
-    String password;
+    @Indexed(unique = true)
+    String socialId;
+
     String info;
     private Roles[] roles;
+
 
     public User() {
     }
 
-    public User(String login, String name, String password, PasswordEncoderService passwordService, Roles... roles) {
-        this.login = login;
-        this.name = name;
-        this.password = passwordService.encodePassword(password);
+    public User(String socialId, String displayName, Roles... roles) {
         this.roles = roles;
+        this.displayName = displayName;
+        this.socialId = socialId;
     }
 
     @Override
     public String toString() {
-        return String.format("%s (%s)", name, login);
-    }
-
-    public String getName() {
-        return name;
+        return String.format("%s (%s)", displayName, socialId);
     }
 
     public Roles[] getRole() {
         return roles;
     }
 
-    public String getLogin() {
-        return login;
-    }
-
-    public String getPassword() {
-        return password;
+    public String getDisplayName() {
+        return displayName;
     }
 
     public String getInfo() {
@@ -55,14 +48,8 @@ public class User {
         this.info = info;
     }
 
-    public void updatePassword(String old, String newPass1, String newPass2, PasswordEncoderService passwordService) {
-        if (!password.equals(passwordService.encodePassword(old))) throw new IllegalArgumentException("Existing Password invalid");
-        if (!newPass1.equals(newPass2)) throw new IllegalArgumentException("New Passwords don't match");
-        this.password = passwordService.encodePassword(newPass1);
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public String getSocialId() {
+        return socialId;
     }
 
     public enum Roles implements GrantedAuthority {
@@ -85,7 +72,7 @@ public class User {
 
     }
 
-    public Long getId() {
+    public Long getNodeId() {
         return nodeId;
     }
 

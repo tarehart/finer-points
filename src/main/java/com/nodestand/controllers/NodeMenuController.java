@@ -1,5 +1,6 @@
 package com.nodestand.controllers;
 
+import com.nodestand.dao.NodeListDao;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.ArgumentNodeRepository;
 import org.neo4j.graphdb.Transaction;
@@ -12,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.w3c.dom.NodeList;
 
 import java.util.*;
 
@@ -26,14 +28,9 @@ public class NodeMenuController {
 
     @Transactional
     @RequestMapping("/nodeMenu")
-    public List<ArgumentNode> getNodeMenu() {
+    public List<Object> getNodeMenu() {
 
-            Result<ArgumentNode> result = repo.findAll();
-
-            List<ArgumentNode> list = new LinkedList<>();
-            for (ArgumentNode an: result) {
-                list.add(an);
-            }
+            List<Object> list = NodeListDao.getAllNodes(graphDatabase);
 
             return list;
     }

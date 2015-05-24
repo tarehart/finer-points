@@ -1,14 +1,10 @@
 package com.nodestand.nodes;
 
-import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.version.Build;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
-import org.springframework.web.bind.annotation.ModelAttribute;
-
-import java.util.Set;
 
 @NodeEntity
 public abstract class ArgumentNode {

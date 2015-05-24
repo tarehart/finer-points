@@ -1,7 +1,6 @@
 package com.nodestand.nodes.source;
 
 import com.nodestand.nodes.ArgumentBody;
-import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.User;
 
 public class SourceBody extends ArgumentBody {

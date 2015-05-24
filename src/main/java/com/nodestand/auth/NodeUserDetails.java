@@ -1,8 +1,7 @@
-package com.nodestand.service;
+package com.nodestand.auth;
 
 import com.nodestand.nodes.User;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,12 +27,12 @@ public class NodeUserDetails implements org.springframework.security.core.userde
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return user.getSocialId();
     }
 
     @Override
     public String getUsername() {
-        return user.getLogin();
+        return user.getDisplayName();
     }
 
     @Override

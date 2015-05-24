@@ -1,6 +1,8 @@
 package com.nodestand.service;
 
-import com.nodestand.nodes.*;
+import com.nodestand.nodes.ArgumentNodeRepository;
+import com.nodestand.nodes.User;
+import com.nodestand.nodes.UserRepository;
 import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.comment.Comment;
@@ -25,9 +27,6 @@ public class DatabasePopulator {
     @Autowired
     NodeUserDetailsService udService;
 
-    @Autowired
-    PasswordEncoderService passwordService;
-
     @Autowired ArgumentNodeRepository argumentRepository;
 
     @Autowired
@@ -37,8 +36,8 @@ public class DatabasePopulator {
 
     @Transactional
     public void populateDatabase() {
-        User me = userRepository.save(new User("tarehart", "Tyler", "pw", passwordService, User.Roles.ROLE_ADMIN, User.Roles.ROLE_USER));
-        User charles = udService.register("charles", "Charles", "pw"); // register automatically makes it a non-admin
+        User me = userRepository.save(new User("116023433898470559862", "Tyler", User.Roles.ROLE_ADMIN, User.Roles.ROLE_USER));
+        User charles = udService.register("charles-social-id", "Charles").getUser(); // register automatically makes it a non-admin
 
         Build build = new Build();
         build.author = me;
