@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org" ng-app="nodeStandApp">
 <head>
-    <title>Thought Pasta</title>
+    <title>Roots Apparent</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
@@ -23,15 +23,12 @@
 
         <div th:replace="navbar :: main"></div>
 
-        <h1>Thought Pasta</h1>
+        <div data-ng-view=""></div>
 
         <h3>Debug Links</h3>
         <ul>
             <li><a th:href="@{/list}">List / generate test data</a></li>
         </ul>
-
-        <h3>AngularJS Container</h3>
-        <div data-ng-view=""></div>
 
     </div>
 </body>
