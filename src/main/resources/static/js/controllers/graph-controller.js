@@ -1,20 +1,13 @@
-'use strict';
+(function() {
+    'use strict';
 
-var nodeStandControllers = angular.module('nodeStandControllers', []);
+    angular
+        .module('nodeStandControllers')
+        .controller('GraphController', ['$scope', '$routeParams', '$http', GraphController]);
 
-nodeStandControllers.controller('DetailController', ['$scope', '$routeParams', '$http',
-    function ($scope, $routeParams, $http) {
-        $http.get('/detail', {params:{"id": $routeParams.id}}).success(function(data) {
-            $scope.node = data;
-        });
-    }
-]);
+    function GraphController($scope, $routeParams, $http) {
 
-
-nodeStandControllers.controller('GraphController', ['$scope', '$routeParams', '$http',
-    function ($scope, $routeParams, $http) {
-
-        $http.get('/graph', {params:{"rootId": $routeParams.rootId}}).success(function(data) {
+        $http.get('/graph', {params: {"rootId": $routeParams.rootId}}).success(function (data) {
             var nodes = {};
             for (var i = 0; i < data.nodes.length; i++) {
                 nodes[data.nodes[i].id] = data.nodes[i];
@@ -23,10 +16,10 @@ nodeStandControllers.controller('GraphController', ['$scope', '$routeParams', '$
             $scope.nodes = nodes;
             $scope.edges = data.edges;
 
-            Object.keys(nodes).forEach(function(id) {
+            Object.keys(nodes).forEach(function (id) {
                 var node = nodes[id];
                 node.children = [];
-                var edges = $scope.edges.filter(function(el) {
+                var edges = $scope.edges.filter(function (el) {
                     return el[0] == node.id;
                 });
 
@@ -39,7 +32,7 @@ nodeStandControllers.controller('GraphController', ['$scope', '$routeParams', '$
             $scope.rootNodes.push($scope.nodes[$routeParams.rootId]);
         });
 
-        $scope.addChild = function(node) {
+        $scope.addChild = function (node) {
             var newNode = {};
             node.children.push(newNode);
             newNode.title = "Empty";
@@ -47,7 +40,7 @@ nodeStandControllers.controller('GraphController', ['$scope', '$routeParams', '$
             return false;
         };
 
-        $scope.hasChild = function(node) {
+        $scope.hasChild = function (node) {
             return node.children && node.children.length;
         };
 
@@ -55,28 +48,27 @@ nodeStandControllers.controller('GraphController', ['$scope', '$routeParams', '$
         // fit in the html because in html there are a bunch of nested scopes
         // and access to $scope there is weird.
 
-        $scope.isSelected = function(node) {
+        $scope.isSelected = function (node) {
             return node.isSelected;
         }
 
-        $scope.toggleSelect = function(node) {
+        $scope.toggleSelect = function (node) {
             node.isSelected = !node.isSelected;
             if (node.isSelected) {
                 ensureDetail(node);
             }
         }
 
-        $scope.toggleChildren = function(node) {
+        $scope.toggleChildren = function (node) {
             node.hideChildren = !node.hideChildren;
         }
 
 
-
-        $scope.hasComment = function(node) {
+        $scope.hasComment = function (node) {
             return node.comments && node.comments.length;
         };
 
-        $scope.toggleComments = function(node) {
+        $scope.toggleComments = function (node) {
             node.hideComments = !node.hideComments;
         }
 
@@ -87,7 +79,7 @@ nodeStandControllers.controller('GraphController', ['$scope', '$routeParams', '$
         }
 
         function fetchDetail(node) {
-            $http.get('/detail', {params:{"id": node.id}}).success(function(data) {
+            $http.get('/detail', {params: {"id": node.id}}).success(function (data) {
 
                 var nodes = {};
                 for (var i = 0; i < data.nodes.length; i++) {
@@ -102,10 +94,10 @@ nodeStandControllers.controller('GraphController', ['$scope', '$routeParams', '$
                 }
 
 
-                Object.keys(nodes).forEach(function(id) {
+                Object.keys(nodes).forEach(function (id) {
                     var node = nodes[id];
                     node.comments = [];
-                    var edges = data.edges.filter(function(el) {
+                    var edges = data.edges.filter(function (el) {
                         return el[1] == node.id; // Use [1] here because comments point to their parents, so we want to match the tip of the arrow
                     });
 
@@ -116,15 +108,6 @@ nodeStandControllers.controller('GraphController', ['$scope', '$routeParams', '$
 
             });
         }
-
     }
-]);
 
-nodeStandControllers.controller('NodeMenuController', ['$scope', '$http',
-    function ($scope, $http) {
-
-        $http.get('/nodeMenu').success(function(data) {
-            $scope.nodes = data;
-        });
-    }
-]);
+})();
