@@ -2,7 +2,7 @@ package com.nodestand.nodes.interpretation;
 
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.source.SourceNode;
-import com.nodestand.version.Build;
+import com.nodestand.nodes.version.Build;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;

@@ -1,4 +1,4 @@
-package com.nodestand.version;
+package com.nodestand.nodes.version;
 
 import com.nodestand.nodes.User;
 import org.neo4j.graphdb.Direction;
@@ -11,7 +11,6 @@ public class Build {
 
     @GraphId
     protected Long id;
-    private String title;
 
     @RelatedTo(type = "AUTHORED_BY", direction = Direction.OUTGOING)
     public User author;
@@ -19,10 +18,8 @@ public class Build {
     public Build() {
     }
 
-
     public Long getId() {
         return id;
     }
-
 
 }

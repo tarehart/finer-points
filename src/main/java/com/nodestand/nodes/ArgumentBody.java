@@ -1,6 +1,8 @@
 package com.nodestand.nodes;
 
 import com.nodestand.nodes.comment.Commentable;
+import com.nodestand.nodes.version.Build;
+import com.nodestand.nodes.version.MajorVersion;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.NodeEntity;
@@ -16,7 +18,9 @@ public abstract class ArgumentBody implements Commentable {
 
     @RelatedTo(type="AUTHORED_BY", direction = Direction.OUTGOING)
     public User author;
-    private int majorVersion;
+
+    @RelatedTo(type="VERSION_OF", direction = Direction.OUTGOING)
+    private MajorVersion majorVersion;
     private int minorVersion;
 
     public ArgumentBody() {}
@@ -26,7 +30,7 @@ public abstract class ArgumentBody implements Commentable {
         this.author = author;
     }
 
-    public void setVersion(int majorVersion, int minorVersion) {
+    public void setVersion(MajorVersion majorVersion, int minorVersion) {
         this.majorVersion = majorVersion;
         this.minorVersion = minorVersion;
     }
@@ -35,11 +39,17 @@ public abstract class ArgumentBody implements Commentable {
         return title;
     }
 
-    public int getMajorVersion() {
+    public MajorVersion getMajorVersion() {
         return majorVersion;
     }
 
     public int getMinorVersion() {
         return minorVersion;
+    }
+
+    public abstract ArgumentNode constructNode(Build build);
+
+    public void setMinorVersion(int minorVersion) {
+        this.minorVersion = minorVersion;
     }
 }

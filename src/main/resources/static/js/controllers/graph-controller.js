@@ -79,30 +79,36 @@
         }
 
         function fetchDetail(node) {
-            $http.get('/detail', {params: {"id": node.id}}).success(function (data) {
+            $http.get('/detail', {params: {"id": node.bodyId}}).success(function (data) {
+
+                // Detail returns the current ArgumentNode in full detail,
+                // the full comment tree for the current node,
+                // and all the edges to link them together.
 
                 var nodes = {};
                 for (var i = 0; i < data.nodes.length; i++) {
-                    nodes[data.nodes[i].id] = data.nodes[i];
-                    if (data.nodes[i].id == node.id) {
+                    var returnedId = data.nodes[i].id;
+                    if (returnedId == node.bodyId) {
                         // We already have this node cached; just fill in additional data
                         $scope.nodes[node.id].body = data.nodes[i].body;
-                        nodes[node.id] = $scope.nodes[node.id];
+
+                        // This line is tricky. The node.id does NOT match returnedId. This will ultimately have the affect
+                        // of attributing comments to the ArgumentNode when really they belong to the ArgumentBod(ies).
+                        nodes[returnedId] = $scope.nodes[node.id];
                     } else {
-                        nodes[data.nodes[i].id] = data.nodes[i];
+                        nodes[returnedId] = data.nodes[i];
                     }
                 }
 
-
                 Object.keys(nodes).forEach(function (id) {
-                    var node = nodes[id];
-                    node.comments = [];
+                    var returnedNode = nodes[id];
+                    returnedNode.comments = [];
                     var edges = data.edges.filter(function (el) {
-                        return el[1] == node.id; // Use [1] here because comments point to their parents, so we want to match the tip of the arrow
+                        return el[1] == id; // Use [1] here because comments point to their parents, so we want to match the tip of the arrow
                     });
 
                     for (var j = 0; j < edges.length; j++) {
-                        node.comments.push(nodes[edges[j][0]]);
+                        returnedNode.comments.push(nodes[edges[j][0]]);
                     }
                 });
 

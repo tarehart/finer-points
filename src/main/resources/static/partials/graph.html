@@ -164,14 +164,22 @@
 
     .commentDiv {
 
-        border-left: solid 1px;
-        border-bottom: solid 1px;
+        border-left: solid 1px lightgray;
+        border-bottom: solid 1px lightgray;
         padding: 3px;
     }
 
     .nodeDiv .commentDiv .btn {
         width: 18px;
         height: 18px;
+    }
+
+    .selected .nodeTitle {
+        font-weight: bold;
+    }
+
+    .byLine {
+        margin-left: 20px;
     }
 
 </style>
@@ -213,9 +221,10 @@
                         </span>
                     </button>
                 </div>
-                <span>{{node.title}}</span>
+                <span class="nodeTitle">{{node.title}}</span>
                 <div class="nodeContent">
                     <div ng-if="isSelected(node)">
+                        <p class="byLine">by {{node.author.displayName}}</p>
                         <a href="#/d/{{node.id}}">Detail</a>
                         <button ng-click="addChild(node); $event.stopPropagation();">Add child</button>
                         <p>{{node.body}}</p>

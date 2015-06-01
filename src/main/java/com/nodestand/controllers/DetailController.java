@@ -27,15 +27,20 @@ public class DetailController {
     @RequestMapping("/detail")
     public Object getGraph(@RequestParam(value="id", required=true) String id) {
 
+        // id represents an ArgumentBody id.
+
         Map<String, Object> params = new HashMap<>();
         params.put( "id", Long.parseLong(id) );
 
         Result<Map<String, Object>> result = graphDatabase.queryEngine().query("start n=node({id}) " +
-                "match n<-[resp:RESPONDS_TO*0..5]-commentable-[:AUTHORED_BY*1..]->author " +
+                "match n-[:VERSION_OF]->(mv:MajorVersion) " +
+                "with mv " +
+                "match mv<-[:VERSION_OF]-(argBody:ArgumentBody)<-[resp:RESPONDS_TO*0..]-commentable-[:AUTHORED_BY]->author " +
                 "return {" +
-                "id: id(commentable), " +
-                "body: commentable.body, " +
-                "author: author.name" +
+                    "id: id(commentable), " +
+                    "body: commentable.body, " +
+                    "author: {id: id(author), displayName: author.displayName}," +
+                    "minorVersion: argBody.minorVersion" +
                 "} as Commentable, resp", params);
 
         List<Map<String, Object>> nodes = new LinkedList<>();

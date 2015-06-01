@@ -1,5 +1,6 @@
 package com.nodestand.service;
 
+import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.ArgumentNodeRepository;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.UserRepository;
@@ -11,7 +12,8 @@ import com.nodestand.nodes.interpretation.InterpretationBody;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.source.SourceBody;
 import com.nodestand.nodes.source.SourceNode;
-import com.nodestand.version.Build;
+import com.nodestand.nodes.version.Build;
+import com.nodestand.nodes.version.VersionHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +29,14 @@ public class DatabasePopulator {
     @Autowired
     NodeUserDetailsService udService;
 
-    @Autowired ArgumentNodeRepository argumentRepository;
+    @Autowired
+    ArgumentNodeRepository argumentRepository;
 
     @Autowired
     CommentRepository commentRepository;
+
+    @Autowired
+    VersionHelper versionHelper;
 
     private final static Logger log = LoggerFactory.getLogger(DatabasePopulator.class);
 
@@ -44,25 +50,17 @@ public class DatabasePopulator {
 
         AssertionBody mealsBenefitBody = new AssertionBody("It is easier to eat a meal if you have a flat surface",
                 "Meals are easier to eat if you have a flat surface because your sandwich won't roll around.", me);
-        mealsBenefitBody.setVersion(1, 0);
 
-        AssertionNode mealsBenefitNode = new AssertionNode(mealsBenefitBody, build);
-        mealsBenefitNode.setVersion(0);
-
-
+        ArgumentNode mealsBenefitNode = versionHelper.constructVersionedNode(mealsBenefitBody);
 
         InterpretationBody tablesInterpBody = new InterpretationBody("Tables provide a flat surface",
                 "Tables Weekly suggests that tables provide a flat surface based on my reading of the third paragraph.", charles);
-        tablesInterpBody.setVersion(1, 0);
 
-        InterpretationNode tablesInterpNode = new InterpretationNode(tablesInterpBody, build);
-        tablesInterpNode.setVersion(0);
+        InterpretationNode tablesInterpNode = (InterpretationNode) versionHelper.constructVersionedNode(tablesInterpBody);
 
         SourceBody tablesWeeklyBody = new SourceBody("Tables Weekly, vol 32", charles, "http://www.google.com");
-        tablesWeeklyBody.setVersion(1, 0);
 
-        SourceNode tablesWeeklyNode = new SourceNode(tablesWeeklyBody, build);
-        tablesWeeklyNode.setVersion(0);
+        SourceNode tablesWeeklyNode = (SourceNode) versionHelper.constructVersionedNode(tablesWeeklyBody);
 
         argumentRepository.save(mealsBenefitNode);
         argumentRepository.save(tablesInterpNode);
@@ -71,11 +69,8 @@ public class DatabasePopulator {
         AssertionBody tablesHelpfulBody = new AssertionBody("Tables are helpful for meals.",
                 "Tables help with meals because {{[" + tablesInterpNode.getId() +
                         "]They provide a flat surface}} which is {{[" + mealsBenefitNode.getId() + "]helpful}}.", me);
-        tablesHelpfulBody.setVersion(1, 0);
 
-        AssertionNode tablesHelpfulNode = new AssertionNode(tablesHelpfulBody, build);
-
-        tablesHelpfulNode.setVersion(0);
+        AssertionNode tablesHelpfulNode = (AssertionNode) versionHelper.constructVersionedNode(tablesHelpfulBody);
 
         argumentRepository.save(tablesHelpfulNode);
 
