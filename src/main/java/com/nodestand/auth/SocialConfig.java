@@ -49,8 +49,8 @@ public class SocialConfig extends SocialConfigurerAdapter {
     @Bean
     public ConnectionFactoryLocator connectionFactoryLocator() {
         ConnectionFactoryRegistry registry = new ConnectionFactoryRegistry();
-        registry.addConnectionFactory(new GoogleConnectionFactory(environment.getProperty("google.clientId"),
-                environment.getProperty("google.clientSecret")));
+        registry.addConnectionFactory(new GoogleConnectionFactory(environment.getProperty("googleClientId"),
+                environment.getProperty("googleClientSecret")));
         return registry;
     }
 

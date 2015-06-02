@@ -10,12 +10,14 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author mh
  * @since 06.03.11
  */
+@Component
 public class NodeUserDetailsServiceImpl implements NodeUserDetailsService {
 
     @Autowired
