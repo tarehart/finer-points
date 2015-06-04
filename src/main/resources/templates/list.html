@@ -2,44 +2,33 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>List - Roots Apparent</title>
-    <style type="text/css">
-
-        table {
-            border-collapse: collapse;
-            border: solid 3px #808080;
-            -webkit-box-shadow: 3px 3px 6px #dedede;
-            -moz-box-shadow: 3px 3px 6px #dedede;
-            box-shadow: 3px 3px 6px #dedede;
-        }
-
-        table td {
-            padding: 3px;
-            padding-right: 10px;
-            border-right: solid 1px gray;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
 </head>
 <body>
-    <p>Displaying all nodes.</p>
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Labels</th>
-            <th>Author</th>
-        </tr>
-        <tr th:each="node : ${nodes}">
-            <td><a th:text="${node.id}" th:href="|/graph?rootId=${node.id}|"></a></td>
-            <td th:text="${node.title}"></td>
-            <td th:text="${node.labels}"></td>
-            <td th:text="${node.author}"></td>
-        </tr>
-    </table>
+    <div class="container" style="margin-top: 20px">
+        <div class="panel panel-default">
 
-    <form action="/generateTestData" method="post">
-        <p>Click to generate test data:</p>
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        <input type="submit" value="Generate test data" />
-    </form>
+            <table class="table">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Labels</th>
+                    <th>Author</th>
+                </tr>
+                <tr th:each="node : ${nodes}">
+                    <td><a th:text="${node.id}" th:href="|/graph?rootId=${node.id}|"></a></td>
+                    <td th:text="${node.title}"></td>
+                    <td th:text="${node.labels}"></td>
+                    <td th:text="${node.author}"></td>
+                </tr>
+            </table>
+        </div>
+
+            <form action="/generateTestData" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-primary btn-lg">Generate Test Data</button>
+            </form>
+    </div>
 </body>
 </html>

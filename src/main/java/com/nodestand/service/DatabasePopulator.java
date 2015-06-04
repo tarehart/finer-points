@@ -51,16 +51,16 @@ public class DatabasePopulator {
         AssertionBody mealsBenefitBody = new AssertionBody("It is easier to eat a meal if you have a flat surface",
                 "Meals are easier to eat if you have a flat surface because your sandwich won't roll around.", me);
 
-        ArgumentNode mealsBenefitNode = versionHelper.constructVersionedNode(mealsBenefitBody);
+        AssertionNode mealsBenefitNode = mealsBenefitBody.constructNode(versionHelper);
 
         InterpretationBody tablesInterpBody = new InterpretationBody("Tables provide a flat surface",
                 "Tables Weekly suggests that tables provide a flat surface based on my reading of the third paragraph.", charles);
 
-        InterpretationNode tablesInterpNode = (InterpretationNode) versionHelper.constructVersionedNode(tablesInterpBody);
+        InterpretationNode tablesInterpNode = tablesInterpBody.constructNode(versionHelper);
 
         SourceBody tablesWeeklyBody = new SourceBody("Tables Weekly, vol 32", charles, "http://www.google.com");
 
-        SourceNode tablesWeeklyNode = (SourceNode) versionHelper.constructVersionedNode(tablesWeeklyBody);
+        SourceNode tablesWeeklyNode = tablesWeeklyBody.constructNode(versionHelper);
 
         argumentRepository.save(mealsBenefitNode);
         argumentRepository.save(tablesInterpNode);
@@ -70,7 +70,7 @@ public class DatabasePopulator {
                 "Tables help with meals because {{[" + tablesInterpNode.getId() +
                         "]They provide a flat surface}} which is {{[" + mealsBenefitNode.getId() + "]helpful}}.", me);
 
-        AssertionNode tablesHelpfulNode = (AssertionNode) versionHelper.constructVersionedNode(tablesHelpfulBody);
+        AssertionNode tablesHelpfulNode = tablesHelpfulBody.constructNode(versionHelper);
 
         argumentRepository.save(tablesHelpfulNode);
 

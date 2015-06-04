@@ -2,14 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Sign In - Roots Apparent</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" />
 </head>
 
 <body>
 <div class="container">
-    <div class="row">
-        <div class="span14 columns offset2">
+
             <h1>Please sign in</h1>
             <h5>I don't want to store passwords, so please sign in with a social account.</h5>
 
@@ -18,8 +18,7 @@
                 <input type="hidden" name="scope" value="profile" />
                 <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
             </form>
-        </div>
-    </div>
+
 </div>
 </body>
 </html>

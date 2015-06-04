@@ -3,6 +3,8 @@ package com.nodestand.nodes;
 import com.nodestand.nodes.comment.Commentable;
 import com.nodestand.nodes.version.Build;
 import com.nodestand.nodes.version.MajorVersion;
+import com.nodestand.nodes.version.VersionHelper;
+import jdk.nashorn.internal.runtime.Version;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.NodeEntity;
@@ -47,7 +49,7 @@ public abstract class ArgumentBody implements Commentable {
         return minorVersion;
     }
 
-    public abstract ArgumentNode constructNode(Build build);
+    public abstract ArgumentNode constructNode(VersionHelper versionHelper);
 
     public void setMinorVersion(int minorVersion) {
         this.minorVersion = minorVersion;

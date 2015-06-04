@@ -1,4 +1,3 @@
-<p>Displaying all nodes.</p>
 <div class="panel panel-default">
     <table class="table">
         <thead>
@@ -10,10 +9,11 @@
         </thead>
         <tbody>
             <tr ng-repeat="node in nodes">
-                <td><a href="#/graph/{{node.id}}">{{node.id}}</a></td>
-                <td>{{node.title}}</td>
+                <td>{{node.id}}</td>
+                <td><a href="#/graph/{{node.id}}">{{node.title}}</a></td>
                 <td>{{node.author}}</td>
             </tr>
         </tbody>
     </table>
 </div>
+<button type="button" class="btn btn-primary">Create New</button>

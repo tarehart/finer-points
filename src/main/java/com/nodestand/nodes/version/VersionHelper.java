@@ -18,7 +18,7 @@ public class VersionHelper {
     @Autowired
     GraphDatabase graphDatabase;
 
-    public ArgumentNode constructVersionedNode(ArgumentBody body) {
+    public Build beginBodyBuild(ArgumentBody body) {
         Build build = new Build();
         build.author = body.author;
 
@@ -31,10 +31,7 @@ public class VersionHelper {
             body.setMinorVersion(getNextMinorVersion(body.getMajorVersion()));
         }
 
-        ArgumentNode node = body.constructNode(build);
-
-        return node;
-
+        return build;
     }
 
     private int getNextMinorVersion(MajorVersion majorVersion) {
