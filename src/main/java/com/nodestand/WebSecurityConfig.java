@@ -1,5 +1,6 @@
 package com.nodestand;
 
+import com.nodestand.auth.CsrfHeaderFilter;
 import com.nodestand.service.NodeUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +11,9 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.ArrayList;
@@ -38,9 +42,25 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .deleteCookies("JSESSIONID")
                 .and()
                     .authorizeRequests()
-                    .antMatchers("/", "/signin/**", "/js/*", "/css/*", "/partials/*", "/list", "/generateTestData", "/nodeMenu").permitAll()
+                    .antMatchers("/", "/signin/**", "/js/**", "/css/**", "/partials/**", "/list", "/nodeMenu").permitAll()
+                    .antMatchers("/create", "/generateTestData").hasRole("USER")
+                    .antMatchers("/**").hasRole("ADMIN")
                 .and()
-                    .rememberMe();
+                    .csrf()
+                    .csrfTokenRepository(csrfTokenRepository())
+                .and()
+                    // https://spring.io/guides/tutorials/spring-security-and-angular-js/
+                    .addFilterAfter(new CsrfHeaderFilter(), CsrfFilter.class);
+    }
+
+    /**
+     * https://spring.io/guides/tutorials/spring-security-and-angular-js/
+     * @return
+     */
+    private CsrfTokenRepository csrfTokenRepository() {
+        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
+        repository.setHeaderName("X-XSRF-TOKEN");
+        return repository;
     }
 
 
@@ -54,7 +74,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public ProviderManager providerManager() {
-        List<AuthenticationProvider> list = new ArrayList<AuthenticationProvider>();
+        List<AuthenticationProvider> list = new ArrayList<>();
         list.add(daoAuthenticationProvider());
         return new ProviderManager(list);
     }

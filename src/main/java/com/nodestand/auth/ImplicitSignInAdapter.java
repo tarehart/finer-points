@@ -67,11 +67,11 @@ public class ImplicitSignInAdapter implements SignInAdapter {
             return null;
         }
         requestCache.removeRequest(nativeReq, nativeRes);
-        removeAutheticationAttributes(nativeReq.getSession(false));
+        removeAuthenticationAttributes(nativeReq.getSession(false));
         return saved.getRedirectUrl();
     }
 
-    private void removeAutheticationAttributes(HttpSession session) {
+    private void removeAuthenticationAttributes(HttpSession session) {
         if (session == null) {
             return;
         }
