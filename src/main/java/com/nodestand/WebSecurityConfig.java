@@ -1,6 +1,8 @@
 package com.nodestand;
 
 import com.nodestand.auth.CsrfHeaderFilter;
+import com.nodestand.auth.RestAuthenticationEntryPoint;
+import com.nodestand.auth.RestAuthenticationSuccessHandler;
 import com.nodestand.service.NodeUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +13,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
@@ -26,14 +29,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     NodeUserDetailsService nodeUserDetailsService;
 
+    @Autowired
+    private RestAuthenticationEntryPoint authenticationEntryPoint;
+
+    @Autowired
+    private RestAuthenticationSuccessHandler authenticationSuccessHandler;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         http
                 .formLogin()
-                    .loginPage("/signin")
-                    .loginProcessingUrl("/signin/authenticate")
-                    .failureUrl("/signin?param.error=bad_credentials")
+                    .successHandler(authenticationSuccessHandler)
+                    .failureHandler(new SimpleUrlAuthenticationFailureHandler())
+                .and()
+                    .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
                 .and()
                     .logout()
                     .logoutRequestMatcher(new AntPathRequestMatcher("/signout"))
@@ -42,9 +52,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .deleteCookies("JSESSIONID")
                 .and()
                     .authorizeRequests()
-                    .antMatchers("/", "/signin/**", "/js/**", "/css/**", "/partials/**", "/list", "/nodeMenu").permitAll()
-                    .antMatchers("/create", "/generateTestData").hasRole("USER")
-                    .antMatchers("/**").hasRole("ADMIN")
+                    .antMatchers("/", "/signin/**", "/js/**", "/css/**", "/favicon.ico", "/partials/**", "/list", "/nodeMenu", "/graph").permitAll()
+                    .antMatchers("/generateTestData").hasRole("USER")
                 .and()
                     .csrf()
                     .csrfTokenRepository(csrfTokenRepository())

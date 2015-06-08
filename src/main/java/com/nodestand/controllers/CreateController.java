@@ -8,6 +8,7 @@ import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.version.VersionHelper;
 import com.nodestand.service.NodeUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +35,7 @@ public class CreateController {
     ArgumentNodeRepository nodeRepository;
 
     @Transactional
+    @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/create")
     public Map<String, Object> createAssertion(@RequestBody Map<String, String> params) {
 
