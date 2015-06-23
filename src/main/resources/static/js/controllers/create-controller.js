@@ -21,6 +21,15 @@
                     window.location = '/signin';
                 });
         }
+
+        $scope.setText = function (text) {
+            $scope.text = text;
+
+        }
+
+        $scope.setHtml = function (html) {
+            $scope.html = html;
+        }
     }
 
 })();
