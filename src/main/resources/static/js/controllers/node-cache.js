@@ -34,9 +34,25 @@
 
         cache.createDraftNode = function() {
             // TODO: actually create something server-side
-            var node = decorateWithRequiredProperties({id: "draft"});
+            var node = decorateWithRequiredProperties({
+                id: "draft",
+                editingBody: true,
+                editingTitle: true
+            });
+
             cache.nodes[node.id] = node;
+            prepareNodeForEditing(node);
             return node;
+        }
+
+        function prepareNodeForEditing(node) {
+            node.setBody = function(text) {
+                node.body = text;
+            }
+            node.stopEditingBody = function() {
+                node.editingBody = false;
+            }
+            node.isEditable = true;
         }
 
         cache.addOrUpdateNode = function(node) {

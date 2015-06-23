@@ -7,8 +7,6 @@
 
     function CreateController($scope, $http, NodeCache) {
 
-
-
         $scope.starterNode = NodeCache.createDraftNode();
 
         $scope.submit = function () {

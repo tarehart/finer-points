@@ -23,7 +23,8 @@
         return {
             restrict: "A",
             scope: {
-                setText: "=setText"
+                setText: "=",
+                doneFn: "="
             },
             link:     function (scope, element, attrs, ngModel) {
                 $(element).markdown({
@@ -34,7 +35,24 @@
                         scope.$apply();
                     },
                     hiddenButtons: ['Preview', 'Image', 'cmdUrl'],
-                    fullscreen: {enable: false}
+                    fullscreen: {enable: false},
+                    additionalButtons: [
+                        {
+                            name: 'groupUtil',
+                            data: [{
+                                name: 'done',
+                                toggle: false,
+                                hotkey: 'Ctrl+S',
+                                title: 'Done',
+                                btnText: 'Done',
+                                btnClass: 'btn btn-success btn-sm',
+                                icon: { glyph: 'glyphicon glyphicon-ok', fa: 'fa fa-check', 'fa-3': 'icon-search' },
+                                callback: function(e){
+                                    scope.doneFn(e);
+                                }
+                            }]
+                        }
+                    ]
                 });
             }
         }

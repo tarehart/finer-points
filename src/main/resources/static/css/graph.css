@@ -76,7 +76,7 @@
         -webkit-animation: upsize 100ms forwards;
         animation: upsize 100ms forwards;
         min-height: 100px;
-        width: 380px;
+        width: 550px;
         box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.2);
     }
 
@@ -87,12 +87,12 @@
 
     @-webkit-keyframes upsize {
         from {min-height: 50px; width: 200px;}
-        to {min-height: 100px; width: 380px;}
+        to {min-height: 100px; width: 550px;}
     }
 
     @keyframes upsize {
         from {min-height: 50px; width: 200px;}
-        to {min-height: 100px; width: 380px;}
+        to {min-height: 100px; width: 550px;}
     }
 
     @-webkit-keyframes fadein {
@@ -153,7 +153,7 @@
     display: inline-block;
 }
 
-.nodeDiv .btn {
+.nodeDiv .icon-btn {
     padding: 3px;
     background: none;
 }
@@ -175,4 +175,8 @@
 
 .byLine {
     margin-left: 20px;
+}
+
+.body-edit-btn {
+    float: right;
 }

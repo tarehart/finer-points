@@ -4,7 +4,7 @@
         <div class="commentDiv">
             <span ng-if="hasComment(comment)">
 
-                <button class="btn" ng-click="toggleComments(comment); $event.stopPropagation();">
+                <button class="btn icon-btn" ng-click="toggleComments(comment); $event.stopPropagation();">
                     <span ng-if="comment.hideComments">
                         <i class="fa fa-plus-circle"></i>
                     </span>
@@ -23,13 +23,12 @@
 
     <script type="text/ng-template" id="floatTree">
         <div class="familyWrapper">
-            <div ng-click="toggleSelect(node); $event.stopPropagation();"
-                 ng-class="[{selected:isSelected(node)}, 'nodeDiv', 'panel', 'panel-default'].concat(node.labels)">
+            <div ng-class="[{selected:isSelected(node)}, 'nodeDiv', 'panel', 'panel-default'].concat(node.labels)">
 
                 <div class="panel-heading" ng-class="{leftPaddingWithChild: hasChild(node)}">
                     <div class="toggleChildren" ng-if="hasChild(node)">
 
-                        <button class="btn" ng-click="toggleChildren(node); $event.stopPropagation();">
+                        <button class="btn icon-btn" ng-click="toggleChildren(node); $event.stopPropagation();">
                             <span ng-if="node.hideChildren">
                                 <i class="fa fa-plus-circle"></i>
                             </span>
@@ -38,7 +37,19 @@
                             </span>
                         </button>
                     </div>
-                    <span class="nodeTitle">{{node.title}}</span>
+                    <span ng-if="!node.editingTitle" class="nodeTitle">
+                        {{node.title}}
+                        <button ng-if="node.isEditable" ng-click="node.editingTitle = true" type="button" class="btn btn-default btn-xs">Edit</button>
+                    </span>
+                    <span ng-if="node.editingTitle">
+                        <input type="text" ng-model="node.title" class="form-control" style="display:inline;width:auto" placeholder="Title..." />
+                        <button ng-click="node.editingTitle = false" type="button" class="btn icon-btn">
+                            <i class="fa fa-check"></i>
+                        </button>
+                    </span>
+                    <span ng-click="toggleSelect(node);">
+                        <i class="fa fa-minus-circle"></i>
+                    </span>
                 </div>
 
                 <div class="nodeContent panel-body" ng-hide="!isSelected(node)">
@@ -46,7 +57,14 @@
                         <p class="byLine">by {{node.author.displayName}}</p>
                         <a href="#/d/{{node.id}}">Detail</a>
                         <button ng-click="addChild(node); $event.stopPropagation();">Add child</button>
-                        <div ng-markdown="node.body" render-markdown></div>
+                        <div ng-if="node.editingBody">
+                            <textarea set-text="node.setBody" done-fn="node.stopEditingBody" markdown-editor>{{node.body}}</textarea>
+                        </div>
+                        <div ng-if="!node.editingBody">
+                            <button ng-if="node.isEditable" ng-click="node.editingBody = true" type="button" class="btn btn-default btn-xs body-edit-btn">Edit</button>
+                            <div ng-markdown="node.body" render-markdown></div>
+                        </div>
+
                         <div class="commentSection" ng-if="hasComment(node)">
                             <span style="font-weight:bold">Comments</span>
                             <div ng-repeat="comment in node.comments" ng-include="'commentTree'"></div>
