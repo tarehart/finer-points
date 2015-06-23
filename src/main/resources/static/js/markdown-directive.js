@@ -49,10 +49,13 @@
             template: '<div ng-bind-html="html"></div>',
             link: function (scope, element, attrs, ngModel) {
                 scope.$watch(function(scope) {return scope.ngMarkdown;}, function (v) {
-                    if (v) {
-                        var rawHtml = markdownConverter.makeHtml(v);
-                        scope.html = rawHtml;
+                    if (!v) {
+                        v = "";
                     }
+
+                    var rawHtml = markdownConverter.makeHtml(v);
+                    scope.html = rawHtml;
+
                 }, true);
             }
         }

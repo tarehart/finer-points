@@ -3,14 +3,13 @@
 
     angular
         .module('nodeStandControllers')
-        .controller('CreateController', ['$scope', '$http', CreateController]);
+        .controller('CreateController', ['$scope', '$http', 'NodeCache', CreateController]);
 
-    function CreateController($scope, $http) {
+    function CreateController($scope, $http, NodeCache) {
 
-        $scope.starterNode = {
-            body: "",
-            title: ""
-        };
+
+
+        $scope.starterNode = NodeCache.createDraftNode();
 
         $scope.submit = function () {
             $http.post('/create', {title: $scope.starterNode.title, body: $scope.starterNode.body, parentId: null})
