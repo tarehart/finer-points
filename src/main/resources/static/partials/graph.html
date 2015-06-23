@@ -46,7 +46,7 @@
                         <p class="byLine">by {{node.author.displayName}}</p>
                         <a href="#/d/{{node.id}}">Detail</a>
                         <button ng-click="addChild(node); $event.stopPropagation();">Add child</button>
-                        <p>{{node.body}}</p>
+                        <div ng-markdown="node.body" render-markdown></div>
                         <div class="commentSection" ng-if="hasComment(node)">
                             <span style="font-weight:bold">Comments</span>
                             <div ng-repeat="comment in node.comments" ng-include="'commentTree'"></div>
@@ -67,6 +67,5 @@
     <p>
         <a href="#/graphDiagnostic/{{rootNodes[0].id}}">Debug info</a>
     </p>
-
 
 </div>

@@ -3,34 +3,60 @@
 
     angular
         .module('nodeStandControllers')
-        .controller('GraphController', ['$scope', '$routeParams', '$http', GraphController]);
+        .directive('nodeGraph', ['$routeParams', '$http', nodeGraph]);
 
-    function GraphController($scope, $routeParams, $http) {
-
-        $http.get('/graph', {params: {"rootId": $routeParams.rootId}}).success(function (data) {
-            var nodes = {};
-            for (var i = 0; i < data.nodes.length; i++) {
-                nodes[data.nodes[i].id] = data.nodes[i];
+    function nodeGraph($routeParams, $http) {
+        return {
+            restrict: "A",
+            scope: {
+                starterNode: "=starterNode"
+            },
+            templateUrl: "partials/graph.html",
+            link: function (scope) {
+                initializeGraph(scope, $routeParams, $http)
             }
+        }
+    }
 
-            $scope.nodes = nodes;
-            $scope.edges = data.edges;
+    function initializeGraph($scope, $routeParams, $http) {
 
-            Object.keys(nodes).forEach(function (id) {
-                var node = nodes[id];
-                node.children = [];
-                var edges = $scope.edges.filter(function (el) {
-                    return el[0] == node.id;
+        if ($routeParams && $routeParams.rootId) {
+            fetchGraphForId($routeParams.rootId);
+        } else {
+            var starterNode = $scope.starterNode;
+            starterNode.isSelected = true;
+            starterNode.children = starterNode.children || [];
+            $scope.rootNodes = [starterNode];
+            $scope.nodes = {};
+            $scope.nodes[starterNode.id] = starterNode;
+        }
+
+        function fetchGraphForId(rootId) {
+            $http.get('/graph', {params: {"rootId": rootId}}).success(function (data) {
+                var nodes = {};
+                for (var i = 0; i < data.nodes.length; i++) {
+                    nodes[data.nodes[i].id] = data.nodes[i];
+                }
+
+                $scope.nodes = nodes;
+                $scope.edges = data.edges;
+
+                Object.keys(nodes).forEach(function (id) {
+                    var node = nodes[id];
+                    node.children = [];
+                    var edges = $scope.edges.filter(function (el) {
+                        return el[0] == node.id;
+                    });
+
+                    for (var j = 0; j < edges.length; j++) {
+                        node.children.push(nodes[edges[j][1]]);
+                    }
                 });
 
-                for (var j = 0; j < edges.length; j++) {
-                    node.children.push(nodes[edges[j][1]]);
-                }
+                $scope.rootNodes = [];
+                $scope.rootNodes.push($scope.nodes[$routeParams.rootId]);
             });
-
-            $scope.rootNodes = [];
-            $scope.rootNodes.push($scope.nodes[$routeParams.rootId]);
-        });
+        }
 
         $scope.addChild = function (node) {
             var newNode = {};

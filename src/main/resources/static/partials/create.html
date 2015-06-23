@@ -1,14 +1,14 @@
 <form ng-submit="submit()">
     <div class="form-group">
         <label for="titleInput">Title</label>
-        <input ng-model="title" id="titleInput" type="text" class="form-control">
+        <input ng-model="starterNode.title" id="titleInput" type="text" class="form-control">
     </div>
     <div class="form-group">
         <label for="bodyInput">Body</label>
-        <div id="bodyInput" set-text="setText" set-html="setHtml" markdown-editor></div>
+        <div id="bodyInput" set-text="setText" markdown-editor></div>
     </div>
 
-    <div ng-bind-html="html"></div>
+    <div starter-node="starterNode" node-graph></div>
 
     <button type="submit" class="btn btn-default">Submit</button>
 </form>

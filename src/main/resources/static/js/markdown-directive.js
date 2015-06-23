@@ -4,7 +4,8 @@
     angular
         .module('markdown', ['ngSanitize'])
         .provider('markdownConverter', markdownConverter)
-        .directive("markdownEditor", ['$sanitize', 'markdownConverter', markdownEditor]);
+        .directive("markdownEditor", ['$sanitize', 'markdownConverter', markdownEditor])
+        .directive("renderMarkdown", ['$sanitize', 'markdownConverter', renderMarkdown]);
 
     function markdownConverter() {
         var opts = {};
@@ -22,8 +23,7 @@
         return {
             restrict: "A",
             scope: {
-                setText: "=setText",
-                setHtml: "=setHtml"
+                setText: "=setText"
             },
             link:     function (scope, element, attrs, ngModel) {
                 $(element).markdown({
@@ -31,12 +31,27 @@
                     onChange: function(e){
                         var text = e.getContent();
                         scope.setText(text);
-                        var rawHtml = markdownConverter.makeHtml(text);
-                        var sanitized = $sanitize(rawHtml);
-                        scope.setHtml(sanitized);
                         scope.$apply();
                     }
                 });
+            }
+        }
+    }
+
+    function renderMarkdown($sanitize, markdownConverter) {
+        return {
+            restrict: "A",
+            scope: {
+                ngMarkdown: "="
+            },
+            template: '<div ng-bind-html="html"></div>',
+            link: function (scope, element, attrs, ngModel) {
+                scope.$watch(function(scope) {return scope.ngMarkdown;}, function (v) {
+                    if (v) {
+                        var rawHtml = markdownConverter.makeHtml(v);
+                        scope.html = rawHtml;
+                    }
+                }, true);
             }
         }
     }

@@ -7,11 +7,13 @@
 
     function CreateController($scope, $http) {
 
-        $scope.title;
-        $scope.body;
+        $scope.starterNode = {
+            body: "",
+            title: ""
+        };
 
         $scope.submit = function () {
-            $http.post('/create', {title: $scope.title, body: $scope.body, parentId: null})
+            $http.post('/create', {title: $scope.starterNode.title, body: $scope.starterNode.body, parentId: null})
                 .success(function (data) {
                     alert("Success! " + data);
                 })
@@ -23,12 +25,7 @@
         }
 
         $scope.setText = function (text) {
-            $scope.text = text;
-
-        }
-
-        $scope.setHtml = function (html) {
-            $scope.html = html;
+            $scope.starterNode.body = text;
         }
     }
 
