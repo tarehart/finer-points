@@ -32,7 +32,9 @@
                         var text = e.getContent();
                         scope.setText(text);
                         scope.$apply();
-                    }
+                    },
+                    hiddenButtons: ['Preview', 'Image', 'cmdUrl'],
+                    fullscreen: {enable: false}
                 });
             }
         }
