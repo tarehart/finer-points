@@ -52,6 +52,11 @@
             node.stopEditingBody = function() {
                 node.editingBody = false;
             }
+            node.linkChild = function(linkCallback) {
+                // TODO: get an actual nodeid to pass
+
+                linkCallback(6);
+            }
             node.isEditable = true;
         }
 

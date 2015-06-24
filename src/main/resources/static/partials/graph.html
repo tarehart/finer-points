@@ -58,7 +58,7 @@
                         <a href="#/d/{{node.id}}">Detail</a>
                         <button ng-click="addChild(node); $event.stopPropagation();">Add child</button>
                         <div ng-if="node.editingBody">
-                            <textarea set-text="node.setBody" done-fn="node.stopEditingBody" markdown-editor>{{node.body}}</textarea>
+                            <textarea set-text="node.setBody" done-fn="node.stopEditingBody" link-fn="node.linkChild" markdown-editor>{{node.body}}</textarea>
                         </div>
                         <div ng-if="!node.editingBody">
                             <button ng-if="node.isEditable" ng-click="node.editingBody = true" type="button" class="btn btn-default btn-xs body-edit-btn">Edit</button>

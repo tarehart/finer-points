@@ -180,3 +180,14 @@
 .body-edit-btn {
     float: right;
 }
+
+.node-link {
+    background-color: #eaf6ff;
+    border-radius: 3px;
+    padding: 3px;
+    border: solid 1px #d7d7d7;
+}
+
+.node-id {
+    display: none;
+}

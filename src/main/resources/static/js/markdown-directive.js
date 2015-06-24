@@ -8,13 +8,12 @@
         .directive("renderMarkdown", ['$sanitize', 'markdownConverter', renderMarkdown]);
 
     function markdownConverter() {
-        var opts = {};
         return {
-            config: function (newOpts) {
-                opts = newOpts;
-            },
             $get: function () {
-                return new Showdown.converter(opts);
+                var opts = {
+                    extensions: ['nodeStand']
+                }
+                return new showdown.Converter(opts);
             }
         };
     }
@@ -24,7 +23,8 @@
             restrict: "A",
             scope: {
                 setText: "=",
-                doneFn: "="
+                doneFn: "=",
+                linkFn: "="
             },
             link:     function (scope, element, attrs, ngModel) {
                 $(element).markdown({
@@ -38,7 +38,28 @@
                     fullscreen: {enable: false},
                     additionalButtons: [
                         {
-                            name: 'groupUtil',
+                            name: 'groupNode',
+                            data: [{
+                                name: 'nodelink',
+                                toggle: false,
+                                hotkey: 'Ctrl+K',
+                                title: 'Link Node',
+                                btnText: 'Link Node',
+                                btnClass: 'btn btn-primary btn-sm',
+                                icon: { glyph: 'glyphicon glyphicon-link', fa: 'fa fa-link', 'fa-3': 'icon-link' },
+                                callback: function(e){
+                                    var selection = e.getSelection();
+                                    function performReplace(nodeId) {
+                                        e.replaceSelection("{{[" + nodeId + "]" + selection.text + "}}");
+                                        var offset = ("" + nodeId).length + 4;
+                                        e.setSelection(selection.start + offset, selection.end + offset);
+                                    }
+                                    scope.linkFn(performReplace);
+                                }
+                            }]
+                        },
+                        {
+                            name: 'groupDone',
                             data: [{
                                 name: 'done',
                                 toggle: false,
