@@ -255,7 +255,7 @@
         // Merge the main & additional button groups together
         var allBtnGroups = [];
         if (options.buttons.length > 0) allBtnGroups = allBtnGroups.concat(options.buttons[0]);
-        if (options.additionalButtons.length > 0) allBtnGroups = allBtnGroups.concat(options.additionalButtons[0]);
+        if (options.additionalButtons.length > 0) allBtnGroups = allBtnGroups.concat(options.additionalButtons);
 
         // Reduce and/or reorder the button groups
         if (options.reorderButtonGroups.length > 0) {
