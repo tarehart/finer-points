@@ -1,7 +1,7 @@
 package com.nodestand.controllers;
 
 import com.nodestand.dao.GraphDao;
-import com.nodestand.nodes.ArgumentNodeRepository;
+import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.assertion.AssertionNode;
@@ -14,17 +14,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @RestController
 public class CreateController {
-
-    @Autowired
-    ArgumentNodeRepository repo;
 
     @Autowired
     GraphDao graphDao;

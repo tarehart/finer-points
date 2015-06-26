@@ -1,7 +1,7 @@
 package com.nodestand.service;
 
 import com.nodestand.nodes.User;
-import com.nodestand.nodes.UserRepository;
+import com.nodestand.nodes.repository.UserRepository;
 import com.nodestand.auth.NodeUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;

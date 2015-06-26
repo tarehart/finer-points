@@ -1,6 +1,7 @@
 var nodeStandApp = angular.module('nodeStandApp', [
     'ngRoute',
     'markdown',
+    'ui.bootstrap',
     'nodeStandControllers'
 ]);
 

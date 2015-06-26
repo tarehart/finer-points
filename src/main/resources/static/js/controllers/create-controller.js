@@ -19,11 +19,25 @@
                     // and let them try again.
                     window.location = '/signin';
                 });
-        }
+        };
 
         $scope.setText = function (text) {
             $scope.starterNode.body = text;
-        }
+        };
+
+        $scope.getSearchResults = function(query) {
+            return $http.get('/search', {params: {query: query}})
+                .then(function(response){
+
+                    var bodyList = response.data;
+
+                    return bodyList;
+                });
+        };
+
+        $scope.searchResultSelected = function(a, b, c) {
+            alert("" + a + b + c);
+        };
     }
 
 })();

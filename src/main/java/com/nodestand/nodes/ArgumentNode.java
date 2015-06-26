@@ -2,6 +2,7 @@ package com.nodestand.nodes;
 
 import com.nodestand.nodes.version.Build;
 import org.neo4j.graphdb.Direction;
+import org.springframework.data.neo4j.annotation.Fetch;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
@@ -14,9 +15,11 @@ public abstract class ArgumentNode {
 
     protected int buildVersion;
 
+    @Fetch
     @RelatedTo(type="BUILT_BY", direction = Direction.OUTGOING)
     protected Build build;
 
+    @Fetch
     @RelatedTo(type="DEFINED_BY", direction = Direction.OUTGOING)
     protected ArgumentBody body;
 

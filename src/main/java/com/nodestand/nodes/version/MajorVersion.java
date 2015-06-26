@@ -26,4 +26,8 @@ public class MajorVersion {
     public int getVersionNumber() {
         return versionNumber;
     }
+
+    public Long getId() {
+        return id;
+    }
 }

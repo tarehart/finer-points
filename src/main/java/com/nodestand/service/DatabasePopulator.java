@@ -1,9 +1,8 @@
 package com.nodestand.service;
 
-import com.nodestand.nodes.ArgumentNode;
-import com.nodestand.nodes.ArgumentNodeRepository;
+import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.User;
-import com.nodestand.nodes.UserRepository;
+import com.nodestand.nodes.repository.UserRepository;
 import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.comment.Comment;

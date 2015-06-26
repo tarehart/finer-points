@@ -1,5 +1,6 @@
 package com.nodestand.nodes;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
@@ -15,7 +16,6 @@ public class User {
     @Indexed(unique = true)
     String socialId;
 
-    String info;
     private Roles[] roles;
 
 
@@ -33,6 +33,7 @@ public class User {
         return String.format("%s (%s)", displayName, socialId);
     }
 
+    @JsonIgnore
     public Roles[] getRole() {
         return roles;
     }
@@ -41,13 +42,7 @@ public class User {
         return displayName;
     }
 
-    public String getInfo() {
-        return info;
-    }
-    public void setInfo(String info) {
-        this.info = info;
-    }
-
+    @JsonIgnore
     public String getSocialId() {
         return socialId;
     }

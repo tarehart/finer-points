@@ -1,7 +1,7 @@
 package com.nodestand.controllers;
 
 import com.nodestand.dao.GraphDao;
-import com.nodestand.nodes.ArgumentNodeRepository;
+import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
