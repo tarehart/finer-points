@@ -1,0 +1,13 @@
+<div class="modal-header">
+    <h3 class="modal-title">Link a child node</h3>
+</div>
+<div class="modal-body">
+    <input type="text" ng-model="selectedResult" placeholder="Search existing nodes"
+           typeahead="body.title for body in getSearchResults($viewValue)" typeahead-on-select="searchResultSelected($item, $model, $label)"
+           typeahead-min-length="3" typeahead-wait-ms="200" typeahead-editable="false"
+           class="form-control">
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ok()">OK</button>
+    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

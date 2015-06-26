@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
@@ -56,6 +57,15 @@ public class CreateController {
         nodeRepository.save(node);
 
         return graphDao.getGraph(node.getId());
+
+    }
+
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @RequestMapping("/bodyChoices")
+    public Map<String, Object> getBodyChoices(@RequestParam Long bodyId) {
+
+        return graphDao.getBodyChoices(bodyId);
 
     }
 }

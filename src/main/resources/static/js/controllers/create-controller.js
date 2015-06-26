@@ -3,11 +3,13 @@
 
     angular
         .module('nodeStandControllers')
-        .controller('CreateController', ['$scope', '$http', 'NodeCache', CreateController]);
+        .controller('CreateController', ['$scope', '$http', '$modal', 'NodeCache', CreateController]);
 
-    function CreateController($scope, $http, NodeCache) {
+    function CreateController($scope, $http, $modal, NodeCache) {
 
         $scope.starterNode = NodeCache.createDraftNode();
+
+        prepareNodeForEditing($scope.starterNode);
 
         $scope.submit = function () {
             $http.post('/create', {title: $scope.starterNode.title, body: $scope.starterNode.body, parentId: null})
@@ -25,19 +27,35 @@
             $scope.starterNode.body = text;
         };
 
-        $scope.getSearchResults = function(query) {
-            return $http.get('/search', {params: {query: query}})
-                .then(function(response){
 
-                    var bodyList = response.data;
 
-                    return bodyList;
+        function prepareNodeForEditing(node) {
+
+
+            node.setBody = function(text) {
+                node.body = text;
+            }
+            node.stopEditingBody = function() {
+                node.editingBody = false;
+            }
+            node.linkChild = function(linkCallback) {
+
+                function nodeChosenForLinking(child) {
+                    node.children.push(child);
+                    linkCallback(child.body.majorVersion.id, child.body.title);
+                }
+
+                $modal.open({
+                    templateUrl: "partials/link-child.html",
+                    controller: "LinkChildController",
+                    resolve: {
+                        linkCallback: function() {return nodeChosenForLinking; }
+                    }
                 });
-        };
 
-        $scope.searchResultSelected = function(a, b, c) {
-            alert("" + a + b + c);
-        };
+            }
+            node.isEditable = true;
+        }
     }
 
 })();

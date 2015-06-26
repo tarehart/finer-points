@@ -41,23 +41,7 @@
             });
 
             cache.nodes[node.id] = node;
-            prepareNodeForEditing(node);
             return node;
-        }
-
-        function prepareNodeForEditing(node) {
-            node.setBody = function(text) {
-                node.body = text;
-            }
-            node.stopEditingBody = function() {
-                node.editingBody = false;
-            }
-            node.linkChild = function(linkCallback) {
-                // TODO: get an actual nodeid to pass
-
-                linkCallback(6);
-            }
-            node.isEditable = true;
         }
 
         cache.addOrUpdateNode = function(node) {
@@ -152,6 +136,18 @@
                     }
                 });
 
+            });
+        };
+
+        cache.getLinkChoices = function(bodyId, successCallback, errorCallback) {
+
+            $http.get('/bodyChoices', {params: {"bodyId": bodyId}}).success(function (data) {
+                successCallback(data.nodes);
+
+            }).error(function(err) {
+                if (errorCallback) {
+                    errorCallback(err);
+                }
             });
         }
 

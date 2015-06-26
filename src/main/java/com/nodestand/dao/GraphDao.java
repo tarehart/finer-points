@@ -1,9 +1,12 @@
 package com.nodestand.dao;
 
+import com.nodestand.nodes.ArgumentBody;
+import com.nodestand.nodes.ArgumentNode;
 import org.neo4j.kernel.impl.core.RelationshipProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.core.GraphDatabase;
+import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +18,9 @@ public class GraphDao {
 
     @Autowired
     GraphDatabase graphDatabase;
+
+    @Autowired
+    Neo4jOperations neo4jOperations;
 
     public Map<String, Object> getGraph(long rootId) {
 
@@ -55,4 +61,25 @@ public class GraphDao {
 
     }
 
+    public Map<String, Object> getBodyChoices(long bodyId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", bodyId);
+
+        Result<Map<String, Object>> result = graphDatabase.queryEngine().query("start n=node({id}) " +
+                "match n-[:VERSION_OF]->(mv:MajorVersion) with mv match mv<-[:VERSION_OF]-(:ArgumentBody)" +
+                "<-[:DEFINED_BY]-(node:ArgumentNode) " +
+                "return node", params);
+
+        Map<String, Object> everything = new HashMap<>();
+        Set<ArgumentNode> nodes = new HashSet<>();
+
+        for (Map<String, Object> map: result) {
+            nodes.add(neo4jOperations.convert(map.get("node"), ArgumentNode.class));
+        }
+
+        everything.put("nodes", nodes);
+
+        return everything;
+
+    }
 }

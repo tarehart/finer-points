@@ -49,10 +49,14 @@
                                 icon: { glyph: 'glyphicon glyphicon-link', fa: 'fa fa-link', 'fa-3': 'icon-link' },
                                 callback: function(e){
                                     var selection = e.getSelection();
-                                    function performReplace(nodeId) {
-                                        e.replaceSelection("{{[" + nodeId + "]" + selection.text + "}}");
+
+                                    // The performReplace function will be called much later after some external
+                                    // code decides what node should be inserted.
+                                    function performReplace(nodeId, nodeTitle) {
+                                        var tagText = selection.text || nodeTitle;
+                                        e.replaceSelection("{{[" + nodeId + "]" + tagText + "}}");
                                         var offset = ("" + nodeId).length + 4;
-                                        e.setSelection(selection.start + offset, selection.end + offset);
+                                        e.setSelection(selection.start + offset, selection.start + offset + tagText.length);
                                     }
                                     scope.linkFn(performReplace);
                                 }
