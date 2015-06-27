@@ -42,7 +42,8 @@
                         <button ng-if="node.isEditable" ng-click="node.editingTitle = true" type="button" class="btn btn-default btn-xs">Edit</button>
                     </span>
                     <span ng-if="node.editingTitle">
-                        <input type="text" ng-model="node.body.title" class="form-control" style="display:inline;width:auto" placeholder="Title..." />
+                        <input type="text" ng-model="node.body.title" class="form-control" style="display:inline;width:auto" placeholder="Title..."
+                                enter-fn="node.editingTitle = false" />
                         <button ng-click="node.editingTitle = false" type="button" class="btn icon-btn">
                             <i class="fa fa-check"></i>
                         </button>
