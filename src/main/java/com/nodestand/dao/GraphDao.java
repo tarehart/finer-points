@@ -31,12 +31,11 @@ public class GraphDao {
                 "match n-[support:SUPPORTED_BY|INTERPRETS*0..5]->(argument:ArgumentNode)-[:DEFINED_BY]->(body:ArgumentBody)-[:AUTHORED_BY]->(author:User) " +
                 "return {" +
                 "id: id(argument), " +
-                "bodyId: id(body), " +
-                "title: body.title, " +
-                "author: {id: id(author), displayName: author.displayName}, " +
-                "labels: labels(argument)" +
+                "labels: labels(argument), " +
+                "body: { id: id(body), title: body.title, " +
+                    "author: {id: id(author), displayName: author.displayName}" +
+                "}" +
                 "} as ArgumentNode, support", params);
-
 
         List<Map<String, Object>> nodes = new LinkedList<>();
         Set<List<Long>> edges = new HashSet<>();

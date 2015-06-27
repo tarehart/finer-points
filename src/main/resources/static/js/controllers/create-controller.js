@@ -12,7 +12,7 @@
         prepareNodeForEditing($scope.starterNode);
 
         $scope.submit = function () {
-            $http.post('/create', {title: $scope.starterNode.title, body: $scope.starterNode.body, parentId: null})
+            $http.post('/create', {title: $scope.starterNode.body.title, body: $scope.starterNode.body.body, parentId: null})
                 .success(function (data) {
                     alert("Success! " + data);
                 })
@@ -24,7 +24,7 @@
         };
 
         $scope.setText = function (text) {
-            $scope.starterNode.body = text;
+            $scope.starterNode.body.body = text;
         };
 
 
@@ -33,7 +33,7 @@
 
 
             node.setBody = function(text) {
-                node.body = text;
+                node.body.body = text;
             }
             node.stopEditingBody = function() {
                 node.editingBody = false;
@@ -41,7 +41,9 @@
             node.linkChild = function(linkCallback) {
 
                 function nodeChosenForLinking(child) {
+                    child = NodeCache.addOrUpdateNode(child);
                     node.children.push(child);
+                    NodeCache.fetchGraphForId(child.id);
                     linkCallback(child.body.majorVersion.id, child.body.title);
                 }
 

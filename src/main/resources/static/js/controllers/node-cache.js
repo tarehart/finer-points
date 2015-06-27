@@ -14,6 +14,9 @@
 
         function decorateWithRequiredProperties(node) {
             node.children = node.children || [];
+            node.body = node.body || {
+                author: {}
+            };
             return node;
         }
 
@@ -48,7 +51,6 @@
             var cachedNode = cache.get(node.id);
             if (cachedNode) {
                 // Node is already in the cache, so perform updates
-                cachedNode.title = node.title;
                 cachedNode.body = node.body;
             } else {
                 // node must be created and added to the cache
@@ -84,13 +86,14 @@
 
         cache.fetchGraphForId = function(id, successCallback, errorCallback) {
 
-            if (!cache.get(id)) {
+            if (!cache.get(id) || !cache.get(id).hasFullGraph) {
                 $http.get('/graph', {params: {"rootId": id}}).success(function (data) {
 
                     var addedNodes = cache.addNodesUnlinked(data.nodes);
                     populateChildren(addedNodes, data.edges);
-
-                    successCallback();
+                    if (successCallback) {
+                        successCallback();
+                    }
                 }).error(function(err) {
                     if (errorCallback) {
                         errorCallback(err);
@@ -100,7 +103,7 @@
         }
 
         cache.fetchNodeDetails = function(node) {
-            $http.get('/detail', {params: {"id": node.bodyId}}).success(function (data) {
+            $http.get('/detail', {params: {"id": node.body.id}}).success(function (data) {
 
                 // Detail returns the current ArgumentNode in full detail,
                 // the full comment tree for the current node,
@@ -112,9 +115,9 @@
                 var nodes = {};
                 for (var i = 0; i < data.nodes.length; i++) {
                     var returnedId = data.nodes[i].id;
-                    if (returnedId == node.bodyId) {
+                    if (returnedId == node.body.id) {
                         // We already have this node cached; just fill in additional data
-                        cache.get(node.id).body = data.nodes[i].body;
+                        cache.get(node.id).body.body = data.nodes[i].body;
 
                         // This line is tricky. The node.id does NOT match returnedId. This will ultimately have the affect
                         // of attributing comments to the ArgumentNode when really they belong to the ArgumentBod(ies).

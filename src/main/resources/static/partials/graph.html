@@ -38,11 +38,11 @@
                         </button>
                     </div>
                     <span ng-if="!node.editingTitle" class="nodeTitle">
-                        {{node.title}}
+                        {{node.body.title}}
                         <button ng-if="node.isEditable" ng-click="node.editingTitle = true" type="button" class="btn btn-default btn-xs">Edit</button>
                     </span>
                     <span ng-if="node.editingTitle">
-                        <input type="text" ng-model="node.title" class="form-control" style="display:inline;width:auto" placeholder="Title..." />
+                        <input type="text" ng-model="node.body.title" class="form-control" style="display:inline;width:auto" placeholder="Title..." />
                         <button ng-click="node.editingTitle = false" type="button" class="btn icon-btn">
                             <i class="fa fa-check"></i>
                         </button>
@@ -54,16 +54,18 @@
 
                 <div class="nodeContent panel-body" ng-hide="!isSelected(node)">
                     <div ng-if="isSelected(node)">
-                        <p class="byLine">by {{node.author.displayName}}</p>
-                        <a href="#/d/{{node.id}}">Detail</a>
-                        <button ng-click="addChild(node); $event.stopPropagation();">Add child</button>
+                        <p class="byLine">by {{node.body.author.displayName}}</p>
+
                         <div ng-if="node.editingBody">
-                            <textarea set-text="node.setBody" done-fn="node.stopEditingBody" link-fn="node.linkChild" markdown-editor>{{node.body}}</textarea>
+                            <textarea set-text="node.setBody" done-fn="node.stopEditingBody" link-fn="node.linkChild" markdown-editor>{{node.body.body}}</textarea>
                         </div>
                         <div ng-if="!node.editingBody">
                             <button ng-if="node.isEditable" ng-click="node.editingBody = true" type="button" class="btn btn-default btn-xs body-edit-btn">Edit</button>
-                            <div ng-markdown="node.body" render-markdown></div>
+                            <div ng-markdown="node.body.body" render-markdown></div>
                         </div>
+
+                        <!--Temporary detail link just for debugging-->
+                        <a href="#/d/{{node.id}}">Detail</a>
 
                         <div class="commentSection" ng-if="hasComment(node)">
                             <span style="font-weight:bold">Comments</span>

@@ -21,6 +21,9 @@
                 sortNodesByVersion(nodes);
 
                 $scope.chosenNode = nodes[nodes.length - 1];
+
+            }, function(err) {
+                alert("There was an error: " + err);
             });
 
         };

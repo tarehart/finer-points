@@ -31,14 +31,6 @@
             $scope.rootNodes = [starterNode];
         }
 
-        $scope.addChild = function (node) {
-            var newNode = {};
-            node.children.push(newNode);
-            newNode.title = "Empty";
-            newNode.children = [];
-            return false;
-        };
-
         $scope.hasChild = function (node) {
             return node.children && node.children.length;
         };
@@ -72,7 +64,7 @@
         }
 
         function ensureDetail(node) {
-            if (!node.body) {
+            if (!node.body.body) {
                 fetchDetail(node);
             }
         }
