@@ -91,6 +91,7 @@
 
                     var addedNodes = cache.addNodesUnlinked(data.nodes);
                     populateChildren(addedNodes, data.edges);
+                    cache.get(id).hasFullGraph = true;
                     if (successCallback) {
                         successCallback();
                     }

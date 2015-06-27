@@ -12,7 +12,16 @@
         prepareNodeForEditing($scope.starterNode);
 
         $scope.submit = function () {
-            $http.post('/create', {title: $scope.starterNode.body.title, body: $scope.starterNode.body.body, parentId: null})
+            var links = $scope.starterNode.children.map(function(child) {
+                return child.id;
+            });
+
+            $http.post('/create',
+                {title: $scope.starterNode.body.title,
+                    body: $scope.starterNode.body.body,
+                    parentId: null,
+                    links: links
+                })
                 .success(function (data) {
                     alert("Success! " + data);
                 })

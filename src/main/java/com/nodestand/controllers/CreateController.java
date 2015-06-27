@@ -1,6 +1,7 @@
 package com.nodestand.controllers;
 
 import com.nodestand.dao.GraphDao;
+import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionBody;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -35,18 +37,19 @@ public class CreateController {
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/create")
-    public Map<String, Object> createAssertion(@RequestBody Map<String, String> params) {
-
-        // This currently doesn't work. The role filter does not work, you can call this without being
-        // logged in.
+    public Map<String, Object> createAssertion(@RequestBody Map<String, Object> params) {
 
         User user = nodeUserDetailsService.getUserFromSession();
 
-        AssertionBody assertionBody = new AssertionBody(params.get("title"), params.get("body"), user);
+        AssertionBody assertionBody = new AssertionBody((String) params.get("title"), (String) params.get("body"), user);
+        List<Integer> linkedNodes = (List<Integer>) params.get("links");
 
         AssertionNode node = assertionBody.constructNode(versionHelper);
 
-        // TODO: create draft nodes based on body text
+        for (Integer id : linkedNodes) {
+            ArgumentNode linked = nodeRepository.findOne(Long.valueOf(id));
+            node.supportedBy(linked);
+        }
 
         // If the node is saved without an author, it will not be found by the list query
         // because the author is part of the pattern matching.

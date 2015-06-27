@@ -66,8 +66,8 @@ public class DatabasePopulator {
         argumentRepository.save(tablesWeeklyNode);
 
         AssertionBody tablesHelpfulBody = new AssertionBody("Tables are helpful for meals.",
-                "Tables help with meals because {{[" + tablesInterpNode.getId() +
-                        "]They provide a flat surface}} which is {{[" + mealsBenefitNode.getId() + "]helpful}}.", me);
+                "Tables help with meals because {{[" + tablesInterpNode.getBody().getMajorVersion().getId() +
+                        "]They provide a flat surface}} which is {{[" + mealsBenefitNode.getBody().getMajorVersion().getId() + "]helpful}}.", me);
 
         AssertionNode tablesHelpfulNode = tablesHelpfulBody.constructNode(versionHelper);
 
