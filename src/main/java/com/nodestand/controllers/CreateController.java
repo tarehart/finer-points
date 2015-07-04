@@ -34,6 +34,19 @@ public class CreateController {
     @Autowired
     ArgumentNodeRepository nodeRepository;
 
+    /**
+     * For now, this will always mark the newly created node as a draft. There will be a separate operation
+     * called 'publish' which will impose more rules.
+     *
+     * Bodies currently link to major version id, text wise. Nodes link to minor versions.
+     * - We do not want to create multiple minor versions as people make draft edits; that should only happen after
+     * publishing.
+     * - Can we just say that draft-mode edits don't do anything at all to the version number?
+     *
+     *
+     * @param params
+     * @return
+     */
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/create")

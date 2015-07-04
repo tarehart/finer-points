@@ -43,10 +43,10 @@
 
             node.setBody = function(text) {
                 node.body.body = text;
-            }
+            };
             node.stopEditingBody = function() {
                 node.editingBody = false;
-            }
+            };
             node.linkChild = function(linkCallback) {
 
                 function nodeChosenForLinking(child) {
@@ -64,7 +64,7 @@
                     }
                 });
 
-            }
+            };
             node.isEditable = true;
         }
     }

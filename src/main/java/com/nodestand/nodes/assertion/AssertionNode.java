@@ -17,7 +17,7 @@ public class AssertionNode extends ArgumentNode {
     private static final String TYPE = "assertion";
 
     @RelatedTo(type="SUPPORTED_BY", direction = Direction.OUTGOING)
-    Set<ArgumentNode> supportingNodes;
+    private Set<ArgumentNode> supportingNodes;
 
     public AssertionNode() {}
 
@@ -28,6 +28,14 @@ public class AssertionNode extends ArgumentNode {
     @Override
     public String getType() {
         return TYPE;
+    }
+
+    public Set<ArgumentNode> getSupportingNodes() {
+        return supportingNodes;
+    }
+
+    public void setSupportingNodes(Set<ArgumentNode> nodes) {
+        supportingNodes = nodes;
     }
 
     public void supportedBy(ArgumentNode a) {

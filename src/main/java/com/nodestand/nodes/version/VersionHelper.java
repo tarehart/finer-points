@@ -2,6 +2,8 @@ package com.nodestand.nodes.version;
 
 import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.assertion.AssertionBody;
+import com.nodestand.nodes.assertion.AssertionNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.core.GraphDatabase;
@@ -51,5 +53,9 @@ public class VersionHelper {
         return 0;
     }
 
-
+    public AssertionNode createEditedNode(AssertionNode existingNode, AssertionBody newBodyVersion) {
+        MajorVersion majorVersion = existingNode.getBody().getMajorVersion();
+        newBodyVersion.setMajorVersion(majorVersion);
+        return newBodyVersion.constructNode(this);
+    }
 }
