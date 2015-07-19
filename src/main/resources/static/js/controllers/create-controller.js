@@ -11,25 +11,22 @@
 
         prepareNodeForEditing($scope.starterNode);
 
-        $scope.submit = function () {
-            var links = $scope.starterNode.children.map(function(child) {
-                return child.id;
-            });
+        function nodeSavedCallback(data, originalNode) {
+            var savedNode = NodeCache.addOrUpdateNode(data);
+            if (originalNode == $scope.starterNode) {
+                $scope.starterNode = savedNode;
+            }
+        }
 
-            $http.post('/create',
-                {title: $scope.starterNode.body.title,
-                    body: $scope.starterNode.body.body,
-                    parentId: null,
-                    links: links
-                })
-                .success(function (data) {
-                    alert("Success! " + data);
-                })
-                .error(function() {
-                    // TODO: remember the request the user attempted, sign in via ajax,
-                    // and let them try again.
-                    window.location = '/signin';
-                });
+        function errorCallback(err) {
+            // TODO: remember the request the user attempted, sign in via ajax,
+            // and let them try again.
+            window.location = '/signin';
+        }
+
+        $scope.submit = function () {
+
+            saveNewNode($scope.starterNode, null, nodeSavedCallback, errorCallback);
         };
 
         $scope.setText = function (text) {
@@ -37,6 +34,33 @@
         };
 
 
+        function saveNewNode(node, parentId, successCallback, errorCallback) {
+            var links = node.children.map(function(child) {
+                return child.id;
+            });
+
+            $http.post('/create',
+                {
+                    title: node.body.title,
+                    body: node.body.body,
+                    parentId: parentId,
+                    links: links
+                })
+                .success(function (data) {
+                    if (successCallback) {
+                        successCallback(data, node);
+                    }
+                })
+                .error(function(err) {
+                    if (errorCallback) {
+                        errorCallback(err);
+                    }
+                });
+        }
+
+        function nodeHasRealId(node) {
+            return node.id != "draft";
+        }
 
         function prepareNodeForEditing(node) {
 
@@ -52,7 +76,14 @@
                 function nodeChosenForLinking(child) {
                     child = NodeCache.addOrUpdateNode(child);
                     node.children.push(child);
-                    NodeCache.fetchGraphForId(child.id);
+                    // TODO: go ahead and save the draft node here, and then fetch its graph
+                    if (nodeHasRealId(node)) {
+
+                    } else {
+                        saveNewNode(node, null, nodeSavedCallback, errorCallback);
+                    }
+
+                    //NodeCache.fetchGraphForId(child.id);
                     linkCallback(child.body.majorVersion.id, child.body.title);
                 }
 

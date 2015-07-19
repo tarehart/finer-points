@@ -50,7 +50,7 @@ public class CreateController {
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/create")
-    public Map<String, Object> createAssertion(@RequestBody Map<String, Object> params) {
+    public ArgumentNode createAssertion(@RequestBody Map<String, Object> params) {
 
         User user = nodeUserDetailsService.getUserFromSession();
 
@@ -72,7 +72,7 @@ public class CreateController {
 
         nodeRepository.save(node);
 
-        return graphDao.getGraph(node.getId());
+        return node;
 
     }
 

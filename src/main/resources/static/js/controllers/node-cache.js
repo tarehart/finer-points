@@ -86,14 +86,21 @@
 
         cache.fetchGraphForId = function(id, successCallback, errorCallback) {
 
-            if (!cache.get(id) || !cache.get(id).hasFullGraph) {
+            var rootNode = cache.get(id);
+
+            if (rootNode && rootNode.hasFullGraph) {
+                if (successCallback) {
+                    successCallback(rootNode);
+                }
+            } else {
                 $http.get('/graph', {params: {"rootId": id}}).success(function (data) {
 
                     var addedNodes = cache.addNodesUnlinked(data.nodes);
                     populateChildren(addedNodes, data.edges);
-                    cache.get(id).hasFullGraph = true;
+                    rootNode = cache.get(id);
+                    rootNode.hasFullGraph = true;
                     if (successCallback) {
-                        successCallback();
+                        successCallback(rootNode);
                     }
                 }).error(function(err) {
                     if (errorCallback) {

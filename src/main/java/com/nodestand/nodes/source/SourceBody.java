@@ -1,9 +1,8 @@
 package com.nodestand.nodes.source;
 
 import com.nodestand.nodes.ArgumentBody;
-import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.User;
-import com.nodestand.nodes.version.Build;
+import com.nodestand.nodes.version.MajorVersion;
 import com.nodestand.nodes.version.VersionHelper;
 
 public class SourceBody extends ArgumentBody {
@@ -14,11 +13,15 @@ public class SourceBody extends ArgumentBody {
 
     @Override
     public SourceNode constructNode(VersionHelper versionHelper) {
-        return new SourceNode(this, versionHelper.beginBodyBuild(this));
+        return new SourceNode(this, versionHelper.startBuild(this));
     }
 
     public SourceBody(String title, User author, String url) {
-        super(title, author);
+        this(title, author, url, null);
+    }
+
+    public SourceBody(String title, User author, String url, MajorVersion majorVersion) {
+        super(title, author, majorVersion);
         this.url = url;
     }
 }

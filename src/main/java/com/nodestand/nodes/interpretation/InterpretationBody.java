@@ -1,9 +1,8 @@
 package com.nodestand.nodes.interpretation;
 
 import com.nodestand.nodes.ArgumentBody;
-import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.User;
-import com.nodestand.nodes.version.Build;
+import com.nodestand.nodes.version.MajorVersion;
 import com.nodestand.nodes.version.VersionHelper;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 
@@ -16,11 +15,16 @@ public class InterpretationBody extends ArgumentBody {
 
     @Override
     public InterpretationNode constructNode(VersionHelper versionHelper) {
-        return new InterpretationNode(this, versionHelper.beginBodyBuild(this));
+
+        return new InterpretationNode(this, versionHelper.startBuild(this));
     }
 
     public InterpretationBody(String title, String body, User author) {
-        super(title, author);
+        this(title, body, author, null);
+    }
+
+    public InterpretationBody(String title, String body, User author, MajorVersion majorVersion) {
+        super(title, author, majorVersion);
 
         this.body = body;
     }

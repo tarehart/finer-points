@@ -42,10 +42,6 @@ public abstract class ArgumentNode {
         this.buildVersion = buildVersion;
     }
 
-    public String getVersion() {
-        return body.getMajorVersion().getVersionNumber() + "." + body.getMinorVersion() + "." + buildVersion;
-    }
-
     public Long getId() {
         return id;
     }

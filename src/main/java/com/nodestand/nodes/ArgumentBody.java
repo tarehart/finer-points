@@ -38,9 +38,16 @@ public abstract class ArgumentBody implements Commentable {
     public ArgumentBody() {}
 
     public ArgumentBody(String title, User author) {
+        this(title, author, null);
+    }
+
+    public ArgumentBody(String title, User author, MajorVersion majorVersion) {
         this.title = title;
         this.author = author;
+        this.majorVersion = majorVersion;
         this.dateCreated = DateTime.now();
+
+        VersionHelper.decorateDraftBody(this);
     }
 
     public long getId() {
@@ -91,6 +98,10 @@ public abstract class ArgumentBody implements Commentable {
             throw new ImmutableNodeException("Cannot edit a title unless the argument is in draft mode. Must create a new version.");
         }
         this.title = title;
+    }
+
+    public String getBody() {
+        return body;
     }
 
     public void setBody(String body) throws ImmutableNodeException {

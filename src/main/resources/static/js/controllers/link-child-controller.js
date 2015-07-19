@@ -17,6 +17,9 @@
 
         $scope.searchResultSelected = function(bodyNode) {
             NodeCache.getLinkChoices(bodyNode.id, function(nodes) {
+                // Although the nodes param is a list, it's actually associated with a single selection in the search
+                // box. That's because search results are rolled up by major version to prevent the perception of
+                // duplicates. In the future, we may allow the user to select from among these nodes.
                 // For now, get the most recent node for linking.
                 sortNodesByVersion(nodes);
 

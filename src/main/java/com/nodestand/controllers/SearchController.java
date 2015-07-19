@@ -2,6 +2,7 @@ package com.nodestand.controllers;
 
 import com.nodestand.dao.GraphDao;
 import com.nodestand.nodes.ArgumentBody;
+import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.repository.ArgumentBodyRepository;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
@@ -43,11 +44,12 @@ public class SearchController {
         repo = new ArgumentBodyRepository(template);
     }
 
-    // TODO: uncomment the authorization
-    //@PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @Transactional
     @RequestMapping("/search")
     public List<ArgumentBody> findByTitle(@RequestParam String query) {
+
+        User user = nodeUserDetailsService.getUserFromSession();
 
         // Second object is either a Lucene query object or a query string.
         Result<ArgumentBody> result = repo.findAllByQuery("body-search", "title", query + "*");
@@ -63,7 +65,7 @@ public class SearchController {
         while (iterator.hasNext()) {
             ArgumentBody body = iterator.next();
             long majorVersionId = body.getMajorVersion().getId(); // This is NOT the version number; it's the unique node id
-            if (!majorVersionIds.contains(majorVersionId)) {
+            if (!majorVersionIds.contains(majorVersionId) && (!body.isDraft() || user.getNodeId() == body.author.getNodeId())) {
                 searchResults.add(body);
                 majorVersionIds.add(majorVersionId);
             }

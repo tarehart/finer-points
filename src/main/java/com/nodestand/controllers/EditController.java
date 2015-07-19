@@ -11,18 +11,12 @@ import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.version.VersionHelper;
 import com.nodestand.service.NodeUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @RestController
 public class EditController {
@@ -43,7 +37,11 @@ public class EditController {
      * For now, this will always mark the newly created node as a draft. There will be a separate operation
      * called 'publish' which will impose more rules.
      *
-     * Bodies currently link to major version id, text wise. Nodes link to minor versions.
+     * Hyperlinks within body text have an id corresponding to a major version. That way we don't have to update them
+     * when children are directly edited and thereby have their minor versions changed. The real links are managed by
+     * the graph database, where nodes (not bodies) link to other nodes (which are at the build version level). Giving
+     * they hyperlinks the node id of the major version will be sufficient to map to the correct child node.
+     *
      * - We do not want to create multiple minor versions as people make draft edits; that should only happen after
      * publishing.
      * - Can we just say that draft-mode edits don't do anything at all to the version number?
@@ -52,7 +50,7 @@ public class EditController {
      * @param assertionNodeId
      * @param title
      * @param body
-     * @param children
+     * @param children A list of argument node ids that the user wants as children.
      * @return
      * @throws NotAuthorizedException
      * @throws ImmutableNodeException
@@ -89,16 +87,21 @@ public class EditController {
             return null;
 
         } else {
+
             AssertionBody newBodyVersion = new AssertionBody(title, body, user);
-            AssertionNode editedNode = versionHelper.createEditedNode(existingNode, newBodyVersion);
+            newBodyVersion.setMajorVersion(existingNode.getBody().getMajorVersion()); // Same major version. Jumping to new major version will be a separate operation.
+            newBodyVersion.setMinorVersion(-1); // It's a draft, we don't know the minor version yet. Deferred until publish.
+
+            AssertionNode draftNode = newBodyVersion.constructNode(versionHelper);
+
             for (Long id : children) {
                 ArgumentNode supportingNode = nodeRepository.findOne(id);
                 existingNode.supportedBy(supportingNode);
             }
 
-            nodeRepository.save(editedNode);
+            nodeRepository.save(draftNode);
 
-            return editedNode;
+            return draftNode;
         }
     }
 }

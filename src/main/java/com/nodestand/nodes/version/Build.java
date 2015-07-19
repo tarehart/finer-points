@@ -6,6 +6,10 @@ import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
+/**
+ * A Build is created when a draft is created, not when it is published. However, it will probably be
+ * assigned to many upstream nodes on publish.
+ */
 @NodeEntity
 public class Build {
 
