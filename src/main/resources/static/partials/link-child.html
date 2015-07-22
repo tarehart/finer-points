@@ -2,12 +2,24 @@
     <h3 class="modal-title">Link a child node</h3>
 </div>
 <div class="modal-body">
-    <input type="text" ng-model="selectedResult" placeholder="Search existing nodes"
-           typeahead="body.title for body in getSearchResults($viewValue)" typeahead-on-select="searchResultSelected($item, $model, $label)"
-           typeahead-min-length="3" typeahead-wait-ms="200" typeahead-editable="false"
-           class="form-control" auto-focus>
+
+    <div class="well">
+        <p>Search for an existing node</p>
+        <input type="text" ng-model="selectedResult" placeholder="Search existing nodes"
+               typeahead="body.title for body in getSearchResults($viewValue)" typeahead-on-select="searchResultSelected($item, $model, $label)"
+               typeahead-min-length="3" typeahead-wait-ms="200" typeahead-editable="false"
+               class="form-control" auto-focus>
+        <button class="btn" ng-click="select()">Select</button>
+    </div>
+    <p>OR</p>
+    <div class="well">
+        <p>Create a new node</p>
+        <input id="titleInput" type="text" placeholder="Title for new node" class="form-control" ng-model="newTitle" />
+        <button class="btn" ng-click="createNew()">Create</button>
+    </div>
+
+
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" ng-click="ok()">OK</button>
     <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

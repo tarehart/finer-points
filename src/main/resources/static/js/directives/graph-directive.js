@@ -56,6 +56,11 @@
             node.isSelected = !node.isSelected;
             if (node.isSelected) {
                 ensureDetail(node);
+
+                // Proactively get the children too because we might need their majorVersion id's during editing
+                $.each(node.children, function(index, child) {
+                    ensureDetail(child);
+                })
             }
         }
 
@@ -101,7 +106,7 @@
 
             function saveChanges(node) {
                 if (NodeCache.isDraftNode(node)) {
-                    NodeCache.saveDraftNode(null, function(newNode) {
+                    NodeCache.saveDraftNode(function(newNode) {
                         var index = $scope.rootNodes.indexOf(node);
                         if (index) {
                             $scope.rootNodes[index].id = newNode.id;
@@ -122,19 +127,61 @@
 
             node.doStopEditingBody = function() {
                 node.editingBody = false;
+
+                var idsInBody = [];
+                var regex = /{{\[([0-9]+)\](.+?)(?=}})}}/g;
+                var match = regex.exec(node.body.body);
+                while (match != null) {
+                    idsInBody.push(match[1]);
+                    match = regex.exec(node.body.body);
+                }
+
+                // Remove any children that are no longer supported by the body text.
+                for (var i = node.children.length - 1; i >= 0; i--) {
+                    var child = node.children[i];
+                    var expectedId = child.body.majorVersion.id;
+                    if (idsInBody.indexOf(expectedId) < 0) {
+                        // Remove the child
+                        node.children.splice(i, 1);
+
+                        // Keep the removed child around to support a text-based undo of the deletion.
+                        node.deletedChildren = node.deletedChildren || {};
+                        node.deletedChildren[child.body.majorVersion.id] = child;
+                    }
+                }
+
+                // If the user manually restored the text of a link that they previously deleted,
+                // restore the link.
+                if (node.deletedChildren) {
+                    $.each(idsInBody, function (index, id) {
+                        var nodeForId = node.deletedChildren[id];
+                        if (nodeForId && node.children.indexOf(nodeForId) < 0) {
+                            node.children.push(nodeForId);
+                        }
+                    });
+                }
+
                 saveChanges(node);
             }
 
             node.doLinkChild = function(linkCallback) {
 
-                function nodeChosenForLinking(child) {
-                    child = NodeCache.addOrUpdateNode(child);
+                function attachChild(child) {
                     node.children.push(child);
-                    saveChanges(node);
-
-                    NodeCache.fetchGraphForId(child.id);
-
                     linkCallback(child.body.majorVersion.id, child.body.title);
+
+                    saveChanges(node);
+                    ensureDetail(child);
+                    NodeCache.fetchGraphForId(child.id);
+                }
+
+                function nodeChosenForLinking(result) {
+                    if (result.chosenNode) {
+                        var child = NodeCache.addOrUpdateNode(result.chosenNode);
+                        attachChild(child);
+                    } else {
+                        NodeCache.createAndSaveNode(result.newTitle, attachChild);
+                    }
                 }
 
                 $modal.open({

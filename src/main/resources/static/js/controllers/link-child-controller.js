@@ -40,14 +40,19 @@
             });
         }
 
-        $scope.ok = function() {
+        $scope.select = function() {
             $modalInstance.close();
-            linkCallback($scope.chosenNode);
-        }
+            linkCallback({chosenNode: $scope.chosenNode});
+        };
+
+        $scope.createNew = function() {
+            $modalInstance.close();
+            linkCallback({newTitle: $scope.newTitle});
+        };
 
         $scope.cancel = function() {
             $modalInstance.close();
-        }
+        };
 
 
 

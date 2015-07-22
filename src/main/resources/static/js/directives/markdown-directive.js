@@ -57,6 +57,7 @@
                                         e.replaceSelection("{{[" + nodeId + "]" + tagText + "}}");
                                         var offset = ("" + nodeId).length + 4;
                                         e.setSelection(selection.start + offset, selection.start + offset + tagText.length);
+                                        scope.setText(e.getContent());
                                     }
                                     scope.linkFn(performReplace);
                                 }

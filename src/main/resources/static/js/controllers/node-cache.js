@@ -73,8 +73,26 @@
             return node == cache.get(DRAFT_ID);
         }
 
-        cache.saveDraftNode = function(parentId, successCallback, errorCallback) {
+        cache.saveDraftNode = function(successCallback, errorCallback) {
             var node = cache.get(DRAFT_ID);
+            saveNode(node, function() {
+                // Next time the draft node is requested, a fresh blank one should be built.
+                cache.nodes[DRAFT_ID] = null;
+                if (successCallback) {
+                    successCallback(data); // This callback probably ought to change the URL to incorporate the new id.
+                }
+            }, errorCallback);
+        };
+
+        cache.createAndSaveNode = function(title, successCallback, errorCallback) {
+            var node = {
+                body: {title: title},
+                children: []
+            };
+            saveNode(node, successCallback, errorCallback);
+        };
+
+        function saveNode(node, successCallback, errorCallback) {
 
             var links = node.children.map(function(child) {
                 return child.id;
@@ -84,14 +102,10 @@
                 {
                     title: node.body.title,
                     body: node.body.body,
-                    parentId: parentId,
                     links: links
                 })
                 .success(function (data) {
                     cache.addOrUpdateNode(data);
-
-                    // Next time the draft node is requested, a fresh blank one should be built.
-                    cache.nodes[DRAFT_ID] = null;
 
                     if (successCallback) {
                         successCallback(data); // This callback probably ought to change the URL to incorporate the new id.
@@ -102,7 +116,7 @@
                         errorCallback(err);
                     }
                 });
-        };
+        }
 
         cache.saveNodeEdit = function(node, successCallback, errorCallback) {
 
@@ -148,7 +162,15 @@
             var cachedNode = cache.get(node.id);
             if (cachedNode) {
                 // Node is already in the cache, so perform updates
-                cachedNode.body = node.body;
+
+                if (node.body.majorVersion) {
+                    // This is a good indicator that node's body is fully fleshed out and should be trusted.
+                    cachedNode.body = node.body;
+                } else {
+                    cachedNode.body = cachedNode.body || node.body;
+                    cachedNode.body.body = node.body.body;
+                }
+
             } else {
                 // node must be created and added to the cache
                 cache.nodes[node.id] = decorateWithRequiredProperties(node);
@@ -176,9 +198,37 @@
                 });
 
                 for (var j = 0; j < edges.length; j++) {
-                    node.children.push(cache.get(edges[j][1]));
+                    var child = cache.get(edges[j][1]);
+                    node.children.push(child);
+                    if (isInfinite(node)) {
+                        // That's illegal! Remove that child.
+                        node.children.splice(node.children.length - 1, 1);
+                        console.log("Refusing to add child with id " + child.id + "!");
+                    }
                 }
             });
+        }
+
+        function isInfinite(node) {
+            var closedSet = {};
+            closedSet[node.id] = 1;
+            return isInfiniteHelper(node, closedSet);
+        }
+
+        function isInfiniteHelper(node, closedSet) {
+            for (var i = 0; i < node.children.length; i++) {
+                var child = node.children[i];
+                if (closedSet[child.id]) {
+                    return true;
+                } else {
+                    closedSet[child.id] = 1;
+                }
+                var clonedSet = $.extend({}, closedSet);
+                if (isInfiniteHelper(child, clonedSet)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         cache.fetchGraphForId = function(id, successCallback, errorCallback) {
@@ -222,7 +272,7 @@
                     var returnedId = data.nodes[i].id;
                     if (returnedId == node.body.id) {
                         // We already have this node cached; just fill in additional data
-                        cache.get(node.id).body.body = data.nodes[i].body;
+                        cache.get(node.id).body = data.nodes[i];
 
                         // This line is tricky. The node.id does NOT match returnedId. This will ultimately have the affect
                         // of attributing comments to the ArgumentNode when really they belong to the ArgumentBod(ies).

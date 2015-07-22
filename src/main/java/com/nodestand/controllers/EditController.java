@@ -87,14 +87,12 @@ public class EditController {
             existingNode.getBody().setTitle(title);
             existingNode.getBody().setBody(body);
 
-            existingNode.setSupportingNodes(null);
+            existingNode.getSupportingNodes().clear();
 
             for (Integer id : children) {
                 ArgumentNode supportingNode = nodeRepository.findOne(Long.valueOf(id));
                 existingNode.supportedBy(supportingNode);
             }
-
-            existingNode.setVersion(60);
 
             // Ugh: http://stackoverflow.com/questions/31505729/why-is-my-modified-neo4j-node-property-not-persisted-to-the-db
             neo4jOperations.save(existingNode.getBody());

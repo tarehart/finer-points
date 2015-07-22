@@ -1,10 +1,13 @@
 package com.nodestand.controllers;
 
+import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.comment.Commentable;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import org.neo4j.kernel.impl.core.RelationshipProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.core.GraphDatabase;
+import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +25,9 @@ public class DetailController {
     @Autowired
     GraphDatabase graphDatabase;
 
+    @Autowired
+    Neo4jOperations neo4jOperations;
+
     @Transactional
     @PreAuthorize("permitAll")
     @RequestMapping("/detail")
@@ -35,20 +41,15 @@ public class DetailController {
         Result<Map<String, Object>> result = graphDatabase.queryEngine().query("start n=node({id}) " +
                 "match n-[:VERSION_OF]->(mv:MajorVersion) " +
                 "with mv " +
-                "match mv<-[:VERSION_OF]-(argBody:ArgumentBody)<-[resp:RESPONDS_TO*0..]-commentable-[:AUTHORED_BY]->author " +
-                "return {" +
-                    "id: id(commentable), " +
-                    "body: commentable.body, " +
-                    "author: {id: id(author), displayName: author.displayName}," +
-                    "minorVersion: argBody.minorVersion" +
-                "} as Commentable, resp", params);
+                "match mv<-[:VERSION_OF]-(argBody:ArgumentBody)<-[resp:RESPONDS_TO*0..]-(node:Commentable)-[:AUTHORED_BY]->author " +
+                "return node, resp", params);
 
-        List<Map<String, Object>> nodes = new LinkedList<>();
+        List<Commentable> nodes = new LinkedList<>();
         Set<List<Long>> edges = new HashSet<>();
         Map<String, Object> everything = new HashMap<>();
 
         for (Map<String, Object> map: result) {
-            nodes.add((Map<String, Object>) map.get("Commentable"));
+            nodes.add(neo4jOperations.convert(map.get("node"), Commentable.class));
             List<RelationshipProxy> rels = (List<RelationshipProxy>) map.get("resp");
             for (RelationshipProxy rel: rels) {
                 edges.add(Arrays.asList(
@@ -59,8 +60,6 @@ public class DetailController {
 
         everything.put("nodes", nodes);
         everything.put("edges", edges);
-
-
 
         return everything;
 
