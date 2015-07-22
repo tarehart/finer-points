@@ -12,7 +12,9 @@ import com.nodestand.service.NodeUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -33,7 +35,7 @@ public class PublishController {
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/publishassertion")
-    public AssertionNode publishAssertion(Long assertionNodeId) throws Exception {
+    public AssertionNode publishAssertion(@RequestBody Long assertionNodeId) throws Exception {
 
         User user = nodeUserDetailsService.getUserFromSession();
 

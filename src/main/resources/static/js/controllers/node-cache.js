@@ -12,11 +12,28 @@
         cache.nodes = {};
         cache.edges = [];
 
+        var DRAFT_ID = "draft";
+
         function decorateWithRequiredProperties(node) {
             node.children = node.children || [];
             node.body = node.body || {
                 author: {}
             };
+
+            node.setBody = function(text) {
+                node.body.body = text;
+            };
+            node.stopEditingBody = function() {
+                if (node.doStopEditingBody) {
+                    node.doStopEditingBody();
+                }
+            };
+            node.linkChild = function(linkCallback) {
+                if (node.doLinkChild) {
+                    node.doLinkChild(linkCallback);
+                }
+            };
+
             return node;
         }
 
@@ -35,17 +52,97 @@
             return node;
         };
 
-        cache.createDraftNode = function() {
+        cache.getOrCreateDraftNode = function() {
+
+            if (cache.nodes[DRAFT_ID]) {
+                return cache.nodes[DRAFT_ID];
+            }
+
             // TODO: actually create something server-side
             var node = decorateWithRequiredProperties({
-                id: "draft",
+                id: DRAFT_ID,
                 editingBody: true,
                 editingTitle: true
             });
 
             cache.nodes[node.id] = node;
             return node;
+        };
+
+        cache.isDraftNode = function(node) {
+            return node == cache.get(DRAFT_ID);
         }
+
+        cache.saveDraftNode = function(parentId, successCallback, errorCallback) {
+            var node = cache.get(DRAFT_ID);
+
+            var links = node.children.map(function(child) {
+                return child.id;
+            });
+
+            $http.post('/create',
+                {
+                    title: node.body.title,
+                    body: node.body.body,
+                    parentId: parentId,
+                    links: links
+                })
+                .success(function (data) {
+                    cache.addOrUpdateNode(data);
+
+                    // Next time the draft node is requested, a fresh blank one should be built.
+                    cache.nodes[DRAFT_ID] = null;
+
+                    if (successCallback) {
+                        successCallback(data); // This callback probably ought to change the URL to incorporate the new id.
+                    }
+                })
+                .error(function(err) {
+                    if (errorCallback) {
+                        errorCallback(err);
+                    }
+                });
+        };
+
+        cache.saveNodeEdit = function(node, successCallback, errorCallback) {
+
+            var links = node.children.map(function(child) {
+                return child.id;
+            });
+
+            // Iff the node is not a draft, this operation will produce a new draft node with a new id.
+            $http.post('/editassertion',
+                {
+                    nodeId: node.id,
+                    title: node.body.title,
+                    body: node.body.body,
+                    links: links
+                })
+                .success(function (data) {
+                    var editedNode = cache.addOrUpdateNode(data);
+
+                    if (editedNode.id != node.id) {
+                        // The node had not been a draft, so a new one was produced to hold the edit. Provisionally,
+                        // we will make the parent of the original point to the new draft, but because the draft is not
+                        // published, this will not survive a page refresh.
+                        $.each(cache.nodes, function(potentialParent) {
+                            var index = potentialParent.children.indexOf(node);
+                            if (index) {
+                                potentialParent.children[index] = editedNode;
+                            }
+                        });
+                    }
+
+                    if (successCallback) {
+                        successCallback(editedNode); // This callback probably ought to change the URL to incorporate the new id.
+                    }
+                })
+                .error(function(err) {
+                    if (errorCallback) {
+                        errorCallback(err);
+                    }
+                });
+        };
 
         cache.addOrUpdateNode = function(node) {
             var cachedNode = cache.get(node.id);

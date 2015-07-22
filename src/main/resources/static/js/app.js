@@ -16,8 +16,7 @@ nodeStandApp.config(['$routeProvider',
                 templateUrl: 'partials/explorer.html'
             }).
             when('/create', {
-                templateUrl: 'partials/create.html',
-                controller: 'CreateController'
+                templateUrl: 'partials/create.html'
             }).
             when('/graphDiagnostic/:rootId', {
                 templateUrl: 'partials/graphDiagnostic.html',

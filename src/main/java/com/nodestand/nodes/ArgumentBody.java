@@ -1,10 +1,8 @@
 package com.nodestand.nodes;
 
 import com.nodestand.nodes.comment.Commentable;
-import com.nodestand.nodes.version.Build;
 import com.nodestand.nodes.version.MajorVersion;
 import com.nodestand.nodes.version.VersionHelper;
-import jdk.nashorn.internal.runtime.Version;
 import org.joda.time.DateTime;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
@@ -32,8 +30,6 @@ public abstract class ArgumentBody implements Commentable {
     private DateTime dateCreated;
 
     private boolean isDraft = true;
-
-    private String body;
 
     public ArgumentBody() {}
 
@@ -98,17 +94,6 @@ public abstract class ArgumentBody implements Commentable {
             throw new ImmutableNodeException("Cannot edit a title unless the argument is in draft mode. Must create a new version.");
         }
         this.title = title;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String body) throws ImmutableNodeException {
-        if (!isDraft()) {
-            throw new ImmutableNodeException("Cannot edit a title unless the argument is in draft mode. Must create a new version.");
-        }
-        this.body = body;
     }
 
     public void setMajorVersion(MajorVersion majorVersion) {

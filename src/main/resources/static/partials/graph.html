@@ -39,12 +39,12 @@
                     </div>
                     <span ng-if="!node.editingTitle" class="nodeTitle">
                         {{node.body.title}}
-                        <button ng-if="node.isEditable" ng-click="node.editingTitle = true" type="button" class="btn btn-default btn-xs">Edit</button>
+                        <button ng-if="node.inEditMode" ng-click="node.startEditingTitle()" type="button" class="btn btn-default btn-xs">Edit</button>
                     </span>
                     <span ng-if="node.editingTitle">
                         <input type="text" ng-model="node.body.title" class="form-control" style="display:inline;width:auto" placeholder="Title..."
-                                enter-fn="node.editingTitle = false" />
-                        <button ng-click="node.editingTitle = false" type="button" class="btn icon-btn">
+                                enter-fn="node.stopEditingTitle()" />
+                        <button ng-click="node.stopEditingTitle()" type="button" class="btn icon-btn">
                             <i class="fa fa-check"></i>
                         </button>
                     </span>
@@ -61,12 +61,13 @@
                             <textarea set-text="node.setBody" done-fn="node.stopEditingBody" link-fn="node.linkChild" markdown-editor>{{node.body.body}}</textarea>
                         </div>
                         <div ng-if="!node.editingBody">
-                            <button ng-if="node.isEditable" ng-click="node.editingBody = true" type="button" class="btn btn-default btn-xs body-edit-btn">Edit</button>
+                            <button ng-if="node.inEditMode" ng-click="node.editingBody = true" type="button" class="btn btn-default btn-xs body-edit-btn">Edit</button>
                             <div ng-markdown="node.body.body" render-markdown></div>
                         </div>
 
-                        <!--Temporary detail link just for debugging-->
-                        <a href="#/d/{{node.id}}">Detail</a>
+                        <div ng-if="!node.inEditMode">
+                            <button ng-if="authorizedForEdit(node) && !node.inEditMode" ng-click="enterEditMode(node)" type="button" class="btn btn-default btn-xs">Edit</button>
+                        </div>
 
                         <div class="commentSection" ng-if="hasComment(node)">
                             <span style="font-weight:bold">Comments</span>

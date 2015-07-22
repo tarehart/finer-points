@@ -47,4 +47,8 @@ public class AssertionNode extends ArgumentNode {
         }
         supportingNodes.add(a);
     }
+
+    public AssertionBody getBody() {
+        return (AssertionBody) body;
+    }
 }

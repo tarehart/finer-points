@@ -29,4 +29,8 @@ public class InterpretationNode extends ArgumentNode {
     public void setSource(SourceNode source) {
         this.source = source;
     }
+
+    public InterpretationBody getBody() {
+        return (InterpretationBody) body;
+    }
 }

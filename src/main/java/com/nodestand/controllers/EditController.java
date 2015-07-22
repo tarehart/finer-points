@@ -10,13 +10,19 @@ import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.version.VersionHelper;
 import com.nodestand.service.NodeUserDetailsService;
+import org.neo4j.graphdb.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.core.GraphDatabase;
+import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class EditController {
@@ -33,6 +39,12 @@ public class EditController {
     @Autowired
     ArgumentNodeRepository nodeRepository;
 
+    @Autowired
+    GraphDatabase graphDatabase;
+
+    @Autowired
+    Neo4jOperations neo4jOperations;
+
     /**
      * For now, this will always mark the newly created node as a draft. There will be a separate operation
      * called 'publish' which will impose more rules.
@@ -47,10 +59,6 @@ public class EditController {
      * - Can we just say that draft-mode edits don't do anything at all to the version number?
      *
      *
-     * @param assertionNodeId
-     * @param title
-     * @param body
-     * @param children A list of argument node ids that the user wants as children.
      * @return
      * @throws NotAuthorizedException
      * @throws ImmutableNodeException
@@ -58,11 +66,15 @@ public class EditController {
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/editassertion")
-    public AssertionNode editAssertion(Long assertionNodeId, String title, String body, List<Long> children) throws NotAuthorizedException, ImmutableNodeException {
+    public AssertionNode editAssertion(@RequestBody Map<String, Object> params) throws NotAuthorizedException, ImmutableNodeException {
 
         User user = nodeUserDetailsService.getUserFromSession();
+        Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
+        String title = (String) params.get("title");
+        String body = (String) params.get("body");
+        List<Integer> children = (List<Integer>) params.get("links");
 
-        AssertionNode existingNode = (AssertionNode) nodeRepository.findOne(assertionNodeId);
+        AssertionNode existingNode = (AssertionNode) nodeRepository.findOne(nodeId);
 
         if (existingNode.getBody().isDraft()) {
             // We won't need to update any version numbers.
@@ -77,27 +89,32 @@ public class EditController {
 
             existingNode.setSupportingNodes(null);
 
-            for (Long id : children) {
-                ArgumentNode supportingNode = nodeRepository.findOne(id);
+            for (Integer id : children) {
+                ArgumentNode supportingNode = nodeRepository.findOne(Long.valueOf(id));
                 existingNode.supportedBy(supportingNode);
             }
 
+            existingNode.setVersion(60);
+
+            // Ugh: http://stackoverflow.com/questions/31505729/why-is-my-modified-neo4j-node-property-not-persisted-to-the-db
+            neo4jOperations.save(existingNode.getBody());
             nodeRepository.save(existingNode);
 
-            return null;
+            return existingNode;
 
         } else {
 
             AssertionBody newBodyVersion = new AssertionBody(title, body, user);
             newBodyVersion.setMajorVersion(existingNode.getBody().getMajorVersion()); // Same major version. Jumping to new major version will be a separate operation.
-            newBodyVersion.setMinorVersion(-1); // It's a draft, we don't know the minor version yet. Deferred until publish.
+            VersionHelper.decorateDraftBody(newBodyVersion);
 
             AssertionNode draftNode = newBodyVersion.constructNode(versionHelper);
 
-            for (Long id : children) {
-                ArgumentNode supportingNode = nodeRepository.findOne(id);
+            for (Integer id : children) {
+                ArgumentNode supportingNode = nodeRepository.findOne(Long.valueOf(id));
                 existingNode.supportedBy(supportingNode);
             }
+
 
             nodeRepository.save(draftNode);
 

@@ -30,9 +30,7 @@ public abstract class ArgumentNode {
         this.build = build;
     }
 
-    public ArgumentBody getBody() {
-        return body;
-    }
+    public abstract ArgumentBody getBody();
 
     public Build getBuild() {
         return build;

@@ -3,9 +3,9 @@
 
     angular
         .module('nodeStandControllers')
-        .directive('nodeGraph', ['$routeParams', '$http', 'NodeCache', nodeGraph]);
+        .directive('nodeGraph', ['$routeParams', '$modal', 'NodeCache', nodeGraph]);
 
-    function nodeGraph($routeParams, $http, NodeCache) {
+    function nodeGraph($routeParams, $modal, NodeCache) {
         return {
             restrict: "A",
             scope: {
@@ -13,22 +13,31 @@
             },
             templateUrl: "partials/graph.html",
             link: function (scope) {
-                initializeGraph(scope, $routeParams, $http, NodeCache);
+                initializeGraph(scope, $routeParams, $modal, NodeCache);
             }
         }
     }
 
-    function initializeGraph($scope, $routeParams, $http, NodeCache) {
+    function initializeGraph($scope, $routeParams, $modal, NodeCache) {
+
+        $scope.enterEditMode = function (node) {
+            prepareNodeForEditing(node);
+            node.inEditMode = true;
+        }
 
         if ($routeParams && $routeParams.rootId) {
             NodeCache.fetchGraphForId($routeParams.rootId, function() {
                 $scope.rootNodes = [];
                 $scope.rootNodes.push(NodeCache.get($routeParams.rootId));
             });
-        } else {
+        } else if ($scope.starterNode) {
             var starterNode = $scope.starterNode;
-            starterNode.isSelected = true;
             $scope.rootNodes = [starterNode];
+        } else {
+            var starterNode = NodeCache.getOrCreateDraftNode();
+            $scope.rootNodes = [starterNode];
+            $scope.enterEditMode(starterNode);
+            starterNode.isSelected = true;
         }
 
         $scope.hasChild = function (node) {
@@ -61,7 +70,13 @@
 
         $scope.toggleComments = function (node) {
             node.hideComments = !node.hideComments;
-        }
+        };
+
+        $scope.authorizedForEdit = function (node) {
+            return true;
+        };
+
+
 
         function ensureDetail(node) {
             if (!node.body.body) {
@@ -71,6 +86,66 @@
 
         function fetchDetail(node) {
             NodeCache.fetchNodeDetails(node);
+        }
+
+        function prepareNodeForEditing(node) {
+
+            node.startEditingTitle = function() {
+                node.editingTitle = true;
+            };
+
+            node.stopEditingTitle = function() {
+                node.editingTitle = false;
+                saveChanges(node);
+            };
+
+            function saveChanges(node) {
+                if (NodeCache.isDraftNode(node)) {
+                    NodeCache.saveDraftNode(null, function(newNode) {
+                        var index = $scope.rootNodes.indexOf(node);
+                        if (index) {
+                            $scope.rootNodes[index].id = newNode.id;
+                        }
+                    });
+                } else {
+                    NodeCache.saveNodeEdit(node, function(editedNode) {
+                        if (node.id != editedNode.id) {
+                            $scope.enterEditMode(editedNode);
+                            var index = $scope.rootNodes.indexOf(node);
+                            if (index) {
+                                $scope.rootNodes[index] = editedNode;
+                            }
+                        }
+                    });
+                }
+            }
+
+            node.doStopEditingBody = function() {
+                node.editingBody = false;
+                saveChanges(node);
+            }
+
+            node.doLinkChild = function(linkCallback) {
+
+                function nodeChosenForLinking(child) {
+                    child = NodeCache.addOrUpdateNode(child);
+                    node.children.push(child);
+                    saveChanges(node);
+
+                    NodeCache.fetchGraphForId(child.id);
+
+                    linkCallback(child.body.majorVersion.id, child.body.title);
+                }
+
+                $modal.open({
+                    templateUrl: "partials/link-child.html",
+                    controller: "LinkChildController",
+                    resolve: {
+                        linkCallback: function() {return nodeChosenForLinking; }
+                    }
+                });
+
+            };
         }
     }
 
