@@ -27,6 +27,10 @@ public class Comment implements Commentable {
 
     public Comment() {}
 
+    public long getId() {
+        return id;
+    }
+
     public void registerUpVote(User fan) {
 
         if (upVoters == null) {

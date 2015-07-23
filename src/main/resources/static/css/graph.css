@@ -140,9 +140,9 @@
 
     }
 
-    .nodeContent {
-        display: inline-block;
-    }
+    /*.nodeContent {*/
+        /*display: inline-block;*/
+    /*}*/
 
     .leftPaddingWithChild {
         padding-left: 0px;
@@ -151,6 +151,7 @@
 
 .toggleChildren {
     display: inline-block;
+    color: rgb(149, 176, 164);
 }
 
 .nodeDiv .icon-btn {
@@ -188,6 +189,18 @@
     border: solid 1px #d7d7d7;
 }
 
+.node-heading, .nodeContent {
+    position: relative;
+}
+
 .node-id {
     display: none;
+}
+
+.bottom-right-button {
+    position: absolute;
+    bottom: 3px;
+    right: 5px;
+    color: #b0b0b0;
+    cursor: pointer;
 }

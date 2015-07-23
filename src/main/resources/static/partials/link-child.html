@@ -3,20 +3,29 @@
 </div>
 <div class="modal-body">
 
-    <div class="well">
-        <p>Search for an existing node</p>
-        <input type="text" ng-model="selectedResult" placeholder="Search existing nodes"
-               typeahead="body.title for body in getSearchResults($viewValue)" typeahead-on-select="searchResultSelected($item, $model, $label)"
-               typeahead-min-length="3" typeahead-wait-ms="200" typeahead-editable="false"
-               class="form-control" auto-focus>
-        <button class="btn" ng-click="select()">Select</button>
+    <div ng-show="!isResultSelected">
+        <p>Search or enter new title</p>
+        <div class="well">
+            <input type="text" ng-model="selectedResult" placeholder="Search existing nodes"
+                   typeahead="body.title for body in getSearchResults($viewValue)" typeahead-on-select="searchResultSelected($item, $model, $label)"
+                   typeahead-min-length="3" typeahead-wait-ms="200" typeahead-editable="true"
+                   class="form-control" auto-focus>
+        </div>
+
+        <p>Can't find anything? <button class="btn btn-primary" ng-click="createNew()">Create new node with this title</button></p>
     </div>
-    <p>OR</p>
-    <div class="well">
-        <p>Create a new node</p>
-        <input id="titleInput" type="text" placeholder="Title for new node" class="form-control" ng-model="newTitle" />
-        <button class="btn" ng-click="createNew()">Create</button>
+    <div ng-show="isResultSelected">
+        <h3 class="node-link">{{chosenNode.body.title}}</h3>
+        <button class="btn" ng-click="clearSelection()">Clear</button>
+        <button class="btn btn-primary" ng-click="select()">Select</button>
     </div>
+
+    <!--<p>OR</p>-->
+    <!--<div class="well">-->
+        <!--<p>Create a new node</p>-->
+        <!--<input id="titleInput" type="text" placeholder="Title for new node" class="form-control" ng-model="newTitle" />-->
+        <!--<button class="btn" ng-click="createNew()">Create</button>-->
+    <!--</div>-->
 
 
 </div>

@@ -73,10 +73,6 @@ public abstract class ArgumentBody implements Commentable {
         this.minorVersion = minorVersion;
     }
 
-    public String getVersionString() {
-        return majorVersion.getVersionNumber() + "." + minorVersion;
-    }
-
     public DateTime getDateCreated() {
         return dateCreated;
     }

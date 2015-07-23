@@ -24,6 +24,7 @@
                 sortNodesByVersion(nodes);
 
                 $scope.chosenNode = nodes[nodes.length - 1];
+                $scope.isResultSelected = true;
 
             }, function(err) {
                 alert("There was an error: " + err);
@@ -40,6 +41,11 @@
             });
         }
 
+        $scope.clearSelection = function() {
+            $scope.isResultSelected = false;
+            $scope.chosenNode = null;
+        };
+
         $scope.select = function() {
             $modalInstance.close();
             linkCallback({chosenNode: $scope.chosenNode});
@@ -47,7 +53,7 @@
 
         $scope.createNew = function() {
             $modalInstance.close();
-            linkCallback({newTitle: $scope.newTitle});
+            linkCallback({newTitle: $scope.selectedResult});
         };
 
         $scope.cancel = function() {

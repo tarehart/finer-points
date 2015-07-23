@@ -25,10 +25,10 @@
         <div class="familyWrapper">
             <div ng-class="[{selected:isSelected(node)}, 'nodeDiv', 'panel', 'panel-default'].concat(node.labels)">
 
-                <div class="panel-heading" ng-class="{leftPaddingWithChild: hasChild(node)}">
+                <div class="panel-heading node-heading" ng-class="{leftPaddingWithChild: hasChild(node)}">
                     <div class="toggleChildren" ng-if="hasChild(node)">
 
-                        <button class="btn icon-btn" ng-click="toggleChildren(node); $event.stopPropagation();">
+                        <button class="btn icon-btn children-toggle" ng-click="toggleChildren(node); $event.stopPropagation();">
                             <span ng-if="node.hideChildren">
                                 <i class="fa fa-plus-circle"></i>
                             </span>
@@ -48,8 +48,8 @@
                             <i class="fa fa-check"></i>
                         </button>
                     </span>
-                    <span ng-click="toggleSelect(node);">
-                        <i class="fa fa-minus-circle"></i>
+                    <span ng-hide="isSelected(node)" ng-click="toggleSelect(node);" class="bottom-right-button">
+                        <i class="fa fa-expand"></i>
                     </span>
                 </div>
 
@@ -73,6 +73,9 @@
                             <span style="font-weight:bold">Comments</span>
                             <div ng-repeat="comment in node.comments" ng-include="'commentTree'"></div>
                         </div>
+                        <span ng-click="toggleSelect(node);" class="bottom-right-button">
+                            <i class="fa fa-compress"></i>
+                        </span>
                     </div>
                 </div>
             </div>
