@@ -14,7 +14,7 @@ import java.util.Set;
 @NodeEntity
 public class AssertionNode extends ArgumentNode {
 
-    private static final String TYPE = "assertion";
+    private final String type = "assertion";
 
     @RelatedTo(type="SUPPORTED_BY", direction = Direction.OUTGOING)
     private Set<ArgumentNode> supportingNodes;
@@ -27,7 +27,7 @@ public class AssertionNode extends ArgumentNode {
 
     @Override
     public String getType() {
-        return TYPE;
+        return type;
     }
 
     public Set<ArgumentNode> getSupportingNodes() {

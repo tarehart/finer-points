@@ -14,7 +14,7 @@ public abstract class ArgumentBody implements Commentable {
     @GraphId
     protected Long id;
 
-    @Indexed(indexName = "body-search", indexType= IndexType.FULLTEXT)
+    @Indexed(indexName = "title-search", indexType=IndexType.FULLTEXT)
     private String title;
 
     @Fetch

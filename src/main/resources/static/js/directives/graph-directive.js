@@ -180,7 +180,7 @@
                         var child = NodeCache.addOrUpdateNode(result.chosenNode);
                         attachChild(child);
                     } else {
-                        NodeCache.createAndSaveNode(result.newTitle, attachChild);
+                        NodeCache.createAndSaveNode(result.newTitle, result.type, attachChild);
                     }
                 }
 
@@ -188,7 +188,8 @@
                     templateUrl: "partials/link-child.html",
                     controller: "LinkChildController",
                     resolve: {
-                        linkCallback: function() {return nodeChosenForLinking; }
+                        linkCallback: function() {return nodeChosenForLinking; },
+                        currentNode: function() {return node; }
                     }
                 });
 

@@ -12,7 +12,12 @@
                    class="form-control" auto-focus>
         </div>
 
-        <p>Can't find anything? <button class="btn btn-primary" ng-click="createNew()">Create new node with this title</button></p>
+        <p>
+            <span>Can't find anything?</span>
+            <button class="btn btn-primary" ng-show="canCreateAssertion()" ng-click="createAssertion()">Create assertion with this title</button>
+            <button class="btn btn-primary" ng-show="canCreateInterpretation()" ng-click="createInterpretation()">Create interpretation with this title</button>
+            <button class="btn btn-primary" ng-show="canCreateSource()" ng-click="createSource()">Create source with this title</button>
+        </p>
     </div>
     <div ng-show="isResultSelected">
         <h3 class="node-link">{{chosenNode.body.title}}</h3>

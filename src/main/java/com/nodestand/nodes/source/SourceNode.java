@@ -4,7 +4,7 @@ import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.version.Build;
 
 public class SourceNode extends ArgumentNode {
-    private static final String TYPE = "source";
+    public final String type = "source";
 
     public SourceNode() {};
 
@@ -14,7 +14,7 @@ public class SourceNode extends ArgumentNode {
 
     @Override
     public String getType() {
-        return TYPE;
+        return type;
     }
 
     public SourceBody getBody() {

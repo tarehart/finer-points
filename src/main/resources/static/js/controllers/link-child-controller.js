@@ -3,11 +3,25 @@
 
     angular
         .module('nodeStandControllers')
-        .controller('LinkChildController', ['$scope', '$http', '$modalInstance', 'NodeCache', 'linkCallback', LinkChildController]);
+        .controller('LinkChildController', ['$scope', '$http', '$modalInstance', 'NodeCache', 'linkCallback', 'currentNode', LinkChildController]);
 
-    function LinkChildController($scope, $http, $modalInstance, NodeCache, linkCallback) {
+    function LinkChildController($scope, $http, $modalInstance, NodeCache, linkCallback, currentNode) {
+
+        var linkableTypes = [];
+
+        if (currentNode.getType() == "assertion") {
+            linkableTypes = ["assertion", "interpretation"];
+        } else if (currentNode.getType() == "interpretation") {
+            linkableTypes = ["source"];
+        }
+
+        function canLinkTo(type) {
+            return linkableTypes.indexOf(type) >= 0;
+        }
+
         $scope.getSearchResults = function(query) {
-            return $http.get('/search', {params: {query: query}})
+
+            return $http.get('/search', {params: {query: query, types:linkableTypes}})
                 .then(function(response){
 
                     var bodyList = response.data;
@@ -51,16 +65,38 @@
             linkCallback({chosenNode: $scope.chosenNode});
         };
 
-        $scope.createNew = function() {
+        $scope.createAssertion = function() {
+            createNew("assertion");
+        };
+
+        $scope.createInterpretation = function() {
+            createNew("interpretation");
+        };
+
+        $scope.createSource = function() {
+            createNew("source");
+        };
+
+        function createNew(type) {
             $modalInstance.close();
-            linkCallback({newTitle: $scope.selectedResult});
+            linkCallback({newTitle: $scope.selectedResult, type: type});
         };
 
         $scope.cancel = function() {
             $modalInstance.close();
         };
 
+        $scope.canCreateAssertion = function() {
+            return canLinkTo("assertion");
+        };
 
+        $scope.canCreateInterpretation = function() {
+            return canLinkTo("interpretation");
+        };
+
+        $scope.canCreateSource = function() {
+            return canLinkTo("source");
+        };
 
     }
 

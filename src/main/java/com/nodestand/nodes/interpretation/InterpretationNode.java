@@ -9,10 +9,10 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 
 @NodeEntity
 public class InterpretationNode extends ArgumentNode {
-    private static final String TYPE = "interpretation";
+    private final String type = "interpretation";
 
     @RelatedTo(type="INTERPRETS", direction = Direction.OUTGOING)
-    SourceNode source;
+    private SourceNode source;
 
     public InterpretationNode() {}
 
@@ -23,7 +23,11 @@ public class InterpretationNode extends ArgumentNode {
 
     @Override
     public String getType() {
-        return TYPE;
+        return type;
+    }
+
+    public SourceNode getSource() {
+        return source;
     }
 
     public void setSource(SourceNode source) {

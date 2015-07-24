@@ -34,6 +34,26 @@
                 }
             };
 
+            node.getType = function() {
+
+                if (node.type) {
+                    return node.type;
+                }
+
+                if (node.labels) {
+                    if (node.labels.indexOf("AssertionNode") >= 0) {
+                        return "assertion";
+                    }
+                    if (node.labels.indexOf("InterpretationNode") >= 0) {
+                        return "interpretation";
+                    }
+                    if (node.labels.indexOf("SourceNode") >= 0) {
+                        return "source";
+                    }
+                }
+                return null;
+            };
+
             return node;
         }
 
@@ -75,7 +95,7 @@
 
         cache.saveDraftNode = function(successCallback, errorCallback) {
             var node = cache.get(DRAFT_ID);
-            saveNode(node, function() {
+            saveNewAssertion(node, function(data) {
                 // Next time the draft node is requested, a fresh blank one should be built.
                 cache.nodes[DRAFT_ID] = null;
                 if (successCallback) {
@@ -84,21 +104,33 @@
             }, errorCallback);
         };
 
-        cache.createAndSaveNode = function(title, successCallback, errorCallback) {
+        cache.createAndSaveNode = function(title, type, successCallback, errorCallback) {
             var node = {
                 body: {title: title},
-                children: []
+                children: [],
+                getType: function() {return type;}
             };
-            saveNode(node, successCallback, errorCallback);
+
+            saveNewNode(node, successCallback, errorCallback);
         };
 
-        function saveNode(node, successCallback, errorCallback) {
+        function saveNewNode(node, successCallback, errorCallback) {
+            if (node.getType() == "assertion") {
+                saveNewAssertion(node, successCallback, errorCallback);
+            } else if (node.getType() == "interpretation") {
+                saveNewInterpretation(node, successCallback, errorCallback);
+            } else if (node.getType() == "source") {
+                saveNewSource(node, successCallback, errorCallback);
+            }
+        }
+
+        function saveNewAssertion(node, successCallback, errorCallback) {
 
             var links = node.children.map(function(child) {
                 return child.id;
             });
 
-            $http.post('/create',
+            $http.post('/createAssertion',
                 {
                     title: node.body.title,
                     body: node.body.body,
@@ -118,14 +150,96 @@
                 });
         }
 
+        function saveNewInterpretation(node, successCallback, errorCallback) {
+
+            var sourceId = null;
+            if (node.children && node.children.length) {
+                sourceId = node.children[0].id;
+            }
+
+            $http.post('/createInterpretation',
+                {
+                    title: node.body.title,
+                    body: node.body.body,
+                    sourceId: sourceId
+                })
+                .success(function (data) {
+                    cache.addOrUpdateNode(data);
+
+                    if (successCallback) {
+                        successCallback(data); // This callback probably ought to change the URL to incorporate the new id.
+                    }
+                })
+                .error(function(err) {
+                    if (errorCallback) {
+                        errorCallback(err);
+                    }
+                });
+        }
+
+        function saveNewSource(node, successCallback, errorCallback) {
+
+            var links = node.children.map(function(child) {
+                return child.id;
+            });
+
+            $http.post('/createSource',
+                {
+                    title: node.body.title,
+                    url: node.body.url
+                })
+                .success(function (data) {
+                    cache.addOrUpdateNode(data);
+
+                    if (successCallback) {
+                        successCallback(data); // This callback probably ought to change the URL to incorporate the new id.
+                    }
+                })
+                .error(function(err) {
+                    if (errorCallback) {
+                        errorCallback(err);
+                    }
+                });
+        }
+
         cache.saveNodeEdit = function(node, successCallback, errorCallback) {
+            if (node.getType() == "assertion") {
+                saveAssertionEdit(node, successCallback, errorCallback);
+            } else if (node.getType() == "interpretation") {
+                saveInterpretationEdit(node, successCallback, errorCallback);
+            } else if (node.getType() == "source") {
+                saveSourceEdit(node, successCallback, errorCallback);
+            } else {
+                console.log("Can't edit node because its type is unknown!");
+            }
+        };
+
+        function handleNodeEdit(editResponse, originalNode) {
+            var editedNode = cache.addOrUpdateNode(editResponse);
+
+            if (editedNode.id != originalNode.id) {
+                // The node had not been a draft, so a new one was produced to hold the edit. Provisionally,
+                // we will make the parent of the original point to the new draft, but because the draft is not
+                // published, this will not survive a page refresh.
+                $.each(cache.nodes, function (potentialParent) {
+                    var index = potentialParent.children.indexOf(originalNode);
+                    if (index) {
+                        potentialParent.children[index] = editedNode;
+                    }
+                });
+            }
+
+            return editedNode;
+        }
+
+        function saveAssertionEdit(node, successCallback, errorCallback) {
 
             var links = node.children.map(function(child) {
                 return child.id;
             });
 
             // Iff the node is not a draft, this operation will produce a new draft node with a new id.
-            $http.post('/editassertion',
+            $http.post('/editAssertion',
                 {
                     nodeId: node.id,
                     title: node.body.title,
@@ -133,19 +247,63 @@
                     links: links
                 })
                 .success(function (data) {
-                    var editedNode = cache.addOrUpdateNode(data);
+                    var editedNode = handleNodeEdit(data, node);
 
-                    if (editedNode.id != node.id) {
-                        // The node had not been a draft, so a new one was produced to hold the edit. Provisionally,
-                        // we will make the parent of the original point to the new draft, but because the draft is not
-                        // published, this will not survive a page refresh.
-                        $.each(cache.nodes, function(potentialParent) {
-                            var index = potentialParent.children.indexOf(node);
-                            if (index) {
-                                potentialParent.children[index] = editedNode;
-                            }
-                        });
+                    if (successCallback) {
+                        successCallback(editedNode); // This callback probably ought to change the URL to incorporate the new id.
                     }
+                })
+                .error(function(err) {
+                    if (errorCallback) {
+                        errorCallback(err);
+                    }
+                });
+        };
+
+        function saveInterpretationEdit(node, successCallback, errorCallback) {
+
+            var sourceId = null;
+            if (node.children && node.children.length) {
+                sourceId = node.children[0].id;
+            }
+
+            // Iff the node is not a draft, this operation will produce a new draft node with a new id.
+            $http.post('/editInterpretation',
+                {
+                    nodeId: node.id,
+                    title: node.body.title,
+                    body: node.body.body,
+                    sourceId: sourceId
+                })
+                .success(function (data) {
+                    var editedNode = handleNodeEdit(data, node);
+
+                    if (successCallback) {
+                        successCallback(editedNode); // This callback probably ought to change the URL to incorporate the new id.
+                    }
+                })
+                .error(function(err) {
+                    if (errorCallback) {
+                        errorCallback(err);
+                    }
+                });
+        };
+
+        function saveSourceEdit(node, successCallback, errorCallback) {
+
+            var links = node.children.map(function(child) {
+                return child.id;
+            });
+
+            // Iff the node is not a draft, this operation will produce a new draft node with a new id.
+            $http.post('/editSource',
+                {
+                    nodeId: node.id,
+                    title: node.body.title,
+                    url: node.body.url
+                })
+                .success(function (data) {
+                    var editedNode = handleNodeEdit(data, node);
 
                     if (successCallback) {
                         successCallback(editedNode); // This callback probably ought to change the URL to incorporate the new id.

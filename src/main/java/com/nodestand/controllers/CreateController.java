@@ -2,10 +2,14 @@ package com.nodestand.controllers;
 
 import com.nodestand.dao.GraphDao;
 import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.interpretation.InterpretationBody;
+import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.assertion.AssertionNode;
+import com.nodestand.nodes.source.SourceBody;
+import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.VersionHelper;
 import com.nodestand.service.NodeUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +53,7 @@ public class CreateController {
      */
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
-    @RequestMapping("/create")
+    @RequestMapping("/createAssertion")
     public ArgumentNode createAssertion(@RequestBody Map<String, Object> params) {
 
         User user = nodeUserDetailsService.getUserFromSession();
@@ -64,16 +68,45 @@ public class CreateController {
             node.supportedBy(linked);
         }
 
-        // If the node is saved without an author, it will not be found by the list query
-        // because the author is part of the pattern matching.
+        nodeRepository.save(node);
+        return node;
+    }
 
-        // When inspecting neo4j, be careful that you use MATCH n RETURN n LIMIT <high number>,
-        // otherwise the default of 25 will really confuse you.
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @RequestMapping("/createInterpretation")
+    public ArgumentNode createInterpretation(@RequestBody Map<String, Object> params) {
+
+        User user = nodeUserDetailsService.getUserFromSession();
+
+        InterpretationBody interpretationBody = new InterpretationBody((String) params.get("title"), (String) params.get("body"), user);
+
+        InterpretationNode node = interpretationBody.constructNode(versionHelper);
+
+        if (params.get("sourceId") != null) {
+            Long sourceId = Long.valueOf((Integer) params.get("sourceId"));
+            SourceNode source = (SourceNode) nodeRepository.findOne(sourceId);
+            node.setSource(source);
+        }
 
         nodeRepository.save(node);
-
         return node;
+    }
 
+
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @RequestMapping("/createSource")
+    public ArgumentNode createSource(@RequestBody Map<String, Object> params) {
+
+        User user = nodeUserDetailsService.getUserFromSession();
+
+        SourceBody sourceBody = new SourceBody((String) params.get("title"), user, (String) params.get("url"));
+
+        SourceNode node = sourceBody.constructNode(versionHelper);
+
+        nodeRepository.save(node);
+        return node;
     }
 
     @Transactional

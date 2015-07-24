@@ -7,7 +7,7 @@ import com.nodestand.nodes.version.VersionHelper;
 
 public class SourceBody extends ArgumentBody {
 
-    public String url;
+    private String url;
 
     public SourceBody() {}
 
@@ -22,6 +22,14 @@ public class SourceBody extends ArgumentBody {
 
     public SourceBody(String title, User author, String url, MajorVersion majorVersion) {
         super(title, author, majorVersion);
+        this.url = url;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
         this.url = url;
     }
 }

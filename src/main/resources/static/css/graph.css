@@ -50,6 +50,18 @@
         width: 40px;
     }
 
+    .InterpretationNode>.nodeDiv:after, .InterpretationNode>.childrenDiv:before {
+        background: black;
+    }
+
+    .SourceNode>.nodeDiv:after {
+        background-color: black;
+        border-bottom-right-radius: 5px;
+        border-top-right-radius: 5px;
+        width: 5px;
+        right: -5px;
+    }
+
     .familyWrapper {
         /* See http://stackoverflow.com/questions/3032856/z-index-of-before-or-after-to-be-below-the-element-is-that-possible */
         position: relative;
@@ -204,3 +216,4 @@
     color: #b0b0b0;
     cursor: pointer;
 }
+
