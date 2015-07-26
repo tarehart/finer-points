@@ -50,11 +50,11 @@
         width: 40px;
     }
 
-    .InterpretationNode>.nodeDiv:after, .InterpretationNode>.childrenDiv:before {
+    .interpretation>.nodeDiv:after, .interpretation>.childrenDiv:before {
         background: black;
     }
 
-    .SourceNode>.nodeDiv:after {
+    .source>.nodeDiv:after {
         background-color: black;
         border-bottom-right-radius: 5px;
         border-top-right-radius: 5px;

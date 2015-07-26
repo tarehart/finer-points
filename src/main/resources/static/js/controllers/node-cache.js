@@ -35,21 +35,8 @@
             };
 
             node.getType = function() {
-
                 if (node.type) {
                     return node.type;
-                }
-
-                if (node.labels) {
-                    if (node.labels.indexOf("AssertionNode") >= 0) {
-                        return "assertion";
-                    }
-                    if (node.labels.indexOf("InterpretationNode") >= 0) {
-                        return "interpretation";
-                    }
-                    if (node.labels.indexOf("SourceNode") >= 0) {
-                        return "source";
-                    }
                 }
                 return null;
             };
@@ -82,7 +69,8 @@
             var node = decorateWithRequiredProperties({
                 id: DRAFT_ID,
                 editingBody: true,
-                editingTitle: true
+                editingTitle: true,
+                type: "assertion"
             });
 
             cache.nodes[node.id] = node;
@@ -223,7 +211,7 @@
                 // published, this will not survive a page refresh.
                 $.each(cache.nodes, function (potentialParent) {
                     var index = potentialParent.children.indexOf(originalNode);
-                    if (index) {
+                    if (index >= 0) {
                         potentialParent.children[index] = editedNode;
                     }
                 });

@@ -22,7 +22,7 @@
     </script>
 
     <script type="text/ng-template" id="floatTree">
-        <div ng-class="['familyWrapper'].concat(node.labels)">
+        <div ng-class="['familyWrapper', node.type]">
             <div ng-class="[{selected:isSelected(node)}, 'nodeDiv', 'panel', 'panel-default']">
 
                 <div class="panel-heading node-heading" ng-class="{leftPaddingWithChild: hasChild(node)}">

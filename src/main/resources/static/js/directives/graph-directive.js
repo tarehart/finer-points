@@ -108,7 +108,7 @@
                 if (NodeCache.isDraftNode(node)) {
                     NodeCache.saveDraftNode(function(newNode) {
                         var index = $scope.rootNodes.indexOf(node);
-                        if (index) {
+                        if (index >= 0) {
                             $scope.rootNodes[index].id = newNode.id;
                         }
                     });
@@ -117,7 +117,7 @@
                         if (node.id != editedNode.id) {
                             $scope.enterEditMode(editedNode);
                             var index = $scope.rootNodes.indexOf(node);
-                            if (index) {
+                            if (index >= 0) {
                                 $scope.rootNodes[index] = editedNode;
                             }
                         }
