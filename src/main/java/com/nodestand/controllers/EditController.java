@@ -109,6 +109,7 @@ public class EditController {
 
                 AssertionNode draftNode = newBodyVersion.constructNode(versionHelper);
                 setChildrenOnAssertion(children, draftNode);
+                draftNode.setPreviousVersion(existingNode);
 
                 nodeRepository.save(draftNode);
 

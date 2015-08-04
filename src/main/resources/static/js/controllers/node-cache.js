@@ -16,9 +16,8 @@
 
         function decorateWithRequiredProperties(node) {
             node.children = node.children || [];
-            node.body = node.body || {
-                author: {}
-            };
+            node.body = node.body || {};
+            node.body.author = node.body.author || {};
 
             node.setBody = function(text) {
                 node.body.body = text;
@@ -39,6 +38,20 @@
                     return node.type;
                 }
                 return null;
+            };
+
+            node.getVersionString = function() {
+
+                var version = "";
+                if (node.body.majorVersion) {
+                    version = node.body.majorVersion.versionNumber + ".";
+                    if (node.body.minorVersion < 0) {
+                        return version + "x";
+                    }
+                    version += node.body.minorVersion + "." + (node.buildVersion || "x");
+                }
+
+                return version;
             };
 
             return node;
@@ -70,13 +83,16 @@
                 id: DRAFT_ID,
                 editingBody: true,
                 editingTitle: true,
-                type: "assertion"
+                type: "assertion",
+                body: {draft: true}
             });
 
             cache.nodes[node.id] = node;
             return node;
         };
 
+        // This refers to whether this node is completely unsaved and does not exist in the database,
+        // NOT whether it has been published (which is what node.isDraft determines).
         cache.isDraftNode = function(node) {
             return node == cache.get(DRAFT_ID);
         }
@@ -209,7 +225,12 @@
                 // The node had not been a draft, so a new one was produced to hold the edit. Provisionally,
                 // we will make the parent of the original point to the new draft, but because the draft is not
                 // published, this will not survive a page refresh.
-                $.each(cache.nodes, function (potentialParent) {
+
+                // TODO: consider making a server-side edit to the parent.
+                // If the parent is a draft, that would go smoothly. If it's not,
+                // a draft would be created and we'd want to recurse and handle that edit too.
+                //
+                $.each(cache.nodes, function (id, potentialParent) {
                     var index = potentialParent.children.indexOf(originalNode);
                     if (index >= 0) {
                         potentialParent.children[index] = editedNode;
@@ -295,6 +316,25 @@
 
                     if (successCallback) {
                         successCallback(editedNode); // This callback probably ought to change the URL to incorporate the new id.
+                    }
+                })
+                .error(function(err) {
+                    if (errorCallback) {
+                        errorCallback(err);
+                    }
+                });
+        };
+
+        cache.publishNode = function(node, successCallback, errorCallback) {
+            $http.post('/publishNode',
+                {
+                    nodeId: node.id
+                })
+                .success(function (data) {
+                    cache.addOrUpdateNode(data);
+
+                    if (successCallback) {
+                        successCallback(data); // This callback probably ought to change the URL to incorporate the new id.
                     }
                 })
                 .error(function(err) {
@@ -403,7 +443,9 @@
             }
         }
 
-        cache.fetchNodeDetails = function(node) {
+        cache.fetchNodeDetails = function(nodeId) {
+            var node = cache.get(nodeId);
+
             $http.get('/detail', {params: {"id": node.body.id}}).success(function (data) {
 
                 // Detail returns the current ArgumentNode in full detail,

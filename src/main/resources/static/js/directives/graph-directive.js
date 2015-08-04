@@ -20,6 +20,8 @@
 
     function initializeGraph($scope, $routeParams, $modal, NodeCache) {
 
+        $scope.publishableNodes = [];
+
         $scope.enterEditMode = function (node) {
             prepareNodeForEditing(node);
             node.inEditMode = true;
@@ -36,6 +38,7 @@
         } else {
             var starterNode = NodeCache.getOrCreateDraftNode();
             $scope.rootNodes = [starterNode];
+            $scope.draftNodes = [starterNode];
             $scope.enterEditMode(starterNode);
             starterNode.isSelected = true;
         }
@@ -81,8 +84,6 @@
             return true;
         };
 
-
-
         function ensureDetail(node) {
             if (!node.body.body) {
                 fetchDetail(node);
@@ -90,7 +91,7 @@
         }
 
         function fetchDetail(node) {
-            NodeCache.fetchNodeDetails(node);
+            NodeCache.fetchNodeDetails(node.id);
         }
 
         function prepareNodeForEditing(node) {
@@ -195,6 +196,73 @@
 
             };
         }
+
+        $scope.readyToPublish = function(node) {
+            return node.body.draft && allowsPublish(node, {});
+        };
+
+        $scope.publishNode = function(node) {
+            var publishableSet = {};
+            if (allowsPublish(node, publishableSet)) {
+                NodeCache.publishNode(node, function() {
+                    $.each(publishableSet, function(key) {
+                        // TODO: This may not fetch the new build version, since it focuses on the body.
+                        // You may want to expand on what fetchNodeDetails does.
+                        NodeCache.fetchNodeDetails(key);
+                    });
+                });
+            } else {
+                // TODO: display an error
+            }
+        };
+
+        function allowsPublish(node, publishableSet) {
+
+            if (publishableSet[node.id] || node.body.draft === false) {
+                return true;
+            }
+
+            if (!node.body.title) {
+                return false;
+            }
+
+            if (node.type == "source") {
+                // TODO: uncomment once we can put URLs on sources
+                //if (node.body.url) {
+                //    publishableSet[node.id] = 1;
+                //    return true;
+                //}
+                //return false;
+
+                // TODO: remove this
+                publishableSet[node.id] = 1;
+                return true;
+
+            }
+
+            if (node.type == "interpretation") {
+                if (node.body.body && node.children.length == 1 && allowsPublish(node.children[0], publishableSet)) {
+                    publishableSet[node.id] = 1;
+                    return true;
+                }
+                return false;
+            }
+
+            if (node.type == "assertion") {
+                if (node.body.body && node.children.length) {
+                    for (var i = 0; i < node.children.length; i++) {
+                        if (!allowsPublish(node.children[i], publishableSet)) {
+                            return false;
+                        }
+                    }
+                    publishableSet[node.id] = 1;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+
     }
 
 })();

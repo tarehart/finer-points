@@ -2,16 +2,22 @@ package com.nodestand.nodes.version;
 
 import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.NodeRulesException;
+import com.nodestand.nodes.assertion.AssertionNode;
+import com.nodestand.nodes.interpretation.InterpretationNode;
+import com.nodestand.nodes.repository.ArgumentBodyRepository;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.kernel.impl.core.RelationshipProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.core.GraphDatabase;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
+import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class VersionHelper {
@@ -23,6 +29,12 @@ public class VersionHelper {
 
     @Autowired
     ArgumentNodeRepository nodeRepository;
+
+    @Autowired
+    Neo4jOperations neo4jOperations;
+
+    @Autowired
+    Neo4jTemplate neo4jTemplate;
 
     /**
      * This sets the major and minor version on the draft body.
@@ -69,13 +81,37 @@ public class VersionHelper {
         return 0;
     }
 
+    private int getNextBuildVersion(ArgumentBody body) {
+        Map<String, Object> params = new HashMap<>();
+        params.put( "id", body.getId() );
+
+        Result<Map<String, Object>> result = graphDatabase.queryEngine().query("start n=node({id}) " +
+                "match node-[DEFINED_BY]->n " +
+                "return max(node.buildVersion) as " + CURRENT_MAX_KEY, params);
+
+        Map<String, Object> resultMap = result.singleOrNull();
+        if (resultMap != null) {
+            int currentMax = (int) resultMap.get(CURRENT_MAX_KEY);
+            return currentMax + 1;
+        }
+
+        return 0;
+    }
+
     private Node getLockNode(MajorVersion mv) {
         return graphDatabase.getNodeById(mv.getId());
     }
 
-    public void publish(ArgumentNode node) {
+    public void publish(ArgumentNode node) throws NodeRulesException {
 
-        // TODO: validate that the node and its descendants follow all the rules, e.g. being grounded in sources
+        if (!node.getType().equals("source")) {
+            // validate that the node and its descendants follow all the rules, e.g. being grounded in sources
+            if (hasMissingSupport(node)) {
+                throw new NodeRulesException("The roots of this node do not all end in sources!");
+            }
+            publishDescendantDrafts(node);
+        }
+
 
         try ( Transaction tx = graphDatabase.beginTx() ) {
             ArgumentBody body = node.getBody();
@@ -84,12 +120,124 @@ public class VersionHelper {
                 body.setMinorVersion(getNextMinorVersion(body.getMajorVersion()));
             }
             node.setVersion(0);
+            body.setIsDraft(false);
+            neo4jOperations.save(node.getBody());
             nodeRepository.save(node);
             tx.success();
         }
         
-        // TODO: make new nodes with new version numbers for all consumers. Decorate with the Build object.
+        // make new nodes with new version numbers for all consumers. Decorate with the Build object.
+        propagateBuild(node);
 
-        // TODO: worry about concurrency for setting build numbers.
+        // TODO: think about concurrency for setting build numbers.
+    }
+
+    private void publishDescendantDrafts(ArgumentNode node) throws NodeRulesException {
+
+        if (node instanceof AssertionNode) {
+            AssertionNode assertion = (AssertionNode) node;
+
+            // If assertion.getSupportingNodes returns null, this will go awry. Keep an eye on it.
+            neo4jTemplate.fetch(assertion.getSupportingNodes());
+
+            for (ArgumentNode childNode : assertion.getSupportingNodes()) {
+                if (childNode.getBody().isDraft()) {
+                    publish(childNode);
+                }
+            }
+        } else if (node instanceof InterpretationNode) {
+            InterpretationNode interpretation = (InterpretationNode) node;
+
+            // If interpretation.getSource returns null, this will go awry. Keep an eye on it.
+            neo4jTemplate.fetch(interpretation.getSource());
+
+            if (interpretation.getSource().getBody().isDraft()) {
+                publish(interpretation.getSource());
+            }
+        }
+    }
+
+    private boolean hasMissingSupport(ArgumentNode node) {
+        // TODO: consider making the isDraft attribute belong to nodes instead of bodies so that we can easily
+        // short-circuit these queries.
+
+        Map<String, Object> params = new HashMap<>();
+        params.put( "id", node.getId() );
+
+        Result<Map<String, Object>> result = graphDatabase.queryEngine().query(
+                "start n=node({id}) match n-[:SUPPORTED_BY*0..]->" +
+                        "(support:ArgumentNode) " +
+                        "WHERE NOT support-[:INTERPRETS]->(:SourceNode) " +
+                        "AND NOT support-[:SUPPORTED_BY]->(:ArgumentNode) " +
+                        "return support", params);
+
+        return result.singleOrNull() != null;
+    }
+
+    /**
+     * Be careful with this, it does a lot of recursion and hits the database.
+     *
+     * The question of what nodes should have the build propagated to them, i.e. which trees will be made to incorporate
+     * the edit, is a bit complicated. Consider these scenarios:
+     *
+     * The user has a draft A which points to an existing node B, and they have edited the existing node B, and they are now
+     * publishing that edit of B. The draft A should be included in the build, but any consumers of A should not.
+     *
+     *
+     *
+     * Note for later: when rendering the graph of a major version node, we pick the best argument node within it and
+     * run with it. Best is defined as: the most recently published node which is a direct iteration on the previous
+     * best node. To implement this, we can mark a node as the 'tip' and have that tip marking pass on to qualifying
+     * changes.
+     *
+     *
+     *
+     * New idea: If you are editing a non-tip node, maybe we should automatically make that a new major version.
+     *
+     * Possible confusion: A user edits a particular node, then goes to a different tree and sees a node with the same
+     * title but slightly different content. Should they edit that too? It would be preferable to look at the parent and
+     * see a button to "point it to my version instead of this current one."
+     *
+     * Maybe there should not be a special tip node because that could contribute to edit wars.
+     *
+     * TODO: instead of making repeated reads from the database, select out the entire consumer tree first and then
+     * operate on that.
+     *
+     * @param updatedNode
+     */
+    private void propagateBuild(ArgumentNode updatedNode) throws NodeRulesException {
+
+        if (updatedNode.getPreviousVersion() == null) {
+            return;
+        }
+
+        Map<String, Object> params = new HashMap<>();
+        params.put( "id", updatedNode.getPreviousVersion().getId() );
+
+        Result<Map<String, Object>> result = graphDatabase.queryEngine().query("start n=node({id}) " +
+                "match consumer-[:SUPPORTED_BY|INTERPRETS]->n return consumer", params);
+
+
+        List<ArgumentNode> consumers = new LinkedList<>();
+
+        for (Map<String, Object> map: result) {
+            consumers.add(neo4jOperations.convert(map.get("consumer"), ArgumentNode.class));
+        }
+        result.finish();
+
+        for (ArgumentNode consumer: consumers) {
+
+            ArgumentNode updatedConsumer = buildNewCopy(consumer, updatedNode);
+            updatedConsumer.setVersion(getNextBuildVersion(updatedConsumer.getBody()));
+            nodeRepository.save(updatedConsumer);
+
+            propagateBuild(updatedConsumer);
+
+        }
+    }
+
+    private ArgumentNode buildNewCopy(ArgumentNode original, ArgumentNode updatedNode) throws NodeRulesException {
+        ArgumentNode newCopy = original.cloneForMinorVersionUpdate(updatedNode);
+        return newCopy;
     }
 }

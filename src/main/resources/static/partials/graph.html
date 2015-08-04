@@ -55,7 +55,7 @@
 
                 <div class="nodeContent panel-body" ng-hide="!isSelected(node)">
                     <div ng-if="isSelected(node)">
-                        <p class="byLine">by {{node.body.author.displayName}}</p>
+                        <p class="byLine">Authored by {{node.body.author.displayName}}. v{{node.getVersionString()}}</p>
 
                         <div ng-if="node.editingBody">
                             <textarea set-text="node.setBody" done-fn="node.stopEditingBody" link-fn="node.linkChild" markdown-editor>{{node.body.body}}</textarea>
@@ -63,6 +63,7 @@
                         <div ng-if="!node.editingBody">
                             <button ng-if="node.inEditMode" ng-click="node.editingBody = true" type="button" class="btn btn-default btn-xs body-edit-btn">Edit</button>
                             <div ng-markdown="node.body.body" render-markdown></div>
+                            <button ng-if="readyToPublish(node)" ng-click="publishNode(node)" type="button" class="btn btn-primary btn-xs">Publish</button>
                         </div>
 
                         <div ng-if="!node.inEditMode">

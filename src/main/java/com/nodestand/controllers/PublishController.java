@@ -2,6 +2,7 @@ package com.nodestand.controllers;
 
 import com.nodestand.auth.NotAuthorizedException;
 import com.nodestand.dao.GraphDao;
+import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.ImmutableNodeException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionBody;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @RestController
 public class PublishController {
@@ -34,12 +37,13 @@ public class PublishController {
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
-    @RequestMapping("/publishassertion")
-    public AssertionNode publishAssertion(@RequestBody Long assertionNodeId) throws Exception {
+    @RequestMapping("/publishNode")
+    public ArgumentNode publishNode(@RequestBody Map<String, Object> params) throws Exception {
 
         User user = nodeUserDetailsService.getUserFromSession();
+        Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
 
-        AssertionNode existingNode = (AssertionNode) nodeRepository.findOne(assertionNodeId);
+        ArgumentNode existingNode = nodeRepository.findOne(nodeId);
 
         if (user.getNodeId() != existingNode.getBody().author.getNodeId()) {
             throw new NotAuthorizedException("Not allowed to publish a draft that you did not create.");
@@ -50,6 +54,10 @@ public class PublishController {
         }
 
         versionHelper.publish(existingNode);
+
+        // TODO: discover whether this node's dependencies have had any updates within their major versions since the
+        // draft was originally created. If so, we should give the user the opportunity to bring in the new stuff.
+        // However, the default behavior should be to not bring in the new stuff, wary as we are of dummies and vandalism.
 
         return existingNode;
 

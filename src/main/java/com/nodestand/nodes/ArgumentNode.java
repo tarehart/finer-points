@@ -13,7 +13,7 @@ public abstract class ArgumentNode {
     @GraphId
     protected Long id;
 
-    protected int buildVersion;
+    protected int buildVersion = -1;
 
     @Fetch
     @RelatedTo(type="BUILT_BY", direction = Direction.OUTGOING)
@@ -22,6 +22,9 @@ public abstract class ArgumentNode {
     @Fetch
     @RelatedTo(type="DEFINED_BY", direction = Direction.OUTGOING)
     protected ArgumentBody body;
+
+    @RelatedTo(type="PRECEDED_BY", direction = Direction.OUTGOING)
+    protected ArgumentNode previousVersion;
 
     public ArgumentNode() {}
 
@@ -46,4 +49,49 @@ public abstract class ArgumentNode {
 
     public abstract String getType();
 
+    /**
+     * This will set the body and build properly, but it does not address the buildVersion property. That must be
+     * taken care of separately.
+     *
+     * If the node is a draft, this will not actually produce a clone, it will just modify the draft in place and
+     * return it.
+     */
+    public abstract ArgumentNode cloneForMinorVersionUpdate(ArgumentNode updatedNode) throws NodeRulesException;
+
+    public void setBuild(Build build) {
+        this.build = build;
+    }
+
+    public ArgumentNode getPreviousVersion() {
+        return previousVersion;
+    }
+
+    public void setPreviousVersion(ArgumentNode previousVersion) {
+        this.previousVersion = previousVersion;
+    }
+
+    /**
+     * We edit in place if it's a draft, or if this node has already been touched by this same build.
+     * The latter can happen if there's a tree like this:
+     * A - B
+     *  \   \
+     *   C - D
+     *
+     * @param buildInProgress
+     * @return
+     */
+    protected boolean shouldEditInPlace(Build buildInProgress) {
+        return getBody().isDraft() || getBuild().equals(buildInProgress);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+        if (!this.getClass().equals(other.getClass())) {
+            return false;
+        }
+        return this.getId() == ((ArgumentNode)other).getId();
+    }
 }
