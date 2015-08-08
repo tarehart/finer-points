@@ -49,6 +49,8 @@ public class SocialConfig extends SocialConfigurerAdapter {
     @Bean
     public ConnectionFactoryLocator connectionFactoryLocator() {
         ConnectionFactoryRegistry registry = new ConnectionFactoryRegistry();
+        // Create an application.properties file in the project root and fill in these properties from
+        // https://console.developers.google.com/project/node-stand/apiui/credential
         registry.addConnectionFactory(new GoogleConnectionFactory(environment.getProperty("googleClientId"),
                 environment.getProperty("googleClientSecret")));
         return registry;
