@@ -58,11 +58,19 @@
                         <p class="byLine">Authored by {{node.body.author.displayName}}. v{{node.getVersionString()}}</p>
 
                         <div ng-if="node.editingBody">
-                            <textarea set-text="node.setBody" done-fn="node.stopEditingBody" link-fn="node.linkChild" markdown-editor>{{node.body.body}}</textarea>
+                            <textarea ng-if="node.type !== 'source'" set-text="node.setBody" done-fn="node.stopEditingBody" link-fn="node.linkChild" markdown-editor>{{node.body.body}}</textarea>
+                            <div ng-if="node.type === 'source'" class="form-inline">
+                                <input type="text" class="form-control" placeholder="http://..." ng-model="node.body.url" />
+                                <button ng-click="node.stopEditingBody()" type="button" class="btn icon-btn">
+                                    <i class="fa fa-check"></i>
+                                </button>
+                            </div>
+
                         </div>
                         <div ng-if="!node.editingBody">
                             <button ng-if="node.inEditMode" ng-click="node.editingBody = true" type="button" class="btn btn-default btn-xs body-edit-btn">Edit</button>
-                            <div ng-markdown="node.body.body" render-markdown></div>
+                            <div ng-if="node.type !== 'source'" ng-markdown="node.body.body" render-markdown></div>
+                            <a ng-if="node.type === 'source'" ng-href="{{node.body.url}}" target="_blank">{{node.body.url}}</a>
                             <button ng-if="readyToPublish(node)" ng-click="publishNode(node)" type="button" class="btn btn-primary btn-xs">Publish</button>
                         </div>
 
@@ -81,7 +89,7 @@
                 </div>
             </div>
             <div class="childrenDiv" ng-if="hasChild(node) && !node.hideChildren">
-                <div ng-repeat="node in node.children" ng-include="'floatTree'"></div>
+                <div ng-repeat="node in node.children" class="childDiv" ng-include="'floatTree'"></div>
             </div>
         </div>
     </script>
