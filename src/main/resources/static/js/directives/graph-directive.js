@@ -114,7 +114,12 @@
                         }
                     });
                 } else {
-                    NodeCache.saveNodeEdit(node, function(editedNode) {
+                    // At the moment, this list of rootNodes is always size 1.
+                    // The reason it's currently a list and not just a variable is to support the way that
+                    // the angular template kicks off its recursion.
+                    var rootNode = $scope.rootNodes[0];
+
+                    NodeCache.saveNodeEdit(node, rootNode, function(editedNode) {
                         if (node.id != editedNode.id) {
                             $scope.enterEditMode(editedNode);
                             var index = $scope.rootNodes.indexOf(node);

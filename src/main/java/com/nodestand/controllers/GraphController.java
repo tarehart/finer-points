@@ -1,5 +1,6 @@
 package com.nodestand.controllers;
 
+import com.nodestand.controllers.serial.QuickGraphResponse;
 import com.nodestand.dao.GraphDao;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class GraphController {
 
     @Transactional
     @RequestMapping("/graph")
-    public Map<String, Object> getGraph(@RequestParam(value="rootId", required=true) long rootId) {
+    public QuickGraphResponse getGraph(@RequestParam(value="rootId", required=true) long rootId) {
         return graphDao.getGraph(rootId);
     }
 

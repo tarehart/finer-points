@@ -1,6 +1,7 @@
 package com.nodestand.dao;
 
-import com.nodestand.nodes.ArgumentBody;
+import com.nodestand.controllers.serial.QuickEdge;
+import com.nodestand.controllers.serial.QuickGraphResponse;
 import com.nodestand.nodes.ArgumentNode;
 import org.neo4j.kernel.impl.core.RelationshipProxy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,8 +9,6 @@ import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.core.GraphDatabase;
 import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Component;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.*;
 
@@ -22,7 +21,7 @@ public class GraphDao {
     @Autowired
     Neo4jOperations neo4jOperations;
 
-    public Map<String, Object> getGraph(long rootId) {
+    public QuickGraphResponse getGraph(long rootId) {
 
         Map<String, Object> params = new HashMap<>();
         params.put("id", rootId);
@@ -37,27 +36,19 @@ public class GraphDao {
                 "}" +
                 "} as ArgumentNode, support", params);
 
-        List<Map<String, Object>> nodes = new LinkedList<>();
-        Set<List<Long>> edges = new HashSet<>();
-        Map<String, Object> everything = new HashMap<>();
+        Set<Map<String, Object>> nodes = new HashSet<>();
+        Set<QuickEdge> properEdges = new HashSet<>();
+
 
         for (Map<String, Object> map: result) {
             nodes.add((Map<String, Object>) map.get("ArgumentNode"));
             List<RelationshipProxy> rels = (List<RelationshipProxy>) map.get("support");
             for (RelationshipProxy rel: rels) {
-                edges.add(Arrays.asList(
-                        rel.getStartNode().getId(),
-                        rel.getEndNode().getId()));
+                properEdges.add(new QuickEdge(rel.getStartNode().getId(), rel.getEndNode().getId()));
             }
         }
 
-        everything.put("nodes", nodes);
-        everything.put("edges", edges);
-
-
-
-        return everything;
-
+        return new QuickGraphResponse(nodes, properEdges);
     }
 
     public Map<String, Object> getBodyChoices(long bodyId) {

@@ -1,6 +1,7 @@
 package com.nodestand.nodes.source;
 
 import com.nodestand.nodes.ArgumentBody;
+import com.nodestand.nodes.ImmutableNodeException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.version.MajorVersion;
 import com.nodestand.nodes.version.VersionHelper;
@@ -13,7 +14,7 @@ public class SourceBody extends ArgumentBody {
 
     @Override
     public SourceNode constructNode(VersionHelper versionHelper) {
-        return new SourceNode(this, versionHelper.startBuild(this));
+        return new SourceNode(this, VersionHelper.startBuild(author));
     }
 
     public SourceBody(String title, User author, String url) {
@@ -29,7 +30,10 @@ public class SourceBody extends ArgumentBody {
         return url;
     }
 
-    public void setUrl(String url) {
+    public void setUrl(String url) throws ImmutableNodeException {
+        if (!isDraft()) {
+            throw new ImmutableNodeException("Cannot edit a url unless the source is in draft mode. Must create a new version.");
+        }
         this.url = url;
     }
 }

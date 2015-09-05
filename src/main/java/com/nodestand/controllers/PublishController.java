@@ -49,7 +49,7 @@ public class PublishController {
             throw new NotAuthorizedException("Not allowed to publish a draft that you did not create.");
         }
 
-        if (!existingNode.getBody().isDraft()) {
+        if (!existingNode.isDraft()) {
             throw new Exception("No new changes to publish!");
         }
 

@@ -15,7 +15,7 @@ public class InterpretationBody extends ArgumentBody {
     @Override
     public InterpretationNode constructNode(VersionHelper versionHelper) {
 
-        return new InterpretationNode(this, versionHelper.startBuild(this));
+        return new InterpretationNode(this, VersionHelper.startBuild(author));
     }
 
     public InterpretationBody(String title, String body, User author) {

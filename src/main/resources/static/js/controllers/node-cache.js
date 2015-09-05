@@ -206,20 +206,20 @@
                 });
         }
 
-        cache.saveNodeEdit = function(node, successCallback, errorCallback) {
+        cache.saveNodeEdit = function(node, root, successCallback, errorCallback) {
             if (node.getType() == "assertion") {
-                saveAssertionEdit(node, successCallback, errorCallback);
+                saveAssertionEdit(node, root, successCallback, errorCallback);
             } else if (node.getType() == "interpretation") {
-                saveInterpretationEdit(node, successCallback, errorCallback);
+                saveInterpretationEdit(node, root, successCallback, errorCallback);
             } else if (node.getType() == "source") {
-                saveSourceEdit(node, successCallback, errorCallback);
+                saveSourceEdit(node, root, successCallback, errorCallback);
             } else {
                 console.log("Can't edit node because its type is unknown!");
             }
         };
 
         function handleNodeEdit(editResponse, originalNode) {
-            var editedNode = cache.addOrUpdateNode(editResponse);
+            var editedNode = cache.addOrUpdateNode(editResponse.editedNode);
 
             if (editedNode.id != originalNode.id) {
                 // The node had not been a draft, so a new one was produced to hold the edit. Provisionally,
@@ -241,7 +241,7 @@
             return editedNode;
         }
 
-        function saveAssertionEdit(node, successCallback, errorCallback) {
+        function saveAssertionEdit(node, root, successCallback, errorCallback) {
 
             var links = node.children.map(function(child) {
                 return child.id;
@@ -251,6 +251,7 @@
             $http.post('/editAssertion',
                 {
                     nodeId: node.id,
+                    rootId: root.id,
                     title: node.body.title,
                     body: node.body.body,
                     links: links
@@ -269,7 +270,7 @@
                 });
         };
 
-        function saveInterpretationEdit(node, successCallback, errorCallback) {
+        function saveInterpretationEdit(node, root, successCallback, errorCallback) {
 
             var sourceId = null;
             if (node.children && node.children.length) {
@@ -280,6 +281,7 @@
             $http.post('/editInterpretation',
                 {
                     nodeId: node.id,
+                    rootId: root.id,
                     title: node.body.title,
                     body: node.body.body,
                     sourceId: sourceId
@@ -298,7 +300,7 @@
                 });
         };
 
-        function saveSourceEdit(node, successCallback, errorCallback) {
+        function saveSourceEdit(node, root, successCallback, errorCallback) {
 
             var links = node.children.map(function(child) {
                 return child.id;
@@ -308,6 +310,7 @@
             $http.post('/editSource',
                 {
                     nodeId: node.id,
+                    rootId: root.id,
                     title: node.body.title,
                     url: node.body.url
                 })
@@ -380,11 +383,11 @@
                 var node = cache.get(id);
                 node.children = [];
                 var edges = edgeList.filter(function (el) {
-                    return el[0] == id;
+                    return el.start == id;
                 });
 
                 for (var j = 0; j < edges.length; j++) {
-                    var child = cache.get(edges[j][1]);
+                    var child = cache.get(edges[j].end);
                     node.children.push(child);
                     if (isInfinite(node)) {
                         // That's illegal! Remove that child.

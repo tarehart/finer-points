@@ -2,15 +2,16 @@ package com.nodestand.nodes.assertion;
 
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
+import com.nodestand.nodes.User;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.Build;
+import com.nodestand.nodes.version.VersionHelper;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 
 @NodeEntity
@@ -35,24 +36,47 @@ public class AssertionNode extends ArgumentNode {
 
 
     @Override
-    public ArgumentNode cloneForMinorVersionUpdate(ArgumentNode updatedNode) throws NodeRulesException {
+    public ArgumentNode alterOrCloneToPointToChild(ArgumentNode updatedChildNode) throws NodeRulesException {
 
         AssertionNode copy;
 
-        if (shouldEditInPlace(updatedNode.getBuild())) {
+        if (shouldEditInPlace(updatedChildNode.getBuild())) {
             copy = this;
         } else {
-            copy = new AssertionNode(getBody(), updatedNode.getBuild());
-            copy.setSupportingNodes(new TreeSet<>(getSupportingNodes()));
-            copy.setPreviousVersion(this);
+            copy = createNewDraft(updatedChildNode.getBuild(), false);
         }
 
-        if (!copy.getSupportingNodes().remove(updatedNode.getPreviousVersion())) {
+
+
+        if (!copy.getSupportingNodes().removeIf(n -> n.getId() == updatedChildNode.getPreviousVersion().getId())) {
             throw new NodeRulesException("Incorrect behavior during publish. " +
                     "Tried to increment a node that was not actually a consumer. Increment was attempted on " +
-                    this + " and the updated node was " + updatedNode);
+                    this + " and the updated node was " + updatedChildNode);
         }
-        copy.getSupportingNodes().add(updatedNode);
+        copy.getSupportingNodes().add(updatedChildNode);
+        return copy;
+    }
+
+    @Override
+    public AssertionNode createNewDraft(Build build, boolean createBodyDraft) throws NodeRulesException {
+
+        AssertionNode copy;
+
+        if (isDraft()) {
+            throw new NodeRulesException("Node is already a draft!");
+        }
+
+        if (createBodyDraft) {
+            AssertionBody freshBody = new AssertionBody(getBody().getTitle(), getBody().getBody(), build.author, getBody().getMajorVersion());
+            VersionHelper.decorateDraftBody(freshBody);
+            copy = new AssertionNode(freshBody, build);
+        } else {
+            copy = new AssertionNode(getBody(), build);
+        }
+
+        copy.setSupportingNodes(new HashSet<>(getSupportingNodes()));
+        copy.setPreviousVersion(this);
+
         return copy;
     }
 

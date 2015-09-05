@@ -17,7 +17,7 @@ public class AssertionBody extends ArgumentBody {
 
     @Override
     public AssertionNode constructNode(VersionHelper versionHelper) {
-        return new AssertionNode(this, versionHelper.startBuild(this));
+        return new AssertionNode(this, VersionHelper.startBuild(author));
     }
 
     public AssertionBody(String title, String body, User author) {

@@ -4,6 +4,7 @@ import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.Build;
+import com.nodestand.nodes.version.VersionHelper;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
@@ -28,21 +29,42 @@ public class InterpretationNode extends ArgumentNode {
     }
 
     @Override
-    public ArgumentNode cloneForMinorVersionUpdate(ArgumentNode updatedNode) throws NodeRulesException {
+    public ArgumentNode alterOrCloneToPointToChild(ArgumentNode updatedChildNode) throws NodeRulesException {
         InterpretationNode copy;
-        if (shouldEditInPlace(updatedNode.getBuild())) {
+        if (shouldEditInPlace(updatedChildNode.getBuild())) {
             copy = this;
         } else {
-            copy = new InterpretationNode(getBody(), updatedNode.getBuild());
-            copy.setPreviousVersion(this);
+            copy = createNewDraft(updatedChildNode.getBuild(), false);
         }
 
-        if (!getSource().equals(updatedNode.getPreviousVersion())) {
+        if (!getSource().getId().equals(updatedChildNode.getPreviousVersion().getId())) {
             throw new NodeRulesException("Incorrect behavior during publish. " +
                     "Tried to increment a node that was not actually a consumer. Increment was attempted on " +
-                    this + " and the updated node was " + updatedNode);
+                    this + " and the updated node was " + updatedChildNode);
         }
-        copy.setSource((SourceNode) updatedNode);
+        copy.setSource((SourceNode) updatedChildNode);
+
+        return copy;
+    }
+
+    @Override
+    public InterpretationNode createNewDraft(Build build, boolean createBodyDraft) throws NodeRulesException {
+        InterpretationNode copy;
+
+        if (isDraft()) {
+            throw new NodeRulesException("Node is already a draft!");
+        }
+
+        if (createBodyDraft) {
+            InterpretationBody freshBody = new InterpretationBody(getBody().getTitle(), getBody().getBody(), build.author, getBody().getMajorVersion());
+            VersionHelper.decorateDraftBody(freshBody);
+            copy = new InterpretationNode(freshBody, build);
+        } else {
+            copy = new InterpretationNode(getBody(), build);
+        }
+
+        copy.setSource(this.getSource());
+        copy.setPreviousVersion(this);
 
         return copy;
     }

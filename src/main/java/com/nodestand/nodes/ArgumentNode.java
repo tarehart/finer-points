@@ -56,7 +56,9 @@ public abstract class ArgumentNode {
      * If the node is a draft, this will not actually produce a clone, it will just modify the draft in place and
      * return it.
      */
-    public abstract ArgumentNode cloneForMinorVersionUpdate(ArgumentNode updatedNode) throws NodeRulesException;
+    public abstract ArgumentNode alterOrCloneToPointToChild(ArgumentNode updatedChildNode) throws NodeRulesException;
+
+    public abstract ArgumentNode createNewDraft(Build build, boolean createBodyDraft) throws NodeRulesException;
 
     public void setBuild(Build build) {
         this.build = build;
@@ -81,7 +83,11 @@ public abstract class ArgumentNode {
      * @return
      */
     protected boolean shouldEditInPlace(Build buildInProgress) {
-        return getBody().isDraft() || getBuild().equals(buildInProgress);
+        return isDraft() || getBuild().equals(buildInProgress);
+    }
+
+    public boolean isDraft() {
+        return buildVersion < 0;
     }
 
     @Override

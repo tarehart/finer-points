@@ -3,13 +3,12 @@ package com.nodestand.nodes.version;
 import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
+import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
-import com.nodestand.nodes.repository.ArgumentBodyRepository;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.kernel.impl.core.RelationshipProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.core.GraphDatabase;
@@ -58,9 +57,9 @@ public class VersionHelper {
 
     }
 
-    public Build startBuild(ArgumentBody body) {
+    public static Build startBuild(User author) {
         Build build = new Build();
-        build.author = body.author;
+        build.author = author;
         return build;
     }
 
@@ -141,7 +140,7 @@ public class VersionHelper {
             neo4jTemplate.fetch(assertion.getSupportingNodes());
 
             for (ArgumentNode childNode : assertion.getSupportingNodes()) {
-                if (childNode.getBody().isDraft()) {
+                if (childNode.isDraft()) {
                     publish(childNode);
                 }
             }
@@ -151,7 +150,7 @@ public class VersionHelper {
             // If interpretation.getSource returns null, this will go awry. Keep an eye on it.
             neo4jTemplate.fetch(interpretation.getSource());
 
-            if (interpretation.getSource().getBody().isDraft()) {
+            if (interpretation.getSource().isDraft()) {
                 publish(interpretation.getSource());
             }
         }
@@ -227,17 +226,14 @@ public class VersionHelper {
 
         for (ArgumentNode consumer: consumers) {
 
-            ArgumentNode updatedConsumer = buildNewCopy(consumer, updatedNode);
+            // TODO: if the consumer is a draft, we don't really need to copy it, just
+            // swap out the descendant.
+            ArgumentNode updatedConsumer = consumer.alterOrCloneToPointToChild(updatedNode);
             updatedConsumer.setVersion(getNextBuildVersion(updatedConsumer.getBody()));
             nodeRepository.save(updatedConsumer);
 
             propagateBuild(updatedConsumer);
 
         }
-    }
-
-    private ArgumentNode buildNewCopy(ArgumentNode original, ArgumentNode updatedNode) throws NodeRulesException {
-        ArgumentNode newCopy = original.cloneForMinorVersionUpdate(updatedNode);
-        return newCopy;
     }
 }
