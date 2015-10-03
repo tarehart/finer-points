@@ -1,9 +1,8 @@
 package com.nodestand.nodes.version;
 
-import org.neo4j.graphdb.Direction;
-import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
 @NodeEntity
 public class MajorVersion {
@@ -13,7 +12,7 @@ public class MajorVersion {
 
     private int versionNumber;
 
-    @RelatedTo(type="VERSION_OF", direction = Direction.OUTGOING)
+    @Relationship(type="VERSION_OF", direction = Relationship.OUTGOING)
     protected VersionAggregator versionAggregator;
 
     public MajorVersion() {}

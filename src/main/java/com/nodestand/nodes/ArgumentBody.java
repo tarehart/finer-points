@@ -4,9 +4,10 @@ import com.nodestand.nodes.comment.Commentable;
 import com.nodestand.nodes.version.MajorVersion;
 import com.nodestand.nodes.version.VersionHelper;
 import org.joda.time.DateTime;
-import org.neo4j.graphdb.Direction;
-import org.springframework.data.neo4j.annotation.*;
-import org.springframework.data.neo4j.support.index.IndexType;
+import org.neo4j.index.impl.lucene.IndexType;
+import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
 @NodeEntity
 public abstract class ArgumentBody implements Commentable {
@@ -14,15 +15,13 @@ public abstract class ArgumentBody implements Commentable {
     @GraphId
     protected Long id;
 
-    @Indexed(indexName = "title-search", indexType=IndexType.FULLTEXT)
+    //@Indexed(indexName = "title-search", indexType=IndexType.FULLTEXT)
     private String title;
 
-    @Fetch
-    @RelatedTo(type="AUTHORED_BY", direction = Direction.OUTGOING)
+    @Relationship(type="AUTHORED_BY", direction = Relationship.OUTGOING)
     public User author;
 
-    @Fetch
-    @RelatedTo(type="VERSION_OF", direction = Direction.OUTGOING)
+    @Relationship(type="VERSION_OF", direction = Relationship.OUTGOING)
     private MajorVersion majorVersion;
 
     private int minorVersion;

@@ -5,15 +5,14 @@ import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.Build;
 import com.nodestand.nodes.version.VersionHelper;
-import org.neo4j.graphdb.Direction;
-import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
 @NodeEntity
 public class InterpretationNode extends ArgumentNode {
     private final String type = "interpretation";
 
-    @RelatedTo(type="INTERPRETS", direction = Direction.OUTGOING)
+    @Relationship(type="INTERPRETS", direction = Relationship.OUTGOING)
     private SourceNode source;
 
     public InterpretationNode() {}

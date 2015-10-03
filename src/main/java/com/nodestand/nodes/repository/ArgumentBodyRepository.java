@@ -4,8 +4,7 @@ import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.ArgumentNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.repository.GraphRepository;
-import org.springframework.data.neo4j.repository.NodeGraphRepositoryImpl;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
+import org.springframework.data.neo4j.template.Neo4jTemplate;
 import org.springframework.stereotype.Component;
 
 /**

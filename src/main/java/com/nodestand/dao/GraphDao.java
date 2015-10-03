@@ -4,10 +4,10 @@ import com.nodestand.controllers.serial.QuickEdge;
 import com.nodestand.controllers.serial.QuickGraphResponse;
 import com.nodestand.nodes.ArgumentNode;
 import org.neo4j.kernel.impl.core.RelationshipProxy;
+import org.neo4j.ogm.session.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.conversion.Result;
-import org.springframework.data.neo4j.core.GraphDatabase;
 import org.springframework.data.neo4j.template.Neo4jOperations;
+import org.springframework.data.neo4j.template.Neo4jTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -16,17 +16,17 @@ import java.util.*;
 public class GraphDao {
 
     @Autowired
-    GraphDatabase graphDatabase;
+    Neo4jOperations neo4jOperations;
 
     @Autowired
-    Neo4jOperations neo4jOperations;
+    Neo4jTemplate neo4jTemplate;
 
     public QuickGraphResponse getGraph(long rootId) {
 
         Map<String, Object> params = new HashMap<>();
         params.put("id", rootId);
 
-        Result<Map<String, Object>> result = graphDatabase.queryEngine().query("start n=node({id}) " +
+        Result result = neo4jTemplate.query("start n=node({id}) " +
                 "match n-[support:SUPPORTED_BY|INTERPRETS*0..5]->(argument:ArgumentNode)-[:DEFINED_BY]->(body:ArgumentBody)-[:AUTHORED_BY]->(author:User) " +
                 "return {" +
                 "id: id(argument), " +
@@ -55,7 +55,7 @@ public class GraphDao {
         Map<String, Object> params = new HashMap<>();
         params.put("id", bodyId);
 
-        Result<Map<String, Object>> result = graphDatabase.queryEngine().query("start n=node({id}) " +
+        Result result = neo4jTemplate.query("start n=node({id}) " +
                 "match n-[:VERSION_OF]->(mv:MajorVersion) with mv match mv<-[:VERSION_OF]-(:ArgumentBody)" +
                 "<-[:DEFINED_BY]-(node:ArgumentNode) " +
                 "return node", params);

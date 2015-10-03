@@ -1,10 +1,9 @@
 package com.nodestand.nodes.comment;
 
 import com.nodestand.nodes.User;
-import org.neo4j.graphdb.Direction;
-import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.HashSet;
 
@@ -14,13 +13,13 @@ public class Comment implements Commentable {
     @GraphId
     protected Long id;
 
-    @RelatedTo(type="AUTHORED_BY", direction = Direction.OUTGOING)
+    @Relationship(type="AUTHORED_BY", direction = Relationship.OUTGOING)
     public User author;
 
-    @RelatedTo(type="RESPONDS_TO", direction = Direction.OUTGOING)
+    @Relationship(type="RESPONDS_TO", direction = Relationship.OUTGOING)
     public Commentable parent;
 
-    @RelatedTo(type="UPVOTED_BY", direction = Direction.OUTGOING)
+    @Relationship(type="UPVOTED_BY", direction = Relationship.OUTGOING)
     public HashSet<User> upVoters;
 
     public String body;

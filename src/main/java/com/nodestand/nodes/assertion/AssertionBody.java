@@ -5,7 +5,7 @@ import com.nodestand.nodes.ImmutableNodeException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.version.MajorVersion;
 import com.nodestand.nodes.version.VersionHelper;
-import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.NodeEntity;
 
 
 @NodeEntity

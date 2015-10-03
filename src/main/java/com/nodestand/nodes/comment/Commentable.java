@@ -1,6 +1,6 @@
 package com.nodestand.nodes.comment;
 
-import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.NodeEntity;
 
 @NodeEntity
 public interface Commentable {

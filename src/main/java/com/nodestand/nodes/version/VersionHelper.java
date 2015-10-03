@@ -10,11 +10,11 @@ import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.conversion.Result;
-import org.springframework.data.neo4j.core.GraphDatabase;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.data.neo4j.template.Neo4jOperations;
+import org.springframework.data.neo4j.template.Neo4jTemplate;
+import org.springframework.data.neo4j.transaction.Neo4jTransactionManager;
 import org.springframework.stereotype.Component;
+import org.neo4j.ogm.session.result.Result;
 
 import java.util.*;
 
@@ -34,6 +34,9 @@ public class VersionHelper {
 
     @Autowired
     Neo4jTemplate neo4jTemplate;
+
+    @Autowired
+    Neo4jTransactionManager neo4jTransactionManager;
 
     /**
      * This sets the major and minor version on the draft body.
@@ -67,11 +70,11 @@ public class VersionHelper {
         Map<String, Object> params = new HashMap<>();
         params.put( "id", majorVersion.id );
 
-        Result<Map<String, Object>> result = graphDatabase.queryEngine().query("start n=node({id}) " +
+        Result result = neo4jTemplate.query("start n=node({id}) " +
                 "match body-[VERSION_OF]->n " +
                 "return max(body.minorVersion) as " + CURRENT_MAX_KEY, params);
 
-        Map<String, Object> resultMap = result.singleOrNull();
+        Map<String, Object> resultMap = singleOrNull(result);
         if (resultMap != null) {
             int currentMax = (int) resultMap.get(CURRENT_MAX_KEY);
             return currentMax + 1;
@@ -80,15 +83,23 @@ public class VersionHelper {
         return 0;
     }
 
+    private Map<String, Object> singleOrNull(Result result) {
+        Iterator<Map<String, Object>> it = result.queryResults().iterator();
+        if (it.hasNext()) {
+            return it.next();
+        }
+        return null;
+    }
+
     private int getNextBuildVersion(ArgumentBody body) {
         Map<String, Object> params = new HashMap<>();
         params.put( "id", body.getId() );
 
-        Result<Map<String, Object>> result = graphDatabase.queryEngine().query("start n=node({id}) " +
+        Result result = neo4jTemplate.query("start n=node({id}) " +
                 "match node-[DEFINED_BY]->n " +
                 "return max(node.buildVersion) as " + CURRENT_MAX_KEY, params);
 
-        Map<String, Object> resultMap = result.singleOrNull();
+        Map<String, Object> resultMap = singleOrNull(result);
         if (resultMap != null) {
             int currentMax = (int) resultMap.get(CURRENT_MAX_KEY);
             return currentMax + 1;
@@ -163,7 +174,7 @@ public class VersionHelper {
         Map<String, Object> params = new HashMap<>();
         params.put( "id", node.getId() );
 
-        Result<Map<String, Object>> result = graphDatabase.queryEngine().query(
+        Result result = neo4jTemplate.query(
                 "start n=node({id}) match n-[:SUPPORTED_BY*0..]->" +
                         "(support:ArgumentNode) " +
                         "WHERE NOT support-[:INTERPRETS]->(:SourceNode) " +
@@ -213,7 +224,7 @@ public class VersionHelper {
         Map<String, Object> params = new HashMap<>();
         params.put( "id", updatedNode.getPreviousVersion().getId() );
 
-        Result<Map<String, Object>> result = graphDatabase.queryEngine().query("start n=node({id}) " +
+        Result result = neo4jTemplate.query("start n=node({id}) " +
                 "match consumer-[:SUPPORTED_BY|INTERPRETS]->n return consumer", params);
 
 

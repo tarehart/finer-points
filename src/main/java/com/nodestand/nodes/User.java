@@ -1,19 +1,18 @@
 package com.nodestand.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.Indexed;
-import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.NodeEntity;
 import org.springframework.security.core.GrantedAuthority;
 
 @NodeEntity
 public class User {
     @GraphId Long nodeId;
 
-    @Indexed
+    //@Indexed
     String displayName;
 
-    @Indexed(unique = true)
+    //@Indexed(unique = true)
     String socialId;
 
     private Roles[] roles;

@@ -2,13 +2,10 @@ package com.nodestand.nodes.assertion;
 
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
-import com.nodestand.nodes.User;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.Build;
 import com.nodestand.nodes.version.VersionHelper;
-import org.neo4j.graphdb.Direction;
-import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.neo4j.ogm.annotation.NodeEntity;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,7 +16,7 @@ public class AssertionNode extends ArgumentNode {
 
     private final String type = "assertion";
 
-    @RelatedTo(type="SUPPORTED_BY", direction = Direction.OUTGOING)
+    @Relationship(type="SUPPORTED_BY", direction = Relationship.OUTGOING)
     private Set<ArgumentNode> supportingNodes;
 
     public AssertionNode() {}

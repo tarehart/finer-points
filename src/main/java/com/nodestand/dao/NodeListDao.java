@@ -1,7 +1,7 @@
 package com.nodestand.dao;
 
-import org.springframework.data.neo4j.conversion.Result;
-import org.springframework.data.neo4j.core.GraphDatabase;
+import org.neo4j.ogm.session.result.Result;
+import org.springframework.data.neo4j.template.Neo4jTemplate;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -9,9 +9,9 @@ import java.util.Map;
 
 public class NodeListDao {
 
-    public static List<Object> getAllNodes(GraphDatabase graphDatabase) {
+    public static List<Object> getAllNodes(Neo4jTemplate neo4jTemplate) {
 
-            Result<Map<String, Object>> result = graphDatabase.queryEngine().query(
+            Result result = neo4jTemplate.query(
                     "match (argument:ArgumentNode)-[:DEFINED_BY]->(body:ArgumentBody)-[:AUTHORED_BY]->(author:User), " +
                             "(body)-[VERSION_OF]->(mv:MajorVersion) " +
                             "return { id: id(argument), title: body.title, labels: labels(argument), " +
