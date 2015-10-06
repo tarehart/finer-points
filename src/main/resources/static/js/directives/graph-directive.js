@@ -119,12 +119,13 @@
                     // the angular template kicks off its recursion.
                     var rootNode = $scope.rootNodes[0];
 
-                    NodeCache.saveNodeEdit(node, rootNode, function(editedNode) {
+                    NodeCache.saveNodeEdit(node, rootNode, function(editedNode, data) {
+                        var editedNode = data.editedNode;
                         if (node.id != editedNode.id) {
                             $scope.enterEditMode(editedNode);
-                            var index = $scope.rootNodes.indexOf(node);
-                            if (index >= 0) {
-                                $scope.rootNodes[index] = editedNode;
+
+                            if (data.graph) {
+                                $scope.rootNodes = [NodeCache.get(data.graph.rootId)];
                             }
                         }
                     });
@@ -203,7 +204,7 @@
         }
 
         $scope.readyToPublish = function(node) {
-            return node.body.draft && allowsPublish(node, {});
+            return (node.draft || node.body.draft) && allowsPublish(node, {});
         };
 
         $scope.publishNode = function(node) {

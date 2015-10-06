@@ -125,10 +125,10 @@ public class EditController {
 
             nodeRepository.save(draftNode);
 
-            propagateDraftTowardRoot(draftNode, rootId);
+            long newRootId = propagateDraftTowardRoot(draftNode, rootId);
 
             EditResult result = new EditResult(draftNode);
-            result.setGraph(graphDao.getGraph(rootId));
+            result.setGraph(graphDao.getGraph(newRootId));
 
             return result;
 
@@ -180,9 +180,18 @@ public class EditController {
         }
     }
 
-    private void propagateDraftTowardRoot(ArgumentNode draftNode, Long rootId) throws NodeRulesException {
+    /**
+     *
+     * @param draftNode
+     * @param rootId
+     * @return The id of the root node after propagation
+     * @throws NodeRulesException
+     */
+    private long propagateDraftTowardRoot(ArgumentNode draftNode, Long rootId) throws NodeRulesException {
 
         ArgumentNode preEdit = draftNode.getPreviousVersion();
+
+        ArgumentNode newRoot = null;
 
         Iterable<EntityPath<ArgumentNode, ArgumentNode>> paths = nodeRepository.getPaths(preEdit.getId(), rootId);
 
@@ -204,17 +213,28 @@ public class EditController {
                 ArgumentNode changeable = pathNode.alterOrCloneToPointToChild(previousNode);
 
                 if (pathNode.getId().equals(changeable.getId())) {
+                    // There was no clone necessary, it must already have been a draft.
+                    // We stop propagation here.
+
                     // This should save all new nodes because they're linked together
                     nodeRepository.save(changeable);
 
                     break; // No new node was created, so the upstream link is still valid.
+
+                } else if (pathNode.getId() == path.endNode().getId()) {
+                    // We can infer that the root node just got modified!
+                    nodeRepository.save(changeable);
+                    newRoot = changeable;
                 }
 
                 previousNode = changeable;
             }
+        }
 
-            // In case we created new nodes all the way up to the root, make sure we save the root.
-            nodeRepository.save(path.endEntity(ArgumentNode.class));
+        if (newRoot != null) {
+            return newRoot.getId();
+        } else {
+            return rootId;
         }
     }
 }

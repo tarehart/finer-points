@@ -48,13 +48,17 @@
                     if (node.body.minorVersion < 0) {
                         return version + "x";
                     }
-                    version += node.body.minorVersion + "." + (node.buildVersion || "x");
+                    version += node.body.minorVersion + "." + (isValidBuildVersion(node.buildVersion) ? node.buildVersion : "x");
                 }
 
                 return version;
             };
 
             return node;
+        }
+
+        function isValidBuildVersion(buildVersion) {
+            return $.isNumeric(buildVersion) && buildVersion >= 0;
         }
 
         cache.get = function(id) {
@@ -221,6 +225,10 @@
         function handleNodeEdit(editResponse, originalNode) {
             var editedNode = cache.addOrUpdateNode(editResponse.editedNode);
 
+            if (editResponse.graph) {
+                inductQuickGraph(editResponse.graph);
+            }
+
             if (editedNode.id != originalNode.id) {
                 // The node had not been a draft, so a new one was produced to hold the edit. Provisionally,
                 // we will make the parent of the original point to the new draft, but because the draft is not
@@ -260,7 +268,7 @@
                     var editedNode = handleNodeEdit(data, node);
 
                     if (successCallback) {
-                        successCallback(editedNode); // This callback probably ought to change the URL to incorporate the new id.
+                        successCallback(editedNode, data); // This callback probably ought to change the URL to incorporate the new id.
                     }
                 })
                 .error(function(err) {
@@ -290,7 +298,7 @@
                     var editedNode = handleNodeEdit(data, node);
 
                     if (successCallback) {
-                        successCallback(editedNode); // This callback probably ought to change the URL to incorporate the new id.
+                        successCallback(editedNode, data); // This callback probably ought to change the URL to incorporate the new id.
                     }
                 })
                 .error(function(err) {
@@ -318,7 +326,7 @@
                     var editedNode = handleNodeEdit(data, node);
 
                     if (successCallback) {
-                        successCallback(editedNode); // This callback probably ought to change the URL to incorporate the new id.
+                        successCallback(editedNode, data); // This callback probably ought to change the URL to incorporate the new id.
                     }
                 })
                 .error(function(err) {
@@ -360,6 +368,14 @@
                     cachedNode.body.body = node.body.body;
                 }
 
+                if (isValidBuildVersion(node.buildVersion)) {
+                    cachedNode.buildVersion = node.buildVersion;
+                }
+
+                if (node.draft != undefined && node.draft != null) {
+                    cachedNode.draft = node.draft;
+                }
+
             } else {
                 // node must be created and added to the cache
                 cache.nodes[node.id] = decorateWithRequiredProperties(node);
@@ -392,12 +408,13 @@
                     if (isInfinite(node)) {
                         // That's illegal! Remove that child.
                         node.children.splice(node.children.length - 1, 1);
-                        console.log("Refusing to add child with id " + child.id + "!");
+                        console.log("Refusing to add child with id " + child.id + " because it creates a cycle!");
                     }
                 }
             });
         }
 
+        // TODO: make sure we don't throw false positives when two nodes have the same child.
         function isInfinite(node) {
             var closedSet = {};
             closedSet[node.id] = 1;
@@ -431,8 +448,7 @@
             } else {
                 $http.get('/graph', {params: {"rootId": id}}).success(function (data) {
 
-                    var addedNodes = cache.addNodesUnlinked(data.nodes);
-                    populateChildren(addedNodes, data.edges);
+                    inductQuickGraph(data);
                     rootNode = cache.get(id);
                     rootNode.hasFullGraph = true;
                     if (successCallback) {
@@ -444,16 +460,23 @@
                     }
                 });
             }
+        };
+
+        function inductQuickGraph(quickGraphResponse) {
+            var addedNodes = cache.addNodesUnlinked(quickGraphResponse.nodes);
+            populateChildren(addedNodes, quickGraphResponse.edges);
         }
 
         cache.fetchNodeDetails = function(nodeId) {
             var node = cache.get(nodeId);
 
-            $http.get('/detail', {params: {"id": node.body.id}}).success(function (data) {
+            $http.get('/detail', {params: {"id": node.id}}).success(function (data) {
 
                 // Detail returns the current ArgumentNode in full detail,
                 // the full comment tree for the current node,
                 // and all the edges to link them together.
+
+                cache.addOrUpdateNode(data.node);
 
                 // we're dealing with comments here!
                 // TODO: make sure we're aggregating comments across everything within the major version and

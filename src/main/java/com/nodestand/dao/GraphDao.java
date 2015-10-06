@@ -48,7 +48,7 @@ public class GraphDao {
             }
         }
 
-        return new QuickGraphResponse(nodes, properEdges);
+        return new QuickGraphResponse(nodes, properEdges, rootId);
     }
 
     public Map<String, Object> getBodyChoices(long bodyId) {

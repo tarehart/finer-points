@@ -43,6 +43,10 @@ public abstract class ArgumentNode {
         this.buildVersion = buildVersion;
     }
 
+    public int getBuildVersion() {
+        return buildVersion;
+    }
+
     public Long getId() {
         return id;
     }

@@ -28,15 +28,20 @@ public class DetailController {
     @Autowired
     Neo4jOperations neo4jOperations;
 
+    @Autowired
+    ArgumentNodeRepository argumentNodeRepository;
+
     @Transactional
     @PreAuthorize("permitAll")
     @RequestMapping("/detail")
     public Object getGraph(@RequestParam(value="id", required=true) String id) {
 
-        // id represents an ArgumentBody id.
+        // id represents an ArgumentNode id.
+
+        ArgumentNode baseNode = argumentNodeRepository.findOne(Long.parseLong(id));
 
         Map<String, Object> params = new HashMap<>();
-        params.put( "id", Long.parseLong(id) );
+        params.put( "id", baseNode.getBody().getId() );
 
         Result<Map<String, Object>> result = graphDatabase.queryEngine().query("start n=node({id}) " +
                 "match n-[:VERSION_OF]->(mv:MajorVersion) " +
@@ -60,6 +65,7 @@ public class DetailController {
 
         everything.put("nodes", nodes);
         everything.put("edges", edges);
+        everything.put("node", baseNode);
 
         return everything;
 
