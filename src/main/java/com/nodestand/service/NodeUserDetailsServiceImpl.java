@@ -1,10 +1,12 @@
 package com.nodestand.service;
 
+import com.nodestand.auth.NodeUserDetails;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.repository.UserRepository;
-import com.nodestand.auth.NodeUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +25,8 @@ public class NodeUserDetailsServiceImpl implements NodeUserDetailsService {
     @Autowired
     private UserRepository userRepo;
 
-    private static final ThreadLocal<User> currentUser = new ThreadLocal<User>();
+    @Autowired
+    private Neo4jOperations neo4jOperations;
 
     public User getCurrentUser() {
         return getUserFromSession();
@@ -53,11 +56,20 @@ public class NodeUserDetailsServiceImpl implements NodeUserDetailsService {
     }
 
     private User findByDisplayName(String displayName) {
-        return userRepo.findBySchemaPropertyValue("displayName", displayName);
+        try {
+            return neo4jOperations.loadByProperty(User.class, "displayName", displayName);
+        } catch (DataRetrievalFailureException e) {
+            return null;
+        }
     }
 
     private User findBySocialId(String socialId) {
-        return userRepo.findBySchemaPropertyValue("socialId", socialId);
+        try {
+            return neo4jOperations.loadByProperty(User.class, "socialId", socialId);
+        } catch (DataRetrievalFailureException e) {
+            return null;
+        }
+
     }
 
     @Override

@@ -7,16 +7,16 @@ import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
+import com.nodestand.nodes.source.SourceNode;
+import org.neo4j.ogm.session.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
-import org.springframework.data.neo4j.template.Neo4jTemplate;
-import org.springframework.data.neo4j.transaction.Neo4jTransactionManager;
 import org.springframework.stereotype.Component;
-import org.neo4j.ogm.session.result.Result;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 public class VersionHelper {
@@ -24,19 +24,10 @@ public class VersionHelper {
     private static final String CURRENT_MAX_KEY = "currentMax";
 
     @Autowired
-    GraphDatabase graphDatabase;
-
-    @Autowired
     ArgumentNodeRepository nodeRepository;
 
     @Autowired
     Neo4jOperations neo4jOperations;
-
-    @Autowired
-    Neo4jTemplate neo4jTemplate;
-
-    @Autowired
-    Neo4jTransactionManager neo4jTransactionManager;
 
     /**
      * This sets the major and minor version on the draft body.
@@ -70,7 +61,7 @@ public class VersionHelper {
         Map<String, Object> params = new HashMap<>();
         params.put( "id", majorVersion.id );
 
-        Result result = neo4jTemplate.query("start n=node({id}) " +
+        Result result = neo4jOperations.query("start n=node({id}) " +
                 "match body-[VERSION_OF]->n " +
                 "return max(body.minorVersion) as " + CURRENT_MAX_KEY, params);
 
@@ -95,7 +86,7 @@ public class VersionHelper {
         Map<String, Object> params = new HashMap<>();
         params.put( "id", body.getId() );
 
-        Result result = neo4jTemplate.query("start n=node({id}) " +
+        Result result = neo4jOperations.query("start n=node({id}) " +
                 "match node-[DEFINED_BY]->n " +
                 "return max(node.buildVersion) as " + CURRENT_MAX_KEY, params);
 
@@ -108,10 +99,6 @@ public class VersionHelper {
         return 0;
     }
 
-    private Node getLockNode(MajorVersion mv) {
-        return graphDatabase.getNodeById(mv.getId());
-    }
-
     public void publish(ArgumentNode node) throws NodeRulesException {
 
         if (!node.getType().equals("source")) {
@@ -122,24 +109,28 @@ public class VersionHelper {
             publishDescendantDrafts(node);
         }
 
-
-        try ( Transaction tx = graphDatabase.beginTx() ) {
-            ArgumentBody body = node.getBody();
-            if (body.getMinorVersion() < 0) {
-                tx.acquireWriteLock(getLockNode(body.getMajorVersion()));
-                body.setMinorVersion(getNextMinorVersion(body.getMajorVersion()));
-            }
-            node.setVersion(0);
-            body.setIsDraft(false);
-            neo4jOperations.save(node.getBody());
-            nodeRepository.save(node);
-            tx.success();
-        }
+        stampVersion(node);
         
         // make new nodes with new version numbers for all consumers. Decorate with the Build object.
         propagateBuild(node);
 
         // TODO: think about concurrency for setting build numbers.
+    }
+
+    /**
+     * This used to be done as a transaction with the major version node as a lock. Currently we're being a little
+     * unsafe.
+     */
+    private void stampVersion(ArgumentNode node) {
+        ArgumentBody body = node.getBody();
+        if (body.getMinorVersion() < 0) {
+            //tx.acquireWriteLock(getLockNode(body.getMajorVersion()));
+            body.setMinorVersion(getNextMinorVersion(body.getMajorVersion()));
+        }
+        node.setVersion(0);
+        body.setIsDraft(false);
+        neo4jOperations.save(node.getBody());
+        nodeRepository.save(node);
     }
 
     private void publishDescendantDrafts(ArgumentNode node) throws NodeRulesException {
@@ -148,7 +139,7 @@ public class VersionHelper {
             AssertionNode assertion = (AssertionNode) node;
 
             // If assertion.getSupportingNodes returns null, this will go awry. Keep an eye on it.
-            neo4jTemplate.fetch(assertion.getSupportingNodes());
+            neo4jOperations.loadAll(assertion.getSupportingNodes(), 1);
 
             for (ArgumentNode childNode : assertion.getSupportingNodes()) {
                 if (childNode.isDraft()) {
@@ -159,7 +150,7 @@ public class VersionHelper {
             InterpretationNode interpretation = (InterpretationNode) node;
 
             // If interpretation.getSource returns null, this will go awry. Keep an eye on it.
-            neo4jTemplate.fetch(interpretation.getSource());
+            neo4jOperations.load(SourceNode.class, interpretation.getSource().getId());
 
             if (interpretation.getSource().isDraft()) {
                 publish(interpretation.getSource());
@@ -172,16 +163,16 @@ public class VersionHelper {
         // short-circuit these queries.
 
         Map<String, Object> params = new HashMap<>();
-        params.put( "id", node.getId() );
+        params.put("id", node.getId());
 
-        Result result = neo4jTemplate.query(
+        Result result = neo4jOperations.query(
                 "start n=node({id}) match n-[:SUPPORTED_BY*0..]->" +
                         "(support:ArgumentNode) " +
                         "WHERE NOT support-[:INTERPRETS]->(:SourceNode) " +
                         "AND NOT support-[:SUPPORTED_BY]->(:ArgumentNode) " +
                         "return support", params);
 
-        return result.singleOrNull() != null;
+        return result.queryResults().iterator().hasNext();
     }
 
     /**
@@ -221,19 +212,7 @@ public class VersionHelper {
             return;
         }
 
-        Map<String, Object> params = new HashMap<>();
-        params.put( "id", updatedNode.getPreviousVersion().getId() );
-
-        Result result = neo4jTemplate.query("start n=node({id}) " +
-                "match consumer-[:SUPPORTED_BY|INTERPRETS]->n return consumer", params);
-
-
-        List<ArgumentNode> consumers = new LinkedList<>();
-
-        for (Map<String, Object> map: result) {
-            consumers.add(neo4jOperations.convert(map.get("consumer"), ArgumentNode.class));
-        }
-        result.finish();
+        Set<ArgumentNode> consumers = nodeRepository.getConsumers(updatedNode.getPreviousVersion().getId());
 
         for (ArgumentNode consumer: consumers) {
 

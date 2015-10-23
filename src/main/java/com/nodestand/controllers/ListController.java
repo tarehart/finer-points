@@ -1,16 +1,15 @@
 package com.nodestand.controllers;
 
-import com.nodestand.dao.NodeListDao;
+import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.service.DatabasePopulator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.core.GraphDatabase;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import java.util.List;
+import java.util.Set;
 
 @Controller
 public class ListController {
@@ -18,21 +17,16 @@ public class ListController {
     ArgumentNodeRepository repo;
 
     @Autowired
-    GraphDatabase graphDatabase;
-
-    @Autowired
     DatabasePopulator populator;
 
     @RequestMapping("/list")
     public String getGraph(Model model) {
 
-            List<Object> nodes = NodeListDao.getAllNodes(graphDatabase);
+        Set<ArgumentNode> otherNodes = repo.getAllNodes();
 
-            model.addAttribute("nodes", nodes);
+        model.addAttribute("nodes", otherNodes);
 
-            return "list";
-
-
+        return "list";
     }
 
     @RequestMapping(value = "/generateTestData", method = RequestMethod.POST)

@@ -10,18 +10,14 @@ import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
-import com.nodestand.nodes.source.SourceBody;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.VersionHelper;
 import com.nodestand.service.NodeUserDetailsService;
-import org.neo4j.cypher.internal.compiler.v2_1.planDescription.Argument;
+import org.neo4j.helpers.collection.IteratorUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.core.EntityPath;
-import org.springframework.data.neo4j.core.GraphDatabase;
 import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,9 +40,6 @@ public class EditController {
 
     @Autowired
     ArgumentNodeRepository nodeRepository;
-
-    @Autowired
-    GraphDatabase graphDatabase;
 
     @Autowired
     Neo4jOperations neo4jOperations;
@@ -193,15 +186,20 @@ public class EditController {
 
         ArgumentNode newRoot = null;
 
-        Iterable<EntityPath<ArgumentNode, ArgumentNode>> paths = nodeRepository.getPaths(preEdit.getId(), rootId);
+        Iterable<Iterable<ArgumentNode>> paths = (Iterable<Iterable<ArgumentNode>>) nodeRepository.getPaths(preEdit.getId(), rootId);
 
-        for (EntityPath<ArgumentNode, ArgumentNode> path: paths) {
+
+
+        for (Iterable<ArgumentNode> iterPath: paths) {
+
+            List<ArgumentNode> path = IteratorUtil.asList(iterPath);
+
             ArgumentNode previousNode = draftNode;
-            for (Object nodeObj : path.nodeEntities()) {
+            for (Object nodeObj : path) {
 
                 ArgumentNode pathNode = (ArgumentNode) nodeObj;
 
-                if (pathNode.getId() == path.startNode().getId()) {
+                if (pathNode.getId() == path.get(0).getId()) {
                     continue; // Skip the start node; we've already converted it to a draft.
                 }
 
@@ -221,7 +219,7 @@ public class EditController {
 
                     break; // No new node was created, so the upstream link is still valid.
 
-                } else if (pathNode.getId() == path.endNode().getId()) {
+                } else if (pathNode.getId() == path.get(path.size() - 1).getId()) {
                     // We can infer that the root node just got modified!
                     nodeRepository.save(changeable);
                     newRoot = changeable;
