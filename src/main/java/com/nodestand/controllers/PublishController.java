@@ -11,6 +11,7 @@ import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.version.VersionHelper;
 import com.nodestand.service.NodeUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,6 +36,9 @@ public class PublishController {
     @Autowired
     ArgumentNodeRepository nodeRepository;
 
+    @Autowired
+    Neo4jOperations neo4jOperations;
+
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/publishNode")
@@ -43,7 +47,7 @@ public class PublishController {
         User user = nodeUserDetailsService.getUserFromSession();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
 
-        ArgumentNode existingNode = nodeRepository.findOne(nodeId);
+        ArgumentNode existingNode = neo4jOperations.load(ArgumentNode.class, nodeId, 2);
 
         if (user.getNodeId() != existingNode.getBody().author.getNodeId()) {
             throw new NotAuthorizedException("Not allowed to publish a draft that you did not create.");
