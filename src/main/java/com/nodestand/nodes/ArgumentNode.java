@@ -1,9 +1,12 @@
 package com.nodestand.nodes;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.version.Build;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+
+import java.util.Set;
 
 @NodeEntity
 public abstract class ArgumentNode {
@@ -100,4 +103,7 @@ public abstract class ArgumentNode {
         }
         return this.getId() == ((ArgumentNode)other).getId();
     }
+
+    @JsonIgnore
+    public abstract Set<ArgumentNode> getGraphChildren();
 }

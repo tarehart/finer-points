@@ -7,6 +7,8 @@ import com.nodestand.nodes.version.VersionHelper;
 import org.springframework.beans.MethodInvocationException;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SourceNode extends ArgumentNode {
     public final String type = "source";
@@ -48,6 +50,11 @@ public class SourceNode extends ArgumentNode {
         copy.setPreviousVersion(this);
 
         return copy;
+    }
+
+    @Override
+    public Set<ArgumentNode> getGraphChildren() {
+        return new HashSet<>(0);
     }
 
     public SourceBody getBody() {

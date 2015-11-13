@@ -1,5 +1,6 @@
 package com.nodestand.nodes.assertion;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.source.SourceNode;
@@ -78,6 +79,12 @@ public class AssertionNode extends ArgumentNode {
         return copy;
     }
 
+    @Override
+    public Set<ArgumentNode> getGraphChildren() {
+        return supportingNodes != null? supportingNodes : new HashSet<>(0);
+    }
+
+    @JsonIgnore
     public Set<ArgumentNode> getSupportingNodes() {
         return supportingNodes;
     }

@@ -1,21 +1,22 @@
 package com.nodestand.controllers.serial;
 
-import java.util.Map;
+import com.nodestand.nodes.ArgumentNode;
+
 import java.util.Set;
 
 public class QuickGraphResponse {
 
-    private Set<Map<String, Object>> nodes;
+    private Set<ArgumentNode> nodes;
     private Set<QuickEdge> edges;
     private long rootId;
 
-    public QuickGraphResponse(Set<Map<String, Object>> nodes, Set<QuickEdge> edges, long rootId) {
+    public QuickGraphResponse(Set<ArgumentNode> nodes, Set<QuickEdge> edges, long rootId) {
         this.nodes = nodes;
         this.edges = edges;
         this.rootId = rootId;
     }
 
-    public Set<Map<String, Object>> getNodes() {
+    public Set<?> getNodes() {
         return nodes;
     }
 

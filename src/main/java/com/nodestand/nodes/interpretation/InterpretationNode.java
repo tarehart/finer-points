@@ -1,5 +1,6 @@
 package com.nodestand.nodes.interpretation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.source.SourceNode;
@@ -7,6 +8,9 @@ import com.nodestand.nodes.version.Build;
 import com.nodestand.nodes.version.VersionHelper;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @NodeEntity
 public class InterpretationNode extends ArgumentNode {
@@ -68,6 +72,16 @@ public class InterpretationNode extends ArgumentNode {
         return copy;
     }
 
+    @Override
+    public Set<ArgumentNode> getGraphChildren() {
+        Set<ArgumentNode> children = new HashSet<>(1);
+        if (source != null) {
+            children.add(source);
+        }
+        return children;
+    }
+
+    @JsonIgnore
     public SourceNode getSource() {
         return source;
     }
