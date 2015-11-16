@@ -85,9 +85,13 @@
         };
 
         function ensureDetail(node) {
-            if (!node.body.body) {
+            if (!hasFullDetail(node)) {
                 fetchDetail(node);
             }
+        }
+
+        function hasFullDetail(node) {
+            return node.body.author.displayName;
         }
 
         function fetchDetail(node) {

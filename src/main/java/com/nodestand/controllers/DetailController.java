@@ -38,7 +38,7 @@ public class DetailController {
 
         // id represents an ArgumentNode id.
 
-        ArgumentNode baseNode = argumentNodeRepository.findOne(Long.parseLong(id));
+        ArgumentNode baseNode = neo4jOperations.load(ArgumentNode.class, Long.parseLong(id), 2);
 
         Map<String, Object> params = new HashMap<>();
         params.put("id", baseNode.getBody().getId());
