@@ -92,7 +92,7 @@ public class EditController {
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
         Long rootId = Long.valueOf((Integer) params.get("rootId"));
 
-        ArgumentNode existingNode = nodeRepository.findOne(nodeId);
+        ArgumentNode existingNode = neo4jOperations.load(ArgumentNode.class, nodeId, 2); //nodeRepository.findOne(nodeId);
 
         if (existingNode.isDraft()) {
             // We won't need to update any version numbers.

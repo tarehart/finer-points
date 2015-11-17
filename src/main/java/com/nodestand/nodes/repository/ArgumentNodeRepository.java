@@ -21,8 +21,8 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
     @Query("start n=node({0}) match consumer-[:SUPPORTED_BY|INTERPRETS]->n return consumer")
     Set<ArgumentNode> getConsumers(long nodeId);
 
-    @Query("start n=node({0}) match n-[:VERSION_OF]->(mv:MajorVersion) with mv match mv<-[:VERSION_OF]-(:ArgumentBody)" +
-            "<-[:DEFINED_BY]-(node:ArgumentNode) return node")
+    @Query("start n=node({0}) match n-[:VERSION_OF]->(mv:MajorVersion) with mv match p=mv<-[:VERSION_OF]-(:ArgumentBody)" +
+            "<-[:DEFINED_BY]-(node:ArgumentNode) return p")
     Set<ArgumentNode> getBodyChoices(long bodyId);
 
     @Query("match (node:ArgumentNode) return node")

@@ -31,9 +31,6 @@ public class SourceBody extends ArgumentBody {
     }
 
     public void setUrl(String url) throws ImmutableNodeException {
-        if (!isDraft()) {
-            throw new ImmutableNodeException("Cannot edit a url unless the source is in draft mode. Must create a new version.");
-        }
         this.url = url;
     }
 }

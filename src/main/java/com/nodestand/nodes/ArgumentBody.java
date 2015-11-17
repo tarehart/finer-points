@@ -3,11 +3,11 @@ package com.nodestand.nodes;
 import com.nodestand.nodes.comment.Commentable;
 import com.nodestand.nodes.version.MajorVersion;
 import com.nodestand.nodes.version.VersionHelper;
-import org.joda.time.DateTime;
-import org.neo4j.index.impl.lucene.IndexType;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+
+import java.time.Instant;
 
 @NodeEntity
 public abstract class ArgumentBody implements Commentable {
@@ -15,7 +15,6 @@ public abstract class ArgumentBody implements Commentable {
     @GraphId
     protected Long id;
 
-    //@Indexed(indexName = "title-search", indexType=IndexType.FULLTEXT)
     private String title;
 
     @Relationship(type="AUTHORED_BY", direction = Relationship.OUTGOING)
@@ -26,7 +25,7 @@ public abstract class ArgumentBody implements Commentable {
 
     private int minorVersion;
 
-    private DateTime dateCreated;
+    private Instant dateCreated;
 
     private boolean isDraft = true;
 
@@ -40,7 +39,7 @@ public abstract class ArgumentBody implements Commentable {
         this.title = title;
         this.author = author;
         this.majorVersion = majorVersion;
-        this.dateCreated = DateTime.now();
+        this.dateCreated = Instant.now();
 
         VersionHelper.decorateDraftBody(this);
     }
@@ -72,7 +71,7 @@ public abstract class ArgumentBody implements Commentable {
         this.minorVersion = minorVersion;
     }
 
-    public DateTime getDateCreated() {
+    public Instant getDateCreated() {
         return dateCreated;
     }
 
@@ -85,9 +84,6 @@ public abstract class ArgumentBody implements Commentable {
     }
 
     public void setTitle(String title) throws ImmutableNodeException {
-        if (!isDraft()) {
-            throw new ImmutableNodeException("Cannot edit a title unless the argument is in draft mode. Must create a new version.");
-        }
         this.title = title;
     }
 

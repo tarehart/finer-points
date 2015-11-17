@@ -1,5 +1,6 @@
 package com.nodestand.service;
 
+import com.nodestand.auth.NodeUserDetails;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.repository.UserRepository;
@@ -41,7 +42,16 @@ public class DatabasePopulator {
 
     @Transactional
     public void populateDatabase() {
-        User me = userRepository.save(new User("116023433898470559862", "Tyler", User.Roles.ROLE_ADMIN, User.Roles.ROLE_USER));
+
+        User me = null;
+
+        NodeUserDetails tylerDetails = udService.loadUserByUsername("116023433898470559862");
+        if (tylerDetails != null) {
+            me = tylerDetails.getUser();
+        } else {
+            me = userRepository.save(new User("116023433898470559862", "Tyler", User.Roles.ROLE_ADMIN, User.Roles.ROLE_USER));
+        }
+
         User charles = udService.register("charles-social-id", "Charles").getUser(); // register automatically makes it a non-admin
 
         Build build = new Build();

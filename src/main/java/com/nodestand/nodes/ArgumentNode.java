@@ -2,7 +2,9 @@ package com.nodestand.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.version.Build;
+import com.nodestand.util.IdGenerator;
 import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -13,6 +15,9 @@ public abstract class ArgumentNode {
 
     @GraphId
     protected Long id;
+
+    @Index
+    private String stableId;
 
     protected int buildVersion = -1;
 
@@ -30,6 +35,7 @@ public abstract class ArgumentNode {
     public ArgumentNode(ArgumentBody body, Build build) {
         this.body = body;
         this.build = build;
+        this.stableId = IdGenerator.newId();
     }
 
     public abstract ArgumentBody getBody();
@@ -106,4 +112,8 @@ public abstract class ArgumentNode {
 
     @JsonIgnore
     public abstract Set<ArgumentNode> getGraphChildren();
+
+    public String getStableId() {
+        return stableId;
+    }
 }

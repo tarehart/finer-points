@@ -35,9 +35,6 @@ public class AssertionBody extends ArgumentBody {
     }
 
     public void setBody(String body) throws ImmutableNodeException {
-        if (!isDraft()) {
-            throw new ImmutableNodeException("Cannot edit a title unless the argument is in draft mode. Must create a new version.");
-        }
         this.body = body;
     }
 }
