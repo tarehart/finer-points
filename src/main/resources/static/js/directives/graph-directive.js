@@ -91,7 +91,7 @@
         }
 
         function hasFullDetail(node) {
-            return node.body.author.displayName;
+            return node.getVersionString();
         }
 
         function fetchDetail(node) {

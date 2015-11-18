@@ -16,7 +16,7 @@ public class QuickGraphResponse {
         this.rootId = rootId;
     }
 
-    public Set<?> getNodes() {
+    public Set<ArgumentNode> getNodes() {
         return nodes;
     }
 

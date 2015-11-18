@@ -3,6 +3,7 @@ package com.nodestand.nodes.assertion;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
+import com.nodestand.nodes.User;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.Build;
 import com.nodestand.nodes.version.VersionHelper;
@@ -57,6 +58,16 @@ public class AssertionNode extends ArgumentNode {
     }
 
     @Override
+    public AssertionBody createDraftBody(User author, boolean install) throws NodeRulesException {
+        AssertionBody freshBody = new AssertionBody(getBody().getTitle(), getBody().getBody(), author, getBody().getMajorVersion());
+        VersionHelper.decorateDraftBody(freshBody);
+        if (install) {
+            installBody(freshBody);
+        }
+        return freshBody;
+    }
+
+    @Override
     public AssertionNode createNewDraft(Build build, boolean createBodyDraft) throws NodeRulesException {
 
         AssertionNode copy;
@@ -66,8 +77,7 @@ public class AssertionNode extends ArgumentNode {
         }
 
         if (createBodyDraft) {
-            AssertionBody freshBody = new AssertionBody(getBody().getTitle(), getBody().getBody(), build.author, getBody().getMajorVersion());
-            VersionHelper.decorateDraftBody(freshBody);
+            AssertionBody freshBody = createDraftBody(build.author, false);
             copy = new AssertionNode(freshBody, build);
         } else {
             copy = new AssertionNode(getBody(), build);

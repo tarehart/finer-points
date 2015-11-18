@@ -1,8 +1,10 @@
 package com.nodestand.nodes.interpretation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
+import com.nodestand.nodes.User;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.Build;
 import com.nodestand.nodes.version.VersionHelper;
@@ -51,6 +53,16 @@ public class InterpretationNode extends ArgumentNode {
     }
 
     @Override
+    public InterpretationBody createDraftBody(User author, boolean install) throws NodeRulesException {
+        InterpretationBody freshBody = new InterpretationBody(getBody().getTitle(), getBody().getBody(), author, getBody().getMajorVersion());
+        VersionHelper.decorateDraftBody(freshBody);
+        if (install) {
+            installBody(freshBody);
+        }
+        return freshBody;
+    }
+
+    @Override
     public InterpretationNode createNewDraft(Build build, boolean createBodyDraft) throws NodeRulesException {
         InterpretationNode copy;
 
@@ -59,8 +71,7 @@ public class InterpretationNode extends ArgumentNode {
         }
 
         if (createBodyDraft) {
-            InterpretationBody freshBody = new InterpretationBody(getBody().getTitle(), getBody().getBody(), build.author, getBody().getMajorVersion());
-            VersionHelper.decorateDraftBody(freshBody);
+            InterpretationBody freshBody = createDraftBody(build.author, false);
             copy = new InterpretationNode(freshBody, build);
         } else {
             copy = new InterpretationNode(getBody(), build);

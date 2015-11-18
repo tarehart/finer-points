@@ -1,6 +1,7 @@
 package com.nodestand.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.version.Build;
 import com.nodestand.util.IdGenerator;
 import org.neo4j.ogm.annotation.GraphId;
@@ -67,6 +68,16 @@ public abstract class ArgumentNode {
      */
     public abstract ArgumentNode alterOrCloneToPointToChild(ArgumentNode updatedChildNode) throws NodeRulesException;
 
+    /**
+     * This is useful for when the node is already a draft but the body is not. That situation can arise when a
+     * child of this node has been edited. If we are in that state and then receive an edit for the title or content,
+     * you'll want to create a draft body to hold that edit.
+     * @param author the author of this new body
+     * @param install true if you want the new draft body to replace this node's existing body.
+     * @return
+     */
+    public abstract ArgumentBody createDraftBody(User author, boolean install) throws NodeRulesException;
+
     public abstract ArgumentNode createNewDraft(Build build, boolean createBodyDraft) throws NodeRulesException;
 
     public void setBuild(Build build) {
@@ -93,6 +104,13 @@ public abstract class ArgumentNode {
      */
     protected boolean shouldEditInPlace(Build buildInProgress) {
         return isDraft() || getBuild().equals(buildInProgress);
+    }
+
+    protected void installBody(ArgumentBody freshBody) throws NodeRulesException {
+        if (!isDraft()) {
+            throw new NodeRulesException("Cannot install a draft body on a node that is not itself a draft!");
+        }
+        body = freshBody;
     }
 
     public boolean isDraft() {

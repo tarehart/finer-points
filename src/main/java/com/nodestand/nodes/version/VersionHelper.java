@@ -127,7 +127,7 @@ public class VersionHelper {
             //tx.acquireWriteLock(getLockNode(body.getMajorVersion()));
             body.setMinorVersion(getNextMinorVersion(body.getMajorVersion()));
         }
-        node.setVersion(0);
+        node.setVersion(getNextBuildVersion(body));
         body.setIsDraft(false);
         neo4jOperations.save(node.getBody());
         nodeRepository.save(node);
@@ -215,6 +215,10 @@ public class VersionHelper {
         Set<ArgumentNode> consumers = nodeRepository.getConsumers(updatedNode.getPreviousVersion().getId());
 
         for (ArgumentNode consumer: consumers) {
+
+            if (consumer.getId() == updatedNode.getPreviousVersion().getId()) {
+                continue; // Skip this. Currently the query has the unfortunate side effect of also returning the input node.
+            }
 
             // TODO: if the consumer is a draft, we don't really need to copy it, just
             // swap out the descendant.

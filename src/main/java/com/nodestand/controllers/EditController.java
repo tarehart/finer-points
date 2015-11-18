@@ -2,11 +2,13 @@ package com.nodestand.controllers;
 
 import com.nodestand.auth.NotAuthorizedException;
 import com.nodestand.controllers.serial.EditResult;
+import com.nodestand.controllers.serial.QuickGraphResponse;
 import com.nodestand.dao.GraphDao;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.ImmutableNodeException;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
+import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
@@ -22,9 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 public class EditController {
@@ -102,7 +102,7 @@ public class EditController {
                 throw new NotAuthorizedException("Not allowed to edit a draft that you did not create.");
             }
 
-            doNodeEdits(existingNode, params);
+            doNodeEdits(existingNode, user, params);
 
             // Ugh: http://stackoverflow.com/questions/31505729/why-is-my-modified-neo4j-node-property-not-persisted-to-the-db
             neo4jOperations.save(existingNode.getBody());
@@ -114,7 +114,7 @@ public class EditController {
 
             ArgumentNode draftNode = existingNode.createNewDraft(VersionHelper.startBuild(user), true);
 
-            doNodeEdits(draftNode, params);
+            doNodeEdits(draftNode, user, params);
 
             nodeRepository.save(draftNode);
 
@@ -128,7 +128,13 @@ public class EditController {
         }
     }
 
-    private void doNodeEdits(ArgumentNode node, Map<String, Object> params) throws ImmutableNodeException, NodeRulesException {
+    private void doNodeEdits(ArgumentNode node, User author, Map<String, Object> params) throws ImmutableNodeException, NodeRulesException {
+
+        if (!node.getBody().isDraft()) {
+            // TODO: make a new body to hold the edits. We can get here if, before the call, the node was a draft
+            // but the body was not. This situation arises when a child is edited.
+            node.createDraftBody(author, true);
+        }
 
         node.getBody().setTitle((String) params.get("title"));
 
@@ -186,13 +192,29 @@ public class EditController {
 
         ArgumentNode newRoot = null;
 
-        Iterable<Iterable<ArgumentNode>> paths = (Iterable<Iterable<ArgumentNode>>) nodeRepository.getPaths(preEdit.getId(), rootId);
+        QuickGraphResponse graph = graphDao.getGraph(rootId);
 
+        Map<String, ArgumentNode> nodeLookup = new HashMap<>();
+        for (ArgumentNode node : graph.getNodes()) {
+            nodeLookup.put(node.getStableId(), node);
+        }
 
+        Iterable<Map<String, Object>> paths = nodeRepository.getPaths(preEdit.getId(), rootId);
 
-        for (Iterable<ArgumentNode> iterPath: paths) {
+        Set<List<ArgumentNode>> nicePaths = new HashSet<>();
 
-            List<ArgumentNode> path = IteratorUtil.asList(iterPath);
+        for (Map<String, Object> iterPath: paths) {
+            List<ArgumentNode> nicePath = new LinkedList<>();
+            List<Map<String, Object>> roughPath = (List<Map<String, Object>>) iterPath.get("p");
+            for (int i = 0; i < roughPath.size(); i += 2) {
+                String stableId = (String) roughPath.get(i).get("stableId");
+                ArgumentNode hashedNode = nodeLookup.get(stableId);
+                nicePath.add(hashedNode);
+            }
+            nicePaths.add(nicePath);
+        }
+
+        for (List<ArgumentNode> path: nicePaths) {
 
             ArgumentNode previousNode = draftNode;
             for (Object nodeObj : path) {
@@ -208,6 +230,8 @@ public class EditController {
                 // previous published incarnation EXCEPT that we will swap in
                 // 'previousNode' which is the draft that we created on the
                 // previous iteration of the for loop.
+
+                // TODO: it should also go ahead and get a new minor version, right?
                 ArgumentNode changeable = pathNode.alterOrCloneToPointToChild(previousNode);
 
                 if (pathNode.getId().equals(changeable.getId())) {

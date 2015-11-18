@@ -2,6 +2,8 @@ package com.nodestand.nodes.source;
 
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
+import com.nodestand.nodes.User;
+import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.version.Build;
 import com.nodestand.nodes.version.VersionHelper;
 import org.springframework.beans.MethodInvocationException;
@@ -32,6 +34,18 @@ public class SourceNode extends ArgumentNode {
     }
 
     @Override
+    public SourceBody createDraftBody(User author, boolean install) throws NodeRulesException {
+        SourceBody freshBody = new SourceBody(getBody().getTitle(), author, getBody().getUrl(), getBody().getMajorVersion());
+        VersionHelper.decorateDraftBody(freshBody);
+
+        if (install) {
+            installBody(freshBody);
+        }
+
+        return freshBody;
+    }
+
+    @Override
     public SourceNode createNewDraft(Build build, boolean createBodyDraft) throws NodeRulesException {
         SourceNode copy;
 
@@ -40,8 +54,7 @@ public class SourceNode extends ArgumentNode {
         }
 
         if (createBodyDraft) {
-            SourceBody freshBody = new SourceBody(getBody().getTitle(), build.author, getBody().getUrl(), getBody().getMajorVersion());
-            VersionHelper.decorateDraftBody(freshBody);
+            SourceBody freshBody = createDraftBody(build.author, false);
             copy = new SourceNode(freshBody, build);
         } else {
             copy = new SourceNode(getBody(), build);
