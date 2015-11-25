@@ -3,9 +3,9 @@
 
     angular
         .module('nodeStandControllers')
-        .directive('nodeGraph', ['$routeParams', '$modal', 'NodeCache', nodeGraph]);
+        .directive('nodeGraph', ['$routeParams', '$modal', '$location', 'NodeCache', nodeGraph]);
 
-    function nodeGraph($routeParams, $modal, NodeCache) {
+    function nodeGraph($routeParams, $modal, $location, NodeCache) {
         return {
             restrict: "A",
             scope: {
@@ -13,28 +13,27 @@
             },
             templateUrl: "partials/graph.html",
             link: function (scope) {
-                initializeGraph(scope, $routeParams, $modal, NodeCache);
+                initializeGraph(scope, $routeParams, $modal, $location, NodeCache);
             }
         }
     }
 
-    function initializeGraph($scope, $routeParams, $modal, NodeCache) {
+    function initializeGraph($scope, $routeParams, $modal, $location, NodeCache) {
 
         $scope.publishableNodes = [];
 
         $scope.enterEditMode = function (node) {
             prepareNodeForEditing(node);
             node.inEditMode = true;
-        }
+        };
 
-        if ($routeParams && $routeParams.rootId) {
-            NodeCache.fetchGraphForId($routeParams.rootId, function() {
+        if ($routeParams && $routeParams.rootStableId) {
+            NodeCache.fetchGraphForId($routeParams.rootStableId, function() {
                 $scope.rootNodes = [];
-                $scope.rootNodes.push(NodeCache.get($routeParams.rootId));
+                $scope.rootNodes.push(NodeCache.getByStableId($routeParams.rootStableId));
             });
         } else if ($scope.starterNode) {
-            var starterNode = $scope.starterNode;
-            $scope.rootNodes = [starterNode];
+            $scope.rootNodes = [$scope.starterNode];
         } else {
             var starterNode = NodeCache.getOrCreateDraftNode();
             $scope.rootNodes = [starterNode];
@@ -53,7 +52,7 @@
 
         $scope.isSelected = function (node) {
             return node.isSelected;
-        }
+        };
 
         $scope.toggleSelect = function (node) {
             node.isSelected = !node.isSelected;
@@ -65,11 +64,11 @@
                     ensureDetail(child);
                 })
             }
-        }
+        };
 
         $scope.toggleChildren = function (node) {
             node.hideChildren = !node.hideChildren;
-        }
+        };
 
 
         $scope.hasComment = function (node) {
@@ -112,10 +111,10 @@
             function saveChanges(node) {
                 if (NodeCache.isDraftNode(node)) {
                     NodeCache.saveDraftNode(function(newNode) {
-                        var index = $scope.rootNodes.indexOf(node);
-                        if (index >= 0) {
-                            $scope.rootNodes[index].id = newNode.id;
-                        }
+
+                        // Change the page url and reload the graph. All the UI state should stay the same because
+                        // the nodes are in the NodeCache.
+                        $location.path("/graph/" + newNode.stableId);
                     });
                 } else {
                     // At the moment, this list of rootNodes is always size 1.
@@ -124,12 +123,15 @@
                     var rootNode = $scope.rootNodes[0];
 
                     NodeCache.saveNodeEdit(node, rootNode, function(editedNode, data) {
-                        var editedNode = data.editedNode;
-                        if (node.id != editedNode.id) {
+                        var editedNode = data.editedNode; // TODO: what is the editedNode param doing here?
+                        if (node.id != editedNode.id) { // This indicates that the node had never before been saved.
+
+                            // TODO: this shouldn't be necessary because the NodeCache should be updating the node
+                            // in a stable way.
                             $scope.enterEditMode(editedNode);
 
                             if (data.graph) {
-                                $scope.rootNodes = [NodeCache.get(data.graph.rootId)];
+                                $location.path("/graph/" + data.graph.rootStableId);
                             }
                         }
                     });
@@ -173,7 +175,7 @@
                 }
 
                 saveChanges(node);
-            }
+            };
 
             node.doLinkChild = function(linkCallback) {
 
@@ -183,7 +185,7 @@
 
                     saveChanges(node);
                     ensureDetail(child);
-                    NodeCache.fetchGraphForId(child.id);
+                    NodeCache.fetchGraphForId(child.stableId);
                 }
 
                 function nodeChosenForLinking(result) {

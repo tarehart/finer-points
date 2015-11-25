@@ -22,8 +22,8 @@ public class GraphController {
 
     @Transactional
     @RequestMapping("/graph")
-    public QuickGraphResponse getGraph(@RequestParam(value="rootId", required=true) long rootId) {
-        return graphDao.getGraph(rootId);
+    public QuickGraphResponse getGraph(@RequestParam(value="rootStableId", required=true) String rootStableId) {
+        return graphDao.getGraph(rootStableId);
     }
 
 }

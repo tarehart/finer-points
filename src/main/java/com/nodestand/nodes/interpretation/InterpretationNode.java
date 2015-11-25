@@ -5,6 +5,7 @@ import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
+import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.Build;
 import com.nodestand.nodes.version.VersionHelper;
@@ -20,6 +21,9 @@ public class InterpretationNode extends ArgumentNode {
 
     @Relationship(type="INTERPRETS", direction = Relationship.OUTGOING)
     private SourceNode source;
+
+    @Relationship(type="SUPPORTED_BY", direction = Relationship.INCOMING)
+    private Set<AssertionNode> dependentNodes;
 
     public InterpretationNode() {}
 
@@ -48,6 +52,9 @@ public class InterpretationNode extends ArgumentNode {
                     this + " and the updated node was " + updatedChildNode);
         }
         copy.setSource((SourceNode) updatedChildNode);
+
+        // Make sure the old source no longer claims this as a dependent.
+        updatedChildNode.getPreviousVersion().getDependentNodes().removeIf(n -> n.getId().equals(getId()));
 
         return copy;
     }
@@ -103,5 +110,21 @@ public class InterpretationNode extends ArgumentNode {
 
     public InterpretationBody getBody() {
         return (InterpretationBody) body;
+    }
+
+    @Override
+    @JsonIgnore
+    @Relationship(type="SUPPORTED_BY", direction = Relationship.INCOMING)
+    public Set<AssertionNode> getDependentNodes() {
+        return dependentNodes;
+    }
+
+    /**
+     * Omissions are OK, false positives are not. It's mostly here to be used by the object graph mapper and to mitigate this issue:
+     * https://github.com/neo4j/neo4j-ogm/issues/38
+     */
+    @Relationship(type="SUPPORTED_BY", direction = Relationship.INCOMING)
+    public void setDependentNodes(Set<AssertionNode> dependentNodes) {
+        this.dependentNodes = dependentNodes;
     }
 }

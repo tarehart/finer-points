@@ -17,7 +17,7 @@ public abstract class ArgumentNode {
     @GraphId
     protected Long id;
 
-    @Index
+    @Index(unique = true)
     private String stableId;
 
     protected int buildVersion = -1;
@@ -30,6 +30,9 @@ public abstract class ArgumentNode {
 
     @Relationship(type="PRECEDED_BY", direction = Relationship.OUTGOING)
     protected ArgumentNode previousVersion;
+
+    @Relationship(type="PRECEDED_BY", direction = Relationship.INCOMING)
+    protected Set<ArgumentNode> subsequentVersions;
 
     public ArgumentNode() {}
 
@@ -55,6 +58,21 @@ public abstract class ArgumentNode {
 
     public Long getId() {
         return id;
+    }
+
+    @JsonIgnore
+    @Relationship(type="PRECEDED_BY", direction = Relationship.INCOMING)
+    public Set<ArgumentNode> getSubsequentVersions() {
+        return subsequentVersions;
+    }
+
+    /**
+     * Omissions are OK, false positives are not. It's mostly here to be used by the object graph mapper and to mitigate this issue:
+     * https://github.com/neo4j/neo4j-ogm/issues/38
+     */
+    @Relationship(type="PRECEDED_BY", direction = Relationship.INCOMING)
+    public void setSubsequentVersions(Set<ArgumentNode> subsequentVersions) {
+        this.subsequentVersions = subsequentVersions;
     }
 
     public abstract String getType();
@@ -110,6 +128,7 @@ public abstract class ArgumentNode {
         if (!isDraft()) {
             throw new NodeRulesException("Cannot install a draft body on a node that is not itself a draft!");
         }
+        //body.getDependentNodes().remove(this);
         body = freshBody;
     }
 
@@ -130,6 +149,9 @@ public abstract class ArgumentNode {
 
     @JsonIgnore
     public abstract Set<ArgumentNode> getGraphChildren();
+
+    @JsonIgnore
+    public abstract Set<? extends ArgumentNode> getDependentNodes();
 
     public String getStableId() {
         return stableId;

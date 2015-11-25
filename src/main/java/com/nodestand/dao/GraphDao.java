@@ -23,19 +23,24 @@ public class GraphDao {
     @Autowired
     Neo4jSession session;
 
-    public QuickGraphResponse getGraph(long rootId) {
+    public QuickGraphResponse getGraph(String rootStableId) {
 
-        Set<ArgumentNode> nodes = argumentNodeRepository.getGraph(rootId);
+        Set<ArgumentNode> nodes = argumentNodeRepository.getGraph(rootStableId);
 
         Set<QuickEdge> edges = new HashSet<>();
+
+        Long rootId = null;
 
         for (ArgumentNode n: nodes) {
             for (ArgumentNode child : n.getGraphChildren()) {
                 edges.add(new QuickEdge(n.getId(), child.getId()));
             }
+            if (n.getStableId().equals(rootStableId)) {
+                rootId = n.getId();
+            }
         }
 
-        return new QuickGraphResponse(nodes, edges, rootId);
+        return new QuickGraphResponse(nodes, edges, rootId, rootStableId);
 
     }
 

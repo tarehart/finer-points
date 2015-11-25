@@ -9,11 +9,13 @@ public class QuickGraphResponse {
     private Set<ArgumentNode> nodes;
     private Set<QuickEdge> edges;
     private long rootId;
+    private String rootStableId;
 
-    public QuickGraphResponse(Set<ArgumentNode> nodes, Set<QuickEdge> edges, long rootId) {
+    public QuickGraphResponse(Set<ArgumentNode> nodes, Set<QuickEdge> edges, long rootId, String rootStableId) {
         this.nodes = nodes;
         this.edges = edges;
         this.rootId = rootId;
+        this.rootStableId = rootStableId;
     }
 
     public Set<ArgumentNode> getNodes() {
@@ -22,6 +24,10 @@ public class QuickGraphResponse {
 
     public Set<QuickEdge> getEdges() {
         return edges;
+    }
+
+    public String getRootStableId() {
+        return rootStableId;
     }
 
     public long getRootId() {

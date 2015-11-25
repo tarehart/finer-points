@@ -12,7 +12,7 @@ nodeStandApp.config(['$routeProvider',
                 templateUrl: 'partials/node-menu.html',
                 controller: 'NodeMenuController'
             }).
-            when('/graph/:rootId', {
+            when('/graph/:rootStableId', {
                 templateUrl: 'partials/explorer.html'
             }).
             when('/create', {

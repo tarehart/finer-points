@@ -15,6 +15,7 @@ import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.VersionHelper;
 import com.nodestand.service.NodeUserDetailsService;
+import com.nodestand.util.BugMitigator;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
@@ -90,9 +91,9 @@ public class EditController {
 
         User user = nodeUserDetailsService.getUserFromSession();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
-        Long rootId = Long.valueOf((Integer) params.get("rootId"));
+        String rootStableId = (String) params.get("rootStableId");
 
-        ArgumentNode existingNode = neo4jOperations.load(ArgumentNode.class, nodeId, 2); //nodeRepository.findOne(nodeId);
+        ArgumentNode existingNode = BugMitigator.loadArgumentNode(neo4jOperations, nodeId, 2);
 
         if (existingNode.isDraft()) {
             // We won't need to update any version numbers.
@@ -118,10 +119,15 @@ public class EditController {
 
             nodeRepository.save(draftNode);
 
-            long newRootId = propagateDraftTowardRoot(draftNode, rootId);
+            String newRootStableId = null;
+            if (existingNode.getStableId().equals(rootStableId)) {
+                newRootStableId = draftNode.getStableId();
+            } else {
+                newRootStableId = propagateDraftTowardRoot(draftNode, rootStableId);
+            }
 
             EditResult result = new EditResult(draftNode);
-            result.setGraph(graphDao.getGraph(newRootId));
+            result.setGraph(graphDao.getGraph(newRootStableId));
 
             return result;
 
@@ -181,25 +187,23 @@ public class EditController {
 
     /**
      *
-     * @param draftNode
-     * @param rootId
      * @return The id of the root node after propagation
      * @throws NodeRulesException
      */
-    private long propagateDraftTowardRoot(ArgumentNode draftNode, Long rootId) throws NodeRulesException {
+    private String propagateDraftTowardRoot(ArgumentNode draftNode, String rootStableId) throws NodeRulesException {
 
         ArgumentNode preEdit = draftNode.getPreviousVersion();
 
         ArgumentNode newRoot = null;
 
-        QuickGraphResponse graph = graphDao.getGraph(rootId);
+        QuickGraphResponse graph = graphDao.getGraph(rootStableId);
 
         Map<String, ArgumentNode> nodeLookup = new HashMap<>();
         for (ArgumentNode node : graph.getNodes()) {
             nodeLookup.put(node.getStableId(), node);
         }
 
-        Iterable<Map<String, Object>> paths = nodeRepository.getPaths(preEdit.getId(), rootId);
+        Iterable<Map<String, Object>> paths = nodeRepository.getPaths(preEdit.getId(), graph.getRootId());
 
         Set<List<ArgumentNode>> nicePaths = new HashSet<>();
 
@@ -234,6 +238,10 @@ public class EditController {
                 // TODO: it should also go ahead and get a new minor version, right?
                 ArgumentNode changeable = pathNode.alterOrCloneToPointToChild(previousNode);
 
+                if (changeable.getGraphChildren().contains(changeable)) {
+                    throw new NodeRulesException("Something has gone wrong with publishing and we have a closed loop!");
+                }
+
                 if (pathNode.getId().equals(changeable.getId())) {
                     // There was no clone necessary, it must already have been a draft.
                     // We stop propagation here.
@@ -254,9 +262,9 @@ public class EditController {
         }
 
         if (newRoot != null) {
-            return newRoot.getId();
+            return newRoot.getStableId();
         } else {
-            return rootId;
+            return rootStableId;
         }
     }
 }

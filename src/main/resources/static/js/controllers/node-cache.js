@@ -14,6 +14,7 @@
 
         var DRAFT_ID = "draft";
 
+        // This is supposed to be idempotent.
         function decorateWithRequiredProperties(node) {
             node.children = node.children || [];
             node.body = node.body || {};
@@ -65,6 +66,19 @@
             return cache.nodes[id];
         };
 
+        cache.getByStableId = function(stableId) {
+            var foundNode = null;
+
+            $.each(cache.nodes, function(id, node) {
+                if (node && node.stableId === stableId) {
+                    foundNode = node;
+                    return false; // break out of the loop
+                }
+            });
+
+            return foundNode;
+        };
+
         cache.getOrCreateNode = function(id) {
             if (cache.get(id)) {
                 return cache.get(id);
@@ -99,7 +113,7 @@
         // NOT whether it has been published (which is what node.isDraft determines).
         cache.isDraftNode = function(node) {
             return node == cache.get(DRAFT_ID);
-        }
+        };
 
         cache.saveDraftNode = function(successCallback, errorCallback) {
             var node = cache.get(DRAFT_ID);
@@ -145,10 +159,11 @@
                     links: links
                 })
                 .success(function (data) {
-                    cache.addOrUpdateNode(data);
+                    mergeIntoNode(node, data);
+                    insertNode(node);
 
                     if (successCallback) {
-                        successCallback(data); // This callback probably ought to change the URL to incorporate the new id.
+                        successCallback(node); // This callback probably ought to change the URL to incorporate the new id.
                     }
                 })
                 .error(function(err) {
@@ -172,10 +187,11 @@
                     sourceId: sourceId
                 })
                 .success(function (data) {
-                    cache.addOrUpdateNode(data);
+                    mergeIntoNode(node, data);
+                    insertNode(node);
 
                     if (successCallback) {
-                        successCallback(data); // This callback probably ought to change the URL to incorporate the new id.
+                        successCallback(node); // This callback probably ought to change the URL to incorporate the new id.
                     }
                 })
                 .error(function(err) {
@@ -197,10 +213,11 @@
                     url: node.body.url
                 })
                 .success(function (data) {
-                    cache.addOrUpdateNode(data);
+                    mergeIntoNode(node, data);
+                    insertNode(node);
 
                     if (successCallback) {
-                        successCallback(data); // This callback probably ought to change the URL to incorporate the new id.
+                        successCallback(node); // This callback probably ought to change the URL to incorporate the new id.
                     }
                 })
                 .error(function(err) {
@@ -229,23 +246,6 @@
                 inductQuickGraph(editResponse.graph);
             }
 
-            if (editedNode.id != originalNode.id) {
-                // The node had not been a draft, so a new one was produced to hold the edit. Provisionally,
-                // we will make the parent of the original point to the new draft, but because the draft is not
-                // published, this will not survive a page refresh.
-
-                // TODO: consider making a server-side edit to the parent.
-                // If the parent is a draft, that would go smoothly. If it's not,
-                // a draft would be created and we'd want to recurse and handle that edit too.
-                //
-                $.each(cache.nodes, function (id, potentialParent) {
-                    var index = potentialParent.children.indexOf(originalNode);
-                    if (index >= 0) {
-                        potentialParent.children[index] = editedNode;
-                    }
-                });
-            }
-
             return editedNode;
         }
 
@@ -259,7 +259,7 @@
             $http.post('/editAssertion',
                 {
                     nodeId: node.id,
-                    rootId: root.id,
+                    rootStableId: root.stableId,
                     title: node.body.title,
                     body: node.body.body,
                     links: links
@@ -276,7 +276,7 @@
                         errorCallback(err);
                     }
                 });
-        };
+        }
 
         function saveInterpretationEdit(node, root, successCallback, errorCallback) {
 
@@ -289,7 +289,7 @@
             $http.post('/editInterpretation',
                 {
                     nodeId: node.id,
-                    rootId: root.id,
+                    rootStableId: root.stableId,
                     title: node.body.title,
                     body: node.body.body,
                     sourceId: sourceId
@@ -306,7 +306,7 @@
                         errorCallback(err);
                     }
                 });
-        };
+        }
 
         function saveSourceEdit(node, root, successCallback, errorCallback) {
 
@@ -318,7 +318,7 @@
             $http.post('/editSource',
                 {
                     nodeId: node.id,
-                    rootId: root.id,
+                    rootStableId: root.stableId,
                     title: node.body.title,
                     url: node.body.url
                 })
@@ -334,7 +334,7 @@
                         errorCallback(err);
                     }
                 });
-        };
+        }
 
         cache.publishNode = function(node, successCallback, errorCallback) {
             $http.post('/publishNode',
@@ -355,30 +355,43 @@
                 });
         };
 
+        function mergeIntoNode(cachedNode, newData) {
+            if (newData.body.majorVersion) {
+                // This is a good indicator that node's body is fully fleshed out and should be trusted.
+                cachedNode.body = newData.body;
+                cachedNode.type = newData.type;
+            } else {
+                cachedNode.body = cachedNode.body || newData.body;
+                cachedNode.body.body = newData.body.body;
+            }
+
+            if (!cachedNode.id || cachedNode.id === DRAFT_ID) {
+                cachedNode.id = newData.id;
+                cachedNode.stableId = newData.stableId;
+            }
+
+            if (isValidBuildVersion(newData.buildVersion)) {
+                cachedNode.buildVersion = newData.buildVersion;
+            }
+
+            if (newData.draft != undefined && newData.draft != null) {
+                cachedNode.draft = newData.draft;
+            }
+        }
+
+        function insertNode(node) {
+            cache.nodes[node.id] = decorateWithRequiredProperties(node);
+        }
+
         cache.addOrUpdateNode = function(node) {
             var cachedNode = cache.get(node.id);
             if (cachedNode) {
                 // Node is already in the cache, so perform updates
-
-                if (node.body.majorVersion) {
-                    // This is a good indicator that node's body is fully fleshed out and should be trusted.
-                    cachedNode.body = node.body;
-                } else {
-                    cachedNode.body = cachedNode.body || node.body;
-                    cachedNode.body.body = node.body.body;
-                }
-
-                if (isValidBuildVersion(node.buildVersion)) {
-                    cachedNode.buildVersion = node.buildVersion;
-                }
-
-                if (node.draft != undefined && node.draft != null) {
-                    cachedNode.draft = node.draft;
-                }
+                mergeIntoNode(cachedNode, node);
 
             } else {
                 // node must be created and added to the cache
-                cache.nodes[node.id] = decorateWithRequiredProperties(node);
+                insertNode(node);
             }
 
             return cache.get(node.id);
@@ -404,7 +417,11 @@
 
                 for (var j = 0; j < edges.length; j++) {
                     var child = cache.get(edges[j].end);
-                    node.children.push(child);
+                    if (child === undefined) {
+                        console.error("Could not locate child in cache with id of " + edges[j].end);
+                    } else {
+                        node.children.push(child);
+                    }
                     if (isInfinite(node)) {
                         // That's illegal! Remove that child.
                         node.children.splice(node.children.length - 1, 1);
@@ -437,19 +454,19 @@
             return false;
         }
 
-        cache.fetchGraphForId = function(id, successCallback, errorCallback) {
+        cache.fetchGraphForId = function(stableId, successCallback, errorCallback) {
 
-            var rootNode = cache.get(id);
+            var rootNode = cache.getByStableId(stableId);
 
             if (rootNode && rootNode.hasFullGraph) {
                 if (successCallback) {
                     successCallback(rootNode);
                 }
             } else {
-                $http.get('/graph', {params: {"rootId": id}}).success(function (data) {
+                $http.get('/graph', {params: {"rootStableId": stableId}}).success(function (data) {
 
                     inductQuickGraph(data);
-                    rootNode = cache.get(id);
+                    rootNode = cache.getByStableId(stableId);
                     rootNode.hasFullGraph = true;
                     if (successCallback) {
                         successCallback(rootNode);

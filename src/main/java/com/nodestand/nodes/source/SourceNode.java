@@ -1,11 +1,15 @@
 package com.nodestand.nodes.source;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionBody;
+import com.nodestand.nodes.assertion.AssertionNode;
+import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.version.Build;
 import com.nodestand.nodes.version.VersionHelper;
+import org.neo4j.ogm.annotation.Relationship;
 import org.springframework.beans.MethodInvocationException;
 
 import java.lang.reflect.InvocationTargetException;
@@ -14,6 +18,9 @@ import java.util.Set;
 
 public class SourceNode extends ArgumentNode {
     public final String type = "source";
+
+    @Relationship(type="INTERPRETS", direction = Relationship.INCOMING)
+    private Set<InterpretationNode> dependentNodes;
 
     public SourceNode() {};
 
@@ -72,5 +79,21 @@ public class SourceNode extends ArgumentNode {
 
     public SourceBody getBody() {
         return (SourceBody) body;
+    }
+
+    @Override
+    @JsonIgnore
+    @Relationship(type="INTERPRETS", direction = Relationship.INCOMING)
+    public Set<InterpretationNode> getDependentNodes() {
+        return dependentNodes;
+    }
+
+    /**
+     * Omissions are OK, false positives are not. It's mostly here to be used by the object graph mapper and to mitigate this issue:
+     * https://github.com/neo4j/neo4j-ogm/issues/38
+     */
+    @Relationship(type="INTERPRETS", direction = Relationship.INCOMING)
+    public void setDependentNodes(Set<InterpretationNode> dependentNodes) {
+        this.dependentNodes = dependentNodes;
     }
 }

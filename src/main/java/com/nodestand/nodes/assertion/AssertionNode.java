@@ -22,6 +22,9 @@ public class AssertionNode extends ArgumentNode {
     @Relationship(type="SUPPORTED_BY", direction = Relationship.OUTGOING)
     private Set<ArgumentNode> supportingNodes;
 
+    @Relationship(type="SUPPORTED_BY", direction = Relationship.INCOMING)
+    private Set<AssertionNode> dependentNodes;
+
     public AssertionNode() {}
 
     public AssertionNode(AssertionBody body, Build build) {
@@ -46,13 +49,16 @@ public class AssertionNode extends ArgumentNode {
             copy = createNewDraft(updatedChildNode.getBuild(), false);
         }
 
-
-
-        if (!copy.getSupportingNodes().removeIf(n -> n.getId() == updatedChildNode.getPreviousVersion().getId())) {
-            throw new NodeRulesException("Incorrect behavior during publish. " +
+        // Make sure we no longer depend on the previous version
+        if (!copy.getSupportingNodes().removeIf(n -> n.getId().equals(updatedChildNode.getPreviousVersion().getId()))) {
+            throw new NodeRulesException("Incorrect behavior when updating to point to new child. " +
                     "Tried to increment a node that was not actually a consumer. Increment was attempted on " +
                     this + " and the updated node was " + updatedChildNode);
         }
+
+        // Make sure the previous version no longer claims this as a dependent
+        updatedChildNode.getPreviousVersion().getDependentNodes().removeIf(n -> n.getId().equals(getId()));
+
         copy.getSupportingNodes().add(updatedChildNode);
         return copy;
     }
@@ -94,11 +100,18 @@ public class AssertionNode extends ArgumentNode {
         return supportingNodes != null? supportingNodes : new HashSet<>(0);
     }
 
+//    @Override
+//    public Set<ArgumentNode> getDependentNodesGeneric() {
+//        return new HashSet<>(getDependentNodes());
+//    }
+
     @JsonIgnore
+    @Relationship(type="SUPPORTED_BY", direction = Relationship.OUTGOING)
     public Set<ArgumentNode> getSupportingNodes() {
         return supportingNodes;
     }
 
+    @Relationship(type="SUPPORTED_BY", direction = Relationship.OUTGOING)
     public void setSupportingNodes(Set<ArgumentNode> nodes) {
         supportingNodes = nodes;
     }
@@ -115,5 +128,21 @@ public class AssertionNode extends ArgumentNode {
 
     public AssertionBody getBody() {
         return (AssertionBody) body;
+    }
+
+    @Override
+    @JsonIgnore
+    @Relationship(type="SUPPORTED_BY", direction = Relationship.INCOMING)
+    public Set<AssertionNode> getDependentNodes() {
+        return dependentNodes;
+    }
+
+    /**
+     * Omissions are OK, false positives are not. It's mostly here to be used by the object graph mapper and to mitigate this issue:
+     * https://github.com/neo4j/neo4j-ogm/issues/38
+     */
+    @Relationship(type="SUPPORTED_BY", direction = Relationship.INCOMING)
+    public void setDependentNodes(Set<AssertionNode> dependentNodes) {
+        this.dependentNodes = dependentNodes;
     }
 }

@@ -4,6 +4,7 @@ import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.comment.Commentable;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.repository.CommentableRepository;
+import com.nodestand.util.BugMitigator;
 import org.neo4j.kernel.impl.core.RelationshipProxy;
 import org.neo4j.ogm.session.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,19 @@ public class DetailController {
 
         // id represents an ArgumentNode id.
 
-        ArgumentNode baseNode = neo4jOperations.load(ArgumentNode.class, Long.parseLong(id), 2);
+        // Sometimes this messes up neo4j's Object Graph Model. Specifically, an AssertionNode can have its
+        // previousVersion inserted into its supportingNodes when spring data neo4j is trying to map raw
+        // json response into POJOs. Steps to duplicate:
+        // 1. Create node structure (:AssertionNode)->(:InterpretationNode)->(:SourceNode)
+        // 2. Publish assertion (publishes all)
+        // 3. Edit the interpretation
+        // 4. Bounce spring
+        // 5. Load the Assertion graph
+        // 6. Expand the assertion node so that it fetches detail
+        //
+        // Deep down in here, things go awry. See the mapRelationships method in GraphEntityMapper.java.
+        // https://jira.spring.io/browse/DATAGRAPH-788
+        ArgumentNode baseNode = BugMitigator.loadArgumentNode(neo4jOperations, Long.parseLong(id), 2);
 
         Map<String, Object> params = new HashMap<>();
         params.put("id", baseNode.getBody().getId());

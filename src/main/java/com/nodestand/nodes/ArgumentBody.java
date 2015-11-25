@@ -1,5 +1,6 @@
 package com.nodestand.nodes;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.comment.Commentable;
 import com.nodestand.nodes.version.MajorVersion;
 import com.nodestand.nodes.version.VersionHelper;
@@ -8,6 +9,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.time.Instant;
+import java.util.Set;
 
 @NodeEntity
 public abstract class ArgumentBody implements Commentable {
@@ -22,6 +24,9 @@ public abstract class ArgumentBody implements Commentable {
 
     @Relationship(type="VERSION_OF", direction = Relationship.OUTGOING)
     private MajorVersion majorVersion;
+
+//    @Relationship(type="DEFINED_BY", direction = Relationship.INCOMING)
+//    protected Set<ArgumentNode> dependentNodes;
 
     private int minorVersion;
 
@@ -90,4 +95,19 @@ public abstract class ArgumentBody implements Commentable {
     public void setMajorVersion(MajorVersion majorVersion) {
         this.majorVersion = majorVersion;
     }
+
+//    @JsonIgnore
+//    @Relationship(type="DEFINED_BY", direction = Relationship.INCOMING)
+//    public Set<ArgumentNode> getDependentNodes() {
+//        return dependentNodes;
+//    }
+//
+//    /**
+//     * Omissions are OK, false positives are not. It's mostly here to be used by the object graph mapper and to mitigate this issue:
+//     * https://github.com/neo4j/neo4j-ogm/issues/38
+//     */
+//    @Relationship(type="DEFINED_BY", direction = Relationship.INCOMING)
+//    public void setDependentNodes(Set<ArgumentNode> dependentNodes) {
+//        this.dependentNodes = dependentNodes;
+//    }
 }

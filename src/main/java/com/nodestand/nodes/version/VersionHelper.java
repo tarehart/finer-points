@@ -8,15 +8,13 @@ import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceNode;
+import com.nodestand.util.BugMitigator;
 import org.neo4j.ogm.session.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class VersionHelper {
@@ -84,7 +82,7 @@ public class VersionHelper {
 
     private int getNextBuildVersion(ArgumentBody body) {
         Map<String, Object> params = new HashMap<>();
-        params.put( "id", body.getId() );
+        params.put("id", body.getId());
 
         Result result = neo4jOperations.query("start n=node({id}) " +
                 "match node-[DEFINED_BY]->n " +
@@ -212,22 +210,49 @@ public class VersionHelper {
             return;
         }
 
-        Set<ArgumentNode> consumers = nodeRepository.getConsumers(updatedNode.getPreviousVersion().getId());
+        Set<ArgumentNode> consumers = new HashSet<>();
+        addIfNotNull(updatedNode.getDependentNodes(), consumers);
 
         for (ArgumentNode consumer: consumers) {
 
-            if (consumer.getId() == updatedNode.getPreviousVersion().getId()) {
-                continue; // Skip this. Currently the query has the unfortunate side effect of also returning the input node.
+            BugMitigator.loadArgumentNode(neo4jOperations, consumer.getId(), 1); // Flesh out the properties
+
+            // Don't mess with drafts.
+            // 1. Might be a draft that already points to updatedNode. No action required.
+            // 2. Might belong to somebody else. Design decision to not mess with that.
+            // 3. Might be the authors draft. Still a design decision to not mess with that.
+            if (!consumer.isDraft()) {
+                ArgumentNode updatedConsumer = consumer.alterOrCloneToPointToChild(updatedNode);
+                if (updatedConsumer.getGraphChildren().contains(updatedConsumer)) {
+                    throw new NodeRulesException("Something has gone wrong with publishing and we have a closed loop!");
+                }
+                updatedConsumer.setVersion(getNextBuildVersion(updatedConsumer.getBody()));
+                nodeRepository.save(updatedConsumer);
+
+                propagateBuild(updatedConsumer);
             }
+        }
+    }
 
-            // TODO: if the consumer is a draft, we don't really need to copy it, just
-            // swap out the descendant.
-            ArgumentNode updatedConsumer = consumer.alterOrCloneToPointToChild(updatedNode);
-            updatedConsumer.setVersion(getNextBuildVersion(updatedConsumer.getBody()));
-            nodeRepository.save(updatedConsumer);
+    /**
+     * Yes, I know about polymorphism. I'm declining to use it here because the various getDependentNodes methods have
+     * special annotations related to spring data neo4j. I could have a polymorphic wrapper, but this is actually cleaner.
+     */
+//    private Set<ArgumentNode> getConsumers(ArgumentNode updatedNode) {
+//        Set<ArgumentNode> consumers = new HashSet<>();
+//        if (updatedNode instanceof  AssertionNode) {
+//            addIfNotNull(((AssertionNode) updatedNode).getDependentNodes(), consumers);
+//        } else if (updatedNode instanceof  InterpretationNode) {
+//            addIfNotNull(((InterpretationNode) updatedNode).getDependentNodes(), consumers);
+//        } else if (updatedNode instanceof  SourceNode) {
+//            addIfNotNull(((SourceNode) updatedNode).getDependentNodes(), consumers);
+//        }
+//        return consumers;
+//    }
 
-            propagateBuild(updatedConsumer);
-
+    private void addIfNotNull(Set<? extends ArgumentNode> values, Set<ArgumentNode> collection) {
+        if (values != null) {
+            collection.addAll(values);
         }
     }
 }
