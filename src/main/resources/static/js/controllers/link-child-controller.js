@@ -48,10 +48,17 @@
 
         function sortNodesByVersion(nodes) {
             nodes.sort(function(n, m) {
-                var nVersion = n.version.split(".");
-                var mVersion = m.version.split(".");
+                var nVersion = n.getVersionString().split(".");
+                var mVersion = m.getVersionString().split(".");
 
-                return nVersion[0] - mVersion[0] || nVersion[1] - mVersion[1] || nVersion[2] - mVersion[2];
+                for (var i = 0; i < nVersion.length && i < mVersion.length; i++) {
+                    var difference = nVersion[i] - mVersion[i];
+                    if (difference != 0) {
+                        return difference;
+                    }
+                }
+
+                return 0;
             });
         }
 

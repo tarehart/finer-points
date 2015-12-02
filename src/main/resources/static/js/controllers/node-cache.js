@@ -531,7 +531,11 @@
         cache.getLinkChoices = function(bodyId, successCallback, errorCallback) {
 
             $http.get('/bodyChoices', {params: {"bodyId": bodyId}}).success(function (data) {
-                successCallback(data.nodes);
+                var nodes = [];
+                $.each(data.nodes, function(index, node) {
+                    nodes.push(cache.addOrUpdateNode(node));
+                });
+                successCallback(nodes);
 
             }).error(function(err) {
                 if (errorCallback) {

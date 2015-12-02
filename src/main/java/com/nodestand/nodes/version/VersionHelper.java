@@ -6,6 +6,7 @@ import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
+import com.nodestand.nodes.repository.ArgumentBodyRepository;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.util.BugMitigator;
@@ -23,6 +24,9 @@ public class VersionHelper {
 
     @Autowired
     ArgumentNodeRepository nodeRepository;
+
+    @Autowired
+    ArgumentBodyRepository bodyRepository;
 
     @Autowired
     Neo4jOperations neo4jOperations;
@@ -127,7 +131,17 @@ public class VersionHelper {
         }
         node.setVersion(getNextBuildVersion(body));
         body.setIsDraft(false);
-        neo4jOperations.save(node.getBody());
+
+        // Somehow, when publishing, the author is falling off the body of the node that precedes the node being published.
+        // To dupe:
+        // Create nodes A -> B -> C
+        // Publish A
+        // Edit B
+        // Edit A
+        // Publish A
+        // The old A body now no longer has an author.
+
+        bodyRepository.save(node.getBody());
         nodeRepository.save(node);
     }
 
@@ -227,6 +241,7 @@ public class VersionHelper {
                     throw new NodeRulesException("Something has gone wrong with publishing and we have a closed loop!");
                 }
                 updatedConsumer.setVersion(getNextBuildVersion(updatedConsumer.getBody()));
+                bodyRepository.save(updatedConsumer.getBody());
                 nodeRepository.save(updatedConsumer);
 
                 propagateBuild(updatedConsumer);

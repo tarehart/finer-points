@@ -4,6 +4,7 @@ import com.nodestand.dao.GraphDao;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.interpretation.InterpretationBody;
 import com.nodestand.nodes.interpretation.InterpretationNode;
+import com.nodestand.nodes.repository.ArgumentBodyRepository;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionBody;
@@ -38,6 +39,9 @@ public class CreateController {
     @Autowired
     ArgumentNodeRepository nodeRepository;
 
+    @Autowired
+    ArgumentBodyRepository bodyRepository;
+
     /**
      * For now, this will always mark the newly created node as a draft. There will be a separate operation
      * called 'publish' which will impose more rules.
@@ -68,6 +72,7 @@ public class CreateController {
             node.supportedBy(linked);
         }
 
+        bodyRepository.save(assertionBody);
         nodeRepository.save(node);
         return node;
     }
@@ -89,6 +94,7 @@ public class CreateController {
             node.setSource(source);
         }
 
+        bodyRepository.save(interpretationBody);
         nodeRepository.save(node);
         return node;
     }
@@ -105,6 +111,7 @@ public class CreateController {
 
         SourceNode node = sourceBody.constructNode(versionHelper);
 
+        bodyRepository.save(sourceBody);
         nodeRepository.save(node);
         return node;
     }

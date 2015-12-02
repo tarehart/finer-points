@@ -8,15 +8,14 @@ import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.ImmutableNodeException;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
-import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
+import com.nodestand.nodes.repository.ArgumentBodyRepository;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.VersionHelper;
 import com.nodestand.service.NodeUserDetailsService;
 import com.nodestand.util.BugMitigator;
-import org.neo4j.helpers.collection.IteratorUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,6 +40,9 @@ public class EditController {
 
     @Autowired
     ArgumentNodeRepository nodeRepository;
+
+    @Autowired
+    ArgumentBodyRepository bodyRepository;
 
     @Autowired
     Neo4jOperations neo4jOperations;
@@ -117,6 +119,7 @@ public class EditController {
 
             doNodeEdits(draftNode, user, params);
 
+            bodyRepository.save(draftNode.getBody());
             nodeRepository.save(draftNode);
 
             String newRootStableId = null;
