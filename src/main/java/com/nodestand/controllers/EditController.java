@@ -97,30 +97,23 @@ public class EditController {
 
         ArgumentNode existingNode = BugMitigator.loadArgumentNode(neo4jOperations, nodeId, 2);
 
-        if (existingNode.isDraft()) {
-            // We won't need to update any version numbers.
-            // Only the original author of the draft is allowed to edit it.
 
-            if (!Objects.equals(user.getNodeId(), existingNode.getBody().author.getNodeId())) {
-                throw new NotAuthorizedException("Not allowed to edit a draft that you did not create.");
-            }
+        if (!existingNode.getBody().isEditable()) {
+            throw new NodeRulesException("Cannot edit this node!");
+        }
 
-            doNodeEdits(existingNode, user, params);
+        if (existingNode.getBody().isPublic()) {
 
-            // Ugh: http://stackoverflow.com/questions/31505729/why-is-my-modified-neo4j-node-property-not-persisted-to-the-db
-            neo4jOperations.save(existingNode.getBody());
-            nodeRepository.save(existingNode);
+            // Create a new draft version
 
-            return new EditResult(existingNode);
-
-        } else {
-
+            // This will set the previous version on the draft. Later, when we publish the edit,
+            // this draft will copy its contents to the previous version and then be destroyed.
             ArgumentNode draftNode = existingNode.createNewDraft(VersionHelper.startBuild(user), true);
 
             doNodeEdits(draftNode, user, params);
 
-            bodyRepository.save(draftNode.getBody());
-            nodeRepository.save(draftNode);
+            neo4jOperations.save(existingNode.getBody());
+            nodeRepository.save(existingNode);
 
             String newRootStableId = null;
             if (existingNode.getStableId().equals(rootStableId)) {
@@ -134,16 +127,21 @@ public class EditController {
 
             return result;
 
+        } else {
+
+            doNodeEdits(existingNode, user, params);
+
+            // Ugh: http://stackoverflow.com/questions/31505729/why-is-my-modified-neo4j-node-property-not-persisted-to-the-db
+            neo4jOperations.save(existingNode.getBody());
+            nodeRepository.save(existingNode);
+
+            return new EditResult(existingNode);
+
+
         }
     }
 
     private void doNodeEdits(ArgumentNode node, User author, Map<String, Object> params) throws ImmutableNodeException, NodeRulesException {
-
-        if (!node.getBody().isDraft()) {
-            // TODO: make a new body to hold the edits. We can get here if, before the call, the node was a draft
-            // but the body was not. This situation arises when a child is edited.
-            node.createDraftBody(author, true);
-        }
 
         node.getBody().setTitle((String) params.get("title"));
 
@@ -239,7 +237,7 @@ public class EditController {
                 // previous iteration of the for loop.
 
                 // TODO: it should also go ahead and get a new minor version, right?
-                ArgumentNode changeable = pathNode.alterOrCloneToPointToChild(previousNode);
+                ArgumentNode changeable = pathNode.alterOrCloneToPointToChild(previousNode, previousNode.getPreviousVersion());
 
                 if (changeable.getGraphChildren().contains(changeable)) {
                     throw new NodeRulesException("Something has gone wrong with publishing and we have a closed loop!");

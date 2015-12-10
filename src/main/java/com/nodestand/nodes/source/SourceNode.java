@@ -4,15 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
-import com.nodestand.nodes.assertion.AssertionBody;
-import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.version.Build;
 import com.nodestand.nodes.version.VersionHelper;
 import org.neo4j.ogm.annotation.Relationship;
-import org.springframework.beans.MethodInvocationException;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,10 +30,18 @@ public class SourceNode extends ArgumentNode {
     }
 
     @Override
-    public ArgumentNode alterOrCloneToPointToChild(ArgumentNode updatedChildNode) {
-        // You should never use this because there's no need to do
-        // build version updates on source nodes; they have no consumers.
-        return null;
+    public ArgumentNode alterOrCloneToPointToChild(ArgumentNode updatedChildNode, ArgumentNode existing) {
+        return this; // Nothing to do, there are no children.
+    }
+
+    @Override
+    public void alterToPointToChild(ArgumentNode replacementChild, ArgumentNode existingChildNode) throws NodeRulesException {
+        // Do nothing.
+    }
+
+    @Override
+    public void copyContentTo(ArgumentNode target) throws NodeRulesException {
+        // Do nothing
     }
 
     @Override
@@ -56,7 +60,7 @@ public class SourceNode extends ArgumentNode {
     public SourceNode createNewDraft(Build build, boolean createBodyDraft) throws NodeRulesException {
         SourceNode copy;
 
-        if (isDraft()) {
+        if (!isFinalized()) {
             throw new NodeRulesException("Node is already a draft!");
         }
 

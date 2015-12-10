@@ -5,6 +5,7 @@ import com.nodestand.dao.GraphDao;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
+import com.nodestand.nodes.version.Build;
 import com.nodestand.nodes.version.VersionHelper;
 import com.nodestand.service.NodeUserDetailsService;
 import com.nodestand.util.BugMitigator;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-public class PublishController {
+public class SnapshotController {
 
     @Autowired
     GraphDao graphDao;
@@ -54,7 +55,7 @@ public class PublishController {
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
-    @RequestMapping("/publishNode")
+    @RequestMapping("/snapshotNode")
     public ArgumentNode publishNode(@RequestBody Map<String, Object> params) throws Exception {
 
         User user = nodeUserDetailsService.getUserFromSession();
@@ -62,21 +63,21 @@ public class PublishController {
 
         ArgumentNode existingNode = BugMitigator.loadArgumentNode(neo4jOperations, nodeId, 2);
 
-        if (!user.getNodeId().equals(existingNode.getBody().author.getNodeId())) {
-            throw new NotAuthorizedException("Not allowed to publish a draft that you did not create.");
-        }
-
         if (existingNode.isFinalized()) {
-            throw new Exception("No new changes to publish!");
+            throw new Exception("Already snapshotted, nothing to do!");
         }
 
-        ArgumentNode resultingNode = versionHelper.publish(existingNode);
+        Build build = VersionHelper.startBuild(user);
+
+        versionHelper.snapshot(existingNode, build);
 
         // TODO: discover whether this node's dependencies have had any updates within their major versions since the
         // draft was originally created. If so, we should give the user the opportunity to bring in the new stuff.
         // However, the default behavior should be to not bring in the new stuff, wary as we are of dummies and vandalism.
 
-        return resultingNode;
+        // This comment was originally written on the publish controller, back when publish was a lot like snapshotting.
+
+        return existingNode;
 
     }
 }

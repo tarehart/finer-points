@@ -33,4 +33,10 @@ public class SourceBody extends ArgumentBody {
     public void setUrl(String url) throws ImmutableNodeException {
         this.url = url;
     }
+
+    @Override
+    public void applyEditTo(ArgumentBody targetBody) {
+        super.applyEditTo(targetBody);
+        ((SourceBody) targetBody).url = url;
+    }
 }

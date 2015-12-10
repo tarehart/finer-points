@@ -36,4 +36,10 @@ public class InterpretationBody extends ArgumentBody {
         this.body = body;
     }
 
+    @Override
+    public void applyEditTo(ArgumentBody targetBody) {
+        super.applyEditTo(targetBody);
+        ((InterpretationBody) targetBody).body = body;
+    }
+
 }

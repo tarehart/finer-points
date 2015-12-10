@@ -1,7 +1,6 @@
 package com.nodestand.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.version.Build;
 import com.nodestand.util.IdGenerator;
 import org.neo4j.ogm.annotation.GraphId;
@@ -9,6 +8,7 @@ import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
+import java.util.Objects;
 import java.util.Set;
 
 @NodeEntity
@@ -84,7 +84,15 @@ public abstract class ArgumentNode {
      * If the node is a draft, this will not actually produce a clone, it will just modify the draft in place and
      * return it.
      */
-    public abstract ArgumentNode alterOrCloneToPointToChild(ArgumentNode updatedChildNode) throws NodeRulesException;
+    public abstract ArgumentNode alterOrCloneToPointToChild(ArgumentNode updatedChildNode, ArgumentNode existingChildNode) throws NodeRulesException;
+
+    public abstract void alterToPointToChild(ArgumentNode replacementChild, ArgumentNode existingChildNode) throws NodeRulesException;
+
+    /**
+     * This should be usable in a scenario where this node is a temporary repository of user edits destined for
+     * the target node. It should not muck around with any metadata, just user-editable stuff.
+     */
+    public abstract void copyContentTo(ArgumentNode target) throws NodeRulesException;
 
     /**
      * This is useful for when the node is already a draft but the body is not. That situation can arise when a
@@ -110,30 +118,20 @@ public abstract class ArgumentNode {
         this.previousVersion = previousVersion;
     }
 
-    /**
-     * We edit in place if it's a draft, or if this node has already been touched by this same build.
-     * The latter can happen if there's a tree like this:
-     * A - B
-     *  \   \
-     *   C - D
-     *
-     * @param buildInProgress
-     * @return
-     */
-    protected boolean shouldEditInPlace(Build buildInProgress) {
-        return isDraft() || getBuild().equals(buildInProgress);
+    protected boolean shouldEditInPlace() {
+        return !body.isPublic();
     }
 
     protected void installBody(ArgumentBody freshBody) throws NodeRulesException {
-        if (!isDraft()) {
-            throw new NodeRulesException("Cannot install a draft body on a node that is not itself a draft!");
+        if (isFinalized()) {
+            throw new NodeRulesException("Cannot install a draft body on a node that has been finalized!");
         }
         //body.getDependentNodes().remove(this);
         body = freshBody;
     }
 
-    public boolean isDraft() {
-        return buildVersion < 0;
+    public boolean isFinalized() {
+        return buildVersion >= 0;
     }
 
     @Override
@@ -144,7 +142,7 @@ public abstract class ArgumentNode {
         if (!this.getClass().equals(other.getClass())) {
             return false;
         }
-        return this.getId() == ((ArgumentNode)other).getId();
+        return Objects.equals(this.getId(), ((ArgumentNode) other).getId());
     }
 
     @JsonIgnore

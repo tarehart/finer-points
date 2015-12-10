@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
+import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.Build;
 import com.nodestand.nodes.version.VersionHelper;
@@ -37,29 +38,55 @@ public class AssertionNode extends ArgumentNode {
     }
 
 
-
-    @Override
-    public ArgumentNode alterOrCloneToPointToChild(ArgumentNode updatedChildNode) throws NodeRulesException {
-
-        AssertionNode copy;
-
-        if (shouldEditInPlace(updatedChildNode.getBuild())) {
-            copy = this;
-        } else {
-            copy = createNewDraft(updatedChildNode.getBuild(), false);
-        }
-
+    private static void performChildReplacement(ArgumentNode replacement, ArgumentNode existing, AssertionNode targetNode) throws NodeRulesException {
         // Make sure we no longer depend on the previous version
-        if (!copy.getSupportingNodes().removeIf(n -> n.getId().equals(updatedChildNode.getPreviousVersion().getId()))) {
+        if (!targetNode.getSupportingNodes().removeIf(n -> n.getId().equals(existing.getId()))) {
             throw new NodeRulesException("Incorrect behavior when updating to point to new child. " +
-                    "Tried to increment a node that was not actually a consumer. Increment was attempted on " +
-                    this + " and the updated node was " + updatedChildNode);
+                    "Tried to update a node that was not actually a consumer. Attempt was made on " +
+                    targetNode + " trying to replace " + existing + " with " + replacement);
         }
 
         // Make sure the previous version no longer claims this as a dependent
-        updatedChildNode.getPreviousVersion().getDependentNodes().removeIf(n -> n.getId().equals(getId()));
+        replacement.getPreviousVersion().getDependentNodes().removeIf(n -> n.getId().equals(targetNode.getId()));
 
-        copy.getSupportingNodes().add(updatedChildNode);
+        targetNode.getSupportingNodes().add(replacement);
+    }
+
+    @Override
+    public void alterToPointToChild(ArgumentNode replacementChild, ArgumentNode existing) throws NodeRulesException {
+        if (!shouldEditInPlace()) {
+            throw new NodeRulesException("Called alterToPointToChild on a node that should not be edited in place!");
+        }
+        performChildReplacement(replacementChild, existing, this);
+    }
+
+    @Override
+    public void copyContentTo(ArgumentNode target) throws NodeRulesException {
+        AssertionNode assertionTarget = (AssertionNode) target;
+        assertionTarget.setSupportingNodes(supportingNodes);
+
+        for (ArgumentNode supportingNode : supportingNodes) {
+            if (supportingNode instanceof AssertionNode) {
+                ((AssertionNode) supportingNode).getDependentNodes().add(assertionTarget);
+            } else if (supportingNode instanceof InterpretationNode) {
+                ((InterpretationNode) supportingNode).getDependentNodes().add(assertionTarget);
+            }
+        }
+    }
+
+    @Override
+    public ArgumentNode alterOrCloneToPointToChild(ArgumentNode updatedChildNode, ArgumentNode existing) throws NodeRulesException {
+
+        AssertionNode copy;
+
+        if (shouldEditInPlace()) {
+            copy = this;
+        } else {
+            copy = createNewDraft(updatedChildNode.getBuild(), true);
+        }
+
+        performChildReplacement(updatedChildNode, existing, copy);
+
         return copy;
     }
 
@@ -78,7 +105,7 @@ public class AssertionNode extends ArgumentNode {
 
         AssertionNode copy;
 
-        if (isDraft()) {
+        if (!isFinalized()) {
             throw new NodeRulesException("Node is already a draft!");
         }
 

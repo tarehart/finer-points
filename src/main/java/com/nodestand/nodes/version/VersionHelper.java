@@ -9,7 +9,6 @@ import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentBodyRepository;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceNode;
-import com.nodestand.util.BugMitigator;
 import org.neo4j.ogm.session.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
@@ -101,51 +100,50 @@ public class VersionHelper {
         return 0;
     }
 
-    public void publish(ArgumentNode node) throws NodeRulesException {
-
+    public ArgumentNode publish(ArgumentNode node) throws NodeRulesException {
         if (!node.getType().equals("source")) {
             // validate that the node and its descendants follow all the rules, e.g. being grounded in sources
             if (hasMissingSupport(node)) {
                 throw new NodeRulesException("The roots of this node do not all end in sources!");
             }
-            publishDescendantDrafts(node);
+            publishDescendants(node);
         }
 
-        stampVersion(node);
-        
-        // make new nodes with new version numbers for all consumers. Decorate with the Build object.
-        propagateBuild(node);
+        ArgumentNode resultingNode = node;
 
-        // TODO: think about concurrency for setting build numbers.
-    }
+        ArgumentNode previousVersion = node.getPreviousVersion();
+        if (previousVersion != null && !previousVersion.isFinalized()) {
+            // previous version is the edit target.
 
-    /**
-     * This used to be done as a transaction with the major version node as a lock. Currently we're being a little
-     * unsafe.
-     */
-    private void stampVersion(ArgumentNode node) {
-        ArgumentBody body = node.getBody();
+            // Copy everything over into the previous version
+            node.copyContentTo(previousVersion);
+            node.getBody().applyEditTo(previousVersion.getBody());
+
+            resultingNode = previousVersion;
+
+            for (ArgumentNode parent: node.getDependentNodes()) {
+                parent.alterToPointToChild(resultingNode, node);
+            }
+
+            // Destroy the current version
+            bodyRepository.delete(node.getBody());
+            nodeRepository.delete(node);
+        }
+
+        ArgumentBody body = resultingNode.getBody();
         if (body.getMinorVersion() < 0) {
-            //tx.acquireWriteLock(getLockNode(body.getMajorVersion()));
             body.setMinorVersion(getNextMinorVersion(body.getMajorVersion()));
         }
-        node.setVersion(getNextBuildVersion(body));
-        body.setIsDraft(false);
 
-        // Somehow, when publishing, the author is falling off the body of the node that precedes the node being published.
-        // To dupe:
-        // Create nodes A -> B -> C
-        // Publish A
-        // Edit B
-        // Edit A
-        // Publish A
-        // The old A body now no longer has an author.
+        body.setIsPublic(true);
 
-        bodyRepository.save(node.getBody());
-        nodeRepository.save(node);
+        bodyRepository.save(body);
+        nodeRepository.save(resultingNode);
+
+        return resultingNode;
     }
 
-    private void publishDescendantDrafts(ArgumentNode node) throws NodeRulesException {
+    private void publishDescendants(ArgumentNode node) throws NodeRulesException {
 
         if (node instanceof AssertionNode) {
             AssertionNode assertion = (AssertionNode) node;
@@ -154,7 +152,7 @@ public class VersionHelper {
             neo4jOperations.loadAll(assertion.getSupportingNodes(), 1);
 
             for (ArgumentNode childNode : assertion.getSupportingNodes()) {
-                if (childNode.isDraft()) {
+                if (!childNode.getBody().isPublic()) {
                     publish(childNode);
                 }
             }
@@ -164,14 +162,83 @@ public class VersionHelper {
             // If interpretation.getSource returns null, this will go awry. Keep an eye on it.
             neo4jOperations.load(SourceNode.class, interpretation.getSource().getId());
 
-            if (interpretation.getSource().isDraft()) {
+            if (!interpretation.getSource().getBody().isPublic()) {
                 publish(interpretation.getSource());
             }
         }
     }
 
+
+
+    public void snapshot(ArgumentNode node, Build build) throws NodeRulesException {
+
+        if (!node.getType().equals("source")) {
+            // validate that the node and its descendants follow all the rules, e.g. being grounded in sources
+            if (hasMissingSupport(node)) {
+                throw new NodeRulesException("The roots of this node do not all end in sources!");
+            }
+        }
+
+        snapshotHelper(node, build);
+    }
+
+    private ArgumentNode snapshotHelper(ArgumentNode node, Build build) throws NodeRulesException {
+        if (node.isFinalized()) {
+            return node;
+        }
+
+        // TODO: make some effort to dedupe with existing snapshots, in terms of both nodes and bodies.
+        ArgumentNode clone = node.createNewDraft(build, true);
+
+        snapshotDescendants(clone, build);
+
+        ArgumentBody body = clone.getBody();
+
+        clone.setVersion(getNextBuildVersion(body));
+        body.setIsEditable(false);
+
+        bodyRepository.save(clone.getBody());
+        nodeRepository.save(clone);
+
+        return clone;
+    }
+
+    /**
+     * Assumes node has already been cloned. Will replace node's descendants with snapshots.
+     */
+    private void snapshotDescendants(ArgumentNode node, Build build) throws NodeRulesException {
+
+        if (node instanceof AssertionNode) {
+            AssertionNode assertion = (AssertionNode) node;
+
+            // If assertion.getSupportingNodes returns null, this will go awry. Keep an eye on it.
+            neo4jOperations.loadAll(assertion.getSupportingNodes(), 1);
+
+            Set<ArgumentNode> snappedDescendants = new HashSet<>();
+
+            for (ArgumentNode childNode : assertion.getSupportingNodes()) {
+                if (!childNode.isFinalized()) {
+                    snappedDescendants.add(snapshotHelper(childNode, build));
+                }
+            }
+
+            assertion.setSupportingNodes(snappedDescendants);
+        } else if (node instanceof InterpretationNode) {
+            InterpretationNode interpretation = (InterpretationNode) node;
+
+            // If interpretation.getSource returns null, this will go awry. Keep an eye on it.
+            neo4jOperations.load(SourceNode.class, interpretation.getSource().getId());
+
+            if (!interpretation.getSource().isFinalized()) {
+
+                interpretation.setSource((SourceNode) snapshotHelper(interpretation.getSource(), build));
+            }
+        }
+
+    }
+
     private boolean hasMissingSupport(ArgumentNode node) {
-        // TODO: consider making the isDraft attribute belong to nodes instead of bodies so that we can easily
+        // TODO: consider making the isFinalized attribute belong to nodes instead of bodies so that we can easily
         // short-circuit these queries.
 
         Map<String, Object> params = new HashMap<>();
@@ -185,89 +252,5 @@ public class VersionHelper {
                         "return support", params);
 
         return result.queryResults().iterator().hasNext();
-    }
-
-    /**
-     * Be careful with this, it does a lot of recursion and hits the database.
-     *
-     * The question of what nodes should have the build propagated to them, i.e. which trees will be made to incorporate
-     * the edit, is a bit complicated. Consider these scenarios:
-     *
-     * The user has a draft A which points to an existing node B, and they have edited the existing node B, and they are now
-     * publishing that edit of B. The draft A should be included in the build, but any consumers of A should not.
-     *
-     *
-     *
-     * Note for later: when rendering the graph of a major version node, we pick the best argument node within it and
-     * run with it. Best is defined as: the most recently published node which is a direct iteration on the previous
-     * best node. To implement this, we can mark a node as the 'tip' and have that tip marking pass on to qualifying
-     * changes.
-     *
-     *
-     *
-     * New idea: If you are editing a non-tip node, maybe we should automatically make that a new major version.
-     *
-     * Possible confusion: A user edits a particular node, then goes to a different tree and sees a node with the same
-     * title but slightly different content. Should they edit that too? It would be preferable to look at the parent and
-     * see a button to "point it to my version instead of this current one."
-     *
-     * Maybe there should not be a special tip node because that could contribute to edit wars.
-     *
-     * TODO: instead of making repeated reads from the database, select out the entire consumer tree first and then
-     * operate on that.
-     *
-     * @param updatedNode
-     */
-    private void propagateBuild(ArgumentNode updatedNode) throws NodeRulesException {
-
-        if (updatedNode.getPreviousVersion() == null) {
-            return;
-        }
-
-        Set<ArgumentNode> consumers = new HashSet<>();
-        addIfNotNull(updatedNode.getDependentNodes(), consumers);
-
-        for (ArgumentNode consumer: consumers) {
-
-            BugMitigator.loadArgumentNode(neo4jOperations, consumer.getId(), 1); // Flesh out the properties
-
-            // Don't mess with drafts.
-            // 1. Might be a draft that already points to updatedNode. No action required.
-            // 2. Might belong to somebody else. Design decision to not mess with that.
-            // 3. Might be the authors draft. Still a design decision to not mess with that.
-            if (!consumer.isDraft()) {
-                ArgumentNode updatedConsumer = consumer.alterOrCloneToPointToChild(updatedNode);
-                if (updatedConsumer.getGraphChildren().contains(updatedConsumer)) {
-                    throw new NodeRulesException("Something has gone wrong with publishing and we have a closed loop!");
-                }
-                updatedConsumer.setVersion(getNextBuildVersion(updatedConsumer.getBody()));
-                bodyRepository.save(updatedConsumer.getBody());
-                nodeRepository.save(updatedConsumer);
-
-                propagateBuild(updatedConsumer);
-            }
-        }
-    }
-
-    /**
-     * Yes, I know about polymorphism. I'm declining to use it here because the various getDependentNodes methods have
-     * special annotations related to spring data neo4j. I could have a polymorphic wrapper, but this is actually cleaner.
-     */
-//    private Set<ArgumentNode> getConsumers(ArgumentNode updatedNode) {
-//        Set<ArgumentNode> consumers = new HashSet<>();
-//        if (updatedNode instanceof  AssertionNode) {
-//            addIfNotNull(((AssertionNode) updatedNode).getDependentNodes(), consumers);
-//        } else if (updatedNode instanceof  InterpretationNode) {
-//            addIfNotNull(((InterpretationNode) updatedNode).getDependentNodes(), consumers);
-//        } else if (updatedNode instanceof  SourceNode) {
-//            addIfNotNull(((SourceNode) updatedNode).getDependentNodes(), consumers);
-//        }
-//        return consumers;
-//    }
-
-    private void addIfNotNull(Set<? extends ArgumentNode> values, Set<ArgumentNode> collection) {
-        if (values != null) {
-            collection.addAll(values);
-        }
     }
 }

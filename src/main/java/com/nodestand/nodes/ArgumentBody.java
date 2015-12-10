@@ -1,6 +1,5 @@
 package com.nodestand.nodes;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.comment.Commentable;
 import com.nodestand.nodes.version.MajorVersion;
 import com.nodestand.nodes.version.VersionHelper;
@@ -9,7 +8,6 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.time.Instant;
-import java.util.Set;
 
 @NodeEntity
 public abstract class ArgumentBody implements Commentable {
@@ -22,6 +20,9 @@ public abstract class ArgumentBody implements Commentable {
     @Relationship(type="AUTHORED_BY", direction = Relationship.OUTGOING)
     public User author;
 
+    @Relationship(type="EDITED_BY", direction = Relationship.OUTGOING)
+    public User editor;
+
     @Relationship(type="VERSION_OF", direction = Relationship.OUTGOING)
     private MajorVersion majorVersion;
 
@@ -32,7 +33,11 @@ public abstract class ArgumentBody implements Commentable {
 
     private Instant dateCreated;
 
-    private boolean isDraft = true;
+    private Instant dateEdited;
+
+    private boolean isEditable = true;
+
+    private boolean isPublic = false;
 
     public ArgumentBody() {}
 
@@ -72,6 +77,12 @@ public abstract class ArgumentBody implements Commentable {
 
     public abstract ArgumentNode constructNode(VersionHelper versionHelper);
 
+    public void applyEditTo(ArgumentBody targetBody) {
+        targetBody.title = title;
+        targetBody.editor = author;
+        targetBody.dateEdited = Instant.now();
+    };
+
     public void setMinorVersion(int minorVersion) {
         this.minorVersion = minorVersion;
     }
@@ -80,12 +91,12 @@ public abstract class ArgumentBody implements Commentable {
         return dateCreated;
     }
 
-    public boolean isDraft() {
-        return isDraft;
+    public boolean isEditable() {
+        return isEditable;
     }
 
-    public void setIsDraft(boolean isDraft) {
-        this.isDraft = isDraft;
+    public void setIsEditable(boolean isEditable) {
+        this.isEditable = isEditable;
     }
 
     public void setTitle(String title) throws ImmutableNodeException {
@@ -96,18 +107,19 @@ public abstract class ArgumentBody implements Commentable {
         this.majorVersion = majorVersion;
     }
 
-//    @JsonIgnore
-//    @Relationship(type="DEFINED_BY", direction = Relationship.INCOMING)
-//    public Set<ArgumentNode> getDependentNodes() {
-//        return dependentNodes;
-//    }
-//
-//    /**
-//     * Omissions are OK, false positives are not. It's mostly here to be used by the object graph mapper and to mitigate this issue:
-//     * https://github.com/neo4j/neo4j-ogm/issues/38
-//     */
-//    @Relationship(type="DEFINED_BY", direction = Relationship.INCOMING)
-//    public void setDependentNodes(Set<ArgumentNode> dependentNodes) {
-//        this.dependentNodes = dependentNodes;
-//    }
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    public void setIsPublic(boolean isPublic) {
+        this.isPublic = isPublic;
+    }
+
+    public Instant getDateEdited() {
+        return dateEdited;
+    }
+
+    public void setDateEdited(Instant dateEdited) {
+        this.dateEdited = dateEdited;
+    }
 }
