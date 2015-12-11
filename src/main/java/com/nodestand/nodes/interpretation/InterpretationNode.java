@@ -46,7 +46,7 @@ public class InterpretationNode extends ArgumentNode {
         targetNode.setSource((SourceNode) updatedChildNode);
 
         // Make sure the old source no longer claims this as a dependent.
-        updatedChildNode.getPreviousVersion().getDependentNodes().removeIf(n -> n.getId().equals(targetNode.getId()));
+        existing.getDependentNodes().removeIf(n -> n.getId().equals(targetNode.getId()));
     }
 
     @Override
@@ -84,7 +84,7 @@ public class InterpretationNode extends ArgumentNode {
     public InterpretationNode createNewDraft(Build build, boolean createBodyDraft) throws NodeRulesException {
         InterpretationNode copy;
 
-        if (!isFinalized()) {
+        if (!body.isPublic()) {
             throw new NodeRulesException("Node is already a draft!");
         }
 

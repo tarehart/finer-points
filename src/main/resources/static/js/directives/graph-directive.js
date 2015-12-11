@@ -210,18 +210,21 @@
         }
 
         $scope.readyToPublish = function(node) {
-            return (node.draft || node.body.draft) && allowsPublish(node, {});
+            return (!node.body.public) && allowsPublish(node, {});
         };
 
         $scope.publishNode = function(node) {
             var publishableSet = {};
             if (allowsPublish(node, publishableSet)) {
-                NodeCache.publishNode(node, function() {
-                    $.each(publishableSet, function(key) {
-                        // TODO: This may not fetch the new build version, since it focuses on the body.
-                        // You may want to expand on what fetchNodeDetails does.
-                        NodeCache.fetchNodeDetails(key);
-                    });
+                NodeCache.publishNode(node, function(resultingNode) {
+
+                    var rootNode = $scope.rootNodes[0];
+
+                    if (node === rootNode) {
+                        $location.path("/graph/" + resultingNode.stableId); // Change url back to public version
+                    } else {
+                        NodeCache.fetchGraphForId(rootNode.stableId, null, null, true); // Refresh the graph
+                    }
                 });
             } else {
                 // TODO: display an error
@@ -239,17 +242,11 @@
             }
 
             if (node.type == "source") {
-                // TODO: uncomment once we can put URLs on sources
-                //if (node.body.url) {
-                //    publishableSet[node.id] = 1;
-                //    return true;
-                //}
-                //return false;
-
-                // TODO: remove this
-                publishableSet[node.id] = 1;
-                return true;
-
+                if (node.body.url) {
+                    publishableSet[node.id] = 1;
+                    return true;
+                }
+                return false;
             }
 
             if (node.type == "interpretation") {

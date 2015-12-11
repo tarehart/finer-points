@@ -454,11 +454,11 @@
             return false;
         }
 
-        cache.fetchGraphForId = function(stableId, successCallback, errorCallback) {
+        cache.fetchGraphForId = function(stableId, successCallback, errorCallback, force) {
 
             var rootNode = cache.getByStableId(stableId);
 
-            if (rootNode && rootNode.hasFullGraph) {
+            if (rootNode && rootNode.hasFullGraph && !force) {
                 if (successCallback) {
                     successCallback(rootNode);
                 }

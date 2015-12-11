@@ -121,8 +121,13 @@ public class VersionHelper {
 
             resultingNode = previousVersion;
 
-            for (ArgumentNode parent: node.getDependentNodes()) {
-                parent.alterToPointToChild(resultingNode, node);
+            // Any parents that had pointed to the draft should be modified so that they point to the
+            // published version. The draft is going away.
+            Set<? extends ArgumentNode> dependentNodes = node.getDependentNodes();
+            if (dependentNodes != null) {
+                for (ArgumentNode parent : node.getDependentNodes()) {
+                    parent.alterToPointToChild(resultingNode, node);
+                }
             }
 
             // Destroy the current version

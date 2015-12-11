@@ -112,8 +112,8 @@ public class EditController {
 
             doNodeEdits(draftNode, user, params);
 
-            neo4jOperations.save(existingNode.getBody());
-            nodeRepository.save(existingNode);
+            neo4jOperations.save(draftNode.getBody());
+            nodeRepository.save(draftNode);
 
             String newRootStableId = null;
             if (existingNode.getStableId().equals(rootStableId)) {

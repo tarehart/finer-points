@@ -47,7 +47,7 @@ public class AssertionNode extends ArgumentNode {
         }
 
         // Make sure the previous version no longer claims this as a dependent
-        replacement.getPreviousVersion().getDependentNodes().removeIf(n -> n.getId().equals(targetNode.getId()));
+        existing.getDependentNodes().removeIf(n -> n.getId().equals(targetNode.getId()));
 
         targetNode.getSupportingNodes().add(replacement);
     }
@@ -105,7 +105,7 @@ public class AssertionNode extends ArgumentNode {
 
         AssertionNode copy;
 
-        if (!isFinalized()) {
+        if (!body.isPublic()) {
             throw new NodeRulesException("Node is already a draft!");
         }
 

@@ -60,7 +60,7 @@ public class SourceNode extends ArgumentNode {
     public SourceNode createNewDraft(Build build, boolean createBodyDraft) throws NodeRulesException {
         SourceNode copy;
 
-        if (!isFinalized()) {
+        if (!body.isPublic()) {
             throw new NodeRulesException("Node is already a draft!");
         }
 

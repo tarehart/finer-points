@@ -40,7 +40,7 @@ public class SearchController {
 
         User user = nodeUserDetailsService.getUserFromSession();
 
-        Set<ArgumentBody> richHits = argumentBodyRepository.queryTitlesRich(String.format("(?i).*%s.*", query));
+        Set<ArgumentBody> richHits = argumentBodyRepository.queryTitlesRich(String.format("(?i).*%s.*", query), user);
 
         List<ArgumentBody> searchResults = new LinkedList<>();
 
