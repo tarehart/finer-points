@@ -16,6 +16,8 @@ import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.VersionHelper;
 import com.nodestand.service.NodeUserDetailsService;
 import com.nodestand.util.BugMitigator;
+import com.nodestand.util.TwoWayUtil;
+import org.neo4j.ogm.session.Neo4jSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -46,6 +48,9 @@ public class EditController {
 
     @Autowired
     Neo4jOperations neo4jOperations;
+
+    @Autowired
+    Neo4jSession session;
 
 
 
@@ -112,8 +117,7 @@ public class EditController {
 
             doNodeEdits(draftNode, user, params);
 
-            neo4jOperations.save(draftNode.getBody());
-            nodeRepository.save(draftNode);
+            session.save(draftNode);
 
             String newRootStableId = null;
             if (existingNode.getStableId().equals(rootStableId)) {
@@ -131,9 +135,7 @@ public class EditController {
 
             doNodeEdits(existingNode, user, params);
 
-            // Ugh: http://stackoverflow.com/questions/31505729/why-is-my-modified-neo4j-node-property-not-persisted-to-the-db
-            neo4jOperations.save(existingNode.getBody());
-            nodeRepository.save(existingNode);
+            session.save(existingNode);
 
             return new EditResult(existingNode);
 
@@ -151,19 +153,17 @@ public class EditController {
                 AssertionNode assertionNode = (AssertionNode) node;
                 assertionNode.getBody().setBody((String) params.get("body"));
 
-                if (assertionNode.getSupportingNodes() != null) {
-                    assertionNode.getSupportingNodes().clear();
-                }
-
-                List<Integer> children = (List<Integer>) params.get("links");
-
-                for (Integer id : children) {
+                Set<ArgumentNode> children = new HashSet<>();
+                for (Integer id : (List<Integer>) params.get("links")) {
                     ArgumentNode supportingNode = nodeRepository.findOne(Long.valueOf(id));
                     if (supportingNode instanceof SourceNode) {
                         throw new NodeRulesException("An assertion node cannot link directly to a source!");
                     }
-                    assertionNode.supportedBy(supportingNode);
+                    children.add(supportingNode);
                 }
+
+                TwoWayUtil.updateSupportingNodes(assertionNode, children);
+
                 break;
             case "interpretation":
                 InterpretationNode interpretationNode = (InterpretationNode) node;
@@ -248,13 +248,13 @@ public class EditController {
                     // We stop propagation here.
 
                     // This should save all new nodes because they're linked together
-                    nodeRepository.save(changeable);
+                    session.save(changeable);
 
                     break; // No new node was created, so the upstream link is still valid.
 
                 } else if (pathNode.getId() == path.get(path.size() - 1).getId()) {
                     // We can infer that the root node just got modified!
-                    nodeRepository.save(changeable);
+                    session.save(changeable);
                     newRoot = changeable;
                 }
 

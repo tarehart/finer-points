@@ -9,6 +9,8 @@ import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentBodyRepository;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceNode;
+import com.nodestand.util.TwoWayUtil;
+import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
@@ -29,6 +31,9 @@ public class VersionHelper {
 
     @Autowired
     Neo4jOperations neo4jOperations;
+
+    @Autowired
+    Neo4jSession session;
 
     /**
      * This sets the major and minor version on the draft body.
@@ -131,8 +136,12 @@ public class VersionHelper {
             }
 
             // Destroy the current version
-            bodyRepository.delete(node.getBody());
-            nodeRepository.delete(node);
+            session.delete(node.getBuild());
+            session.delete(node.getBody());
+            session.delete(node);
+
+            TwoWayUtil.forgetBody(node.getBody());
+            TwoWayUtil.forgetNode(node);
         }
 
         ArgumentBody body = resultingNode.getBody();
@@ -142,8 +151,7 @@ public class VersionHelper {
 
         body.setIsPublic(true);
 
-        bodyRepository.save(body);
-        nodeRepository.save(resultingNode);
+        session.save(resultingNode);
 
         return resultingNode;
     }
@@ -202,8 +210,7 @@ public class VersionHelper {
         clone.setVersion(getNextBuildVersion(body));
         body.setIsEditable(false);
 
-        bodyRepository.save(clone.getBody());
-        nodeRepository.save(clone);
+        session.save(clone);
 
         return clone;
     }

@@ -36,6 +36,9 @@ repositories {
     mavenCentral()
     maven { url "https://repo.spring.io/libs-release" }
     maven { url "http://m2.neo4j.org" }
+    maven { url 'http://repo.spring.io/snapshot' }
+    maven { url "http://repo.spring.io/libs-snapshot" }
+    maven { url "http://m2.neo4j.org/content/repositories/snapshots"}
 }
 
 dependencies {
@@ -45,7 +48,8 @@ dependencies {
     compile("org.springframework:spring-jdbc") // Possibly unnecessary
     compile("org.springframework:spring-context")
     compile("org.springframework:spring-tx")
-    compile("org.springframework.data:spring-data-neo4j:4.0.0.RELEASE")
+    //compile("org.neo4j:neo4j-ogm:1.1.4")
+    compile("org.springframework.data:spring-data-neo4j:4.1.0.BUILD-SNAPSHOT")
     //compile(group: 'org.springframework.data', name: 'spring-data-neo4j', version: '4.0.0.RELEASE', classifier: 'tests')
     compile("org.springframework:spring-webmvc")
     compile("joda-time:joda-time:2.8.1")

@@ -115,6 +115,8 @@
                         // Change the page url and reload the graph. All the UI state should stay the same because
                         // the nodes are in the NodeCache.
                         $location.path("/graph/" + newNode.stableId);
+                    }, function(err) {
+                        toastr.error(err.message);
                     });
                 } else {
                     // At the moment, this list of rootNodes is always size 1.
@@ -134,6 +136,8 @@
                                 $location.path("/graph/" + data.graph.rootStableId);
                             }
                         }
+                    }, function (err) {
+                        toastr.error(err.message);
                     });
                 }
             }
@@ -188,12 +192,16 @@
                     NodeCache.fetchGraphForId(child.stableId);
                 }
 
+                function errorHandler(err) {
+                    toastr.error(err.message);
+                }
+
                 function nodeChosenForLinking(result) {
                     if (result.chosenNode) {
                         var child = NodeCache.addOrUpdateNode(result.chosenNode);
                         attachChild(child);
                     } else {
-                        NodeCache.createAndSaveNode(result.newTitle, result.type, attachChild);
+                        NodeCache.createAndSaveNode(result.newTitle, result.type, attachChild, errorHandler);
                     }
                 }
 
@@ -223,6 +231,7 @@
                     if (node === rootNode) {
                         $location.path("/graph/" + resultingNode.stableId); // Change url back to public version
                     } else {
+                        // TODO: it seems like this is not getting rid of the publish buttons on children as expected.
                         NodeCache.fetchGraphForId(rootNode.stableId, null, null, true); // Refresh the graph
                     }
                 });

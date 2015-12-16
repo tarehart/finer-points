@@ -6,8 +6,9 @@ import com.nodestand.nodes.version.VersionHelper;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.typeconversion.DateLong;
 
-import java.time.Instant;
+import java.util.Date;
 
 @NodeEntity
 public abstract class ArgumentBody implements Commentable {
@@ -31,9 +32,11 @@ public abstract class ArgumentBody implements Commentable {
 
     private int minorVersion;
 
-    private Instant dateCreated;
+    @DateLong
+    private Date dateCreated;
 
-    private Instant dateEdited;
+    @DateLong
+    private Date dateEdited;
 
     private boolean isEditable = true;
 
@@ -49,7 +52,7 @@ public abstract class ArgumentBody implements Commentable {
         this.title = title;
         this.author = author;
         this.majorVersion = majorVersion;
-        this.dateCreated = Instant.now();
+        this.dateCreated = new Date();
 
         VersionHelper.decorateDraftBody(this);
     }
@@ -80,14 +83,14 @@ public abstract class ArgumentBody implements Commentable {
     public void applyEditTo(ArgumentBody targetBody) {
         targetBody.title = title;
         targetBody.editor = author;
-        targetBody.dateEdited = Instant.now();
+        targetBody.dateEdited = new Date();
     };
 
     public void setMinorVersion(int minorVersion) {
         this.minorVersion = minorVersion;
     }
 
-    public Instant getDateCreated() {
+    public Date getDateCreated() {
         return dateCreated;
     }
 
@@ -115,11 +118,11 @@ public abstract class ArgumentBody implements Commentable {
         this.isPublic = isPublic;
     }
 
-    public Instant getDateEdited() {
+    public Date getDateEdited() {
         return dateEdited;
     }
 
-    public void setDateEdited(Instant dateEdited) {
+    public void setDateEdited(Date dateEdited) {
         this.dateEdited = dateEdited;
     }
 }

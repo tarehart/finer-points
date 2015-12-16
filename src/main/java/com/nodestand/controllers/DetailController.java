@@ -5,7 +5,7 @@ import com.nodestand.nodes.comment.Commentable;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.repository.CommentableRepository;
 import com.nodestand.util.BugMitigator;
-import org.neo4j.kernel.impl.core.RelationshipProxy;
+//import org.neo4j.kernel.impl.core.RelationshipProxy;
 import org.neo4j.ogm.session.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
@@ -68,14 +68,14 @@ public class DetailController {
         Set<List<Long>> edges = new HashSet<>();
         Map<String, Object> everything = new HashMap<>();
 
-        for (Map<String, Object> map: result) {
-            List<RelationshipProxy> rels = (List<RelationshipProxy>) map.get("resp");
-            for (RelationshipProxy rel: rels) {
-                edges.add(Arrays.asList(
-                        rel.getStartNode().getId(),
-                        rel.getEndNode().getId()));
-            }
-        }
+//        for (Map<String, Object> map: result) {
+//            List<RelationshipProxy> rels = (List<RelationshipProxy>) map.get("resp");
+//            for (RelationshipProxy rel: rels) {
+//                edges.add(Arrays.asList(
+//                        rel.getStartNode().getId(),
+//                        rel.getEndNode().getId()));
+//            }
+//        }
 
         everything.put("nodes", comments);
         everything.put("edges", edges);

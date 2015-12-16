@@ -8,10 +8,10 @@ public class QuickGraphResponse {
 
     private Set<ArgumentNode> nodes;
     private Set<QuickEdge> edges;
-    private long rootId;
+    private Long rootId;
     private String rootStableId;
 
-    public QuickGraphResponse(Set<ArgumentNode> nodes, Set<QuickEdge> edges, long rootId, String rootStableId) {
+    public QuickGraphResponse(Set<ArgumentNode> nodes, Set<QuickEdge> edges, Long rootId, String rootStableId) {
         this.nodes = nodes;
         this.edges = edges;
         this.rootId = rootId;
@@ -30,7 +30,7 @@ public class QuickGraphResponse {
         return rootStableId;
     }
 
-    public long getRootId() {
+    public Long getRootId() {
         return rootId;
     }
 }

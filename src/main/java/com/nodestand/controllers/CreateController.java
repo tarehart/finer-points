@@ -13,6 +13,7 @@ import com.nodestand.nodes.source.SourceBody;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.VersionHelper;
 import com.nodestand.service.NodeUserDetailsService;
+import org.neo4j.ogm.session.Neo4jSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +42,9 @@ public class CreateController {
 
     @Autowired
     ArgumentBodyRepository bodyRepository;
+
+    @Autowired
+    Neo4jSession session;
 
     /**
      * For now, this will always mark the newly created node as a draft. There will be a separate operation
@@ -72,8 +76,7 @@ public class CreateController {
             node.supportedBy(linked);
         }
 
-        bodyRepository.save(assertionBody);
-        nodeRepository.save(node);
+        session.save(node);
         return node;
     }
 
@@ -94,8 +97,7 @@ public class CreateController {
             node.setSource(source);
         }
 
-        bodyRepository.save(interpretationBody);
-        nodeRepository.save(node);
+        session.save(node);
         return node;
     }
 
@@ -111,8 +113,7 @@ public class CreateController {
 
         SourceNode node = sourceBody.constructNode(versionHelper);
 
-        bodyRepository.save(sourceBody);
-        nodeRepository.save(node);
+        session.save(node);
         return node;
     }
 

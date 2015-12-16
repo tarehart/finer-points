@@ -86,23 +86,23 @@
 
         function createNew(type) {
             $modalInstance.close();
-            linkCallback({newTitle: $scope.selectedResult, type: type});
-        };
+            linkCallback({newTitle: $scope.searchQuery, type: type});
+        }
 
         $scope.cancel = function() {
             $modalInstance.close();
         };
 
         $scope.canCreateAssertion = function() {
-            return canLinkTo("assertion");
+            return $scope.searchQuery && canLinkTo("assertion");
         };
 
         $scope.canCreateInterpretation = function() {
-            return canLinkTo("interpretation");
+            return $scope.searchQuery && canLinkTo("interpretation");
         };
 
         $scope.canCreateSource = function() {
-            return canLinkTo("source");
+            return $scope.searchQuery && canLinkTo("source");
         };
 
     }
