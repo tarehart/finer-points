@@ -10,10 +10,9 @@ import com.nodestand.nodes.repository.ArgumentBodyRepository;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.util.TwoWayUtil;
-import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -30,10 +29,7 @@ public class VersionHelper {
     ArgumentBodyRepository bodyRepository;
 
     @Autowired
-    Neo4jOperations neo4jOperations;
-
-    @Autowired
-    Neo4jSession session;
+    Session session;
 
     /**
      * This sets the major and minor version on the draft body.
@@ -67,7 +63,7 @@ public class VersionHelper {
         Map<String, Object> params = new HashMap<>();
         params.put( "id", majorVersion.id );
 
-        Result result = neo4jOperations.query("start n=node({id}) " +
+        Result result = session.query("start n=node({id}) " +
                 "match body-[VERSION_OF]->n " +
                 "return max(body.minorVersion) as " + CURRENT_MAX_KEY, params);
 
@@ -92,7 +88,7 @@ public class VersionHelper {
         Map<String, Object> params = new HashMap<>();
         params.put("id", body.getId());
 
-        Result result = neo4jOperations.query("start n=node({id}) " +
+        Result result = session.query("start n=node({id}) " +
                 "match node-[DEFINED_BY]->n " +
                 "return max(node.buildVersion) as " + CURRENT_MAX_KEY, params);
 
@@ -162,7 +158,7 @@ public class VersionHelper {
             AssertionNode assertion = (AssertionNode) node;
 
             // If assertion.getSupportingNodes returns null, this will go awry. Keep an eye on it.
-            neo4jOperations.loadAll(assertion.getSupportingNodes(), 1);
+            session.loadAll(assertion.getSupportingNodes(), 1);
 
             for (ArgumentNode childNode : assertion.getSupportingNodes()) {
                 if (!childNode.getBody().isPublic()) {
@@ -173,7 +169,7 @@ public class VersionHelper {
             InterpretationNode interpretation = (InterpretationNode) node;
 
             // If interpretation.getSource returns null, this will go awry. Keep an eye on it.
-            neo4jOperations.load(SourceNode.class, interpretation.getSource().getId());
+            session.load(SourceNode.class, interpretation.getSource().getId());
 
             if (!interpretation.getSource().getBody().isPublic()) {
                 publish(interpretation.getSource());
@@ -224,7 +220,7 @@ public class VersionHelper {
             AssertionNode assertion = (AssertionNode) node;
 
             // If assertion.getSupportingNodes returns null, this will go awry. Keep an eye on it.
-            neo4jOperations.loadAll(assertion.getSupportingNodes(), 1);
+            session.loadAll(assertion.getSupportingNodes(), 1);
 
             Set<ArgumentNode> snappedDescendants = new HashSet<>();
 
@@ -239,7 +235,7 @@ public class VersionHelper {
             InterpretationNode interpretation = (InterpretationNode) node;
 
             // If interpretation.getSource returns null, this will go awry. Keep an eye on it.
-            neo4jOperations.load(SourceNode.class, interpretation.getSource().getId());
+            session.load(SourceNode.class, interpretation.getSource().getId());
 
             if (!interpretation.getSource().isFinalized()) {
 
@@ -256,7 +252,7 @@ public class VersionHelper {
         Map<String, Object> params = new HashMap<>();
         params.put("id", node.getId());
 
-        Result result = neo4jOperations.query(
+        Result result = session.query(
                 "start n=node({id}) match n-[:SUPPORTED_BY*0..]->" +
                         "(support:ArgumentNode) " +
                         "WHERE NOT support-[:INTERPRETS]->(:SourceNode) " +

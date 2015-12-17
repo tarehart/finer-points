@@ -3,10 +3,13 @@ package com.nodestand.service;
 import com.nodestand.auth.NodeUserDetails;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.repository.UserRepository;
+import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.exception.NotFoundException;
+import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
-import org.springframework.data.neo4j.template.Neo4jOperations;
+import org.springframework.data.neo4j.util.IterableUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,7 +29,7 @@ public class NodeUserDetailsServiceImpl implements NodeUserDetailsService {
     private UserRepository userRepo;
 
     @Autowired
-    private Neo4jOperations neo4jOperations;
+    private Session session;
 
     public User getCurrentUser() {
         return getUserFromSession();
@@ -57,16 +60,16 @@ public class NodeUserDetailsServiceImpl implements NodeUserDetailsService {
 
     private User findByDisplayName(String displayName) {
         try {
-            return neo4jOperations.loadByProperty(User.class, "displayName", displayName);
-        } catch (DataRetrievalFailureException e) {
+            return IterableUtils.getSingle(session.loadAll(User.class, new Filter("displayName", displayName)));
+        } catch (NotFoundException e) {
             return null;
         }
     }
 
     private User findBySocialId(String socialId) {
         try {
-            return neo4jOperations.loadByProperty(User.class, "socialId", socialId);
-        } catch (DataRetrievalFailureException e) {
+            return IterableUtils.getSingle(session.loadAll(User.class, new Filter("socialId", socialId)));
+        } catch (NotFoundException e) {
             return null;
         }
 

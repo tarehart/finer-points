@@ -2,12 +2,12 @@ package com.nodestand.util;
 
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.assertion.AssertionNode;
-import org.springframework.data.neo4j.template.Neo4jOperations;
+import org.neo4j.ogm.session.Session;
 
 public class BugMitigator {
 
-    public static ArgumentNode loadArgumentNode(Neo4jOperations ops, Long nodeId, int depth) {
-        ArgumentNode node = ops.load(ArgumentNode.class, nodeId, depth);
+    public static ArgumentNode loadArgumentNode(Session session, Long nodeId, int depth) {
+        ArgumentNode node = session.load(ArgumentNode.class, nodeId, depth);
 
         if (node instanceof AssertionNode) {
             AssertionNode assertionNode = (AssertionNode) node;

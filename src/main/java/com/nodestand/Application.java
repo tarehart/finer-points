@@ -1,16 +1,17 @@
 package com.nodestand;
 
+import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.data.neo4j.config.Neo4jConfiguration;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 import org.springframework.data.neo4j.server.Neo4jServer;
 import org.springframework.data.neo4j.server.RemoteServer;
-import org.springframework.data.neo4j.template.Neo4jOperations;
-import org.springframework.data.neo4j.template.Neo4jTemplate;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 
 @SpringBootApplication
@@ -33,8 +34,9 @@ public class Application extends Neo4jConfiguration {
     }
 
     @Bean
-    public Neo4jOperations neo4jOperations() throws Exception {
-        return new Neo4jTemplate(getSession());
+    @Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
+    public Session getSession() throws Exception {
+        return super.getSession();
     }
 
     public static void main(String[] args) {

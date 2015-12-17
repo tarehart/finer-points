@@ -17,9 +17,8 @@ import com.nodestand.nodes.version.VersionHelper;
 import com.nodestand.service.NodeUserDetailsService;
 import com.nodestand.util.BugMitigator;
 import com.nodestand.util.TwoWayUtil;
-import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,10 +46,7 @@ public class EditController {
     ArgumentBodyRepository bodyRepository;
 
     @Autowired
-    Neo4jOperations neo4jOperations;
-
-    @Autowired
-    Neo4jSession session;
+    Session session;
 
 
 
@@ -100,7 +96,7 @@ public class EditController {
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
         String rootStableId = (String) params.get("rootStableId");
 
-        ArgumentNode existingNode = BugMitigator.loadArgumentNode(neo4jOperations, nodeId, 2);
+        ArgumentNode existingNode = BugMitigator.loadArgumentNode(session, nodeId, 2);
 
 
         if (!existingNode.getBody().isEditable()) {
@@ -123,7 +119,7 @@ public class EditController {
             if (existingNode.getStableId().equals(rootStableId)) {
                 newRootStableId = draftNode.getStableId();
             } else {
-                newRootStableId = propagateDraftTowardRoot(draftNode, rootStableId);
+                newRootStableId = propagateDraftTowardRoot(draftNode, rootStableId, session);
             }
 
             EditResult result = new EditResult(draftNode);
@@ -191,7 +187,7 @@ public class EditController {
      * @return The id of the root node after propagation
      * @throws NodeRulesException
      */
-    private String propagateDraftTowardRoot(ArgumentNode draftNode, String rootStableId) throws NodeRulesException {
+    private String propagateDraftTowardRoot(ArgumentNode draftNode, String rootStableId, Session session) throws NodeRulesException {
 
         ArgumentNode preEdit = draftNode.getPreviousVersion();
 

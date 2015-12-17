@@ -14,6 +14,7 @@ import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.VersionHelper;
 import com.nodestand.service.NodeUserDetailsService;
 import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,7 +45,7 @@ public class CreateController {
     ArgumentBodyRepository bodyRepository;
 
     @Autowired
-    Neo4jSession session;
+    Session session;
 
     /**
      * For now, this will always mark the newly created node as a draft. There will be a separate operation

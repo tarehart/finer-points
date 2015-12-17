@@ -4,24 +4,23 @@ import com.nodestand.controllers.serial.QuickEdge;
 import com.nodestand.controllers.serial.QuickGraphResponse;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
-import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 public class GraphDao {
 
     @Autowired
-    Neo4jOperations neo4jOperations;
-
-    @Autowired
     ArgumentNodeRepository argumentNodeRepository;
 
     @Autowired
-    Neo4jSession session;
+    Session session;
 
     public QuickGraphResponse getGraph(String rootStableId) {
 

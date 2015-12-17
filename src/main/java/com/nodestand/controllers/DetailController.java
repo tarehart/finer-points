@@ -5,10 +5,9 @@ import com.nodestand.nodes.comment.Commentable;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.repository.CommentableRepository;
 import com.nodestand.util.BugMitigator;
-//import org.neo4j.kernel.impl.core.RelationshipProxy;
+import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +23,7 @@ public class DetailController {
     ArgumentNodeRepository repo;
 
     @Autowired
-    Neo4jOperations neo4jOperations;
+    Session session;
 
     @Autowired
     ArgumentNodeRepository argumentNodeRepository;
@@ -51,12 +50,12 @@ public class DetailController {
         //
         // Deep down in here, things go awry. See the mapRelationships method in GraphEntityMapper.java.
         // https://jira.spring.io/browse/DATAGRAPH-788
-        ArgumentNode baseNode = BugMitigator.loadArgumentNode(neo4jOperations, Long.parseLong(id), 2);
+        ArgumentNode baseNode = BugMitigator.loadArgumentNode(session, Long.parseLong(id), 2);
 
         Map<String, Object> params = new HashMap<>();
         params.put("id", baseNode.getBody().getId());
 
-        Result result = neo4jOperations.query("start n=node({id}) " +
+        Result result = session.query("start n=node({id}) " +
                 "match n-[:VERSION_OF]->(mv:MajorVersion) " +
                 "with mv " +
                 "match mv<-[:VERSION_OF]-(argBody:ArgumentBody)<-[resp:RESPONDS_TO*0..]-(node:Commentable)-[:AUTHORED_BY]->author " +

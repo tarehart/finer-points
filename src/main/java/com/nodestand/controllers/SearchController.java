@@ -9,7 +9,6 @@ import com.nodestand.nodes.repository.ArgumentBodyRepository;
 import com.nodestand.nodes.source.SourceBody;
 import com.nodestand.service.NodeUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,9 +28,6 @@ public class SearchController {
 
     @Autowired
     ArgumentBodyRepository argumentBodyRepository;
-
-    @Autowired
-    Neo4jOperations neo4jOperations;
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @Transactional

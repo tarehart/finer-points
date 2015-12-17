@@ -8,8 +8,8 @@ import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.version.VersionHelper;
 import com.nodestand.service.NodeUserDetailsService;
 import com.nodestand.util.BugMitigator;
+import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,8 +34,7 @@ public class PublishController {
     ArgumentNodeRepository nodeRepository;
 
     @Autowired
-    Neo4jOperations neo4jOperations;
-
+    Session session;
 
     /*
 
@@ -60,7 +59,7 @@ public class PublishController {
         User user = nodeUserDetailsService.getUserFromSession();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
 
-        ArgumentNode existingNode = BugMitigator.loadArgumentNode(neo4jOperations, nodeId, 2);
+        ArgumentNode existingNode = BugMitigator.loadArgumentNode(session, nodeId, 2);
 
         if (!user.getNodeId().equals(existingNode.getBody().author.getNodeId())) {
             throw new NotAuthorizedException("Not allowed to publish a draft that you did not create.");
