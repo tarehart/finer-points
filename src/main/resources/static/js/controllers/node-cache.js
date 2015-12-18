@@ -20,20 +20,6 @@
             node.body = node.body || {};
             node.body.author = node.body.author || {};
 
-            node.setBody = function(text) {
-                node.body.body = text;
-            };
-            node.stopEditingBody = function() {
-                if (node.doStopEditingBody) {
-                    node.doStopEditingBody();
-                }
-            };
-            node.linkChild = function(linkCallback) {
-                if (node.doLinkChild) {
-                    node.doLinkChild(linkCallback);
-                }
-            };
-
             node.getType = function() {
                 if (node.type) {
                     return node.type;

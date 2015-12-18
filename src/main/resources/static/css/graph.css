@@ -1,165 +1,41 @@
 @media (min-width: 550px) {
 
-    .childrenDiv, .nodeDiv {
-        position:relative;
-        display: inline-block;
-        vertical-align: top;
-    }
 
-    .nodeDiv {
-        width: 200px;
-        margin: 4px 10px;
-        white-space: normal;
-    }
-
-    .childrenDiv {
-        margin-bottom: 15px;
-    }
-
-    .childrenDiv:before, .nodeDiv:after {
-        content: '';
-        background-color: rgb(200, 228, 214);
-
-        /*See http://stackoverflow.com/questions/3032856/z-index-of-before-or-after-to-be-below-the-element-is-that-possible*/
-        position: absolute;
-        z-index: -1;
-    }
-
-    .childrenDiv:before {
-        top: 10px;
-        bottom: 4px;
-        left: -20px;
-        border-bottom-left-radius: 15px;
-        width: 120px;
-
-        background: -moz-linear-gradient(left,  rgba(200,228,214,1) 0%, rgba(200,228,214,1) 23%, rgba(188,229,183,0) 100%); /* FF3.6+ */
-        background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(200,228,214,1)), color-stop(23%,rgba(200,228,214,1)), color-stop(100%,rgba(188,229,183,0))); /* Chrome,Safari4+ */
-        background: -webkit-linear-gradient(left,  rgba(200,228,214,1) 0%,rgba(200,228,214,1) 23%,rgba(188,229,183,0) 100%); /* Chrome10+,Safari5.1+ */
-        background: -o-linear-gradient(left,  rgba(200,228,214,1) 0%,rgba(200,228,214,1) 23%,rgba(188,229,183,0) 100%); /* Opera 11.10+ */
-        background: -ms-linear-gradient(left,  rgba(200,228,214,1) 0%,rgba(200,228,214,1) 23%,rgba(188,229,183,0) 100%); /* IE10+ */
-        background: linear-gradient(to right,  rgba(200,228,214,1) 0%,rgba(200,228,214,1) 23%,rgba(188,229,183,0) 100%); /* W3C */
-        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bce5b7', endColorstr='#00bce5b7',GradientType=1 ); /* IE6-9 */
-
-    }
-
-    .nodeDiv:after {
-        top: 2px;
-        bottom: 0px;
-        right: -31px;
-        border-bottom-right-radius: 15px;
-        width: 40px;
-    }
-
-    .interpretation>.nodeDiv:after, .interpretation>.childrenDiv:before {
-        background: black;
-    }
-
-    .source>.nodeDiv:after {
-        background-color: black;
-        border-bottom-right-radius: 5px;
-        border-top-right-radius: 5px;
-        width: 5px;
-        right: -5px;
-    }
-
-    .familyWrapper {
-        /* See http://stackoverflow.com/questions/3032856/z-index-of-before-or-after-to-be-below-the-element-is-that-possible */
-        position: relative;
-        z-index: 1;
-        white-space: nowrap;
-    }
-
-    .graph-wrapper {
-        position:relative;
-        z-index:1;
-        overflow:auto;
-        border: solid 1px #ddd;
-        border-radius: 5px;
-        padding: 10px;
-        box-shadow: inset 1px 1px 2px lightgray;
-        background-color: #fbfbfb;
-    }
-
-    .noWrap {
-        white-space: nowrap;
-    }
-
-    .selected.nodeDiv {
-        -webkit-animation: upsize 100ms forwards;
-        animation: upsize 100ms forwards;
-        min-height: 100px;
-        width: 550px;
-        box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.2);
-    }
-
-    .selected.nodeDiv .nodeContent {
-        -webkit-animation: fadein 200ms forwards linear;
-        animation: fadein 200ms forwards linear;
-    }
-
-    @-webkit-keyframes upsize {
-        from {min-height: 50px; width: 200px;}
-        to {min-height: 100px; width: 550px;}
-    }
-
-    @keyframes upsize {
-        from {min-height: 50px; width: 200px;}
-        to {min-height: 100px; width: 550px;}
-    }
-
-    @-webkit-keyframes fadein {
-        0% {opacity: 0}
-        50% {opacity: 0}
-        100% {opacity: 1}
-    }
-
-    @keyframes fadein {
-        0% {opacity: 0}
-        50% {opacity: 0}
-        100% {opacity: 1}
-    }
-
-    .toggleChildren {
-        position: absolute;
-        top: 0;
-        right: -23px;
-        z-index: 2;
-    }
 
 }
 
-@media (max-width: 549px) {
-    .childrenDiv {
-        margin-left: 15px;
-        position: relative;
-    }
 
-    .nodeDiv {
-        margin-bottom: 0px;
-        margin-top: 5px;
-    }
-
-    .childrenDiv:before {
-        content: "";
-        position: absolute;
-        top: -10px;
-        bottom: 1px;
-        left: -10px;
-        width: 4px;
-        z-index: -1;
-
-        background-color: rgb(217, 217, 217);
-
-    }
-
-    /*.nodeContent {*/
-        /*display: inline-block;*/
-    /*}*/
-
-    .leftPaddingWithChild {
-        padding-left: 0px;
-    }
+.childrenDiv {
+    margin-left: 15px;
+    position: relative;
 }
+
+.nodeDiv {
+    margin-bottom: 0px;
+    margin-top: 5px;
+}
+
+.childrenDiv:before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    bottom: 1px;
+    left: -10px;
+    width: 4px;
+    z-index: -1;
+
+    background-color: rgb(217, 217, 217);
+
+}
+
+/*.nodeContent {*/
+    /*display: inline-block;*/
+/*}*/
+
+.leftPaddingWithChild {
+    padding-left: 0px;
+}
+
 
 .toggleChildren {
     display: inline-block;
@@ -186,12 +62,13 @@
     font-weight: bold;
 }
 
-.byLine {
-    margin-left: 20px;
+.rootTitle {
+    font-size: 24px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-.body-edit-btn {
-    float: right;
+.byLine {
+    margin-left: 20px;
 }
 
 .node-link {

@@ -12,7 +12,7 @@
             $get: function () {
                 var opts = {
                     extensions: ['nodeStand']
-                }
+                };
                 return new showdown.Converter(opts);
             }
         };
@@ -22,6 +22,7 @@
         return {
             restrict: "A",
             scope: {
+                node: "=",
                 setText: "=",
                 doneFn: "=",
                 linkFn: "="
@@ -31,7 +32,7 @@
                     savable:false,
                     onChange: function(e){
                         var text = e.getContent();
-                        scope.setText(text);
+                        scope.setText(scope.node, text);
                         scope.$apply();
                     },
                     hiddenButtons: ['Preview', 'Image', 'cmdUrl'],
@@ -57,9 +58,9 @@
                                         e.replaceSelection("{{[" + nodeId + "]" + tagText + "}}");
                                         var offset = ("" + nodeId).length + 4;
                                         e.setSelection(selection.start + offset, selection.start + offset + tagText.length);
-                                        scope.setText(e.getContent());
+                                        scope.setText(scope.node, e.getContent());
                                     }
-                                    scope.linkFn(performReplace);
+                                    scope.linkFn(scope.node, performReplace);
                                 }
                             }]
                         },
@@ -74,7 +75,7 @@
                                 btnClass: 'btn btn-success btn-sm',
                                 icon: { glyph: 'glyphicon glyphicon-ok', fa: 'fa fa-check', 'fa-3': 'icon-search' },
                                 callback: function(e){
-                                    scope.doneFn(e);
+                                    scope.doneFn(scope.node);
                                 }
                             }]
                         }

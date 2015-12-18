@@ -23,7 +23,6 @@
         $scope.publishableNodes = [];
 
         $scope.enterEditMode = function (node) {
-            prepareNodeForEditing(node);
             node.inEditMode = true;
         };
 
@@ -31,12 +30,16 @@
             NodeCache.fetchGraphForId($routeParams.rootStableId, function() {
                 $scope.rootNodes = [];
                 $scope.rootNodes.push(NodeCache.getByStableId($routeParams.rootStableId));
+                $scope.rootNode = $scope.rootNodes[0];
+                ensureDetail($scope.rootNode);
             });
         } else if ($scope.starterNode) {
             $scope.rootNodes = [$scope.starterNode];
+            $scope.rootNode = $scope.rootNodes[0];
         } else {
             var starterNode = NodeCache.getOrCreateDraftNode();
             $scope.rootNodes = [starterNode];
+            $scope.rootNode = $scope.rootNodes[0];
             $scope.draftNodes = [starterNode];
             $scope.enterEditMode(starterNode);
             starterNode.isSelected = true;
@@ -97,125 +100,127 @@
             NodeCache.fetchNodeDetails(node.id);
         }
 
-        function prepareNodeForEditing(node) {
 
-            node.startEditingTitle = function() {
-                node.editingTitle = true;
-            };
+        $scope.startEditingTitle = function(node) {
+            node.editingTitle = true;
+        };
 
-            node.stopEditingTitle = function() {
-                node.editingTitle = false;
-                saveChanges(node);
-            };
+        $scope.stopEditingTitle = function(node) {
+            node.editingTitle = false;
+            saveChanges(node);
+        };
 
-            function saveChanges(node) {
-                if (NodeCache.isDraftNode(node)) {
-                    NodeCache.saveDraftNode(function(newNode) {
+        function saveChanges(node) {
+            if (NodeCache.isDraftNode(node)) {
+                NodeCache.saveDraftNode(function(newNode) {
 
-                        // Change the page url and reload the graph. All the UI state should stay the same because
-                        // the nodes are in the NodeCache.
-                        $location.path("/graph/" + newNode.stableId);
-                    }, function(err) {
-                        toastr.error(err.message);
-                    });
-                } else {
-                    // At the moment, this list of rootNodes is always size 1.
-                    // The reason it's currently a list and not just a variable is to support the way that
-                    // the angular template kicks off its recursion.
-                    var rootNode = $scope.rootNodes[0];
+                    // Change the page url and reload the graph. All the UI state should stay the same because
+                    // the nodes are in the NodeCache.
+                    $location.path("/graph/" + newNode.stableId);
+                }, function(err) {
+                    toastr.error(err.message);
+                });
+            } else {
+                // At the moment, this list of rootNodes is always size 1.
+                // The reason it's currently a list and not just a variable is to support the way that
+                // the angular template kicks off its recursion.
+                var rootNode = $scope.rootNodes[0];
 
-                    NodeCache.saveNodeEdit(node, rootNode, function(editedNode, data) {
-                        var editedNode = data.editedNode; // TODO: what is the editedNode param doing here?
-                        if (node.id != editedNode.id) { // This indicates that the node had never before been saved.
+                NodeCache.saveNodeEdit(node, rootNode, function(editedNode, data) {
+                    var editedNode = data.editedNode; // TODO: what is the editedNode param doing here?
+                    if (node.id != editedNode.id) { // This indicates that the node had never before been saved.
 
-                            // TODO: this shouldn't be necessary because the NodeCache should be updating the node
-                            // in a stable way.
-                            $scope.enterEditMode(editedNode);
+                        // TODO: this shouldn't be necessary because the NodeCache should be updating the node
+                        // in a stable way.
+                        $scope.enterEditMode(editedNode);
 
-                            if (data.graph) {
-                                $location.path("/graph/" + data.graph.rootStableId);
-                            }
+                        if (data.graph) {
+                            $location.path("/graph/" + data.graph.rootStableId);
                         }
-                    }, function (err) {
-                        toastr.error(err.message);
-                    });
+                    }
+                }, function (err) {
+                    toastr.error(err.message);
+                });
+            }
+        }
+
+        $scope.stopEditingBody = function(node) {
+            node.editingBody = false;
+
+            var idsInBody = [];
+            var regex = /{{\[([0-9]+)\](.+?)(?=}})}}/g;
+            var match = regex.exec(node.body.body);
+            while (match != null) {
+                idsInBody.push(match[1]);
+                match = regex.exec(node.body.body);
+            }
+
+            // Remove any children that are no longer supported by the body text.
+            for (var i = node.children.length - 1; i >= 0; i--) {
+                var child = node.children[i];
+                var expectedId = child.body.majorVersion.id;
+                if (idsInBody.indexOf(expectedId) < 0) {
+                    // Remove the child
+                    node.children.splice(i, 1);
+
+                    // Keep the removed child around to support a text-based undo of the deletion.
+                    node.deletedChildren = node.deletedChildren || {};
+                    node.deletedChildren[child.body.majorVersion.id] = child;
                 }
             }
 
-            node.doStopEditingBody = function() {
-                node.editingBody = false;
-
-                var idsInBody = [];
-                var regex = /{{\[([0-9]+)\](.+?)(?=}})}}/g;
-                var match = regex.exec(node.body.body);
-                while (match != null) {
-                    idsInBody.push(match[1]);
-                    match = regex.exec(node.body.body);
-                }
-
-                // Remove any children that are no longer supported by the body text.
-                for (var i = node.children.length - 1; i >= 0; i--) {
-                    var child = node.children[i];
-                    var expectedId = child.body.majorVersion.id;
-                    if (idsInBody.indexOf(expectedId) < 0) {
-                        // Remove the child
-                        node.children.splice(i, 1);
-
-                        // Keep the removed child around to support a text-based undo of the deletion.
-                        node.deletedChildren = node.deletedChildren || {};
-                        node.deletedChildren[child.body.majorVersion.id] = child;
-                    }
-                }
-
-                // If the user manually restored the text of a link that they previously deleted,
-                // restore the link.
-                if (node.deletedChildren) {
-                    $.each(idsInBody, function (index, id) {
-                        var nodeForId = node.deletedChildren[id];
-                        if (nodeForId && node.children.indexOf(nodeForId) < 0) {
-                            node.children.push(nodeForId);
-                        }
-                    });
-                }
-
-                saveChanges(node);
-            };
-
-            node.doLinkChild = function(linkCallback) {
-
-                function attachChild(child) {
-                    node.children.push(child);
-                    linkCallback(child.body.majorVersion.id, child.body.title);
-
-                    saveChanges(node);
-                    ensureDetail(child);
-                    NodeCache.fetchGraphForId(child.stableId);
-                }
-
-                function errorHandler(err) {
-                    toastr.error(err.message);
-                }
-
-                function nodeChosenForLinking(result) {
-                    if (result.chosenNode) {
-                        var child = NodeCache.addOrUpdateNode(result.chosenNode);
-                        attachChild(child);
-                    } else {
-                        NodeCache.createAndSaveNode(result.newTitle, result.type, attachChild, errorHandler);
-                    }
-                }
-
-                $modal.open({
-                    templateUrl: "partials/link-child.html",
-                    controller: "LinkChildController",
-                    resolve: {
-                        linkCallback: function() {return nodeChosenForLinking; },
-                        currentNode: function() {return node; }
+            // If the user manually restored the text of a link that they previously deleted,
+            // restore the link.
+            if (node.deletedChildren) {
+                $.each(idsInBody, function (index, id) {
+                    var nodeForId = node.deletedChildren[id];
+                    if (nodeForId && node.children.indexOf(nodeForId) < 0) {
+                        node.children.push(nodeForId);
                     }
                 });
+            }
 
-            };
-        }
+            saveChanges(node);
+        };
+
+        $scope.linkChild = function(node, linkCallback) {
+
+            function attachChild(child) {
+                node.children.push(child);
+                linkCallback(child.body.majorVersion.id, child.body.title);
+
+                saveChanges(node);
+                ensureDetail(child);
+                NodeCache.fetchGraphForId(child.stableId);
+            }
+
+            function errorHandler(err) {
+                toastr.error(err.message);
+            }
+
+            function nodeChosenForLinking(result) {
+                if (result.chosenNode) {
+                    var child = NodeCache.addOrUpdateNode(result.chosenNode);
+                    attachChild(child);
+                } else {
+                    NodeCache.createAndSaveNode(result.newTitle, result.type, attachChild, errorHandler);
+                }
+            }
+
+            $modal.open({
+                templateUrl: "partials/link-child.html",
+                controller: "LinkChildController",
+                resolve: {
+                    linkCallback: function() {return nodeChosenForLinking; },
+                    currentNode: function() {return node; }
+                }
+            });
+
+        };
+
+        $scope.setBody = function(node, text) {
+            node.body.body = text;
+        };
 
         $scope.readyToPublish = function(node) {
             return (!node.body.public) && allowsPublish(node, {});

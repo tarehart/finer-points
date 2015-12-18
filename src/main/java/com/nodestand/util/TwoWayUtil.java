@@ -6,6 +6,7 @@ import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import org.springframework.util.CollectionUtils;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class TwoWayUtil {
@@ -19,15 +20,22 @@ public class TwoWayUtil {
                     existingChild.getDependentNodes().remove(node);
                 }
             }
+        }
 
-
-            for (ArgumentNode newChild : children) {
-                if (!node.getSupportingNodes().contains(newChild)) {
-                    if (newChild instanceof AssertionNode) {
-                        ((AssertionNode) newChild).getDependentNodes().add(node);
-                    } else if (newChild instanceof InterpretationNode) {
-                        ((InterpretationNode) newChild).getDependentNodes().add(node);
+        for (ArgumentNode newChild : children) {
+            if (node.getSupportingNodes() == null || !node.getSupportingNodes().contains(newChild)) {
+                if (newChild instanceof AssertionNode) {
+                    AssertionNode assertionChild = (AssertionNode) newChild;
+                    if (newChild.getDependentNodes() == null) {
+                        assertionChild.setDependentNodes(new HashSet<>());
                     }
+                    assertionChild.getDependentNodes().add(node);
+                } else if (newChild instanceof InterpretationNode) {
+                    InterpretationNode interpretationChild = (InterpretationNode) newChild;
+                    if (newChild.getDependentNodes() == null) {
+                        interpretationChild.setDependentNodes(new HashSet<>());
+                    }
+                    interpretationChild.getDependentNodes().add(node);
                 }
             }
         }

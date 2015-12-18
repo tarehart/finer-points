@@ -34,9 +34,9 @@ public class SearchController {
     @RequestMapping("/search")
     public List<ArgumentBody> findByTitle(@RequestParam String query, @RequestParam List<String> types) {
 
-        User user = nodeUserDetailsService.getUserFromSession();
+        final User user = nodeUserDetailsService.getUserFromSession();
 
-        Set<ArgumentBody> richHits = argumentBodyRepository.queryTitlesRich(String.format("(?i).*%s.*", query), user);
+        Set<ArgumentBody> richHits = argumentBodyRepository.queryTitlesRich(String.format("(?i).*%s.*", query), user.getNodeId());
 
         List<ArgumentBody> searchResults = new LinkedList<>();
 
@@ -49,7 +49,7 @@ public class SearchController {
         // This is NOT the version number; it's the unique node id
         richHits.stream().filter(body -> acceptableClasses.contains(body.getClass())).forEach(body -> {
             String majorVersionId = body.getMajorVersion().getStableId(); // This is NOT the version number; it's the unique node id
-            if (!majorVersionIds.contains(majorVersionId) && (!body.isEditable() || user.getNodeId() == body.author.getNodeId())) {
+            if (!majorVersionIds.contains(majorVersionId) && (body.isPublic() || user.getNodeId().equals(body.author.getNodeId()))) {
                 searchResults.add(body);
                 majorVersionIds.add(majorVersionId);
             }

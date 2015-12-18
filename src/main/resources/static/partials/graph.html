@@ -39,12 +39,12 @@
                     </div>
                     <span ng-if="!node.editingTitle" class="nodeTitle">
                         {{node.body.title}}
-                        <button ng-if="node.inEditMode" ng-click="node.startEditingTitle()" type="button" class="btn btn-default btn-xs">Edit</button>
+                        <button ng-if="node.inEditMode" ng-click="startEditingTitle(node)" type="button" class="btn btn-default btn-xs">Edit</button>
                     </span>
                     <span ng-if="node.editingTitle">
                         <input type="text" ng-model="node.body.title" class="form-control" style="display:inline;width:auto" placeholder="Title..."
-                                enter-fn="node.stopEditingTitle()" />
-                        <button ng-click="node.stopEditingTitle()" type="button" class="btn icon-btn">
+                                enter-fn="stopEditingTitle(node)" />
+                        <button ng-click="stopEditingTitle(node)" type="button" class="btn icon-btn">
                             <i class="fa fa-check"></i>
                         </button>
                     </span>
@@ -58,19 +58,19 @@
                         <p class="byLine">Authored by {{node.body.author.displayName}}. v{{node.getVersionString()}}</p>
 
                         <div ng-if="node.editingBody">
-                            <textarea ng-if="node.type !== 'source'" set-text="node.setBody" done-fn="node.stopEditingBody" link-fn="node.linkChild" markdown-editor>{{node.body.body}}</textarea>
+                            <textarea ng-if="node.type !== 'source'" node="node" set-text="setBody" done-fn="stopEditingBody" link-fn="linkChild" markdown-editor>{{node.body.body}}</textarea>
                             <div ng-if="node.type === 'source'" class="form-inline">
                                 <input type="text" class="form-control" placeholder="http://..." ng-model="node.body.url" />
-                                <button ng-click="node.stopEditingBody()" type="button" class="btn icon-btn">
+                                <button ng-click="doStopEditingBody(node)" type="button" class="btn icon-btn">
                                     <i class="fa fa-check"></i>
                                 </button>
                             </div>
 
                         </div>
                         <div ng-if="!node.editingBody">
-                            <button ng-if="node.inEditMode" ng-click="node.editingBody = true" type="button" class="btn btn-default btn-xs body-edit-btn">Edit</button>
                             <div ng-if="node.type !== 'source'" ng-markdown="node.body.body" render-markdown></div>
                             <a ng-if="node.type === 'source'" ng-href="{{node.body.url}}" target="_blank">{{node.body.url}}</a>
+                            <button ng-if="node.inEditMode" ng-click="node.editingBody = true" type="button" class="btn btn-default btn-xs">Edit</button>
                             <button ng-if="readyToPublish(node)" ng-click="publishNode(node)" type="button" class="btn btn-primary btn-xs">Publish</button>
                         </div>
 
@@ -78,10 +78,6 @@
                             <button ng-if="authorizedForEdit(node) && !node.inEditMode" ng-click="enterEditMode(node)" type="button" class="btn btn-default btn-xs">Edit</button>
                         </div>
 
-                        <div class="commentSection" ng-if="hasComment(node)">
-                            <span style="font-weight:bold">Comments</span>
-                            <div ng-repeat="comment in node.comments" ng-include="'commentTree'"></div>
-                        </div>
                         <span ng-click="toggleSelect(node);" class="bottom-right-button">
                             <i class="fa fa-compress"></i>
                         </span>
@@ -95,7 +91,66 @@
     </script>
 
     <div class="graph-wrapper">
-        <div ng-repeat="node in rootNodes" ng-include="'floatTree'"></div>
+
+        <div style="background-color:#e3f6ff; height: 250px; margin-bottom: 10px; margin-top: -20px;">Draw graph here!</div>
+
+        <div class="row">
+            <div class="col-md-7" ng-if="rootNode">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <span ng-if="!rootNode.editingTitle">
+                            <span class="rootTitle">{{rootNode.body.title}}</span>
+                            <button ng-if="rootNode.inEditMode" ng-click="startEditingTitle(rootNode)" type="button" class="btn btn-default btn-xs">Edit</button>
+                        </span>
+                        <span ng-if="rootNode.editingTitle">
+                            <input type="text" ng-model="rootNode.body.title" class="form-control" style="display:inline;width:auto" placeholder="Title..."
+                                   enter-fn="stopEditingTitle(rootNode)" />
+                            <button ng-click="stopEditingTitle(rootNode)" type="button" class="btn icon-btn">
+                                <i class="fa fa-check"></i>
+                            </button>
+                        </span>
+
+
+
+                        <p class="byLine">Authored by {{rootNode.body.author.displayName}}. v{{rootNode.getVersionString()}}</p>
+
+                        <div ng-if="rootNode.editingBody">
+                            <textarea ng-if="rootNode.type !== 'source'" node="rootNode" set-text="setBody" done-fn="stopEditingBody" link-fn="linkChild" markdown-editor>{{rootNode.body.body}}</textarea>
+                            <div ng-if="rootNode.type === 'source'" class="form-inline">
+                                <input type="text" class="form-control" placeholder="http://..." ng-model="rootNode.body.url" />
+                                <button ng-click="stopEditingBody(rootNode)" type="button" class="btn icon-btn">
+                                    <i class="fa fa-check"></i>
+                                </button>
+                            </div>
+
+                        </div>
+                        <div ng-if="!rootNode.editingBody">
+                            <div ng-if="rootNode.type !== 'source'" ng-markdown="rootNode.body.body" render-markdown></div>
+                            <a ng-if="rootNode.type === 'source'" ng-href="{{rootNode.body.url}}" target="_blank">{{rootNode.body.url}}</a>
+                            <button ng-if="rootNode.inEditMode" ng-click="rootNode.editingBody = true" type="button" class="btn btn-default btn-xs">Edit</button>
+                            <button ng-if="readyToPublish(rootNode)" ng-click="publishNode(rootNode)" type="button" class="btn btn-primary btn-xs">Publish</button>
+                        </div>
+
+                        <div ng-if="!rootNode.inEditMode">
+                            <button ng-if="authorizedForEdit(rootNode) && !rootNode.inEditMode" ng-click="enterEditMode(rootNode)" type="button" class="btn btn-default btn-xs">Edit</button>
+                        </div>
+
+                        <div class="commentSection">
+                            <h4>Comments</h4>
+                            <div ng-if="!hasComment(rootNode)">
+                                <span>No comments! Comment functionality coming soon.</span>
+                            </div>
+                            <div ng-repeat="comment in rootNode.comments" ng-include="'commentTree'"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div ng-repeat="node in rootNode.children" ng-include="'floatTree'"></div>
+            </div>
+
+        </div>
     </div>
 
     <p>
