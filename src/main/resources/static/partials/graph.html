@@ -125,6 +125,7 @@
 
                         </div>
                         <div ng-if="!rootNode.editingBody">
+                            <div vote-button></div>
                             <div ng-if="rootNode.type !== 'source'" ng-markdown="rootNode.body.body" render-markdown></div>
                             <a ng-if="rootNode.type === 'source'" ng-href="{{rootNode.body.url}}" target="_blank">{{rootNode.body.url}}</a>
                             <button ng-if="rootNode.inEditMode" ng-click="rootNode.editingBody = true" type="button" class="btn btn-default btn-xs">Edit</button>
