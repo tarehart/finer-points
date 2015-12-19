@@ -92,8 +92,6 @@
 
     <div class="graph-wrapper">
 
-        <div id="sigma-container" style="background-color:#e3f6ff; height: 250px; margin-bottom: 10px; margin-top: -20px;"></div>
-
         <div class="row">
             <div class="col-md-7" ng-if="rootNode">
                 <div class="panel panel-default">
@@ -148,6 +146,7 @@
             </div>
 
             <div class="col-md-5">
+                <div id="sigma-container"></div>
                 <div ng-repeat="node in rootNode.children" ng-include="'floatTree'"></div>
             </div>
 

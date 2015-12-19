@@ -305,7 +305,7 @@
                         label: node.body.title,
                         x: Math.random(),
                         y: Math.random() * 0.2,
-                        size: parent ? 4 : 6,
+                        size: parent ? 8 : 12,
                         color: getColor(node)
                     });
 
@@ -344,7 +344,11 @@
             // Finally, let's ask our sigma instance to refresh:
             s.refresh();
             //sigma.plugins.dragNodes(s, s.renderers[0]);
-            s.startForceAtlas2();
+            s.startForceAtlas2({
+                strongGravityMode: true,
+                gravity: 0.5,
+                slowDown: 1
+            });
         }
 
     }
