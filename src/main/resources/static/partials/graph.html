@@ -61,7 +61,7 @@
                             <textarea ng-if="node.type !== 'source'" node="node" set-text="setBody" done-fn="stopEditingBody" link-fn="linkChild" markdown-editor>{{node.body.body}}</textarea>
                             <div ng-if="node.type === 'source'" class="form-inline">
                                 <input type="text" class="form-control" placeholder="http://..." ng-model="node.body.url" />
-                                <button ng-click="doStopEditingBody(node)" type="button" class="btn icon-btn">
+                                <button ng-click="stopEditingBody(node)" type="button" class="btn icon-btn">
                                     <i class="fa fa-check"></i>
                                 </button>
                             </div>
@@ -92,7 +92,7 @@
 
     <div class="graph-wrapper">
 
-        <div style="background-color:#e3f6ff; height: 250px; margin-bottom: 10px; margin-top: -20px;">Draw graph here!</div>
+        <div id="sigma-container" style="background-color:#e3f6ff; height: 250px; margin-bottom: 10px; margin-top: -20px;"></div>
 
         <div class="row">
             <div class="col-md-7" ng-if="rootNode">

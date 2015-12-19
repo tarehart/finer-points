@@ -32,6 +32,7 @@
                 $scope.rootNodes.push(NodeCache.getByStableId($routeParams.rootStableId));
                 $scope.rootNode = $scope.rootNodes[0];
                 ensureDetail($scope.rootNode);
+                initSigma($scope.rootNode);
             });
         } else if ($scope.starterNode) {
             $scope.rootNodes = [$scope.starterNode];
@@ -284,6 +285,66 @@
                     return false;
                 }
             }
+        }
+
+        function initSigma(rootNode) {
+
+            //sigma.renderers.def = sigma.renderers.canvas;
+            var s = new sigma('sigma-container');
+
+            var addedNodes = {};
+
+            addSigmaNodesRecursive(rootNode, null);
+
+            function addSigmaNodesRecursive(node, parent) {
+
+                if (!addedNodes[node.id]) {
+
+                    s.graph.addNode({
+                        id: "" + node.id,
+                        label: node.body.title,
+                        x: Math.random(),
+                        y: Math.random() * 0.2,
+                        size: parent ? 4 : 6,
+                        color: getColor(node)
+                    });
+
+                    addedNodes[node.id] = 1;
+
+                    for(var i = 0; i < node.children.length; i++) {
+                        addSigmaNodesRecursive(node.children[i], node);
+                    }
+                }
+
+                if (parent) {
+                    s.graph.addEdge({
+                        id: parent.id + "-" + node.id,
+                        source: "" + parent.id,
+                        target: "" + node.id,
+                        color: "#AAAAAA"
+                    });
+                }
+
+            }
+
+            function getColor(node) {
+                if (node.getType() === 'assertion') {
+                    return "#8888DD";
+                }
+                if (node.getType() === 'interpretation') {
+                    return "#88DD88";
+                }
+                if (node.getType() === 'source') {
+                    return "#DD8888";
+                }
+
+                return "#000000";
+            }
+
+            // Finally, let's ask our sigma instance to refresh:
+            s.refresh();
+            //sigma.plugins.dragNodes(s, s.renderers[0]);
+            s.startForceAtlas2();
         }
 
     }
