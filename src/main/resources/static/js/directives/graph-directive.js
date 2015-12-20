@@ -32,7 +32,7 @@
                 $scope.rootNodes.push(NodeCache.getByStableId($routeParams.rootStableId));
                 $scope.rootNode = $scope.rootNodes[0];
                 ensureDetail($scope.rootNode);
-                initSigma($scope.rootNode);
+                $scope.$broadcast("rootData", $scope.rootNode);
             });
         } else if ($scope.starterNode) {
             $scope.rootNodes = [$scope.starterNode];

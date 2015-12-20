@@ -4,6 +4,13 @@ import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.assertion.AssertionNode;
 import org.neo4j.ogm.session.Session;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 public class BugMitigator {
 
     public static ArgumentNode loadArgumentNode(Session session, Long nodeId, int depth) {
@@ -20,4 +27,12 @@ public class BugMitigator {
         return node;
     }
 
+    public static void loadAll(Collection<?> collection, int depth, Session session) {
+
+        Map<?, List<Object>> map = collection.stream().collect(Collectors.groupingBy(Object::getClass));
+
+        for (List<Object> list : map.values()) {
+            session.loadAll(list, depth);
+        }
+    }
 }

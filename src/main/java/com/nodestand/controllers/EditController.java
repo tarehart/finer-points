@@ -217,7 +217,7 @@ public class EditController {
 
         for (List<ArgumentNode> path: nicePaths) {
 
-            ArgumentNode previousNode = draftNode;
+            ArgumentNode priorInPath = draftNode;
             for (Object nodeObj : path) {
 
                 ArgumentNode pathNode = (ArgumentNode) nodeObj;
@@ -233,7 +233,13 @@ public class EditController {
                 // previous iteration of the for loop.
 
                 // TODO: it should also go ahead and get a new minor version, right?
-                ArgumentNode changeable = pathNode.alterOrCloneToPointToChild(previousNode, previousNode.getPreviousVersion());
+
+                ArgumentNode previousChild = priorInPath.getPreviousVersion();
+
+                ArgumentNode changeable = pathNode.alterOrCloneToPointToChild(priorInPath, previousChild);
+
+                // The previous child probably got modified by the alterOrClone operation due to abandonment.
+                session.save(previousChild);
 
                 if (changeable.getGraphChildren().contains(changeable)) {
                     throw new NodeRulesException("Something has gone wrong with publishing and we have a closed loop!");
@@ -254,7 +260,7 @@ public class EditController {
                     newRoot = changeable;
                 }
 
-                previousNode = changeable;
+                priorInPath = changeable;
             }
         }
 

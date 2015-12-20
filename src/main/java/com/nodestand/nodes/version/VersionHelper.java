@@ -9,6 +9,7 @@ import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentBodyRepository;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceNode;
+import com.nodestand.util.BugMitigator;
 import com.nodestand.util.TwoWayUtil;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.result.Result;
@@ -116,6 +117,11 @@ public class VersionHelper {
         if (previousVersion != null && !previousVersion.isFinalized()) {
             // previous version is the edit target.
 
+            // Make sure it's loaded
+            if (previousVersion.getBody() == null) {
+                session.load(previousVersion.getClass(), previousVersion.getId(), 1);
+            }
+
             // Copy everything over into the previous version
             node.copyContentTo(previousVersion);
             node.getBody().applyEditTo(previousVersion.getBody());
@@ -158,7 +164,7 @@ public class VersionHelper {
             AssertionNode assertion = (AssertionNode) node;
 
             // If assertion.getSupportingNodes returns null, this will go awry. Keep an eye on it.
-            session.loadAll(assertion.getSupportingNodes(), 1);
+            BugMitigator.loadAll(assertion.getSupportingNodes(), 1, session);
 
             for (ArgumentNode childNode : assertion.getSupportingNodes()) {
                 if (!childNode.getBody().isPublic()) {
