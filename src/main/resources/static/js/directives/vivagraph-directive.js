@@ -76,7 +76,7 @@
         graphics.node(function(node) {
             // The function is called every time renderer needs a ui to display node
             var circle = Viva.Graph.svg('circle', {
-                r: node.data.isRoot? 15 : 10,
+                r: node.data.isRoot? 18 : 14,
                 stroke: '#000',
                 fill: node.data.color
             });
@@ -95,7 +95,8 @@
         var renderer = Viva.Graph.View.renderer(graph, {
             container  : document.getElementById('viva-container'),
             graphics: graphics,
-            layout: layout
+            layout: layout,
+            interactive: 'node drag'
         });
         renderer.run();
         

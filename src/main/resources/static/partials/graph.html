@@ -25,7 +25,7 @@
         <div ng-class="['familyWrapper', node.type]">
             <div ng-class="[{selected:isSelected(node)}, 'nodeDiv', 'panel', 'panel-default']">
 
-                <div class="panel-heading node-heading" ng-class="{leftPaddingWithChild: hasChild(node)}">
+                <div class="panel-heading node-heading" ng-click="toggleSelect(node)" ng-class="{leftPaddingWithChild: hasChild(node)}">
                     <div class="toggleChildren" ng-if="hasChild(node)">
 
                         <button class="btn icon-btn children-toggle" ng-click="toggleChildren(node); $event.stopPropagation();">
@@ -48,7 +48,7 @@
                             <i class="fa fa-check"></i>
                         </button>
                     </span>
-                    <span ng-hide="isSelected(node)" ng-click="toggleSelect(node);" class="bottom-right-button">
+                    <span ng-hide="isSelected(node)" ng-click="toggleSelect(node); $event.stopPropagation();" class="bottom-right-button">
                         <i class="fa fa-expand"></i>
                     </span>
                 </div>
@@ -123,7 +123,7 @@
 
                         </div>
                         <div ng-if="!rootNode.editingBody">
-                            <div vote-button></div>
+                            <div node="rootNode" vote-button></div>
                             <div ng-if="rootNode.type !== 'source'" ng-markdown="rootNode.body.body" render-markdown></div>
                             <a ng-if="rootNode.type === 'source'" ng-href="{{rootNode.body.url}}" target="_blank">{{rootNode.body.url}}</a>
                             <button ng-if="rootNode.inEditMode" ng-click="rootNode.editingBody = true" type="button" class="btn btn-default btn-xs">Edit</button>
@@ -134,13 +134,19 @@
                             <button ng-if="authorizedForEdit(rootNode) && !rootNode.inEditMode" ng-click="enterEditMode(rootNode)" type="button" class="btn btn-default btn-xs">Edit</button>
                         </div>
 
-                        <div class="commentSection">
-                            <h4>Comments</h4>
-                            <div ng-if="!hasComment(rootNode)">
-                                <span>No comments! Comment functionality coming soon.</span>
-                            </div>
-                            <div ng-repeat="comment in rootNode.comments" ng-include="'commentTree'"></div>
+                        <div style="clear:both"></div>
+
+
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="commentSection panel-body">
+                        <h4>Comments</h4>
+                        <div ng-if="!hasComment(rootNode)">
+                            <span>No comments! Comment functionality coming soon.</span>
                         </div>
+                        <div ng-repeat="comment in rootNode.comments" ng-include="'commentTree'"></div>
                     </div>
                 </div>
             </div>

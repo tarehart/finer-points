@@ -68,6 +68,8 @@
                     ensureDetail(child);
                 })
             }
+
+            return true;
         };
 
         $scope.toggleChildren = function (node) {
