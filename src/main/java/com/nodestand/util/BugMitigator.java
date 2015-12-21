@@ -26,13 +26,4 @@ public class BugMitigator {
 
         return node;
     }
-
-    public static void loadAll(Collection<?> collection, int depth, Session session) {
-
-        Map<?, List<Object>> map = collection.stream().collect(Collectors.groupingBy(Object::getClass));
-
-        for (List<Object> list : map.values()) {
-            session.loadAll(list, depth);
-        }
-    }
 }

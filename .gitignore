@@ -7,3 +7,4 @@ out/
 *.ipr
 *.iws
 application.properties
+neo4j-home/

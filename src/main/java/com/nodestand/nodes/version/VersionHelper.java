@@ -9,7 +9,6 @@ import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentBodyRepository;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceNode;
-import com.nodestand.util.BugMitigator;
 import com.nodestand.util.TwoWayUtil;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.result.Result;
@@ -17,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class VersionHelper {
@@ -164,7 +164,8 @@ public class VersionHelper {
             AssertionNode assertion = (AssertionNode) node;
 
             // If assertion.getSupportingNodes returns null, this will go awry. Keep an eye on it.
-            BugMitigator.loadAll(assertion.getSupportingNodes(), 1, session);
+            session.loadAll(ArgumentNode.class,
+                    assertion.getSupportingNodes().stream().map(ArgumentNode::getId).collect(Collectors.toList()), 1);
 
             for (ArgumentNode childNode : assertion.getSupportingNodes()) {
                 if (!childNode.getBody().isPublic()) {
@@ -226,7 +227,8 @@ public class VersionHelper {
             AssertionNode assertion = (AssertionNode) node;
 
             // If assertion.getSupportingNodes returns null, this will go awry. Keep an eye on it.
-            session.loadAll(assertion.getSupportingNodes(), 1);
+            session.loadAll(ArgumentNode.class,
+                    assertion.getSupportingNodes().stream().map(ArgumentNode::getId).collect(Collectors.toList()), 1);
 
             Set<ArgumentNode> snappedDescendants = new HashSet<>();
 
