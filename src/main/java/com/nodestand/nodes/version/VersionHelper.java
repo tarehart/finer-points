@@ -164,10 +164,10 @@ public class VersionHelper {
             AssertionNode assertion = (AssertionNode) node;
 
             // If assertion.getSupportingNodes returns null, this will go awry. Keep an eye on it.
-            session.loadAll(ArgumentNode.class,
+            Collection<ArgumentNode> support = session.loadAll(ArgumentNode.class,
                     assertion.getSupportingNodes().stream().map(ArgumentNode::getId).collect(Collectors.toList()), 1);
 
-            for (ArgumentNode childNode : assertion.getSupportingNodes()) {
+            for (ArgumentNode childNode : support) {
                 if (!childNode.getBody().isPublic()) {
                     publish(childNode);
                 }
@@ -227,12 +227,12 @@ public class VersionHelper {
             AssertionNode assertion = (AssertionNode) node;
 
             // If assertion.getSupportingNodes returns null, this will go awry. Keep an eye on it.
-            session.loadAll(ArgumentNode.class,
+            Collection<ArgumentNode> support = session.loadAll(ArgumentNode.class,
                     assertion.getSupportingNodes().stream().map(ArgumentNode::getId).collect(Collectors.toList()), 1);
 
             Set<ArgumentNode> snappedDescendants = new HashSet<>();
 
-            for (ArgumentNode childNode : assertion.getSupportingNodes()) {
+            for (ArgumentNode childNode : support) {
                 if (!childNode.isFinalized()) {
                     snappedDescendants.add(snapshotHelper(childNode, build));
                 }

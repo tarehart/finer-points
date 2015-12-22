@@ -39,12 +39,12 @@
                     </div>
                     <span ng-if="!node.editingTitle" class="nodeTitle">
                         {{node.body.title}}
-                        <button ng-if="node.inEditMode" ng-click="startEditingTitle(node)" type="button" class="btn btn-default btn-xs">Edit</button>
+                        <button ng-if="node.inEditMode" ng-click="startEditingTitle(node); $event.stopPropagation();" type="button" class="btn btn-default btn-xs">Edit</button>
                     </span>
                     <span ng-if="node.editingTitle">
                         <input type="text" ng-model="node.body.title" class="form-control" style="display:inline;width:auto" placeholder="Title..."
                                 enter-fn="stopEditingTitle(node)" />
-                        <button ng-click="stopEditingTitle(node)" type="button" class="btn icon-btn">
+                        <button ng-click="stopEditingTitle(node); $event.stopPropagation();" type="button" class="btn icon-btn">
                             <i class="fa fa-check"></i>
                         </button>
                     </span>

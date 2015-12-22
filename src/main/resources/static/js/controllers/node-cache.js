@@ -225,14 +225,38 @@
             }
         };
 
-        function handleNodeEdit(editResponse, originalNode) {
-            var editedNode = cache.addOrUpdateNode(editResponse.editedNode);
+        function handleDraftCreation(draftResponse) {
+            var draftNode = cache.addOrUpdateNode(draftResponse.editedNode);
 
-            if (editResponse.graph) {
-                inductQuickGraph(editResponse.graph);
+            if (draftResponse.graph) {
+                inductQuickGraph(draftResponse.graph);
             }
 
-            return editedNode;
+            return draftNode;
+        }
+
+        cache.makeDraft = function(node, root, successCallback, errorCallback) {
+            $http.post('/makeDraft',
+                {
+                    nodeId: node.id,
+                    rootStableId: root.stableId
+                })
+                .success(function (data) {
+                    var draftNode = handleDraftCreation(data);
+
+                    if (successCallback) {
+                        successCallback(draftNode, data); // This callback probably ought to change the URL to incorporate the new id.
+                    }
+                })
+                .error(function(err) {
+                    if (errorCallback) {
+                        errorCallback(err);
+                    }
+                });
+        };
+
+        function handleNodeEdit(editedNode) {
+            return cache.addOrUpdateNode(editedNode);
         }
 
         function saveAssertionEdit(node, root, successCallback, errorCallback) {
@@ -245,16 +269,15 @@
             $http.post('/editAssertion',
                 {
                     nodeId: node.id,
-                    rootStableId: root.stableId,
                     title: node.body.title,
                     body: node.body.body,
                     links: links
                 })
                 .success(function (data) {
-                    var editedNode = handleNodeEdit(data, node);
+                    var editedNode = handleNodeEdit(data);
 
                     if (successCallback) {
-                        successCallback(editedNode, data); // This callback probably ought to change the URL to incorporate the new id.
+                        successCallback(editedNode);
                     }
                 })
                 .error(function(err) {
@@ -275,16 +298,15 @@
             $http.post('/editInterpretation',
                 {
                     nodeId: node.id,
-                    rootStableId: root.stableId,
                     title: node.body.title,
                     body: node.body.body,
                     sourceId: sourceId
                 })
                 .success(function (data) {
-                    var editedNode = handleNodeEdit(data, node);
+                    var editedNode = handleNodeEdit(data);
 
                     if (successCallback) {
-                        successCallback(editedNode, data); // This callback probably ought to change the URL to incorporate the new id.
+                        successCallback(editedNode);
                     }
                 })
                 .error(function(err) {
@@ -304,15 +326,14 @@
             $http.post('/editSource',
                 {
                     nodeId: node.id,
-                    rootStableId: root.stableId,
                     title: node.body.title,
                     url: node.body.url
                 })
                 .success(function (data) {
-                    var editedNode = handleNodeEdit(data, node);
+                    var editedNode = handleNodeEdit(data);
 
                     if (successCallback) {
-                        successCallback(editedNode, data); // This callback probably ought to change the URL to incorporate the new id.
+                        successCallback(editedNode);
                     }
                 })
                 .error(function(err) {
@@ -349,6 +370,7 @@
             } else {
                 cachedNode.body = cachedNode.body || newData.body;
                 cachedNode.body.body = newData.body.body;
+                cachedNode.body.title = newData.body.title;
             }
 
             if (!cachedNode.id || cachedNode.id === DRAFT_ID) {

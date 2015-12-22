@@ -72,26 +72,28 @@ public class EditController {
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/editAssertion")
-    public EditResult editAssertion(@RequestBody Map<String, Object> params) throws NotAuthorizedException, ImmutableNodeException, NodeRulesException {
+    public ArgumentNode editAssertion(@RequestBody Map<String, Object> params) throws NotAuthorizedException, ImmutableNodeException, NodeRulesException {
         return editNode(params);
     }
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/editInterpretation")
-    public EditResult editInterpretation(@RequestBody Map<String, Object> params) throws NotAuthorizedException, ImmutableNodeException, NodeRulesException {
+    public ArgumentNode editInterpretation(@RequestBody Map<String, Object> params) throws NotAuthorizedException, ImmutableNodeException, NodeRulesException {
         return editNode(params);
     }
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/editSource")
-    public EditResult editSource(@RequestBody Map<String, Object> params) throws NotAuthorizedException, ImmutableNodeException, NodeRulesException {
+    public ArgumentNode editSource(@RequestBody Map<String, Object> params) throws NotAuthorizedException, ImmutableNodeException, NodeRulesException {
         return editNode(params);
     }
 
-    private EditResult editNode(Map<String, Object> params) throws NotAuthorizedException, NodeRulesException, ImmutableNodeException {
-
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @RequestMapping("/makeDraft")
+    public EditResult makeDraft(@RequestBody Map<String, Object> params) throws NotAuthorizedException, ImmutableNodeException, NodeRulesException {
         User user = nodeUserDetailsService.getUserFromSession();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
         String rootStableId = (String) params.get("rootStableId");
@@ -103,40 +105,53 @@ public class EditController {
             throw new NodeRulesException("Cannot edit this node!");
         }
 
-        if (existingNode.getBody().isPublic()) {
+        if (!existingNode.getBody().isPublic()) {
+            // Already a draft.
+            throw new NodeRulesException("This is already a draft, should not attempt to split off a new draft");
+        }
 
             // Create a new draft version
 
-            // This will set the previous version on the draft. Later, when we publish the edit,
-            // this draft will copy its contents to the previous version and then be destroyed.
-            ArgumentNode draftNode = existingNode.createNewDraft(VersionHelper.startBuild(user), true);
+        // This will set the previous version on the draft. Later, when we publish the edit,
+        // this draft will copy its contents to the previous version and then be destroyed.
+        ArgumentNode draftNode = existingNode.createNewDraft(VersionHelper.startBuild(user), true);
 
-            doNodeEdits(draftNode, user, params);
+        session.save(draftNode);
 
-            session.save(draftNode);
-
-            String newRootStableId = null;
-            if (existingNode.getStableId().equals(rootStableId)) {
-                newRootStableId = draftNode.getStableId();
-            } else {
-                newRootStableId = propagateDraftTowardRoot(draftNode, rootStableId, session);
-            }
-
-            EditResult result = new EditResult(draftNode);
-            result.setGraph(graphDao.getGraph(newRootStableId));
-
-            return result;
-
+        String newRootStableId = null;
+        if (existingNode.getStableId().equals(rootStableId)) {
+            newRootStableId = draftNode.getStableId();
         } else {
-
-            doNodeEdits(existingNode, user, params);
-
-            session.save(existingNode);
-
-            return new EditResult(existingNode);
-
-
+            newRootStableId = propagateDraftTowardRoot(draftNode, rootStableId, session);
         }
+
+        EditResult result = new EditResult(draftNode);
+        result.setGraph(graphDao.getGraph(newRootStableId));
+
+        return result;
+    }
+
+    private ArgumentNode editNode(Map<String, Object> params) throws NotAuthorizedException, NodeRulesException, ImmutableNodeException {
+
+        User user = nodeUserDetailsService.getUserFromSession();
+        Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
+
+        ArgumentNode existingNode = BugMitigator.loadArgumentNode(session, nodeId, 2);
+
+
+        if (!existingNode.getBody().isEditable()) {
+            throw new NodeRulesException("Cannot edit this node!");
+        }
+
+        if (existingNode.getBody().isPublic()) {
+            throw new NodeRulesException("Must split off a private draft before editing.");
+        }
+
+        doNodeEdits(existingNode, user, params);
+
+        session.save(existingNode);
+
+        return existingNode;
     }
 
     private void doNodeEdits(ArgumentNode node, User author, Map<String, Object> params) throws ImmutableNodeException, NodeRulesException {

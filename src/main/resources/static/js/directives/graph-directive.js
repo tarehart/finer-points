@@ -3,9 +3,9 @@
 
     angular
         .module('nodeStandControllers')
-        .directive('nodeGraph', ['$routeParams', '$modal', '$location', 'NodeCache', nodeGraph]);
+        .directive('nodeGraph', ['$routeParams', '$uibModal', '$location', 'NodeCache', nodeGraph]);
 
-    function nodeGraph($routeParams, $modal, $location, NodeCache) {
+    function nodeGraph($routeParams, $uibModal, $location, NodeCache) {
         return {
             restrict: "A",
             scope: {
@@ -13,17 +13,30 @@
             },
             templateUrl: "partials/graph.html",
             link: function (scope) {
-                initializeGraph(scope, $routeParams, $modal, $location, NodeCache);
+                initializeGraph(scope, $routeParams, $uibModal, $location, NodeCache);
             }
         }
     }
 
-    function initializeGraph($scope, $routeParams, $modal, $location, NodeCache) {
+    function initializeGraph($scope, $routeParams, $uibModal, $location, NodeCache) {
 
         $scope.publishableNodes = [];
 
         $scope.enterEditMode = function (node) {
-            node.inEditMode = true;
+            if (node.body.public) {
+                toastr.info("Not a private draft, should make one now.");
+                NodeCache.makeDraft(node, $scope.rootNode, function(draftNode, data) {
+
+                    $location.path("/graph/" + data.graph.rootStableId);
+
+                }, function (err) {
+
+                    toastr.error(err.message);
+                });
+
+            } else {
+                node.inEditMode = true;
+            }
         };
 
         if ($routeParams && $routeParams.rootStableId) {
@@ -124,23 +137,9 @@
                     toastr.error(err.message);
                 });
             } else {
-                // At the moment, this list of rootNodes is always size 1.
-                // The reason it's currently a list and not just a variable is to support the way that
-                // the angular template kicks off its recursion.
-                var rootNode = $scope.rootNodes[0];
 
-                NodeCache.saveNodeEdit(node, rootNode, function(editedNode, data) {
-                    var editedNode = data.editedNode; // TODO: what is the editedNode param doing here?
-                    if (node.id != editedNode.id) { // This indicates that the node had never before been saved.
-
-                        // TODO: this shouldn't be necessary because the NodeCache should be updating the node
-                        // in a stable way.
-                        $scope.enterEditMode(editedNode);
-
-                        if (data.graph) {
-                            $location.path("/graph/" + data.graph.rootStableId);
-                        }
-                    }
+                NodeCache.saveNodeEdit(node, $scope.rootNode, function(editedNode, data) {
+                    toastr.success("Saved successfully!");
                 }, function (err) {
                     toastr.error(err.message);
                 });
@@ -210,7 +209,7 @@
                 }
             }
 
-            $modal.open({
+            $uibModal.open({
                 templateUrl: "partials/link-child.html",
                 controller: "LinkChildController",
                 resolve: {
@@ -237,6 +236,7 @@
                     var rootNode = $scope.rootNodes[0];
 
                     if (node === rootNode) {
+                        NodeCache.get(resultingNode.id).hasFullGraph = false; // Make sure the full graph is fetched again upon reload.
                         $location.path("/graph/" + resultingNode.stableId); // Change url back to public version
                     } else {
                         // TODO: it seems like this is not getting rid of the publish buttons on children as expected.
