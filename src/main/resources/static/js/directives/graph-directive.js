@@ -50,10 +50,12 @@
         } else if ($scope.starterNode) {
             $scope.rootNodes = [$scope.starterNode];
             $scope.rootNode = $scope.rootNodes[0];
+            $scope.$broadcast("rootData", $scope.rootNode);
         } else {
             var starterNode = NodeCache.getOrCreateDraftNode();
             $scope.rootNodes = [starterNode];
             $scope.rootNode = $scope.rootNodes[0];
+            $scope.$broadcast("rootData", $scope.rootNode);
             $scope.draftNodes = [starterNode];
             $scope.enterEditMode(starterNode);
             starterNode.isSelected = true;
@@ -161,9 +163,10 @@
             for (var i = node.children.length - 1; i >= 0; i--) {
                 var child = node.children[i];
                 var expectedId = child.body.majorVersion.id;
-                if (idsInBody.indexOf(expectedId) < 0) {
+                if (idsInBody.indexOf("" + expectedId) < 0) {
                     // Remove the child
                     node.children.splice(i, 1);
+                    $scope.$broadcast("edgeRemoved", node, child);
 
                     // Keep the removed child around to support a text-based undo of the deletion.
                     node.deletedChildren = node.deletedChildren || {};
@@ -178,6 +181,7 @@
                     var nodeForId = node.deletedChildren[id];
                     if (nodeForId && node.children.indexOf(nodeForId) < 0) {
                         node.children.push(nodeForId);
+                        $scope.$broadcast("edgeAdded", node, nodeForId);
                     }
                 });
             }
@@ -193,7 +197,9 @@
 
                 saveChanges(node);
                 ensureDetail(child);
-                NodeCache.fetchGraphForId(child.stableId);
+                NodeCache.fetchGraphForId(child.stableId, function() {
+                    $scope.$broadcast("nodeAdded", node, child);
+                });
             }
 
             function errorHandler(err) {
