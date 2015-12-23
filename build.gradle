@@ -15,6 +15,18 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
 apply plugin: 'docker'
+apply plugin: 'war'
+
+
+war {
+    baseName = 'FinerPoints'
+    version =  '0.1.0'
+}
+
+
+configurations {
+    providedRuntime
+}
 
 group = 'tarehart'
 
@@ -32,6 +44,7 @@ bootRun {
 }
 
 repositories {
+    jcenter()
     mavenLocal()
     mavenCentral()
     maven { url "https://repo.spring.io/libs-release" }
@@ -42,6 +55,7 @@ repositories {
 }
 
 dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.boot:spring-boot-starter-thymeleaf")
     compile("org.springframework.boot:spring-boot-starter-security")
     compile("org.springframework.social:spring-social-google:1.0.0.RELEASE")
@@ -55,6 +69,8 @@ dependencies {
     testCompile("junit:junit")
     testCompile(group: 'org.neo4j', name: 'neo4j-ogm', version: '1.1.5-SNAPSHOT', classifier: 'tests')
     testCompile(group: 'org.neo4j.test', name: 'neo4j-harness', version: '2.3.1')
+
+    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
 }
 
 task wrapper(type: Wrapper) {
