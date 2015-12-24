@@ -23,6 +23,9 @@ war {
     version =  '0.1.0'
 }
 
+bootRepackage.doLast {
+  ant.unzip(src: war.archivePath, dest: "$buildDir/exploded")
+}
 
 configurations {
     providedRuntime
