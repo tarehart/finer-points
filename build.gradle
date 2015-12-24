@@ -55,8 +55,9 @@ repositories {
 }
 
 dependencies {
-    providedRuntime("org.springframework.boot:spring-boot-starter-web")
+    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
 
+    compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.boot:spring-boot-starter-thymeleaf")
     compile("org.springframework.boot:spring-boot-starter-security")
     compile("org.springframework.social:spring-social-google:1.0.0.RELEASE")
