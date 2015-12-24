@@ -1,42 +1,23 @@
 package com.nodestand;
 
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.data.neo4j.config.Neo4jConfiguration;
-import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
-import org.springframework.data.neo4j.server.Neo4jServer;
-import org.springframework.data.neo4j.server.RemoteServer;
+import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 
 @SpringBootApplication
 @EnableConfigurationProperties
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@EnableNeo4jRepositories(basePackages = "com.nodestand.nodes")
-public class Application extends Neo4jConfiguration {
+public class Application extends SpringBootServletInitializer {
 
     public Application() {
     }
 
     @Override
-    public Neo4jServer neo4jServer() {
-        return new RemoteServer("http://neo4j:pw@localhost:7474");
-    }
-
-    @Override
-    public SessionFactory getSessionFactory() {
-        return new SessionFactory("com.nodestand.nodes");
-    }
-
-    @Bean
-    @Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public Session getSession() throws Exception {
-        return super.getSession();
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(Application.class);
     }
 
     public static void main(String[] args) {
