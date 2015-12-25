@@ -1,22 +1,26 @@
 <div class="vote-cluster">
-    <button class="btn btn-default btn-xs vote-great" tooltip-placement="right"
-            uib-tooltip="Vote: I agree, and this node is well written.">
-        <span class="vote-num">{{votes.great.num}}</span>
-        <div class="vote-meter" ng-style="{width: votes.great.pct + '%'}"></div>
-    </button>
-    <button class="btn btn-default btn-xs vote-weak" tooltip-placement="right"
-            uib-tooltip="Vote: I agree, but this node needs improvement.">
-        <span class="vote-num">{{votes.weak.num}}</span>
-        <div class="vote-meter" ng-style="{width: votes.weak.pct + '%'}"></div>
-    </button>
-    <button class="btn btn-default btn-xs vote-touche" tooltip-placement="right"
-            uib-tooltip="Vote: I disagree, but this node is well written.">
-        <span class="vote-num">{{votes.touche.num}}</span>
-        <div class="vote-meter" ng-style="{width: votes.touche.pct + '%'}"></div>
-    </button>
-    <button class="btn btn-default btn-xs vote-trash" tooltip-placement="right"
-            uib-tooltip="Vote: I disagree, and this node has poor quality.">
-        <span class="vote-num">{{votes.trash.num}}</span>
-        <div class="vote-meter" ng-style="{width: votes.trash.pct + '%'}"></div>
-    </button>
+    <img src="/img/votes-banner.png" class="vote-label" />
+
+    <div class="vote-stack">
+        <button class="btn btn-default btn-xs vote-great" tooltip-placement="right"
+                uib-tooltip="Vote: I agree, and this node is well written.">
+            <span class="vote-num">{{votes.great.num}}</span>
+            <div class="vote-meter" ng-style="{width: votes.great.pct + '%'}"></div>
+        </button>
+        <button class="btn btn-default btn-xs vote-weak" tooltip-placement="right"
+                uib-tooltip="Vote: I agree, but this node needs improvement.">
+            <span class="vote-num">{{votes.weak.num}}</span>
+            <div class="vote-meter" ng-style="{width: votes.weak.pct + '%'}"></div>
+        </button>
+        <button class="btn btn-default btn-xs vote-touche" tooltip-placement="right"
+                uib-tooltip="Vote: I disagree, but this node is well written.">
+            <span class="vote-num">{{votes.touche.num}}</span>
+            <div class="vote-meter" ng-style="{width: votes.touche.pct + '%'}"></div>
+        </button>
+        <button class="btn btn-default btn-xs vote-trash" tooltip-placement="right"
+                uib-tooltip="Vote: I disagree, and this node has poor quality.">
+            <span class="vote-num">{{votes.trash.num}}</span>
+            <div class="vote-meter" ng-style="{width: votes.trash.pct + '%'}"></div>
+        </button>
+    </div>
 </div>

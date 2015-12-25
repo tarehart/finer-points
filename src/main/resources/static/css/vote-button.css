@@ -9,41 +9,57 @@
     display: block;
     position:relative;
     text-align: left;
-    margin-bottom: 2px;
-    background-color: #fcfcfc;
+    margin-bottom: 4px;
+    border: none;
+    border-radius: 1px;
+}
+
+.vote-weak {
+    background-color: #F7F2E0;
 }
 
 .vote-weak .vote-meter {
-    border-bottom: 2px solid #ffdb00;
-    background-color: #fdff80;
+    background-color: #FFBC00;
+}
+
+.vote-great {
+    background-color: #DEEFE2;
 }
 
 .vote-great .vote-meter {
-    border-bottom: 2px solid green;
-    background-color: #defadd;
+    background-color: green;
+}
+
+.vote-trash {
+    background-color: #F7ECEE;
 }
 
 .vote-trash .vote-meter {
-    border-bottom: 2px solid red;
-    background-color: #ffe4e1;
+    background-color: red;
+}
+
+.vote-touche {
+    background-color: #ECE6F7;
 }
 
 .vote-touche .vote-meter {
-    border-bottom: 2px solid purple;
-    background-color: #e9dcf7;
+    background-color: purple;
 }
 
 .vote-meter {
     position: absolute;
     bottom: 0;
     left: 0;
-    height: 40%;
-    z-index: 1;
-    border-radius: 3px;
+    height: 2px;
 }
 
-.vote-num {
-    position: relative;
-    z-index: 2;
-    background-color: rgba(255, 255, 255, 0.5);
+.vote-label {
+    background: url('/img/votes-banner.png');
+    opacity: 0.3;
+    margin-right: 2px;
+    vertical-align: top;
+}
+
+.vote-stack {
+    display: inline-block;
 }
