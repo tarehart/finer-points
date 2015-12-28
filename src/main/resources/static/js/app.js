@@ -8,6 +8,10 @@ var nodeStandApp = angular.module('nodeStandApp', [
 nodeStandApp.config(['$routeProvider',
     function($routeProvider) {
         $routeProvider.
+            when('/', {
+                templateUrl: 'partials/gateway.html',
+                controller: 'GatewayController'
+            }).
             when('/graph', {
                 templateUrl: 'partials/node-menu.html',
                 controller: 'NodeMenuController'
@@ -27,6 +31,6 @@ nodeStandApp.config(['$routeProvider',
                 controller: 'DetailController'
             }).
             otherwise({
-                redirectTo: '/graph'
+                redirectTo: '/'
             });
     }]);

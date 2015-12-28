@@ -22,4 +22,11 @@ public class NodeMenuController {
         return argumentNodeRepository.getAllNodesRich();
     }
 
+    @Transactional
+    @RequestMapping("/rootNodes")
+    public Set<ArgumentNode> getRootNodes() {
+
+        return argumentNodeRepository.getRootNodesRich();
+    }
+
 }

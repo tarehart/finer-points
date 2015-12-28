@@ -21,3 +21,15 @@ a:visited {
 a:hover {
     text-decoration: underline;
 }
+
+.hero-emphasis {
+    font-weight: bold;
+    font-size: 120%;
+    font-style: italic;
+    color: #149359;
+    font-family: "Gill Sans", "Gill Sans MT", Calibri, sans-serif;
+}
+
+.panel-heading h3 {
+    margin: 0;
+}

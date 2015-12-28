@@ -27,4 +27,7 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
 
     @Query("match p=(node:ArgumentNode)-[:DEFINED_BY]->(body:ArgumentBody)-[:AUTHORED_BY]->(:User) return p")
     Set<ArgumentNode> getAllNodesRich();
+
+    @Query("match p=(n:AssertionNode)-[:DEFINED_BY]->(:ArgumentBody)-[:AUTHORED_BY]->(:User) where not (:AssertionNode)-[:SUPPORTED_BY]->(n) return p")
+    Set<ArgumentNode> getRootNodesRich();
 }
