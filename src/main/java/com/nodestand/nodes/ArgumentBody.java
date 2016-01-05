@@ -9,6 +9,8 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.DateLong;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @NodeEntity
 public abstract class ArgumentBody implements Commentable {
@@ -27,8 +29,33 @@ public abstract class ArgumentBody implements Commentable {
     @Relationship(type="VERSION_OF", direction = Relationship.OUTGOING)
     private MajorVersion majorVersion;
 
-//    @Relationship(type="DEFINED_BY", direction = Relationship.INCOMING)
-//    protected Set<ArgumentNode> dependentNodes;
+    /*
+     In CypherContext.java, I've found that the registeredRelationships field contains relationships that are quite
+     wrong, e.g. startNodeId does not match startNodeType. Probably a bug in the OGM.
+
+     GraphEntityMapper.java:335 is calling in with mismatched id and type. That might be the source of the problem.
+
+     You can kick off this behavior by voting for everything (nothing gets cleared) and then voting great.
+     */
+    @Relationship(type="VOTE_GREAT", direction = Relationship.INCOMING)
+    private Set<User> greatVoters;
+
+    public Integer greatVotes;
+
+    @Relationship(type="VOTE_WEAK", direction = Relationship.INCOMING)
+    private Set<User> weakVoters;
+
+    public Integer weakVotes;
+
+    @Relationship(type="VOTE_TOUCHE", direction = Relationship.INCOMING)
+    private Set<User> toucheVoters;
+
+    public Integer toucheVotes;
+
+    @Relationship(type="VOTE_TRASH", direction = Relationship.INCOMING)
+    private Set<User> trashVoters;
+
+    public Integer trashVotes;
 
     private int minorVersion;
 
@@ -124,5 +151,80 @@ public abstract class ArgumentBody implements Commentable {
 
     public void setDateEdited(Date dateEdited) {
         this.dateEdited = dateEdited;
+    }
+
+    /**
+     * Votes MUST be loaded first, or we won't unregister properly.
+     */
+    public void registerGreatVote(User voter) throws NodeRulesException {
+        clearExistingVote(voter);
+        greatVoters.add(voter);
+        greatVotes++;
+    }
+
+    /**
+     * Votes MUST be loaded first, or we won't unregister properly.
+     */
+    public void registerWeakVote(User voter) throws NodeRulesException {
+        clearExistingVote(voter);
+        weakVoters.add(voter);
+        weakVotes++;
+    }
+
+    /**
+     * Votes MUST be loaded first, or we won't unregister properly.
+     */
+    public void registerToucheVote(User voter) throws NodeRulesException {
+        clearExistingVote(voter);
+        toucheVoters.add(voter);
+        toucheVotes++;
+    }
+
+    /**
+     * Votes MUST be loaded first, or we won't unregister properly.
+     */
+    public void registerTrashVote(User voter) {
+        clearExistingVote(voter);
+        trashVoters.add(voter);
+        trashVotes++;
+    }
+
+    private void clearExistingVote(User voter) {
+        if (greatVoters == null) {
+            greatVoters = new HashSet<>();
+            greatVotes = 0;
+        }
+        if (weakVoters == null) {
+            weakVoters = new HashSet<>();
+            weakVotes = 0;
+        }
+        if (toucheVoters == null) {
+            toucheVoters = new HashSet<>();
+            toucheVotes = 0;
+        }
+        if (trashVoters == null) {
+            trashVoters = new HashSet<>();
+            trashVotes = 0;
+        }
+
+        if (greatVoters.remove(voter)) {
+            greatVotes--;
+        }
+        if (weakVoters.remove(voter)) {
+            weakVotes--;
+        }
+        if (toucheVoters.remove(voter)) {
+            toucheVotes--;
+        }
+        if (trashVoters.remove(voter)) {
+            trashVotes--;
+        }
+    }
+
+    /**
+     * Votes MUST be loaded first, or we won't unregister properly.
+     */
+    public void revokeVote(User user) {
+        clearExistingVote(user);
     }
 }
