@@ -1,6 +1,8 @@
 package com.nodestand.ogm;
 
 import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.NodeRulesException;
+import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationBody;
@@ -17,10 +19,11 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 import java.io.IOException;
 import java.util.*;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
-public class OgmBugTests {
+public class OgmRealWorldBugTests {
 
     @Rule
     public Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
@@ -69,5 +72,29 @@ public class OgmBugTests {
         }
 
         assertTrue(foundInterp);
+    }
+
+    @Test
+    public void deleteIncomingRelationship() throws NodeRulesException {
+        AssertionBody assertionBody = new AssertionBody();
+        User user = new User("social-id", "Ladybug", User.Roles.ROLE_USER);
+
+        assertionBody.registerGreatVote(user);
+        session.save(assertionBody);
+        session.clear();
+
+        assertionBody = session.load(AssertionBody.class, assertionBody.getId());
+        assertionBody.registerWeakVote(user);
+        session.save(assertionBody);
+        session.clear();
+
+        assertionBody = session.load(AssertionBody.class, assertionBody.getId());
+        assertionBody.registerToucheVote(user);
+        session.save(assertionBody);
+        session.clear();
+
+        assertionBody = session.load(AssertionBody.class, assertionBody.getId());
+
+        assertTrue(assertionBody.greatVotes >= 0);
     }
 }
