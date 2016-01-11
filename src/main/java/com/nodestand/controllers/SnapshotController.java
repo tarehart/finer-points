@@ -56,7 +56,8 @@ public class SnapshotController {
     @RequestMapping("/snapshotNode")
     public ArgumentNode publishNode(@RequestBody Map<String, Object> params) throws Exception {
 
-        User user = nodeUserDetailsService.getUserFromSession();
+        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        User user = session.load(User.class, userId);
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
 
         ArgumentNode existingNode = BugMitigator.loadArgumentNode(session, nodeId, 2);

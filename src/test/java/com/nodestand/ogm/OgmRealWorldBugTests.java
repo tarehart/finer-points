@@ -73,28 +73,4 @@ public class OgmRealWorldBugTests {
 
         assertTrue(foundInterp);
     }
-
-    @Test
-    public void deleteIncomingRelationship() throws NodeRulesException {
-        AssertionBody assertionBody = new AssertionBody();
-        User user = new User("social-id", "Ladybug", User.Roles.ROLE_USER);
-
-        assertionBody.registerGreatVote(user);
-        session.save(assertionBody);
-        session.clear();
-
-        assertionBody = session.load(AssertionBody.class, assertionBody.getId());
-        assertionBody.registerWeakVote(user);
-        session.save(assertionBody);
-        session.clear();
-
-        assertionBody = session.load(AssertionBody.class, assertionBody.getId());
-        assertionBody.registerToucheVote(user);
-        session.save(assertionBody);
-        session.clear();
-
-        assertionBody = session.load(AssertionBody.class, assertionBody.getId());
-
-        assertTrue(assertionBody.greatVotes >= 0);
-    }
 }

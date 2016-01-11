@@ -56,12 +56,12 @@ public class PublishController {
     @RequestMapping("/publishNode")
     public ArgumentNode publishNode(@RequestBody Map<String, Object> params) throws Exception {
 
-        User user = nodeUserDetailsService.getUserFromSession();
+        Long userId = nodeUserDetailsService.getUserIdFromSession();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
 
         ArgumentNode existingNode = BugMitigator.loadArgumentNode(session, nodeId, 2);
 
-        if (!user.getNodeId().equals(existingNode.getBody().author.getNodeId())) {
+        if (!userId.equals(existingNode.getBody().author.getNodeId())) {
             throw new NotAuthorizedException("Not allowed to publish a draft that you did not create.");
         }
 

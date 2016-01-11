@@ -94,7 +94,8 @@ public class EditController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/makeDraft")
     public EditResult makeDraft(@RequestBody Map<String, Object> params) throws NotAuthorizedException, ImmutableNodeException, NodeRulesException {
-        User user = nodeUserDetailsService.getUserFromSession();
+        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        User user = session.load(User.class, userId);
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
         String rootStableId = (String) params.get("rootStableId");
 
@@ -133,7 +134,8 @@ public class EditController {
 
     private ArgumentNode editNode(Map<String, Object> params) throws NotAuthorizedException, NodeRulesException, ImmutableNodeException {
 
-        User user = nodeUserDetailsService.getUserFromSession();
+        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        User user = session.load(User.class, userId);
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
 
         ArgumentNode existingNode = BugMitigator.loadArgumentNode(session, nodeId, 2);

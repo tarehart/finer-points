@@ -65,7 +65,8 @@ public class CreateController {
     @RequestMapping("/createAssertion")
     public ArgumentNode createAssertion(@RequestBody Map<String, Object> params) {
 
-        User user = nodeUserDetailsService.getUserFromSession();
+        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        User user = session.load(User.class, userId);
 
         AssertionBody assertionBody = new AssertionBody((String) params.get("title"), (String) params.get("body"), user);
         List<Integer> linkedNodes = (List<Integer>) params.get("links");
@@ -86,7 +87,8 @@ public class CreateController {
     @RequestMapping("/createInterpretation")
     public ArgumentNode createInterpretation(@RequestBody Map<String, Object> params) {
 
-        User user = nodeUserDetailsService.getUserFromSession();
+        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        User user = session.load(User.class, userId);
 
         InterpretationBody interpretationBody = new InterpretationBody((String) params.get("title"), (String) params.get("body"), user);
 
@@ -108,7 +110,8 @@ public class CreateController {
     @RequestMapping("/createSource")
     public ArgumentNode createSource(@RequestBody Map<String, Object> params) {
 
-        User user = nodeUserDetailsService.getUserFromSession();
+        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        User user = session.load(User.class, userId);
 
         SourceBody sourceBody = new SourceBody((String) params.get("title"), user, (String) params.get("url"));
 

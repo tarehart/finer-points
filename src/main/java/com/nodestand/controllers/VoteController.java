@@ -1,11 +1,11 @@
 package com.nodestand.controllers;
 
 import com.nodestand.nodes.ArgumentBody;
-import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.comment.Comment;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
+import com.nodestand.nodes.vote.VoteType;
 import com.nodestand.service.NodeUserDetailsService;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
-import java.util.Set;
 
 @RestController
 public class VoteController {
@@ -35,7 +34,8 @@ public class VoteController {
     @RequestMapping("/upvoteComment")
     public void upvoteComment(@RequestBody Map<String, Object> params) throws NodeRulesException {
 
-        User user = nodeUserDetailsService.getUserFromSession();
+        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        User user = session.load(User.class, userId);
 
         String commentId = (String) params.get("commentId");
 
@@ -52,41 +52,32 @@ public class VoteController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/voteBody")
     public void voteBody(@RequestBody Map<String, Object> params) throws NodeRulesException {
-        User user = nodeUserDetailsService.getUserFromSession();
+        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        User user = session.load(User.class, userId);
 
         Long bodyId = Long.valueOf((Integer) params.get("bodyId"));
         ArgumentBody body = session.load(ArgumentBody.class, bodyId);
-        String voteType = (String) params.get("voteType");
+        String voteTypeStr = (String) params.get("voteType");
+        VoteType voteType = VoteType.valueOf(voteTypeStr.toUpperCase());
 
-        switch (voteType) {
-            case "great":
-                body.registerGreatVote(user);
-                break;
-            case "weak":
-                body.registerWeakVote(user);
-                break;
-            case "touche":
-                body.registerToucheVote(user);
-                break;
-            case "trash":
-                body.registerTrashVote(user);
-                break;
-            default:
-                throw new NodeRulesException("Unrecognized vote type: " + voteType);
-        }
-        session.save(body);
+        user.registerVote(body, voteType);
+
+        session.save(user);
     }
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/unvoteBody")
     public void unvoteBody(@RequestBody Map<String, Object> params) throws NodeRulesException {
-        User user = nodeUserDetailsService.getUserFromSession();
+        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        User user = session.load(User.class, userId);
 
         Long bodyId = Long.valueOf((Integer) params.get("bodyId"));
         ArgumentBody body = session.load(ArgumentBody.class, bodyId);
-        body.revokeVote(user);
+        user.revokeVote(body);
+
         session.save(body);
+        session.save(user);
     }
 
 

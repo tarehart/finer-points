@@ -31,10 +31,6 @@ public class NodeUserDetailsServiceImpl implements NodeUserDetailsService {
     @Autowired
     private Session session;
 
-    public User getCurrentUser() {
-        return getUserFromSession();
-    }
-
     @Override
     public void setCurrentUser(User user) {
         setUserInSession(user);
@@ -42,7 +38,7 @@ public class NodeUserDetailsServiceImpl implements NodeUserDetailsService {
 
     @Override
     public boolean userSignedIn() {
-        return getCurrentUser() != null;
+        return getUserIdFromSession() != null;
     }
 
     @Override
@@ -75,8 +71,7 @@ public class NodeUserDetailsServiceImpl implements NodeUserDetailsService {
 
     }
 
-    @Override
-    public User getUserFromSession() {
+    private User getUserFromSession() {
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();
         if (authentication == null) {
@@ -90,6 +85,17 @@ public class NodeUserDetailsServiceImpl implements NodeUserDetailsService {
         return null;
     }
 
+    @Override
+    public Long getUserIdFromSession() {
+        User user = getUserFromSession();
+        return user == null ? null : user.getNodeId();
+    }
+
+    @Override
+    public String getSocialIdFromSession() {
+        User user = getUserFromSession();
+        return user == null ? null : user.getSocialId();
+    }
 
     @Override
     @Transactional

@@ -1,13 +1,24 @@
 package com.nodestand.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nodestand.nodes.vote.ArgumentVote;
+import com.nodestand.nodes.vote.VoteType;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 import org.springframework.security.core.GrantedAuthority;
+
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 @NodeEntity
 public class User {
     @GraphId Long nodeId;
+
+    // TODO: this damned thing won't load from the database. Tried it with and without the @Relationship.
+    @Relationship(type="ARGUMENT_VOTE", direction = Relationship.OUTGOING)
+    private Set<ArgumentVote> argumentVotes;
 
     //@Indexed
     String displayName;
@@ -68,6 +79,43 @@ public class User {
 
     public Long getNodeId() {
         return nodeId;
+    }
+
+    public void registerVote(ArgumentBody body, VoteType voteType) throws NodeRulesException {
+
+        if (argumentVotes == null) {
+            argumentVotes = new HashSet<>();
+        }
+
+        Optional<ArgumentVote> existingVote = argumentVotes.stream().filter(v -> v.argumentBody.getId().equals(body.getId())).findFirst();
+
+
+        if (existingVote.isPresent()) {
+            ArgumentVote vote = existingVote.get();
+            if (!vote.voteType.equals(voteType)) {
+                body.decrementVote(vote.voteType);
+                body.incrementVote(voteType);
+                existingVote.get().voteType = voteType;
+            }
+        } else {
+            ArgumentVote newVote = new ArgumentVote();
+            newVote.voteType = voteType;
+            newVote.argumentBody = body;
+            newVote.user = this;
+            argumentVotes.add(newVote);
+            body.incrementVote(voteType);
+        }
+    }
+
+
+    public void revokeVote(ArgumentBody body) throws NodeRulesException {
+
+        Optional<ArgumentVote> existingVote = argumentVotes.stream().filter(v -> v.argumentBody.getId().equals(body.getId())).findFirst();
+        if (existingVote.isPresent()) {
+            body.decrementVote(existingVote.get().voteType);
+        }
+
+        argumentVotes.removeIf(v -> v.argumentBody.getId().equals(body.getId()));
     }
 
     @Override

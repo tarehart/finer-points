@@ -62,8 +62,8 @@ public class SocialConfig extends SocialConfigurerAdapter {
     @Bean
     @Scope(value="request", proxyMode=ScopedProxyMode.INTERFACES)
     public ConnectionRepository connectionRepository() {
-        User user = userDetailsService.getUserFromSession();
-        return getUsersConnectionRepository(connectionFactoryLocator()).createConnectionRepository(user.getSocialId());
+        String socialId = userDetailsService.getSocialIdFromSession();
+        return getUsersConnectionRepository(connectionFactoryLocator()).createConnectionRepository(socialId);
     }
 
     /**

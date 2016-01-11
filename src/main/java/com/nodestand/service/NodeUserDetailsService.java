@@ -21,7 +21,9 @@ public interface NodeUserDetailsService extends UserDetailsService {
     @Override
     NodeUserDetails loadUserByUsername(String login) throws UsernameNotFoundException, DataAccessException;
 
-    User getUserFromSession();
+    Long getUserIdFromSession();
+
+    String getSocialIdFromSession();
 
     @Transactional
     NodeUserDetails register(String socialId, String login);
