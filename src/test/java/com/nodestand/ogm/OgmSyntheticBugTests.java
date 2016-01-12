@@ -2,8 +2,8 @@ package com.nodestand.ogm;
 
 import com.nodestand.domain.Candidate;
 import com.nodestand.domain.Voter;
-import com.nodestand.nodes.NodeRulesException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -35,6 +35,7 @@ public class OgmSyntheticBugTests {
         return neo4jRule.getGraphDatabaseService();
     }
 
+    @Ignore
     @Test
     public void deleteIncomingRelationship() {
         Candidate candidate = new Candidate();

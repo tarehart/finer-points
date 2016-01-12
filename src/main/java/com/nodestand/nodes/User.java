@@ -1,7 +1,6 @@
 package com.nodestand.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nodestand.controllers.serial.BodyVote;
 import com.nodestand.nodes.vote.ArgumentVote;
 import com.nodestand.nodes.vote.VoteType;
 import org.neo4j.ogm.annotation.GraphId;
