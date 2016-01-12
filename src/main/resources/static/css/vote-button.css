@@ -18,12 +18,20 @@
     background-color: #F7F2E0;
 }
 
+.vote-weak.chosen {
+    background-color: #f7f46d;
+}
+
 .vote-weak .vote-meter {
     background-color: #FFBC00;
 }
 
 .vote-great {
     background-color: #DEEFE2;
+}
+
+.vote-great.chosen {
+    background-color: #a1ef91;
 }
 
 .vote-great .vote-meter {
@@ -34,12 +42,20 @@
     background-color: #F7ECEE;
 }
 
+.vote-trash.chosen {
+    background-color: #f7bbb8;
+}
+
 .vote-trash .vote-meter {
     background-color: red;
 }
 
 .vote-touche {
     background-color: #ECE6F7;
+}
+
+.vote-touche.chosen {
+    background-color: #c2b5f7;
 }
 
 .vote-touche .vote-meter {

@@ -1,6 +1,7 @@
 package com.nodestand.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nodestand.controllers.serial.BodyVote;
 import com.nodestand.nodes.vote.ArgumentVote;
 import com.nodestand.nodes.vote.VoteType;
 import org.neo4j.ogm.annotation.GraphId;
@@ -9,16 +10,20 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @NodeEntity
 public class User {
     @GraphId Long nodeId;
 
-    // TODO: this damned thing won't load from the database. Tried it with and without the @Relationship.
     @Relationship(type="ARGUMENT_VOTE", direction = Relationship.OUTGOING)
     private Set<ArgumentVote> argumentVotes;
+
+    private Map<Long, VoteType> bodyVotes;
+    //private Set<BodyVote> bodyVotes; // Serialization-friendly version of argumentVotes
 
     //@Indexed
     String displayName;
@@ -55,6 +60,17 @@ public class User {
     @JsonIgnore
     public String getSocialId() {
         return socialId;
+    }
+
+    @Relationship(type="ARGUMENT_VOTE", direction = Relationship.OUTGOING)
+    public void setArgumentVotes(Set<ArgumentVote> argumentVotes) {
+        this.argumentVotes = argumentVotes;
+        bodyVotes = argumentVotes.stream().collect(Collectors.toMap(v -> v.argumentBody.getId(), v -> v.voteType));
+        //bodyVotes = argumentVotes.stream().map(av -> new BodyVote(av.voteType, av.argumentBody.getId())).collect(Collectors.toSet());
+    }
+
+    public Map<Long, VoteType> getBodyVotes() {
+        return bodyVotes;
     }
 
     public enum Roles implements GrantedAuthority {

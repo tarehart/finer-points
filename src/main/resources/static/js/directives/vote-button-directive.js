@@ -3,9 +3,9 @@
 
     angular
         .module('nodeStandControllers')
-        .directive('voteButton', ['$http', voteButton]);
+        .directive('voteButton', ['$http', 'UserService', voteButton]);
 
-    function voteButton($http) {
+    function voteButton($http, UserService) {
         return {
             restrict: "A",
             scope: {
@@ -14,25 +14,53 @@
             templateUrl: "partials/vote-button.html",
             link: function (scope) {
 
-                initializeVoteButton(scope, scope.node, $http);
+                initializeVoteButton(scope, scope.node, $http, UserService);
 
                 scope.$on("rootData", function(evt, rootNode) {
-                   initializeVoteButton(scope, rootNode, $http);
+                   initializeVoteButton(scope, rootNode, $http, UserService);
                 });
             }
         }
     }
 
-    function initializeVoteButton(scope, rootNode, $http) {
+    function initializeVoteButton(scope, rootNode, $http, UserService) {
+
+
+        var user = UserService.getLoggedInUser();
+        if (user == null) {
+            UserService.subscribeSuccessfulLogin(scope, function() {
+                user = UserService.getLoggedInUser();
+                getUserVote();
+            });
+        } else {
+            getUserVote();
+        }
 
         setupMeters();
 
+        function getUserVote() {
+            if (user && user.bodyVotes) {
+                scope.userVote = user.bodyVotes[rootNode.body.id];
+                return scope.userVote;
+            }
+            return null;
+        }
+
+        function setUserVote(voteType) {
+            if (user) {
+                if (!user.bodyVotes) {
+                    user.bodyVotes = {};
+                }
+                scope.userVote = user.bodyVotes[rootNode.body.id] = voteType ? voteType.toUpperCase() : null;
+            }
+        }
+
         function setupMeters() {
-            scope.votes = {great: {}, weak: {}, touche: {}, trash: {}};
+            scope.votes = {GREAT: {}, WEAK: {}, TOUCHE: {}, TRASH: {}};
 
             var max = 0;
             $.each(scope.votes, function (key, val) {
-                val.num = rootNode.body[key + 'Votes'] || 0;  // e.g. body.greatVotes = 5
+                val.num = rootNode.body[getBodyVotesKey(key)] || 0;  // e.g. body.greatVotes = 5
                 if (val.num > max) {
                     max = val.num;
                 }
@@ -43,27 +71,36 @@
             });
         }
 
+        function getBodyVotesKey(voteType) {
+            return voteType.toLowerCase() + 'Votes';
+        }
 
         scope.voteClicked = function(voteType) {
-            if (voteType === rootNode.body.currentUserVote) {
-                revokeVote();
+            if (!user) {
+                toastr.error("Must be logged in to vote!");
+                return;
+            }
+
+            var currentVote = getUserVote();
+            if (voteType === currentVote) {
+                revokeVote(currentVote);
             } else {
-                registerVote(voteType);
+                registerVote(voteType, currentVote);
             }
         };
 
-        function registerVote(voteType) {
+        function registerVote(voteType, currentVote) {
             $http.post('/voteBody',
                 {
                     voteType: voteType,
                     bodyId: rootNode.body.id
                 })
                 .success(function (data) {
-                    if (rootNode.body.currentUserVote) {
-                        rootNode.body[rootNode.body.currentUserVote + 'Votes']--;
+                    if (currentVote) {
+                        rootNode.body[getBodyVotesKey(currentVote)]--;
                     }
-                    rootNode.body[voteType + 'Votes']++;
-                    rootNode.body.currentUserVote = voteType;
+                    rootNode.body[getBodyVotesKey(voteType)]++;
+                    setUserVote(voteType);
                     setupMeters();
                 })
                 .error(function(err) {
@@ -71,14 +108,14 @@
                 });
         }
 
-        function revokeVote() {
+        function revokeVote(currentVote) {
             $http.post('/unvoteBody',
                 {
                     bodyId: rootNode.body.id
                 })
                 .success(function (data) {
-                    rootNode.body[rootNode.body.currentUserVote + 'Votes']--;
-                    rootNode.body.currentUserVote = null;
+                    rootNode.body[getBodyVotesKey(currentVote)]--;
+                    setUserVote(null);
                     setupMeters();
                 })
                 .error(function(err) {
