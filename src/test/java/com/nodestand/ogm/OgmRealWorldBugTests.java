@@ -1,8 +1,6 @@
 package com.nodestand.ogm;
 
 import com.nodestand.nodes.ArgumentNode;
-import com.nodestand.nodes.NodeRulesException;
-import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationBody;
@@ -12,14 +10,16 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
@@ -28,13 +28,20 @@ public class OgmRealWorldBugTests {
     @Rule
     public Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
 
-    private static final SessionFactory sessionFactory = new SessionFactory("com.nodestand.nodes");
+    private static final SessionFactory sessionFactory;
+
+    static {
+        Configuration config = new Configuration();
+        config.driverConfiguration()
+                .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
+        sessionFactory = new SessionFactory(config, "com.nodestand.nodes");
+    }
 
     private Session session;
 
     @Before
     public void init() throws IOException {
-        session = sessionFactory.openSession(neo4jRule.url());
+        session = sessionFactory.openSession();
     }
 
     private GraphDatabaseService getDatabase() {

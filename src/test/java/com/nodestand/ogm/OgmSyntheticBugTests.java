@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
@@ -22,17 +22,20 @@ public class OgmSyntheticBugTests {
     @Rule
     public Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
 
-    private static final SessionFactory sessionFactory = new SessionFactory("com.nodestand.domain");
+    private static final SessionFactory sessionFactory;
+
+    static {
+        Configuration config = new Configuration();
+        config.driverConfiguration()
+                .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
+        sessionFactory = new SessionFactory(config, "com.nodestand.domain");
+    }
 
     private Session session;
 
     @Before
     public void init() throws IOException {
-        session = sessionFactory.openSession(neo4jRule.url());
-    }
-
-    private GraphDatabaseService getDatabase() {
-        return neo4jRule.getGraphDatabaseService();
+        session = sessionFactory.openSession();
     }
 
     @Ignore
