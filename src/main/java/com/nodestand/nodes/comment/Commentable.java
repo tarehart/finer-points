@@ -4,4 +4,6 @@ import org.neo4j.ogm.annotation.NodeEntity;
 
 @NodeEntity
 public interface Commentable {
+
+    public Long getId();
 }

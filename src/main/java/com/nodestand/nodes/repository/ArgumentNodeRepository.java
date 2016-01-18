@@ -1,11 +1,9 @@
 package com.nodestand.nodes.repository;
 
 import com.nodestand.nodes.ArgumentNode;
-import org.neo4j.ogm.session.result.Result;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,4 +28,16 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
 
     @Query("match p=(n:AssertionNode)-[:DEFINED_BY]->(:ArgumentBody)-[:AUTHORED_BY]->(:User) where not (:AssertionNode)-[:SUPPORTED_BY]->(n) return p")
     Set<ArgumentNode> getRootNodesRich();
+
+    @Query("start n=node({0}) match body-[VERSION_OF]->n return max(body.minorVersion)")
+    Integer getMaxMinorVersion(long majorVersionId);
+
+
+    @Query("start n=node({id}) match node-[DEFINED_BY]->n return max(node.buildVersion)")
+    Integer getMaxBuildVersion(long bodyId);
+
+    @Query("start n=node({id}) match n-[:SUPPORTED_BY*0..]->(support:ArgumentNode) " +
+            "WHERE NOT support-[:INTERPRETS]->(:SourceNode) AND NOT support-[:SUPPORTED_BY]->(:ArgumentNode) return support")
+    Set<ArgumentNode> getUnsupportedNodes(long nodeId);
+
 }

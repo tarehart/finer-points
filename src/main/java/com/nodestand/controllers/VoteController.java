@@ -31,13 +31,14 @@ public class VoteController {
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
-    @RequestMapping("/upvoteComment")
-    public void upvoteComment(@RequestBody Map<String, Object> params) throws NodeRulesException {
+    @RequestMapping("/voteComment")
+    public void voteComment(@RequestBody Map<String, Object> params) throws NodeRulesException {
 
         Long userId = nodeUserDetailsService.getUserIdFromSession();
         User user = session.load(User.class, userId);
 
         String commentId = (String) params.get("commentId");
+        Boolean isUpvote = (Boolean) params.get("isUpvote");
 
         Comment comment = session.load(Comment.class, Long.parseLong(commentId));
 
@@ -45,7 +46,23 @@ public class VoteController {
             throw new NodeRulesException("Can't upvote your own comment!");
         }
 
-        comment.registerUpVote(user);
+        user.registerCommentVote(comment, isUpvote);
+
+        session.save(user);
+    }
+
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @RequestMapping("/unvoteComment")
+    public void unvoteComment(@RequestBody Map<String, Object> params) throws NodeRulesException {
+        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        User user = session.load(User.class, userId);
+
+        Long commentId = Long.valueOf((Integer) params.get("commentId"));
+        Comment comment = session.load(Comment.class, commentId);
+        user.revokeCommentVote(comment);
+
+        session.save(user);
     }
 
     @Transactional

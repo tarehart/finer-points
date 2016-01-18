@@ -19,25 +19,20 @@ public class Comment implements Commentable {
     @Relationship(type="RESPONDS_TO", direction = Relationship.OUTGOING)
     public Commentable parent;
 
-    @Relationship(type="UPVOTED_BY", direction = Relationship.OUTGOING)
-    public HashSet<User> upVoters;
+    public int score;
 
     public String body;
 
     public Comment() {}
 
-    public long getId() {
+    @Override
+    public Long getId() {
         return id;
     }
 
-    public void registerUpVote(User fan) {
-
-        if (upVoters == null) {
-            upVoters = new HashSet<>();
-        }
-        upVoters.add(fan);
+    public void modifyScore(int delta) {
+        score += delta;
     }
-
 
     public Comment(Commentable parent, User author, String body) {
         this.parent = parent;

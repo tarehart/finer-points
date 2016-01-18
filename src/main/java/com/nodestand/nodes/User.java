@@ -1,7 +1,9 @@
 package com.nodestand.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nodestand.nodes.comment.Comment;
 import com.nodestand.nodes.vote.ArgumentVote;
+import com.nodestand.nodes.vote.CommentVote;
 import com.nodestand.nodes.vote.VoteType;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -22,7 +24,12 @@ public class User {
     private Set<ArgumentVote> argumentVotes;
 
     private Map<Long, VoteType> bodyVotes;
-    //private Set<BodyVote> bodyVotes; // Serialization-friendly version of argumentVotes
+
+    @Relationship(type="COMMENT_VOTE", direction = Relationship.OUTGOING)
+    private Set<CommentVote> commentVotes;
+
+    private Map<Long, Boolean> commentVoteMap;
+
 
     //@Indexed
     String displayName;
@@ -65,11 +72,20 @@ public class User {
     public void setArgumentVotes(Set<ArgumentVote> argumentVotes) {
         this.argumentVotes = argumentVotes;
         bodyVotes = argumentVotes.stream().collect(Collectors.toMap(v -> v.argumentBody.getId(), v -> v.voteType));
-        //bodyVotes = argumentVotes.stream().map(av -> new BodyVote(av.voteType, av.argumentBody.getId())).collect(Collectors.toSet());
     }
 
     public Map<Long, VoteType> getBodyVotes() {
         return bodyVotes;
+    }
+
+    @Relationship(type="COMMENT_VOTE", direction = Relationship.OUTGOING)
+    public void setCommentVotes(Set<CommentVote> commentVotes) {
+        this.commentVotes = commentVotes;
+        commentVoteMap = commentVotes.stream().collect(Collectors.toMap(c -> c.comment.getId(), c -> c.isUpvote));
+    }
+
+    public Map<Long, Boolean> getCommentVoteMap() {
+        return commentVoteMap;
     }
 
     public enum Roles implements GrantedAuthority {
@@ -128,10 +144,44 @@ public class User {
         Optional<ArgumentVote> existingVote = argumentVotes.stream().filter(v -> v.argumentBody.getId().equals(body.getId())).findFirst();
         if (existingVote.isPresent()) {
             body.decrementVote(existingVote.get().voteType);
+            argumentVotes.removeIf(v -> v.argumentBody.getId().equals(body.getId()));
+        }
+    }
+
+    public void registerCommentVote(Comment comment, boolean isUpvote) {
+
+        if (commentVotes == null) {
+            commentVotes = new HashSet<>();
         }
 
-        argumentVotes.removeIf(v -> v.argumentBody.getId().equals(body.getId()));
+        Optional<CommentVote> existingVote = commentVotes.stream().filter(v -> v.comment.getId().equals(comment.getId())).findFirst();
+
+        if (existingVote.isPresent()) {
+            CommentVote vote = existingVote.get();
+            if (vote.isUpvote != isUpvote) {
+                comment.modifyScore(isUpvote ? 2 : -2);
+                existingVote.get().isUpvote = isUpvote;
+            }
+        } else {
+            CommentVote newVote = new CommentVote();
+            newVote.isUpvote= isUpvote;
+            newVote.comment = comment;
+            newVote.user = this;
+            commentVotes.add(newVote);
+            // TODO: update comment vote map
+            comment.modifyScore(isUpvote ? 1 : -1);
+        }
     }
+
+    public void revokeCommentVote(Comment comment) throws NodeRulesException {
+
+        Optional<CommentVote> existingVote = commentVotes.stream().filter(v -> v.comment.getId().equals(comment.getId())).findFirst();
+        if (existingVote.isPresent()) {
+            comment.modifyScore(existingVote.get().isUpvote ? -1 : 1);
+            commentVotes.removeIf(v -> v.comment.getId().equals(comment.getId()));
+        }
+    }
+
 
     @Override
     public int hashCode() {

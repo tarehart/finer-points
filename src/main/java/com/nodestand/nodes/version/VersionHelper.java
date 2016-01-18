@@ -11,17 +11,16 @@ import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.util.TwoWayUtil;
 import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
 public class VersionHelper {
-
-    private static final String CURRENT_MAX_KEY = "currentMax";
 
     @Autowired
     ArgumentNodeRepository nodeRepository;
@@ -61,42 +60,22 @@ public class VersionHelper {
     }
 
     private int getNextMinorVersion(MajorVersion majorVersion) {
-        Map<String, Object> params = new HashMap<>();
-        params.put( "id", majorVersion.id );
 
-        Result result = session.query("start n=node({id}) " +
-                "match body-[VERSION_OF]->n " +
-                "return max(body.minorVersion) as " + CURRENT_MAX_KEY, params);
+        Integer max = nodeRepository.getMaxMinorVersion(majorVersion.getId());
 
-        Map<String, Object> resultMap = singleOrNull(result);
-        if (resultMap != null) {
-            int currentMax = (int) resultMap.get(CURRENT_MAX_KEY);
-            return currentMax + 1;
+        if (max != null) {
+            return max + 1;
         }
 
         return 0;
     }
 
-    private Map<String, Object> singleOrNull(Result result) {
-        Iterator<Map<String, Object>> it = result.queryResults().iterator();
-        if (it.hasNext()) {
-            return it.next();
-        }
-        return null;
-    }
-
     private int getNextBuildVersion(ArgumentBody body) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("id", body.getId());
 
-        Result result = session.query("start n=node({id}) " +
-                "match node-[DEFINED_BY]->n " +
-                "return max(node.buildVersion) as " + CURRENT_MAX_KEY, params);
+        Integer max = nodeRepository.getMaxBuildVersion(body.getId());
 
-        Map<String, Object> resultMap = singleOrNull(result);
-        if (resultMap != null) {
-            int currentMax = (int) resultMap.get(CURRENT_MAX_KEY);
-            return currentMax + 1;
+        if (max != null) {
+            return max + 1;
         }
 
         return 0;
@@ -257,16 +236,8 @@ public class VersionHelper {
         // TODO: consider making the isFinalized attribute belong to nodes instead of bodies so that we can easily
         // short-circuit these queries.
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("id", node.getId());
+        Set<ArgumentNode> unsupportedNodes = nodeRepository.getUnsupportedNodes(node.getId());
 
-        Result result = session.query(
-                "start n=node({id}) match n-[:SUPPORTED_BY*0..]->" +
-                        "(support:ArgumentNode) " +
-                        "WHERE NOT support-[:INTERPRETS]->(:SourceNode) " +
-                        "AND NOT support-[:SUPPORTED_BY]->(:ArgumentNode) " +
-                        "return support", params);
-
-        return result.queryResults().iterator().hasNext();
+        return !unsupportedNodes.isEmpty();
     }
 }

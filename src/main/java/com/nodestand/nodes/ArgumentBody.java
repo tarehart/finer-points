@@ -66,6 +66,7 @@ public abstract class ArgumentBody implements Commentable {
         VersionHelper.decorateDraftBody(this);
     }
 
+    @Override
     public Long getId() {
         return id;
     }

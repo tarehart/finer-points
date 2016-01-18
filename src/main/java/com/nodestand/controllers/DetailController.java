@@ -1,12 +1,12 @@
 package com.nodestand.controllers;
 
+import com.nodestand.controllers.serial.QuickCommentResponse;
+import com.nodestand.controllers.serial.QuickEdge;
 import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.comment.Comment;
 import com.nodestand.nodes.comment.Commentable;
-import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.repository.CommentableRepository;
-import com.nodestand.util.BugMitigator;
 import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,19 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @RestController
 public class DetailController {
 
     @Autowired
-    ArgumentNodeRepository repo;
-
-    @Autowired
     Session session;
-
-    @Autowired
-    ArgumentNodeRepository argumentNodeRepository;
 
     @Autowired
     CommentableRepository commentableRepository;
@@ -37,50 +32,20 @@ public class DetailController {
     public Object getGraph(@RequestParam(value="id", required=true) String id) {
 
         // id represents an ArgumentNode id.
-
-        // Sometimes this messes up neo4j's Object Graph Model. Specifically, an AssertionNode can have its
-        // previousVersion inserted into its supportingNodes when spring data neo4j is trying to map raw
-        // json response into POJOs. Steps to duplicate:
-        // 1. Create node structure (:AssertionNode)->(:InterpretationNode)->(:SourceNode)
-        // 2. Publish assertion (publishes all)
-        // 3. Edit the interpretation
-        // 4. Bounce spring
-        // 5. Load the Assertion graph
-        // 6. Expand the assertion node so that it fetches detail
-        //
-        // Deep down in here, things go awry. See the mapRelationships method in GraphEntityMapper.java.
-        // https://jira.spring.io/browse/DATAGRAPH-788
-        ArgumentNode baseNode = BugMitigator.loadArgumentNode(session, Long.parseLong(id), 2);
-
-        Map<String, Object> params = new HashMap<>();
-        params.put("id", baseNode.getBody().getId());
-
-        Result result = session.query("start n=node({id}) " +
-                "match n-[:VERSION_OF]->(mv:MajorVersion) " +
-                "with mv " +
-                "match mv<-[:VERSION_OF]-(argBody:ArgumentBody)<-[resp:RESPONDS_TO*0..]-(node:Commentable)-[:AUTHORED_BY]->author " +
-                "return resp", params);
+        ArgumentNode baseNode = session.load(ArgumentNode.class, Long.parseLong(id), 2);
 
         Set<Commentable> comments = commentableRepository.getComments(baseNode.getBody().getId());
 
-        List<Commentable> nodes = new LinkedList<>();
-        Set<List<Long>> edges = new HashSet<>();
-        Map<String, Object> everything = new HashMap<>();
+        Set<QuickEdge> edges = new HashSet<>();
 
-//        for (Map<String, Object> map: result) {
-//            List<RelationshipProxy> rels = (List<RelationshipProxy>) map.get("resp");
-//            for (RelationshipProxy rel: rels) {
-//                edges.add(Arrays.asList(
-//                        rel.getStartNode().getId(),
-//                        rel.getEndNode().getId()));
-//            }
-//        }
+        for (Commentable c : comments) {
+            if (c instanceof Comment) {
+                Comment comment = (Comment) c;
+                edges.add(new QuickEdge(comment.getId(), comment.parent.getId()));
+            }
+        }
 
-        everything.put("nodes", comments);
-        everything.put("edges", edges);
-        everything.put("node", baseNode);
-
-        return everything;
+        return new QuickCommentResponse(comments, edges, baseNode.getBody().getId());
 
     }
 

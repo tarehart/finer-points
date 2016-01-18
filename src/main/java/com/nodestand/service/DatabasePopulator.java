@@ -92,7 +92,7 @@ public class DatabasePopulator {
         argumentRepository.save(tablesInterpNode);
 
         Comment c1 = new Comment(tablesHelpfulBody, charles, "I agree in principle, but can you refine the logic?");
-        c1.registerUpVote(me);
+        me.registerCommentVote(c1, true);
         commentRepository.save(c1);
 
         Comment c2 = new Comment(c1, me, "Can you be more specific?");
