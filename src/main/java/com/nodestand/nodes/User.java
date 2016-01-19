@@ -74,6 +74,7 @@ public class User {
         bodyVotes = argumentVotes.stream().collect(Collectors.toMap(v -> v.argumentBody.getId(), v -> v.voteType));
     }
 
+    @JsonIgnore
     public Map<Long, VoteType> getBodyVotes() {
         return bodyVotes;
     }
@@ -84,6 +85,7 @@ public class User {
         commentVoteMap = commentVotes.stream().collect(Collectors.toMap(c -> c.comment.getId(), c -> c.isUpvote));
     }
 
+    @JsonIgnore
     public Map<Long, Boolean> getCommentVoteMap() {
         return commentVoteMap;
     }

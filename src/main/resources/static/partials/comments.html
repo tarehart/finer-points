@@ -1,0 +1,36 @@
+<div>
+
+    <script type="text/ng-template" id="commentTree">
+        <div class="commentDiv">
+            <span ng-if="hasComment(comment)">
+
+                <button class="btn icon-btn" ng-click="toggleComments(comment); $event.stopPropagation();">
+                    <span ng-if="comment.hideComments">
+                        <i class="fa fa-plus-circle"></i>
+                    </span>
+                    <span ng-if="!comment.hideComments">
+                        <i class="fa fa-minus-circle"></i>
+                    </span>
+                </button>
+            </span>
+            <span>{{comment.body}}</span>
+
+        </div>
+        <div class="subCommentsContainer" ng-if="hasComment(comment) && !comment.hideComments">
+            <div ng-repeat="comment in comment.comments" ng-include="'commentTree'"></div>
+        </div>
+    </script>
+
+    <div class="commentSection">
+        <h4>Comments</h4>
+        <div ng-if="!hasComment(node)">
+            <span>No comments! Comment functionality coming soon.</span>
+        </div>
+        <a ng-if="!editingTopLevel" ng-click="beginEditingTopLevel()">Add a new comment</a>
+        <div ng-if="editingTopLevel">
+            <textarea node="newComment" set-text="setComment" done-fn="saveComment" markdown-editor>{{newComment.body}}</textarea>
+        </div>
+        <div ng-repeat="comment in node.comments" ng-include="'commentTree'"></div>
+    </div>
+
+</div>

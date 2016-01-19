@@ -1,5 +1,6 @@
 package com.nodestand.nodes.comment;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.User;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -16,6 +17,7 @@ public class Comment implements Commentable {
     @Relationship(type="AUTHORED_BY", direction = Relationship.OUTGOING)
     public User author;
 
+    @JsonIgnore
     @Relationship(type="RESPONDS_TO", direction = Relationship.OUTGOING)
     public Commentable parent;
 

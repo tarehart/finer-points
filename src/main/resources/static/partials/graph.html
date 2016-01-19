@@ -1,26 +1,5 @@
 <div>
 
-    <script type="text/ng-template" id="commentTree">
-        <div class="commentDiv">
-            <span ng-if="hasComment(comment)">
-
-                <button class="btn icon-btn" ng-click="toggleComments(comment); $event.stopPropagation();">
-                    <span ng-if="comment.hideComments">
-                        <i class="fa fa-plus-circle"></i>
-                    </span>
-                    <span ng-if="!comment.hideComments">
-                        <i class="fa fa-minus-circle"></i>
-                    </span>
-                </button>
-            </span>
-            <span>{{comment.body}}</span>
-
-        </div>
-        <div class="subCommentsContainer" ng-if="hasComment(comment) && !comment.hideComments">
-            <div ng-repeat="comment in comment.comments" ng-include="'commentTree'"></div>
-        </div>
-    </script>
-
     <script type="text/ng-template" id="floatTree">
         <div ng-class="['familyWrapper', node.type]">
             <div ng-class="[{selected:isSelected(node)}, 'nodeDiv', 'panel', 'panel-default']">
@@ -141,12 +120,8 @@
                 </div>
 
                 <div class="panel panel-default">
-                    <div class="commentSection panel-body">
-                        <h4>Comments</h4>
-                        <div ng-if="!hasComment(rootNode)">
-                            <span>No comments! Comment functionality coming soon.</span>
-                        </div>
-                        <div ng-repeat="comment in rootNode.comments" ng-include="'commentTree'"></div>
+                    <div class="panel-body">
+                        <div node="rootNode" node-comments></div>
                     </div>
                 </div>
             </div>

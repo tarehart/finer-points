@@ -91,15 +91,6 @@
             node.hideChildren = !node.hideChildren;
         };
 
-
-        $scope.hasComment = function (node) {
-            return node.comments && node.comments.length;
-        };
-
-        $scope.toggleComments = function (node) {
-            node.hideComments = !node.hideComments;
-        };
-
         $scope.authorizedForEdit = function (node) {
             return true;
         };
@@ -115,7 +106,7 @@
         }
 
         function fetchDetail(node) {
-            NodeCache.fetchNodeDetails(node.id);
+            // TODO: fetch more details for this node
         }
 
 

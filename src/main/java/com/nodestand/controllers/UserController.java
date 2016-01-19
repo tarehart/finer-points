@@ -10,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 public class UserController {
 
@@ -22,12 +25,19 @@ public class UserController {
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/currentUser")
-    public User currentUser() throws NodeRulesException {
+    public Map<String, Object> currentUser() throws NodeRulesException {
 
         Long userId = nodeUserDetailsService.getUserIdFromSession();
         if (userId == null) {
             return null;
         }
-        return session.load(User.class, userId);
+        User user = session.load(User.class, userId);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("user", user);
+        map.put("bodyVotes", user.getBodyVotes());
+        map.put("commentVotes", user.getCommentVoteMap());
+
+        return map;
     }
 }

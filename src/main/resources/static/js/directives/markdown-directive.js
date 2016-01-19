@@ -28,6 +28,53 @@
                 linkFn: "="
             },
             link:     function (scope, element, attrs, ngModel) {
+
+                var additionalButtons = [];
+                additionalButtons.push({
+                    name: 'groupDone',
+                    data: [{
+                        name: 'done',
+                        toggle: false,
+                        hotkey: 'Ctrl+S',
+                        title: 'Save',
+                        btnText: 'Save',
+                        btnClass: 'btn btn-success btn-sm',
+                        icon: { glyph: 'glyphicon glyphicon-ok', fa: 'fa fa-check', 'fa-3': 'icon-search' },
+                        callback: function(e){
+                            scope.doneFn(scope.node);
+                        }
+                    }]
+                });
+
+                if (scope.linkFn) {
+                    additionalButtons.push({
+                        name: 'groupNode',
+                        data: [{
+                            name: 'nodelink',
+                            toggle: false,
+                            hotkey: 'Ctrl+K',
+                            title: 'Link Node',
+                            btnText: 'Link Node',
+                            btnClass: 'btn btn-primary btn-sm',
+                            icon: { glyph: 'glyphicon glyphicon-link', fa: 'fa fa-link', 'fa-3': 'icon-link' },
+                            callback: function(e){
+                                var selection = e.getSelection();
+
+                                // The performReplace function will be called much later after some external
+                                // code decides what node should be inserted.
+                                function performReplace(nodeId, nodeTitle) {
+                                    var tagText = selection.text || nodeTitle;
+                                    e.replaceSelection("{{[" + nodeId + "]" + tagText + "}}");
+                                    var offset = ("" + nodeId).length + 4;
+                                    e.setSelection(selection.start + offset, selection.start + offset + tagText.length);
+                                    scope.setText(scope.node, e.getContent());
+                                }
+                                scope.linkFn(scope.node, performReplace);
+                            }
+                        }]
+                    });
+                }
+
                 $(element).markdown({
                     savable:false,
                     onChange: function(e){
@@ -37,49 +84,7 @@
                     },
                     hiddenButtons: ['Preview', 'Image', 'cmdUrl'],
                     fullscreen: {enable: false},
-                    additionalButtons: [
-                        {
-                            name: 'groupNode',
-                            data: [{
-                                name: 'nodelink',
-                                toggle: false,
-                                hotkey: 'Ctrl+K',
-                                title: 'Link Node',
-                                btnText: 'Link Node',
-                                btnClass: 'btn btn-primary btn-sm',
-                                icon: { glyph: 'glyphicon glyphicon-link', fa: 'fa fa-link', 'fa-3': 'icon-link' },
-                                callback: function(e){
-                                    var selection = e.getSelection();
-
-                                    // The performReplace function will be called much later after some external
-                                    // code decides what node should be inserted.
-                                    function performReplace(nodeId, nodeTitle) {
-                                        var tagText = selection.text || nodeTitle;
-                                        e.replaceSelection("{{[" + nodeId + "]" + tagText + "}}");
-                                        var offset = ("" + nodeId).length + 4;
-                                        e.setSelection(selection.start + offset, selection.start + offset + tagText.length);
-                                        scope.setText(scope.node, e.getContent());
-                                    }
-                                    scope.linkFn(scope.node, performReplace);
-                                }
-                            }]
-                        },
-                        {
-                            name: 'groupDone',
-                            data: [{
-                                name: 'done',
-                                toggle: false,
-                                hotkey: 'Ctrl+S',
-                                title: 'Done',
-                                btnText: 'Done',
-                                btnClass: 'btn btn-success btn-sm',
-                                icon: { glyph: 'glyphicon glyphicon-ok', fa: 'fa fa-check', 'fa-3': 'icon-search' },
-                                callback: function(e){
-                                    scope.doneFn(scope.node);
-                                }
-                            }]
-                        }
-                    ]
+                    additionalButtons: additionalButtons
                 });
             }
         }

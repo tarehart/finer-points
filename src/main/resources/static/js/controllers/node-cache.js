@@ -492,50 +492,6 @@
             populateChildren(addedNodes, quickGraphResponse.edges);
         }
 
-        cache.fetchNodeDetails = function(nodeId) {
-            var node = cache.get(nodeId);
-
-            $http.get('/detail', {params: {"id": node.id}}).success(function (data) {
-
-                // Detail returns the current ArgumentNode in full detail,
-                // the full comment tree for the current node,
-                // and all the edges to link them together.
-
-                cache.addOrUpdateNode(data.node);
-
-                // we're dealing with comments here!
-                // TODO: make sure we're aggregating comments across everything within the major version and
-                // indicating which minor version they are attributed to.
-                var nodes = {};
-                for (var i = 0; i < data.nodes.length; i++) {
-                    var returnedId = data.nodes[i].id;
-                    if (returnedId == node.body.id) {
-                        // We already have this node cached; just fill in additional data
-                        cache.get(node.id).body = data.nodes[i];
-
-                        // This line is tricky. The node.id does NOT match returnedId. This will ultimately have the affect
-                        // of attributing comments to the ArgumentNode when really they belong to the ArgumentBod(ies).
-                        nodes[returnedId] = cache.get(node.id);
-                    } else {
-                        nodes[returnedId] = data.nodes[i];
-                    }
-                }
-
-                Object.keys(nodes).forEach(function (id) {
-                    var returnedNode = nodes[id];
-                    returnedNode.comments = [];
-                    var edges = data.edges.filter(function (el) {
-                        return el[1] == id; // Use [1] here because comments point to their parents, so we want to match the tip of the arrow
-                    });
-
-                    for (var j = 0; j < edges.length; j++) {
-                        returnedNode.comments.push(nodes[edges[j][0]]);
-                    }
-                });
-
-            });
-        };
-
         cache.getLinkChoices = function(bodyId, successCallback, errorCallback) {
 
             $http.get('/bodyChoices', {params: {"bodyId": bodyId}}).success(function (data) {
@@ -550,7 +506,7 @@
                     errorCallback(err);
                 }
             });
-        }
+        };
 
         return cache;
 

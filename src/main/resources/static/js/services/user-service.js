@@ -28,8 +28,10 @@
 
         function getUserFromServer() {
             $http.get('/currentUser')
-                .success(function (user) {
-                    self.loggedInUser = user;
+                .success(function (data) {
+                    data.user.bodyVotes = data.bodyVotes;
+                    data.user.commentVotes = data.commentVotes;
+                    self.loggedInUser = data.user;
                     notifySuccessfulLogin();
                 })
                 .error(function(err) {
