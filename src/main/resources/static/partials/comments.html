@@ -1,7 +1,10 @@
 <div>
 
     <script type="text/ng-template" id="commentTree">
-        <div class="commentDiv">
+        <div class="panel-heading">
+            <a ng-href="/#/user/{{comment.author.nodeId}}">{{comment.author.displayName}}</a>
+        </div>
+        <div class="panel-body">
             <span ng-if="hasComment(comment)">
 
                 <button class="btn icon-btn" ng-click="toggleComments(comment); $event.stopPropagation();">
@@ -13,24 +16,26 @@
                     </span>
                 </button>
             </span>
+            <div comment="comment" comment-vote-button></div>
             <span>{{comment.body}}</span>
 
-        </div>
-        <div class="subCommentsContainer" ng-if="hasComment(comment) && !comment.hideComments">
-            <div ng-repeat="comment in comment.comments" ng-include="'commentTree'"></div>
+            <div ng-if="hasComment(comment) && !comment.hideComments">
+                <div class="panel panel-default" ng-repeat="comment in comment.comments" ng-include="'commentTree'"></div>
+            </div>
         </div>
     </script>
 
     <div class="commentSection">
-        <h4>Comments</h4>
+        <button class="btn btn-sm new-comment-btn" ng-if="!editingTopLevel" ng-click="beginEditingTopLevel()">New comment</button>
+        <h4 class="comments-header clearfix">Comments</h4>
+
         <div ng-if="!hasComment(node)">
             <span>No comments! Comment functionality coming soon.</span>
         </div>
-        <a ng-if="!editingTopLevel" ng-click="beginEditingTopLevel()">Add a new comment</a>
-        <div ng-if="editingTopLevel">
+        <div class="editor-wrapper" ng-if="editingTopLevel">
             <textarea node="newComment" set-text="setComment" done-fn="saveComment" markdown-editor>{{newComment.body}}</textarea>
         </div>
-        <div ng-repeat="comment in node.comments" ng-include="'commentTree'"></div>
+        <div class="panel panel-default" ng-repeat="comment in node.comments" ng-include="'commentTree'"></div>
     </div>
 
 </div>

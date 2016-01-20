@@ -1,9 +1,3 @@
-@media (min-width: 550px) {
-
-
-
-}
-
 
 .childrenDiv {
     margin-left: 12px;
@@ -45,17 +39,6 @@
 .nodeDiv .icon-btn {
     padding: 3px;
     background: none;
-}
-
-.subCommentsContainer {
-    margin-left: 15px;
-}
-
-.commentDiv {
-
-    border-left: solid 1px lightgray;
-    border-bottom: solid 1px lightgray;
-    padding: 3px;
 }
 
 .selected .nodeTitle {
@@ -109,7 +92,6 @@
     margin-bottom: 10px;
     border: solid 1px lightgray;
     border-radius: 3px;
-    background-color: #fafafa;
 }
 
 #viva-container svg {

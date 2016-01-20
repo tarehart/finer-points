@@ -28,7 +28,7 @@ public class User {
     @Relationship(type="COMMENT_VOTE", direction = Relationship.OUTGOING)
     private Set<CommentVote> commentVotes;
 
-    private Map<Long, Boolean> commentVoteMap;
+    private Map<Long, Integer> commentVoteMap;
 
 
     //@Indexed
@@ -82,11 +82,11 @@ public class User {
     @Relationship(type="COMMENT_VOTE", direction = Relationship.OUTGOING)
     public void setCommentVotes(Set<CommentVote> commentVotes) {
         this.commentVotes = commentVotes;
-        commentVoteMap = commentVotes.stream().collect(Collectors.toMap(c -> c.comment.getId(), c -> c.isUpvote));
+        commentVoteMap = commentVotes.stream().collect(Collectors.toMap(c -> c.comment.getId(), c -> c.isUpvote ? 1 : -1));
     }
 
     @JsonIgnore
-    public Map<Long, Boolean> getCommentVoteMap() {
+    public Map<Long, Integer> getCommentVoteMap() {
         return commentVoteMap;
     }
 

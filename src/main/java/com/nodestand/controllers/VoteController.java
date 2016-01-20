@@ -37,10 +37,10 @@ public class VoteController {
         Long userId = nodeUserDetailsService.getUserIdFromSession();
         User user = session.load(User.class, userId);
 
-        String commentId = (String) params.get("commentId");
+        Long commentId = Long.valueOf((Integer) params.get("commentId"));
         Boolean isUpvote = (Boolean) params.get("isUpvote");
 
-        Comment comment = session.load(Comment.class, Long.parseLong(commentId));
+        Comment comment = session.load(Comment.class, commentId);
 
         if (comment.author.getNodeId().equals(user.getNodeId())) {
             throw new NodeRulesException("Can't upvote your own comment!");

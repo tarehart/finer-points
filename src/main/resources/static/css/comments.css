@@ -1,0 +1,20 @@
+.commentSection .panel {
+    margin-bottom: 8px;
+}
+
+.commentSection .panel-heading {
+    padding: 3px 8px;
+    font-size: 90%;
+}
+
+.new-comment-btn {
+    float: right;
+}
+
+.comments-header {
+    margin-top: 0;
+}
+
+.commentSection .editor-wrapper {
+    margin-bottom: 10px;
+}
