@@ -1,5 +1,7 @@
-var gulp = require('gulp');
-var concat = require('gulp-concat');
+var gulp = require('gulp'),
+    concat = require('gulp-concat'),
+    uglify = require('gulp-uglify'),
+    sourcemaps = require('gulp-sourcemaps');
 
 var root = './src/main/resources/static/';
 
@@ -21,7 +23,10 @@ gulp.task('js-local', function() {
         root + 'js/local/app.js',
         root + 'js/local/showdown-node-stand.js',
         root + 'js/local/**/*.js'])
-        .pipe(concat('combined.js'))
+        .pipe(sourcemaps.init())
+            .pipe(concat('combined.js'))
+            .pipe(uglify())
+        .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(root + 'dist/'));
 });
 

@@ -1,6 +1,8 @@
 {
   "name": "node-stand",
   "devDependencies": {
-    "gulp-concat": "*"
+    "gulp-concat": "*",
+    "gulp-uglify": "*",
+    "gulp-sourcemaps": "*"
   }
 }

@@ -8,7 +8,9 @@
     function vivaGraph($routeParams, $modal, NodeCache) {
         return {
             restrict: "A",
-            scope: { },
+            scope: {
+                rootNode: "="
+            },
             templateUrl: "partials/viva-graph.html",
             link: function (scope) {
                 setupEventHandlers(scope);
@@ -56,6 +58,10 @@
             interactive: 'node drag'
         });
         renderer.run();
+
+        if (scope.rootNode) {
+            addVivaNodesRecursive(scope.rootNode, null, graph, {});
+        }
 
         scope.$on("rootData", function(event, rootNode) {
             addVivaNodesRecursive(rootNode, null, graph, {});

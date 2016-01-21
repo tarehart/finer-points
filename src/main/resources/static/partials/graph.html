@@ -127,7 +127,7 @@
             </div>
 
             <div ng-if="isPersisted(rootNode)" class="col-md-5">
-                <div viva-graph></div>
+                <div root-node="rootNode" viva-graph></div>
                 <div ng-repeat="node in rootNode.children" ng-include="'floatTree'"></div>
             </div>
 
