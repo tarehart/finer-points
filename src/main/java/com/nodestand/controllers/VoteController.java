@@ -42,9 +42,9 @@ public class VoteController {
 
         Comment comment = session.load(Comment.class, commentId);
 
-        if (comment.author.getNodeId().equals(user.getNodeId())) {
-            throw new NodeRulesException("Can't upvote your own comment!");
-        }
+//        if (comment.author.getNodeId().equals(user.getNodeId())) {
+//            throw new NodeRulesException("Can't upvote your own comment!");
+//        }
 
         user.registerCommentVote(comment, isUpvote);
 

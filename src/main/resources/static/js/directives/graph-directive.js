@@ -73,6 +73,10 @@
             return node.isSelected;
         };
 
+        $scope.isPersisted = function (node) {
+            return node && node.id !== "draft";
+        };
+
         $scope.toggleSelect = function (node) {
             node.isSelected = !node.isSelected;
             if (node.isSelected) {

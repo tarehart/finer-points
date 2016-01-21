@@ -1,12 +1,9 @@
-<div class="vote-cluster">
+<div class="comment-vote-cluster">
     <div class="vote-stack">
-        <button ng-class="['btn', 'btn-default', 'btn-xs', 'vote-great', {chosen: userVote > 0}]"
-                ng-click="voteClicked(1)">
-            Up
-        </button>
-        <button ng-class="['btn', 'btn-default', 'btn-xs', 'vote-weak', {chosen: userVote < 0}]"
-                ng-click="voteClicked(-1)">
-            Down
-        </button>
+        <button ng-class="['btn', 'btn-default', 'btn-xs', 'comment-vote-btn', 'comment-up', {chosen: userVote > 0}]"
+                ng-click="voteClicked(1)"><i class="fa fa-arrow-up"></i></button>
+
+        <button ng-class="['btn', 'btn-default', 'btn-xs', 'comment-vote-btn', 'comment-down', {chosen: userVote < 0}]"
+                ng-click="voteClicked(-1)"><i class="fa fa-arrow-down"></i></button>
     </div>
 </div>

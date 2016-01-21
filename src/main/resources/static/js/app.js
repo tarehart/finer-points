@@ -34,3 +34,11 @@ nodeStandApp.config(['$routeProvider',
                 redirectTo: '/'
             });
     }]);
+
+nodeStandApp.run(['$rootScope', 'UserService', function($rootScope, UserService) {
+    $rootScope.user = UserService.getLoggedInUser();
+
+    UserService.subscribeSuccessfulLogin($rootScope, function() {
+        $rootScope.user = UserService.getLoggedInUser();
+    });
+}]);

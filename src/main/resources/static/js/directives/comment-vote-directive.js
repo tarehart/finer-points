@@ -33,7 +33,7 @@
         }
 
         function getUserVote() {
-            if (user && user.bodyVotes) {
+            if (user && user.commentVotes) {
                 scope.userVote = user.commentVotes[comment.id];
                 return scope.userVote;
             }
@@ -63,11 +63,12 @@
             }
         };
 
+        // voteDelta is only allowed to be 1 or -1.
         function registerVote(voteDelta, currentVote) {
             $http.post('/voteComment',
                 {
                     commentId: comment.id,
-                    isUpvote: voteDelta > 1
+                    isUpvote: voteDelta > 0
                 })
                 .success(function (data) {
                     if (currentVote) {

@@ -119,14 +119,14 @@
                     </div>
                 </div>
 
-                <div class="panel panel-default">
+                <div ng-if="isPersisted(rootNode)" class="panel panel-default">
                     <div class="panel-body">
                         <div node="rootNode" node-comments></div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-5">
+            <div ng-if="isPersisted(rootNode)" class="col-md-5">
                 <div viva-graph></div>
                 <div ng-repeat="node in rootNode.children" ng-include="'floatTree'"></div>
             </div>

@@ -30,7 +30,7 @@
         <h4 class="comments-header clearfix">Comments</h4>
 
         <div ng-if="!hasComment(node)">
-            <span>No comments! Comment functionality coming soon.</span>
+            <span>No comments!</span>
         </div>
         <div class="editor-wrapper" ng-if="editingTopLevel">
             <textarea node="newComment" set-text="setComment" done-fn="saveComment" markdown-editor>{{newComment.body}}</textarea>
