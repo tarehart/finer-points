@@ -1,0 +1,6 @@
+{
+  "name": "node-stand",
+  "devDependencies": {
+    "gulp-concat": "*"
+  }
+}

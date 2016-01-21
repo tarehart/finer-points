@@ -8,3 +8,5 @@ out/
 *.iws
 application.properties
 neo4j-home/
+node_modules/
+**/static/dist/

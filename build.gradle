@@ -8,6 +8,7 @@ buildscript {
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.3.RELEASE")
         classpath("se.transmode.gradle:gradle-docker:1.2")
+        classpath("be.filipblondeel.gradle:gradle-gulp-plugin:0.1")
     }
 }
 
@@ -16,7 +17,23 @@ apply plugin: 'idea'
 apply plugin: 'spring-boot'
 apply plugin: 'docker'
 apply plugin: 'war'
+apply plugin: 'gulp'
 
+node {
+
+    // Enabled the automatic download. False is the default (for now).
+    download = true
+}
+
+// makes sure on each build that gulp is installed
+gulp_build.dependsOn 'installGulp'
+
+// processes package.json before running gulp build
+gulp_build.dependsOn 'npmInstall'
+
+// runs "gulp build" as part of other tasks
+jar.dependsOn gulp_build
+bootRun.dependsOn gulp_build
 
 war {
     baseName = 'FinerPoints'
