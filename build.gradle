@@ -20,8 +20,7 @@ apply plugin: 'war'
 apply plugin: 'gulp'
 
 node {
-
-    // Enabled the automatic download. False is the default (for now).
+    // It's possibly to specify a version here
     download = true
 }
 

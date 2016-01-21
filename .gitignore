@@ -10,3 +10,4 @@ application.properties
 neo4j-home/
 node_modules/
 **/static/dist/
+**/static/sass/compiled/

@@ -3,6 +3,7 @@
   "devDependencies": {
     "gulp-concat": "*",
     "gulp-uglify": "*",
-    "gulp-sourcemaps": "*"
+    "gulp-sourcemaps": "*",
+    "gulp-sass": "*"
   }
 }

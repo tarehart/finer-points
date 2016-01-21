@@ -14,5 +14,7 @@
 
 ## Rapid Iteration on JS / CSS
 
-1. Set gulp task runner in Intellij: https://www.jetbrains.com/idea/help/using-gulp-task-runner.html
+1. Setup gulp task runner in Intellij: https://www.jetbrains.com/idea/help/using-gulp-task-runner.html
+    - When that page tells you to install node, choose the version found in ~/.gradle/nodejs/. This directory should
+    have been created during the gradle build. At time of writing, the proper download for windows is node-v0.10.22-x86.msi
 2. Open gulpfile.js, right click on the "watch" task and run it. This will keep your scripts and css up to date.

@@ -1,15 +1,23 @@
 var gulp = require('gulp'),
     concat = require('gulp-concat'),
     uglify = require('gulp-uglify'),
-    sourcemaps = require('gulp-sourcemaps');
+    sourcemaps = require('gulp-sourcemaps'),
+    sass = require('gulp-sass');
 
 var root = './src/main/resources/static/';
 
-gulp.task('css-local', function() {
-    return gulp.src(root + 'css/local/**/*.css')
+gulp.task('css-local', ['sass'], function() {
+    return gulp.src([root + 'css/local/**/*.css', root + 'sass/compiled/**/*.css'])
         .pipe(concat('combined.css'))
         .pipe(gulp.dest(root + 'dist/'));
 });
+
+gulp.task('sass', function() {
+    return gulp.src(root + 'sass/**/*.scss')
+        .pipe(sass().on('error', sass.logError))
+        .pipe(gulp.dest(root + 'sass/compiled/'));
+});
+
 
 // This provides a file useful for offline development, e.g. on an airplane
 gulp.task('css-cdn', function() {
@@ -44,9 +52,10 @@ gulp.task('js-cdn', function() {
         .pipe(gulp.dest(root + 'dist/'));
 });
 
-gulp.task('build', ['css-local', 'css-cdn', 'js-local', 'js-cdn']);
+gulp.task('build', ['sass', 'css-local', 'css-cdn', 'js-local', 'js-cdn']);
 
 gulp.task('watch', ['build'], function () {
+    gulp.watch(root + 'sass/**/*.scss', ['css-local']);
     gulp.watch(root + 'css/local/**/*.css', ['css-local']);
     gulp.watch(root + 'css/cdn/**/*.js', ['css-cdn']);
     gulp.watch(root + 'js/local/**/*.js', ['js-local']);
