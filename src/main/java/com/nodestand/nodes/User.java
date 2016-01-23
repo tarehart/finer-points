@@ -8,6 +8,7 @@ import com.nodestand.nodes.vote.VoteType;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Transient;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.HashSet;
@@ -23,11 +24,13 @@ public class User {
     @Relationship(type="ARGUMENT_VOTE", direction = Relationship.OUTGOING)
     private Set<ArgumentVote> argumentVotes;
 
+    @Transient
     private Map<Long, VoteType> bodyVotes;
 
     @Relationship(type="COMMENT_VOTE", direction = Relationship.OUTGOING)
     private Set<CommentVote> commentVotes;
 
+    @Transient
     private Map<Long, Integer> commentVoteMap;
 
 
