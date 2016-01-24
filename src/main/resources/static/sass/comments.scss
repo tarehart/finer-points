@@ -1,20 +1,33 @@
-.commentSection .panel {
-    margin-bottom: 8px;
-}
+.commentSection{
+  .editor-wrapper {
+    margin-bottom: 10px;
+  }
 
-.commentSection .panel-heading {
+  .panel {
+    margin-bottom: 8px;
+  }
+
+  .panel-heading {
     padding: 3px 8px;
     font-size: 90%;
+  }
+
+  .icon-btn {
+    padding: 3px;
+    background: none;
+    margin-left: -5px;
+    line-height: 5px;
+  }
+
+  .replies {
+    margin-top: 10px;
+  }
 }
 
 .new-comment-btn {
-    float: right;
+  float: right;
 }
 
 .comments-header {
-    margin-top: 0;
-}
-
-.commentSection .editor-wrapper {
-    margin-bottom: 10px;
+  margin-top: 0;
 }

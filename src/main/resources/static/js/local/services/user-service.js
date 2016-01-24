@@ -12,7 +12,7 @@
 
         getUserFromServer();
 
-        self.getLoggedInUser = function() {
+        self.getUser = function() {
             return self.loggedInUser;
         };
 

@@ -3,9 +3,9 @@
 
     angular
         .module('nodeStandControllers')
-        .directive('nodeComments', ['$http', nodeComments]);
+        .directive('nodeComments', ['$http', 'UserService', nodeComments]);
 
-    function nodeComments($http) {
+    function nodeComments($http, UserService) {
         return {
             restrict: "A",
             scope: {
@@ -13,12 +13,12 @@
             },
             templateUrl: "partials/comments.html",
             link: function (scope) {
-                initializeComments(scope, $http);
+                initializeComments(scope, $http, UserService);
             }
         }
     }
 
-    function initializeComments($scope, $http) {
+    function initializeComments($scope, $http, UserService) {
 
         fetchComments($http, $scope.node);
 
@@ -28,12 +28,10 @@
             comment.body = text;
         };
 
+        // saves a top-level comment
         $scope.saveComment = function(comment) {
-            toastr.info("Saving comment with text: " + comment.body);
 
-            var parentId = $scope.node.body.id;
-
-            saveComment($http, comment.body, parentId, function(comment) {
+            saveComment($http, comment.body, $scope.node.body.id, function(comment) {
                 $scope.node.comments = $scope.node.comments || [];
                 $scope.node.comments.push(comment);
                 $scope.editingTopLevel = false;
@@ -43,12 +41,50 @@
         };
 
         $scope.beginEditingTopLevel = function() {
+
+            if (!UserService.getUser()) {
+                toastr.error("Must be signed in to comment!");
+                return;
+            }
+
             $scope.editingTopLevel = true;
+            $scope.newComment.body = null;
+        };
+
+        $scope.beginWritingReply = function (comment) {
+
+            if (!UserService.getUser()) {
+                toastr.error("Must be signed in to comment!");
+                return;
+            }
+
+            comment.writingReply = true;
+            comment.newReply = comment.newReply || {};
+            comment.newReply.body = null;
+        };
+
+        $scope.setReplyText = function(comment, text) {
+            comment.newReply.body = text;
+        };
+
+        $scope.saveReply = function(comment) {
+
+            saveComment($http, comment.newReply.body, comment.id, function(reply) {
+                comment.comments = comment.comments || [];
+                comment.comments.push(reply);
+                comment.writingReply = false;
+            }, function(err) {
+                toastr.error(err.message);
+            });
         };
 
         $scope.hasComment = function(node) {
             return node.comments && node.comments.length;
         };
+
+        $scope.toggleComment = function(comment) {
+            comment.hideComment = !comment.hideComment;
+        }
     }
 
     function saveComment($http, body, parentId, successCallback, errorCallback) {

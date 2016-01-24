@@ -40,9 +40,9 @@ nodeStandApp.config(['$routeProvider',
     }]);
 
 nodeStandApp.run(['$rootScope', 'UserService', function($rootScope, UserService) {
-    $rootScope.user = UserService.getLoggedInUser();
+    $rootScope.user = UserService.getUser();
 
     UserService.subscribeSuccessfulLogin($rootScope, function() {
-        $rootScope.user = UserService.getLoggedInUser();
+        $rootScope.user = UserService.getUser();
     });
 }]);

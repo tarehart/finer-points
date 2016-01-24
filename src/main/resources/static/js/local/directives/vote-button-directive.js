@@ -26,10 +26,10 @@
     function initializeVoteButton(scope, rootNode, $http, UserService) {
 
 
-        var user = UserService.getLoggedInUser();
+        var user = UserService.getUser();
         if (user == null) {
             UserService.subscribeSuccessfulLogin(scope, function() {
-                user = UserService.getLoggedInUser();
+                user = UserService.getUser();
                 getUserVote();
             });
         } else {
