@@ -31,8 +31,7 @@ gulp_build.dependsOn 'installGulp'
 gulp_build.dependsOn 'npmInstall'
 
 // runs "gulp build" as part of other tasks
-jar.dependsOn gulp_build
-bootRun.dependsOn gulp_build
+processResources.dependsOn gulp_build
 
 war {
     baseName = 'FinerPoints'
