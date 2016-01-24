@@ -17,7 +17,7 @@
                 </button>
             </span>
             <div comment="comment" comment-vote-button></div>
-            <span>{{comment.body}}</span>
+            <span ng-markdown="comment.body" render-markdown></span>
 
             <div ng-if="hasComment(comment) && !comment.hideComments">
                 <div class="panel panel-default" ng-repeat="comment in comment.comments" ng-include="'commentTree'"></div>

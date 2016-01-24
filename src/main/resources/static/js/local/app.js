@@ -12,6 +12,10 @@ nodeStandApp.config(['$routeProvider',
                 templateUrl: 'partials/gateway.html',
                 controller: 'GatewayController'
             }).
+            when('/login', {
+                templateUrl: 'partials/signin.html',
+                controller: 'LoginController'
+            }).
             when('/graph', {
                 templateUrl: 'partials/node-menu.html',
                 controller: 'NodeMenuController'

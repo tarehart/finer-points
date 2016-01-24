@@ -1,35 +1,51 @@
+$finer-blue: #1BA7BF;
+
 body {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    background-color: #edf1f2;
-    color: #333;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: #edf1f2;
+  color: #333;
 }
 
 h1 {
-    font-family: "Gill Sans", "Gill Sans MT", Calibri, sans-serif;
-    color: rgb(73, 73, 73);
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, sans-serif;
+  color: rgb(73, 73, 73);
 }
 
 a {
-    color: rgb(5, 181, 214);
-    text-decoration: none;
+  color: rgb(5, 181, 214);
+  text-decoration: none;
 }
 
 a:visited {
-    color: rgb(89, 49, 230);
+  color: rgb(89, 49, 230);
 }
 
 a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .hero-emphasis {
-    font-weight: bold;
-    font-size: 120%;
-    font-style: italic;
-    color: #149359;
-    font-family: "Gill Sans", "Gill Sans MT", Calibri, sans-serif;
+  font-weight: bold;
+  font-size: 1.2em;
+  font-style: italic;
+  color: $finer-blue;
 }
 
 .panel-heading h3 {
-    margin: 0;
+  margin: 0;
+}
+
+.finer-points-logo {
+  height: 100px;
+  width: 323px;
+  float: left;
+  margin-right: 30px;
+  margin-bottom: 15px;
+}
+
+@media (max-width: 400px) {
+  .finer-points-logo {
+    width: 100%;
+    height: auto;
+  }
 }
