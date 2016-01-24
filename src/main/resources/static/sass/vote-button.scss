@@ -1,22 +1,7 @@
-.vote-cluster, .comment-vote-cluster {
-    display: inline-block;
-    float: left;
-    margin-right: 10px;
-}
-
-.comment-vote-cluster {
-    margin-left: -10px;
-}
-
-.comment-vote-btn.btn {
-    display: block;
-    color: lightgray;
-    border: none;
-}
-
-.comment-vote-btn.btn:hover {
-    color: black;
-    background: none;
+.vote-cluster {
+  display: inline-block;
+  float: left;
+  margin-right: 10px;
 }
 
 .comment-up.chosen {

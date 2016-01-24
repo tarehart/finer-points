@@ -31,7 +31,7 @@
         // saves a top-level comment
         $scope.saveComment = function(comment) {
 
-            saveComment($http, comment.body, $scope.node.body.id, function(comment) {
+            createComment($http, comment.body, $scope.node.body.id, function(comment) {
                 $scope.node.comments = $scope.node.comments || [];
                 $scope.node.comments.push(comment);
                 $scope.editingTopLevel = false;
@@ -67,15 +67,35 @@
             comment.newReply.body = text;
         };
 
+        $scope.setEditText = function(comment, text) {
+            comment.body = text;
+        };
+
         $scope.saveReply = function(comment) {
 
-            saveComment($http, comment.newReply.body, comment.id, function(reply) {
+            createComment($http, comment.newReply.body, comment.id, function(reply) {
                 comment.comments = comment.comments || [];
                 comment.comments.push(reply);
                 comment.writingReply = false;
             }, function(err) {
                 toastr.error(err.message);
             });
+        };
+
+        $scope.saveEdit = function(comment) {
+
+            editComment($http, comment, function(saved) {
+                comment.dateEdited = saved.dateEdited;
+                comment.editing = false;
+            }, function(err) {
+                toastr.error(err.message);
+            });
+        };
+
+        $scope.allowedToEdit = function(comment) {
+            var user = UserService.getUser();
+
+            return user && comment.author.id == user.id;
         };
 
         $scope.hasComment = function(node) {
@@ -87,12 +107,31 @@
         }
     }
 
-    function saveComment($http, body, parentId, successCallback, errorCallback) {
+    function createComment($http, body, parentId, successCallback, errorCallback) {
 
-        $http.post('/saveComment',
+        $http.post('/createComment',
             {
                 body: body,
                 parentId: parentId
+            })
+            .success(function (data) {
+                if (successCallback) {
+                    successCallback(data);
+                }
+            })
+            .error(function(err) {
+                if (errorCallback) {
+                    errorCallback(err);
+                }
+            });
+    }
+
+    function editComment($http, comment, successCallback, errorCallback) {
+
+        $http.post('/editComment',
+            {
+                body: comment.body,
+                commentId: comment.id
             })
             .success(function (data) {
                 if (successCallback) {

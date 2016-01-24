@@ -5,7 +5,9 @@ import com.nodestand.nodes.User;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.typeconversion.DateLong;
 
+import java.util.Date;
 import java.util.HashSet;
 
 @NodeEntity
@@ -25,7 +27,15 @@ public class Comment implements Commentable {
 
     public String body;
 
-    public Comment() {}
+    @DateLong
+    private Date dateCreated;
+
+    @DateLong
+    private Date dateEdited;
+
+    public Comment() {
+        // don't set date created here because this constructor is used when mapping from the database.
+    }
 
     @Override
     public Long getId() {
@@ -40,6 +50,19 @@ public class Comment implements Commentable {
         this.parent = parent;
         this.author = author;
         this.body = body;
+
+        this.dateCreated = new Date();
     }
 
+    public Date getDateCreated() {
+        return dateCreated;
+    }
+
+    public Date getDateEdited() {
+        return dateEdited;
+    }
+
+    public void setDateEdited(Date dateEdited) {
+        this.dateEdited = dateEdited;
+    }
 }

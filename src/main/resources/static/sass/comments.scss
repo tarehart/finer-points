@@ -1,3 +1,6 @@
+
+$commentVotePush: 25;
+
 .commentSection{
   .editor-wrapper {
     margin-bottom: 10px;
@@ -5,6 +8,14 @@
 
   .panel {
     margin-bottom: 8px;
+
+    .panel {
+      margin-left: (-$commentVotePush) + 10 + px;
+    }
+  }
+
+  .panel-body {
+    padding: 10px 10px 5px $commentVotePush + px;
   }
 
   .panel-heading {
@@ -22,6 +33,48 @@
   .replies {
     margin-top: 10px;
   }
+
+  .created-date {
+    display: inline-block;
+    margin-left: 20px;
+    font-size: 0.9em;
+    color: #149359;
+  }
+
+  .edited-date {
+    font-size: 0.9em;
+    color: #999;
+  }
+
+  .comment-sorter.form-control {
+    margin-left: 20px;
+    display: inline-block;
+    width: auto;
+  }
+}
+
+.vote-cluster, .comment-vote-cluster {
+  display: inline-block;
+  float: left;
+}
+
+.comment-vote-cluster {
+
+  margin-left: -$commentVotePush + px;
+
+  .comment-vote-btn.btn {
+    background: none;
+  }
+
+  .comment-vote-btn.btn:hover {
+    color: black;
+  }
+}
+
+.comment-vote-btn.btn {
+  display: block;
+  color: lightgray;
+  border: none;
 }
 
 .new-comment-btn {
@@ -30,4 +83,6 @@
 
 .comments-header {
   margin-top: 0;
+  display: inline-block;
 }
+
