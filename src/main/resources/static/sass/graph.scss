@@ -1,100 +1,111 @@
 
 .childrenDiv {
-    margin-left: 12px;
-    position: relative;
+  margin-left: 12px;
+  position: relative;
 }
 
 .nodeDiv {
-    margin-bottom: 0;
-    margin-top: 4px;
+  margin-bottom: 0;
+  margin-top: 4px;
 }
 
 .childrenDiv:before {
-    content: "";
-    position: absolute;
-    top: -10px;
-    bottom: 1px;
-    left: -7px;
-    width: 4px;
-    z-index: -1;
+  content: "";
+  position: absolute;
+  top: -10px;
+  bottom: 1px;
+  left: -7px;
+  width: 4px;
+  z-index: -1;
 
-    background-color: rgb(217, 217, 217);
+  background-color: rgb(217, 217, 217);
 
 }
 
 /*.nodeContent {*/
-    /*display: inline-block;*/
+/*display: inline-block;*/
 /*}*/
 
 .node-heading.leftPaddingWithChild {
-    padding-left: 0;
+  padding-left: 0;
 }
 
 
 .toggleChildren {
-    display: inline-block;
-    color: rgb(149, 176, 164);
+  display: inline-block;
+  color: rgb(149, 176, 164);
 }
 
 .nodeDiv .icon-btn {
-    padding: 3px;
-    background: none;
+  padding: 3px;
+  background: none;
 }
 
 .selected .nodeTitle {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .rootTitle {
-    font-size: 24px;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 24px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .byLine {
-    margin-left: 20px;
+  margin-left: 20px;
 }
 
 .node-link {
-    border-bottom: solid 2px #d7d7d7;
-    background-color: #f3f3f3;
+  border-bottom: solid 2px #d7d7d7;
+  background-color: #f3f3f3;
 }
 
 .node-heading {
-    padding: 3px 8px;
+  padding: 3px 8px;
 }
 
 .node-heading, .nodeContent {
-    position: relative;
+  position: relative;
 }
 
 .node-id {
-    display: none;
+  display: none;
 }
 
 .bottom-right-button {
-    position: absolute;
-    bottom: 3px;
-    right: 5px;
-    color: #b0b0b0;
-    cursor: pointer;
+  position: absolute;
+  bottom: 3px;
+  right: 5px;
+  color: #b0b0b0;
+  cursor: pointer;
 }
 
 #sigma-container {
-    height: 150px;
-    margin-bottom: 10px;
-    border: solid 1px lightgray;
-    border-radius: 3px;
-    background-color: #fafafa;
+  height: 150px;
+  margin-bottom: 10px;
+  border: solid 1px lightgray;
+  border-radius: 3px;
+  background-color: #fafafa;
 }
 
 #viva-container {
-    height: 150px;
-    margin-bottom: 10px;
-    border: solid 1px lightgray;
-    border-radius: 3px;
+  height: 150px;
+  position: relative;
+}
+
+#viva-container.fullscreen {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  border: none;
+  border-radius: 0;
 }
 
 #viva-container svg {
-    height: 100%;
-    width: 100%;
+  height: 100%;
+  width: 100%;
+}
+
+.viva-fullscreen-btn {
+  float: right;
+  margin: -5px;
 }

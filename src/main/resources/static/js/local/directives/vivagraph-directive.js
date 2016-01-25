@@ -24,6 +24,8 @@
 
         var graph = Viva.Graph.graph();
 
+        var vivaContainer = document.getElementById('viva-container');
+
         var layout = Viva.Graph.Layout.forceDirected(graph, {
             springLength : 40, // default is 30
             springCoeff : 0.0008, // default is 0.0008, higher coeff = more stiffness
@@ -52,7 +54,7 @@
 
 
         var renderer = Viva.Graph.View.renderer(graph, {
-            container  : document.getElementById('viva-container'),
+            container  : vivaContainer,
             graphics: graphics,
             layout: layout,
             interactive: 'node drag'
@@ -87,6 +89,37 @@
 
             graph.removeLink(linkToRemove);
         });
+
+        $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', handleFullscreenChange);
+
+        function handleFullscreenChange() {
+            var fullscreenEl =
+                document.isFullscreen ||
+                document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullscreenElement ||
+                document.msFullscreenElement;
+
+            scope.fullscreen = !!fullscreenEl;
+
+            console.log("scope.fullscreen: " + scope.fullscreen);
+
+            scope.$apply();
+        }
+
+        scope.goFullscreen = function() {
+
+            var elem = vivaContainer;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            } else if (elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            }
+        }
     }
 
     function getColor(node) {

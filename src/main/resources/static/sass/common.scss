@@ -6,6 +6,11 @@ body {
   color: #333;
 }
 
+.container {
+  padding-right: 8px;
+  padding-left: 8px;
+}
+
 h1 {
   font-family: "Gill Sans", "Gill Sans MT", Calibri, sans-serif;
   color: rgb(73, 73, 73);
@@ -44,4 +49,30 @@ a:hover {
     width: 100%;
     height: auto;
   }
+}
+
+.inline-header {
+  margin: 0;
+  display: inline-block;
+}
+
+.panel.fade-out {
+  background-color: transparent;
+  border: transparent;
+  box-shadow: none;
+}
+
+.panel.fade-out > .panel-heading {
+  border-style: solid;
+  border-width: 1px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.panel.fade-out > .panel-body {
+  padding-left: 3px;
+  padding-right: 3px;
+  padding-bottom: 0;
+
+  background-color: rgba(255,255,255,0.5);
 }

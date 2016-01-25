@@ -6,22 +6,23 @@ $commentVotePush: 25;
     margin-bottom: 10px;
   }
 
-  .panel {
+  .comment-block {
     margin-bottom: 8px;
 
-    .panel {
+    .comment-block {
       margin-left: (-$commentVotePush) + 10 + px;
+    }
+
+    .panel-body {
+      padding: 10px 10px 5px $commentVotePush + px;
+    }
+
+    .panel-heading {
+      padding: 3px 8px;
+      font-size: 90%;
     }
   }
 
-  .panel-body {
-    padding: 10px 10px 5px $commentVotePush + px;
-  }
-
-  .panel-heading {
-    padding: 3px 8px;
-    font-size: 90%;
-  }
 
   .icon-btn {
     padding: 3px;
@@ -47,7 +48,7 @@ $commentVotePush: 25;
   }
 
   .comment-sorter.form-control {
-    margin-left: 20px;
+    margin-left: 12px;
     display: inline-block;
     width: auto;
   }
@@ -81,8 +82,4 @@ $commentVotePush: 25;
   float: right;
 }
 
-.comments-header {
-  margin-top: 0;
-  display: inline-block;
-}
 

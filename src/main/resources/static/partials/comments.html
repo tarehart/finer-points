@@ -20,10 +20,10 @@
         <div ng-if="!comment.hideComment" class="panel-body">
             <div comment="comment" comment-vote-button></div>
 
-            <div ng-if="!comment.editing && !comment.writingReply">
+            <div ng-if="!comment.editing">
                 <span ng-markdown="comment.body" render-markdown></span>
                 <p class="edited-date" ng-if="comment.dateEdited">Edited {{comment.dateEdited | date: 'short'}}</p>
-                <div ng-if="allowedToEdit(comment)">
+                <div ng-if="allowedToEdit(comment) && !comment.writingReply">
                     <button class="btn btn-sm btn-default" ng-click="comment.editing = true">Edit</button>
                     <button class="btn btn-sm btn-default" ng-click="beginWritingReply(comment)">Reply</button>
                 </div>
@@ -38,28 +38,30 @@
             </div>
 
             <div class="replies" ng-if="hasComment(comment) && !comment.hideComments">
-                <div class="panel panel-default" ng-repeat="comment in comment.comments | orderBy: commentSort: true" ng-include="'commentTree'"></div>
+                <div class="panel panel-default comment-block" ng-repeat="comment in comment.comments | orderBy: commentSort: true" ng-include="'commentTree'"></div>
             </div>
         </div>
     </script>
 
-    <div class="commentSection">
-        <p>
-            <button class="btn btn-sm new-comment-btn" ng-if="!editingTopLevel" ng-click="beginEditingTopLevel()">New comment</button>
-            <h4 class="comments-header clearfix">Comments</h4>
+    <div class="panel panel-default fade-out commentSection">
+        <div class="panel-heading">
+            <button class="btn btn-default btn-sm new-comment-btn" ng-if="!editingTopLevel" ng-click="beginEditingTopLevel()">New comment</button>
+            <h4 class="inline-header clearfix">Comments</h4>
             <select ng-show="hasComment(node)" ng-init="commentSort = 'score'" ng-model="commentSort" class="comment-sorter form-control input-sm">
                 <option value="score">By score</option>
                 <option value="dateCreated">By recent</option>
             </select>
-        </p>
+        </div>
 
-        <div ng-if="!hasComment(node)">
-            <span>No comments!</span>
+        <div class="panel-body">
+            <div ng-if="!hasComment(node)">
+                <span>No comments!</span>
+            </div>
+            <div class="editor-wrapper" ng-if="editingTopLevel">
+                <textarea node="newComment" set-text="setComment" done-fn="saveComment" markdown-editor>{{newComment.body}}</textarea>
+            </div>
+            <div class="panel panel-default comment-block" ng-repeat="comment in node.comments | orderBy : commentSort : true" ng-include="'commentTree'"></div>
         </div>
-        <div class="editor-wrapper" ng-if="editingTopLevel">
-            <textarea node="newComment" set-text="setComment" done-fn="saveComment" markdown-editor>{{newComment.body}}</textarea>
-        </div>
-        <div class="panel panel-default" ng-repeat="comment in node.comments | orderBy : commentSort : true" ng-include="'commentTree'"></div>
     </div>
 
 </div>
