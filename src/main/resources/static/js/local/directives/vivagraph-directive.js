@@ -25,10 +25,10 @@
         var graph = Viva.Graph.graph();
 
         var layout = Viva.Graph.Layout.forceDirected(graph, {
-            springLength : 40,
-            springCoeff : 0.0008,
-            dragCoeff : 0.03,
-            gravity : -1.2
+            springLength : 40, // default is 30
+            springCoeff : 0.0008, // default is 0.0008, higher coeff = more stiffness
+            dragCoeff : 0.03, // default is 0.02
+            gravity : -1.2 // default is -1.2. More negative is more node repulsion.
         });
 
         var graphics = Viva.Graph.View.svgGraphics();

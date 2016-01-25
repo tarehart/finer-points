@@ -24,18 +24,20 @@
 
         $scope.enterEditMode = function (node) {
             if (node.body.public) {
-                toastr.info("Not a private draft, should make one now.");
-                NodeCache.makeDraft(node, $scope.rootNode, function(draftNode, data) {
-
+                    NodeCache.makeDraft(node, $scope.rootNode, function(draftNode, data) {
                     $location.path("/graph/" + data.graph.rootStableId);
 
                 }, function (err) {
-
                     toastr.error(err.message);
                 });
 
             } else {
                 node.inEditMode = true;
+
+                // Proactively get the children too because we might need their majorVersion id's during editing
+                $.each(node.children, function(index, child) {
+                    ensureDetail(child);
+                });
             }
         };
 
@@ -82,10 +84,7 @@
             if (node.isSelected) {
                 ensureDetail(node);
 
-                // Proactively get the children too because we might need their majorVersion id's during editing
-                $.each(node.children, function(index, child) {
-                    ensureDetail(child);
-                })
+
             }
 
             return true;
@@ -101,18 +100,13 @@
 
         function ensureDetail(node) {
             if (!hasFullDetail(node)) {
-                fetchDetail(node);
+                NodeCache.getFullDetail(node.id);
             }
         }
 
         function hasFullDetail(node) {
             return node.getVersionString();
         }
-
-        function fetchDetail(node) {
-            // TODO: fetch more details for this node
-        }
-
 
         $scope.startEditingTitle = function(node) {
             node.editingTitle = true;
@@ -157,7 +151,7 @@
             // Remove any children that are no longer supported by the body text.
             for (var i = node.children.length - 1; i >= 0; i--) {
                 var child = node.children[i];
-                var expectedId = child.body.majorVersion.id;
+                var expectedId = child.body.majorVersion.id; // This is a pretty deep reference chain, make sure you populate
                 if (idsInBody.indexOf("" + expectedId) < 0) {
                     // Remove the child
                     node.children.splice(i, 1);

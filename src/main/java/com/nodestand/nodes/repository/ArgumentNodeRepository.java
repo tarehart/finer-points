@@ -33,10 +33,10 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
     Integer getMaxMinorVersion(long majorVersionId);
 
 
-    @Query("start n=node({id}) match node-[DEFINED_BY]->n return max(node.buildVersion)")
+    @Query("start n=node({0}) match node-[DEFINED_BY]->n return max(node.buildVersion)")
     Integer getMaxBuildVersion(long bodyId);
 
-    @Query("start n=node({id}) match n-[:SUPPORTED_BY*0..]->(support:ArgumentNode) " +
+    @Query("start n=node({0}) match n-[:SUPPORTED_BY*0..]->(support:ArgumentNode) " +
             "WHERE NOT support-[:INTERPRETS]->(:SourceNode) AND NOT support-[:SUPPORTED_BY]->(:ArgumentNode) return support")
     Set<ArgumentNode> getUnsupportedNodes(long nodeId);
 

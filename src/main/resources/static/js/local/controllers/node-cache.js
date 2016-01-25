@@ -492,6 +492,15 @@
             populateChildren(addedNodes, quickGraphResponse.edges);
         }
 
+        cache.getFullDetail = function(nodeId) {
+
+            $http.get('/fullDetail', {params: {nodeId: nodeId}}).success(function (node) {
+
+                // returns the current ArgumentNode in full detail
+                cache.addOrUpdateNode(node);
+            });
+        };
+
         cache.getLinkChoices = function(bodyId, successCallback, errorCallback) {
 
             $http.get('/bodyChoices', {params: {"bodyId": bodyId}}).success(function (data) {
