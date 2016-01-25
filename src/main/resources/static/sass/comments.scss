@@ -6,20 +6,34 @@ $commentVotePush: 25;
     margin-bottom: 10px;
   }
 
-  .comment-block {
+  .panel {
     margin-bottom: 8px;
+  }
+
+  .comment-block {
+    .panel {
+      background-color: #fafafa;
+    }
+
+    .panel.stripe {
+      background-color: white;
+    }
 
     .comment-block {
       margin-left: (-$commentVotePush) + 10 + px;
     }
 
     .panel-body {
-      padding: 10px 10px 5px $commentVotePush + px;
+      padding: 4px 10px 5px $commentVotePush + px;
     }
 
-    .panel-heading {
-      padding: 3px 8px;
-      font-size: 90%;
+    .comment-heading {
+      margin-bottom: 5px;
+      font-size: 0.9em;
+
+      .icon-btn {
+        color: #BBB;
+      }
     }
   }
 
@@ -27,7 +41,6 @@ $commentVotePush: 25;
   .icon-btn {
     padding: 3px;
     background: none;
-    margin-left: -5px;
     line-height: 5px;
   }
 
@@ -37,7 +50,6 @@ $commentVotePush: 25;
 
   .created-date {
     display: inline-block;
-    margin-left: 20px;
     font-size: 0.9em;
     color: #149359;
   }

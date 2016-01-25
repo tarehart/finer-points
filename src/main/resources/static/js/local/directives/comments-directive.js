@@ -176,7 +176,9 @@
                 });
 
                 for (var j = 0; j < edges.length; j++) {
-                    commentable.comments.push(commentables[edges[j].start]);
+                    var child = commentables[edges[j].start];
+                    commentable.comments.push(child);
+                    child.parent = commentable;
                 }
             });
 

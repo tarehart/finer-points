@@ -1,3 +1,4 @@
+@import 'common';
 
 .childrenDiv {
   margin-left: 12px;
@@ -98,6 +99,7 @@
   margin: 0;
   border: none;
   border-radius: 0;
+  background-color: $finer-background;
 }
 
 #viva-container svg {
