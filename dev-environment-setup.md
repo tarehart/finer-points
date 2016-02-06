@@ -12,9 +12,31 @@
 4. On the command line, execute `./gradlew idea` which will configure your Intellij project with the right dependencies.
 
 
-## Rapid Iteration on JS / CSS
+## Launching the Server
 
-1. Setup gulp task runner in Intellij: https://www.jetbrains.com/idea/help/using-gulp-task-runner.html
-    - When that page tells you to install node, choose the version found in ~/.gradle/nodejs/. This directory should
-    have been created during the gradle build. At time of writing, the proper download for windows is node-v0.10.22-x86.msi
-2. Open gulpfile.js, right click on the "watch" task and run it. This will keep your scripts and css up to date.
+Just run `./gradlew bootRun` and you should be able to connect at localhost:8080.
+
+## Debugging
+
+You can attach a java remote debugger on port 5005, as configured in the build.gradle file.
+
+## Rapid Iteration
+
+### Java
+
+Exit the `bootRun` process (Ctrl+C) and re-run it.
+
+### JS / CSS
+
+The project currently uses 'Gulp' to process .scss files, combine, minify, etc.
+There are two different methods of getting it to constantly watch for changes.
+
+1. Command line
+    1. Open a terminal and execute `./gradlew gulp_watch`
+2. Or, if you prefer, via IntelliJ
+    1. Setup gulp task runner in Intellij: https://www.jetbrains.com/idea/help/using-gulp-task-runner.html
+        - When that page tells you to install node, you can skip that step. You should already have a version in ~/.gradle/nodejs/.
+          This directory should have been created during the gradle build.
+    2. Open gulpfile.js, right click on the "watch" task and run it.
+
+When `watch` is running, you can just change a JS, CSS, or SCSS file and then refresh the browser.
