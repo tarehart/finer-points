@@ -52,13 +52,16 @@
             nodeUI.attr('cx', pos.x).attr('cy', pos.y);
         });
 
+        function makeRenderer(forFullscreen) {
+            return Viva.Graph.View.renderer(graph, {
+                container  : vivaContainer,
+                graphics: graphics,
+                layout: layout,
+                interactive: forFullscreen? 'scroll drag node': 'node' // Only allow zooming and panning in fullscreen
+            });
+        }
 
-        var renderer = Viva.Graph.View.renderer(graph, {
-            container  : vivaContainer,
-            graphics: graphics,
-            layout: layout,
-            interactive: 'node drag'
-        });
+        var renderer = makeRenderer(false);
         renderer.run();
 
         if (scope.rootNode) {
@@ -103,6 +106,16 @@
             scope.fullscreen = !!fullscreenEl;
 
             console.log("scope.fullscreen: " + scope.fullscreen);
+
+            renderer.dispose();
+            renderer = makeRenderer(scope.fullscreen); // Get a renderer with the appropriate interactivity
+            renderer.run();
+
+            // Give the browser a moment to get to the right dimensions.
+            setTimeout(function() {
+                renderer.reset(); // This will cause the graph to re-center.
+            }, 200);
+
 
             scope.$apply();
         }
