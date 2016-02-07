@@ -1,0 +1,25 @@
+@import 'common';
+
+#viva-container {
+  height: 250px;
+  position: relative;
+}
+
+#viva-container.fullscreen {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background-color: $finer-background;
+}
+
+#viva-container svg {
+  height: 100%;
+  width: 100%;
+}
+
+.viva-fullscreen-btn {
+  float: right;
+  margin: -5px;
+}
