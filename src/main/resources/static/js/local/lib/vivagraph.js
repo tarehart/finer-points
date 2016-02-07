@@ -3320,6 +3320,8 @@ function dragndrop(element) {
         dragObject,
         touchInProgress = false,
         pinchZoomLength = 0,
+        pinchZoomCurrentScale = 1,
+        pinchZoomStartingMidpoint = {},
 
         getMousePos = function (e) {
             var posx = 0,
@@ -3463,8 +3465,8 @@ function dragndrop(element) {
         },
 
         getPinchZoomLength = function(finger1, finger2) {
-            return (finger1.clientX - finger2.clientX) * (finger1.clientX - finger2.clientX) +
-                   (finger1.clientY - finger2.clientY) * (finger1.clientY - finger2.clientY);
+            return Math.sqrt((finger1.clientX - finger2.clientX) * (finger1.clientX - finger2.clientX) +
+                   (finger1.clientY - finger2.clientY) * (finger1.clientY - finger2.clientY));
         },
 
         handleTouchMove = function (e) {
@@ -3476,14 +3478,14 @@ function dragndrop(element) {
             } else if (e.touches.length === 2) {
                 // it's a zoom:
                 var currentPinchLength = getPinchZoomLength(e.touches[0], e.touches[1]);
-                var delta = 0;
-                if (currentPinchLength < pinchZoomLength) {
-                    delta = -1;
-                } else if (currentPinchLength > pinchZoomLength) {
-                    delta = 1;
-                }
-                scroll(e, delta, {x: e.touches[0].clientX, y: e.touches[0].clientY});
-                pinchZoomLength = currentPinchLength;
+
+                var desiredScale = currentPinchLength / pinchZoomLength;
+                var scaleFactor = desiredScale / pinchZoomCurrentScale;
+
+                scroll(e, scaleFactor, pinchZoomStartingMidpoint);
+
+                pinchZoomCurrentScale = desiredScale;
+
                 stopPropagation(e);
                 preventDefault(e);
             }
@@ -3527,6 +3529,11 @@ function dragndrop(element) {
                 preventDefault(e);
 
                 pinchZoomLength = getPinchZoomLength(e.touches[0], e.touches[1]);
+                pinchZoomCurrentScale = 1;
+                pinchZoomStartingMidpoint = {
+                  x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+                  y: (e.touches[0].clientY + e.touches[1].clientY) / 2
+                };
 
             }
             // don't care about the rest.
@@ -4411,8 +4418,8 @@ function renderer(graph, settings) {
 
     var cx = (graphRect.x2 + graphRect.x1) / 2;
     var cy = (graphRect.y2 + graphRect.y1) / 2;
-    transform.offsetX = containerSize.width / 2 - (cx * transform.scale - cx);
-    transform.offsetY = containerSize.height / 2 - (cy * transform.scale - cy);
+    transform.offsetX = containerSize.width / 2 - (cx * transform.scale);
+    transform.offsetY = containerSize.height / 2 - (cy * transform.scale);
     graphics.graphCenterChanged(transform.offsetX, transform.offsetY);
 
     updateCenterRequired = false;
@@ -4555,7 +4562,7 @@ function renderer(graph, settings) {
     graph.off('changed', onGraphChanged);
   }
 
-  function scale(out, scrollPoint) {
+  function scale(out, scrollPoint, scaleFactor) {
     if (!scrollPoint) {
       var containerSize = getDimension(container);
       scrollPoint = {
@@ -4563,7 +4570,10 @@ function renderer(graph, settings) {
         y: containerSize.height / 2
       };
     }
-    var scaleFactor = Math.pow(1 + 0.4, out ? -0.2 : 0.2);
+
+    if (!scaleFactor) {
+      scaleFactor = Math.pow(1 + 0.4, out ? -0.2 : 0.2);
+    }
     transform.scale = graphics.scale(scaleFactor, scrollPoint);
 
     renderGraph();
@@ -4590,7 +4600,7 @@ function renderer(graph, settings) {
         containerDrag = dragndrop(container);
       }
       containerDrag.onScroll(function(e, scaleOffset, scrollPoint) {
-        scale(scaleOffset < 0, scrollPoint);
+        scale(null, scrollPoint, scaleOffset);
       });
     }
 
