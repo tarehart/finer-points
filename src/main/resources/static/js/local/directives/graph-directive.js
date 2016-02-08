@@ -22,6 +22,14 @@
 
         $scope.publishableNodes = [];
 
+        function setHighlighted(node) {
+            $scope.highlightedNode = node;
+        }
+
+        $scope.$on("nodeHighlighted", function(e, node) {
+            setHighlighted(node);
+        });
+
         $scope.enterEditMode = function (node) {
             if (node.body.public) {
                     NodeCache.makeDraft(node, $scope.rootNode, function(draftNode, data) {
@@ -83,8 +91,6 @@
             node.isSelected = !node.isSelected;
             if (node.isSelected) {
                 ensureDetail(node);
-
-
             }
 
             return true;
@@ -92,6 +98,12 @@
 
         $scope.toggleChildren = function (node) {
             node.hideChildren = !node.hideChildren;
+        };
+
+        $scope.navigateToNode = function (node) {
+            // Change the page url and reload the graph. All the UI state should stay the same because
+            // the nodes are in the NodeCache.
+            $location.path("/graph/" + node.stableId);
         };
 
         $scope.authorizedForEdit = function (node) {

@@ -23,3 +23,36 @@
   float: right;
   margin: -5px;
 }
+
+.voteArc {
+  stroke-width: 5;
+}
+
+.greatArc {
+  stroke: #79cd5e;
+}
+
+.weakArc {
+  stroke: #ffe601;
+}
+
+.toucheArc {
+  stroke: #a751bc;
+}
+
+.trashArc {
+  stroke: #ff5963;
+}
+
+.vivaDot {
+  fill: #c9cadf;
+
+  .highlight {
+    stroke: #77F;
+    stroke-width: 2;
+  }
+}
+
+.rootDot {
+  fill: #989da3;
+}

@@ -3,9 +3,9 @@
 
     angular
         .module('nodeStandControllers')
-        .directive('vivaGraph', ['$routeParams', '$modal', 'NodeCache', vivaGraph]);
+        .directive('vivaGraph', ['$routeParams', '$rootScope', '$modal', 'NodeCache', vivaGraph]);
 
-    function vivaGraph($routeParams, $modal, NodeCache) {
+    function vivaGraph($routeParams, $rootScope, $modal, NodeCache) {
         return {
             restrict: "A",
             scope: {
@@ -13,43 +13,108 @@
             },
             templateUrl: "partials/viva-graph.html",
             link: function (scope) {
-                setupEventHandlers(scope);
+                setupEventHandlers(scope, $rootScope);
             }
         }
     }
 
 
 
-    function setupEventHandlers(scope) {
+    function setupEventHandlers(scope, $rootScope) {
 
         var graph = Viva.Graph.graph();
+
+        var highlightedNode = null;
 
         var vivaContainer = document.getElementById('viva-container');
 
         var layout = Viva.Graph.Layout.forceDirected(graph, {
-            springLength : 40, // default is 30
+            springLength : 45, // default is 30
             springCoeff : 0.0008, // default is 0.0008, higher coeff = more stiffness
             dragCoeff : 0.03, // default is 0.02
             gravity : -1.2 // default is -1.2. More negative is more node repulsion.
         });
 
+        function appendVoteArcs(ui, greatVotes, weakVotes, toucheVotes, trashVotes) {
+
+            var r = 19;
+            var totalVotes = greatVotes + weakVotes + toucheVotes + trashVotes;
+            if (totalVotes === 0) {
+                return;
+            }
+
+            var radsPerVote = (Math.PI * 2) / totalVotes;
+            var currentRads = Math.PI; // Rotate the whole thing so the colors land in pleasant locations. Normally this would be 0.
+
+            if (greatVotes) {
+                ui.append(makeArcPath(r, currentRads, currentRads += greatVotes * radsPerVote, 'voteArc greatArc'));
+            }
+
+            if (weakVotes) {
+                ui.append(makeArcPath(r, currentRads, currentRads += weakVotes * radsPerVote, 'voteArc weakArc'));
+            }
+
+            if (toucheVotes) {
+                ui.append(makeArcPath(r, currentRads, currentRads += toucheVotes * radsPerVote, 'voteArc toucheArc'));
+            }
+
+            if (trashVotes) {
+                ui.append(makeArcPath(r, currentRads, currentRads + trashVotes * radsPerVote, 'voteArc trashArc'));
+            }
+
+        }
+
+        function makeArcPath(radius, startRadians, endRadians, className) {
+            return Viva.Graph.svg('path', {
+                d: makeArc(radius, startRadians, endRadians),
+                class: className,
+                fill: 'none'
+            });
+        }
+
+        function makeArc(radius, startRadians, endRadians) {
+            // Stare at this: https://www.w3.org/TR/SVG/paths.html#PathDataEllipticalArcCommands
+            // This should produce a string like "M15,0 A15,15 0 0,1 0,15"
+            // In other words, "Move to coordinate (15, 0) and using an ellipse with dimensions 15,15 (i.e. a circle with radius 15),
+            // arc toward coordinate (0, 15)." There are some other numbers in the middle, see the link.
+
+            var largeArcFlag = endRadians - startRadians > Math.PI ? 1 : 0;
+
+            return 'M' + radius * Math.cos(startRadians) + ',' + radius * Math.sin(startRadians) +
+                ' A' + radius + ',' + radius + ' 0 ' + largeArcFlag + ',1 ' + radius * Math.cos(endRadians) + ',' + radius * Math.sin(endRadians);
+        }
+
         var graphics = Viva.Graph.View.svgGraphics();
         graphics.node(function(node) {
             // The function is called every time renderer needs a ui to display node
-            var circle = Viva.Graph.svg('circle', {
-                r: node.data.isRoot? 18 : 14,
-                stroke: '#000',
-                fill: node.data.color
-            });
+            var ui = Viva.Graph.svg('g', {
+                    class: 'vivaDot ' + node.data.node.getType() + 'Dot' + (node.data.isRoot ? ' rootDot' : '')
+                }),
+                circle = Viva.Graph.svg('circle', {
+                    r: 14
+                });
+
+            ui.append(circle);
+
+            var body = node.data.node.body;
+            appendVoteArcs(ui, body.greatVotes, body.weakVotes, body.toucheVotes, body.trashVotes);
+            //appendVoteArcs(ui, 3, 3, 3, 3);
 
             circle.addEventListener('click', function () {
                 layout.pinNode(node, true);
+                // Broadcasting downward from root, because sibling scopes need to know about the highlight.
+                $rootScope.$broadcast("nodeHighlighted", node.data.node);
+
+                $rootScope.$apply();
             });
 
-            return circle;
+            return ui;
 
         }).placeNode(function(nodeUI, pos){
-            nodeUI.attr('cx', pos.x).attr('cy', pos.y);
+            // https://github.com/anvaka/VivaGraphJS/blob/master/demos/tutorial_svg/06%20-%20Composite%20Nodes.html
+            // 'g' element doesn't have convenient (x,y) attributes, instead
+            // we have to deal with transforms: http://www.w3.org/TR/SVG/coords.html#SVGGlobalTransformAttribute
+            nodeUI.attr('transform', 'translate(' + pos.x + ',' + pos.y + ')');
         });
 
         function makeRenderer(forFullscreen) {
@@ -91,6 +156,28 @@
             });
 
             graph.removeLink(linkToRemove);
+        });
+
+        scope.$on("nodeHighlighted", function(e, node) {
+            if (node !== highlightedNode) {
+                if (highlightedNode) {
+                    var oldUI = graphics.getNodeUI(highlightedNode.id);
+                    $.each(oldUI.getElementsByClassName("highlight"), function(index, element) {
+                        element.remove();
+                    });
+                }
+
+                var nodeUI = graphics.getNodeUI(node.id);
+                nodeUI.append(
+                    Viva.Graph.svg('circle', {
+                        class: 'highlight',
+                        r: 13,
+                        fill: 'none'
+                    })
+                );
+
+                highlightedNode = node;
+            }
         });
 
         $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', handleFullscreenChange);
