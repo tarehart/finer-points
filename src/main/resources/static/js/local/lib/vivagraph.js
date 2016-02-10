@@ -3482,7 +3482,7 @@ function dragndrop(element) {
                 var desiredScale = currentPinchLength / pinchZoomLength;
                 var scaleFactor = desiredScale / pinchZoomCurrentScale;
 
-                scroll(e, scaleFactor, pinchZoomStartingMidpoint);
+                scroll(e, scaleFactor, pinchZoomStartingMidpoint, scaleFactor);
 
                 pinchZoomCurrentScale = desiredScale;
 
@@ -3959,12 +3959,19 @@ module.exports = findElementPosition;
 
 function findElementPosition(obj) {
     var curleft = 0,
-        curtop = 0;
-    if (obj.offsetParent) {
+        curtop = 0,
+        fullscreenEl =
+          document.isFullscreen ||
+          document.fullscreenElement ||
+          document.webkitFullscreenElement ||
+          document.mozFullscreenElement ||
+          document.msFullscreenElement;
+
+    if (obj.offsetParent && fullscreenEl !== obj) {
         do {
             curleft += obj.offsetLeft;
             curtop += obj.offsetTop;
-        } while ((obj = obj.offsetParent) !== null);
+        } while ((obj = obj.offsetParent) !== null && fullscreenEl !== obj);
     }
 
     return [curleft, curtop];
@@ -4599,8 +4606,8 @@ function renderer(graph, settings) {
       if (!containerDrag) {
         containerDrag = dragndrop(container);
       }
-      containerDrag.onScroll(function(e, scaleOffset, scrollPoint) {
-        scale(null, scrollPoint, scaleOffset);
+      containerDrag.onScroll(function(e, scaleOffset, scrollPoint, pinchOffset) {
+        scale(scaleOffset < 0, scrollPoint, pinchOffset);
       });
     }
 
