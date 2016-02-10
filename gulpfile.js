@@ -33,7 +33,7 @@ gulp.task('js-local', function() {
         root + 'js/local/**/*.js'])
         .pipe(sourcemaps.init())
             .pipe(concat('combined.js'))
-            .pipe(uglify())
+            //.pipe(uglify())
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(root + 'dist/'));
 });
