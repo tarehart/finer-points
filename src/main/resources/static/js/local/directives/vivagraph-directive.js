@@ -100,13 +100,16 @@
             appendVoteArcs(ui, body.greatVotes, body.weakVotes, body.toucheVotes, body.trashVotes);
             //appendVoteArcs(ui, 3, 3, 3, 3);
 
-            circle.addEventListener('click', function () {
+            circle.addEventListener('click', tapListener);
+            circle.addEventListener('touchend', tapListener);
+
+            function tapListener() {
                 layout.pinNode(node, true);
                 // Broadcasting downward from root, because sibling scopes need to know about the highlight.
                 $rootScope.$broadcast("nodeHighlighted", node.data.node);
 
                 $rootScope.$apply();
-            });
+            }
 
             return ui;
 
