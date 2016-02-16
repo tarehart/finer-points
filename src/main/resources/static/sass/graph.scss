@@ -9,7 +9,9 @@
 }
 
 .nodeDiv.highlighted {
-  box-shadow: 0px 0px 8px blue;
+  .panel-heading {
+    background-color: #E2ECE0;
+  }
 }
 
 .childrenDiv:before {
@@ -42,10 +44,6 @@
 .nodeDiv .icon-btn {
   padding: 3px;
   background: none;
-}
-
-.selected .nodeTitle {
-  font-weight: bold;
 }
 
 .rootTitle {

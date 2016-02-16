@@ -93,6 +93,8 @@
                 ensureDetail(node);
             }
 
+            $scope.$broadcast("nodeHighlighted", node);
+
             return true;
         };
 
