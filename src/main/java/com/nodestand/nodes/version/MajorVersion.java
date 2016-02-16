@@ -2,7 +2,6 @@ package com.nodestand.nodes.version;
 
 import com.nodestand.util.IdGenerator;
 import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -12,7 +11,6 @@ public class MajorVersion {
     @GraphId
     protected Long id;
 
-    @Index
     private String stableId;
 
     private int versionNumber;

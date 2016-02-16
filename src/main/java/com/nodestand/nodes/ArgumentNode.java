@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.version.Build;
 import com.nodestand.util.IdGenerator;
 import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -17,7 +16,6 @@ public abstract class ArgumentNode {
     @GraphId
     protected Long id;
 
-    @Index(unique = true)
     private String stableId;
 
     protected int buildVersion = -1;
