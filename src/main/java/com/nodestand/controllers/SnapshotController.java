@@ -1,6 +1,5 @@
 package com.nodestand.controllers;
 
-import com.nodestand.dao.GraphDao;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
@@ -20,9 +19,6 @@ import java.util.Map;
 
 @RestController
 public class SnapshotController {
-
-    @Autowired
-    GraphDao graphDao;
 
     @Autowired
     NodeUserDetailsService nodeUserDetailsService;

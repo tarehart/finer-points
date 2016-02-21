@@ -1,19 +1,17 @@
 package com.nodestand.controllers;
 
-import com.nodestand.dao.GraphDao;
 import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.User;
+import com.nodestand.nodes.assertion.AssertionBody;
+import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationBody;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentBodyRepository;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
-import com.nodestand.nodes.User;
-import com.nodestand.nodes.assertion.AssertionBody;
-import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.source.SourceBody;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.VersionHelper;
 import com.nodestand.service.NodeUserDetailsService;
-import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,14 +21,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 public class CreateController {
-
-    @Autowired
-    GraphDao graphDao;
 
     @Autowired
     NodeUserDetailsService nodeUserDetailsService;
@@ -126,7 +123,9 @@ public class CreateController {
     @RequestMapping("/bodyChoices")
     public Map<String, Object> getBodyChoices(@RequestParam Long bodyId) {
 
-        return graphDao.getBodyChoices(bodyId);
-
+        Map<String, Object> everything = new HashMap<>();
+        Set<ArgumentNode> nodes = nodeRepository.getBodyChoices(bodyId);
+        everything.put("nodes", nodes);
+        return everything;
     }
 }

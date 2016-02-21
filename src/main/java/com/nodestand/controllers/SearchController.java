@@ -1,8 +1,6 @@
 package com.nodestand.controllers;
 
-import com.nodestand.dao.GraphDao;
 import com.nodestand.nodes.ArgumentBody;
-import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.interpretation.InterpretationBody;
 import com.nodestand.nodes.repository.ArgumentBodyRepository;
@@ -19,9 +17,6 @@ import java.util.*;
 
 @RestController
 public class SearchController {
-
-    @Autowired
-    GraphDao graphDao;
 
     @Autowired
     NodeUserDetailsService nodeUserDetailsService;

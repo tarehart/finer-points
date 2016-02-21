@@ -1,9 +1,7 @@
 package com.nodestand.controllers;
 
 import com.nodestand.auth.NotAuthorizedException;
-import com.nodestand.dao.GraphDao;
 import com.nodestand.nodes.ArgumentNode;
-import com.nodestand.nodes.User;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.version.VersionHelper;
 import com.nodestand.service.NodeUserDetailsService;
@@ -20,9 +18,6 @@ import java.util.Map;
 
 @RestController
 public class PublishController {
-
-    @Autowired
-    GraphDao graphDao;
 
     @Autowired
     NodeUserDetailsService nodeUserDetailsService;
