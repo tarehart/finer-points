@@ -5,9 +5,10 @@ var gulp = require('gulp'),
     sass = require('gulp-sass');
 
 var root = './src/main/resources/static/';
+var buildDir = './build/';
 
 gulp.task('css-local', ['sass'], function() {
-    return gulp.src([root + 'css/local/**/*.css', root + 'sass/compiled/**/*.css'])
+    return gulp.src([root + 'css/local/**/*.css', buildDir + 'sass/**/*.css'])
         .pipe(concat('combined.css'))
         .pipe(gulp.dest(root + 'dist/'));
 });
@@ -15,7 +16,7 @@ gulp.task('css-local', ['sass'], function() {
 gulp.task('sass', function() {
     return gulp.src(root + 'sass/**/*.scss')
         .pipe(sass().on('error', sass.logError))
-        .pipe(gulp.dest(root + 'sass/compiled/'));
+        .pipe(gulp.dest(buildDir + 'sass/'));
 });
 
 
