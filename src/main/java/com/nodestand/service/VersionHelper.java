@@ -1,4 +1,4 @@
-package com.nodestand.nodes.version;
+package com.nodestand.service;
 
 import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.ArgumentNode;
@@ -9,6 +9,9 @@ import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentBodyRepository;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceNode;
+import com.nodestand.nodes.version.Build;
+import com.nodestand.nodes.version.MajorVersion;
+import com.nodestand.nodes.version.VersionAggregator;
 import com.nodestand.util.TwoWayUtil;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;

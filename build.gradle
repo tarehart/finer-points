@@ -88,6 +88,7 @@ dependencies {
     testCompile("junit:junit")
     testCompile(group: 'org.neo4j', name: 'neo4j-ogm', version: '1.1.5-SNAPSHOT', classifier: 'tests')
     testCompile(group: 'org.neo4j.test', name: 'neo4j-harness', version: '2.3.1')
+    testCompile("org.springframework:spring-test")
 }
 
 task wrapper(type: Wrapper) {

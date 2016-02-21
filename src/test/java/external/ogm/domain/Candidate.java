@@ -1,4 +1,4 @@
-package com.nodestand.domain;
+package external.ogm.domain;
 
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Relationship;

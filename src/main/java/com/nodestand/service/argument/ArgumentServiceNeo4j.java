@@ -14,7 +14,7 @@ import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceBody;
 import com.nodestand.nodes.source.SourceNode;
-import com.nodestand.nodes.version.VersionHelper;
+import com.nodestand.service.VersionHelper;
 import com.nodestand.util.TwoWayUtil;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Component
@@ -88,7 +87,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     @Transactional
-    public ArgumentNode createInterpretation(long userId, String title, String body, Long sourceId) {
+    public InterpretationNode createInterpretation(long userId, String title, String body, Long sourceId) {
 
         User user = session.load(User.class, userId);
         InterpretationBody interpretationBody = new InterpretationBody(title, body, user);
@@ -106,7 +105,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     @Transactional
-    public ArgumentNode createSource(long userId, String title, String url) {
+    public SourceNode createSource(long userId, String title, String url) {
         User user = session.load(User.class, userId);
 
         SourceBody sourceBody = new SourceBody(title, user, url);
@@ -118,7 +117,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     @Transactional
-    public ArgumentNode editAssertion(long userId, long nodeId, String title, String body, Collection<Long> links) throws NodeRulesException {
+    public AssertionNode editAssertion(long userId, long nodeId, String title, String body, Collection<Long> links) throws NodeRulesException {
         User user = session.load(User.class, userId);
         AssertionNode existingNode = session.load(AssertionNode.class, nodeId, 2);
 
@@ -146,7 +145,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     @Transactional
-    public ArgumentNode editInterpretation(long userId, long nodeId, String title, String body, Long sourceId) throws NodeRulesException {
+    public InterpretationNode editInterpretation(long userId, long nodeId, String title, String body, Long sourceId) throws NodeRulesException {
         User user = session.load(User.class, userId);
 
         InterpretationNode existingNode = session.load(InterpretationNode.class, nodeId, 2);
@@ -166,7 +165,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     @Transactional
-    public ArgumentNode editSource(long userId, long nodeId, String title, String url) throws NodeRulesException {
+    public SourceNode editSource(long userId, long nodeId, String title, String url) throws NodeRulesException {
         User user = session.load(User.class, userId);
 
         SourceNode existingNode = session.load(SourceNode.class, nodeId, 2);

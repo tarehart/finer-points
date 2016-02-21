@@ -3,7 +3,7 @@ package com.nodestand.controllers;
 import com.nodestand.auth.NotAuthorizedException;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
-import com.nodestand.nodes.version.VersionHelper;
+import com.nodestand.service.VersionHelper;
 import com.nodestand.service.NodeUserDetailsService;
 import com.nodestand.util.BugMitigator;
 import org.neo4j.ogm.session.Session;

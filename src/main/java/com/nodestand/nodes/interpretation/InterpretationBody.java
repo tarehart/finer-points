@@ -4,7 +4,7 @@ import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.ImmutableNodeException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.version.MajorVersion;
-import com.nodestand.nodes.version.VersionHelper;
+import com.nodestand.service.VersionHelper;
 
 public class InterpretationBody extends ArgumentBody {
 

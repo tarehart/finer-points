@@ -6,7 +6,7 @@ import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.version.Build;
-import com.nodestand.nodes.version.VersionHelper;
+import com.nodestand.service.VersionHelper;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.HashSet;

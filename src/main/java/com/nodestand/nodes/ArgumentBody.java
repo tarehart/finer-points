@@ -2,9 +2,9 @@ package com.nodestand.nodes;
 
 import com.nodestand.nodes.comment.Commentable;
 import com.nodestand.nodes.version.MajorVersion;
-import com.nodestand.nodes.version.VersionHelper;
 import com.nodestand.nodes.vote.ArgumentVote;
 import com.nodestand.nodes.vote.VoteType;
+import com.nodestand.service.VersionHelper;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;

@@ -1,7 +1,7 @@
-package com.nodestand.ogm;
+package external.ogm;
 
-import com.nodestand.domain.Candidate;
-import com.nodestand.domain.Voter;
+import external.ogm.domain.Candidate;
+import external.ogm.domain.Voter;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
