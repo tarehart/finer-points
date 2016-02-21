@@ -6,7 +6,7 @@ import com.nodestand.nodes.User;
 import com.nodestand.nodes.comment.Comment;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.vote.VoteType;
-import com.nodestand.service.NodeUserDetailsService;
+import com.nodestand.service.user.UserService;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,14 +27,14 @@ public class VoteController {
     Session session;
 
     @Autowired
-    NodeUserDetailsService nodeUserDetailsService;
+    UserService userService;
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/voteComment")
     public void voteComment(@RequestBody Map<String, Object> params) throws NodeRulesException {
 
-        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        Long userId = userService.getUserIdFromSession();
         User user = session.load(User.class, userId);
 
         Long commentId = Long.valueOf((Integer) params.get("commentId"));
@@ -55,7 +55,7 @@ public class VoteController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/unvoteComment")
     public void unvoteComment(@RequestBody Map<String, Object> params) throws NodeRulesException {
-        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        Long userId = userService.getUserIdFromSession();
         User user = session.load(User.class, userId);
 
         Long commentId = Long.valueOf((Integer) params.get("commentId"));
@@ -69,7 +69,7 @@ public class VoteController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/voteBody")
     public void voteBody(@RequestBody Map<String, Object> params) throws NodeRulesException {
-        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        Long userId = userService.getUserIdFromSession();
         User user = session.load(User.class, userId);
 
         Long bodyId = Long.valueOf((Integer) params.get("bodyId"));
@@ -86,7 +86,7 @@ public class VoteController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/unvoteBody")
     public void unvoteBody(@RequestBody Map<String, Object> params) throws NodeRulesException {
-        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        Long userId = userService.getUserIdFromSession();
         User user = session.load(User.class, userId);
 
         Long bodyId = Long.valueOf((Integer) params.get("bodyId"));

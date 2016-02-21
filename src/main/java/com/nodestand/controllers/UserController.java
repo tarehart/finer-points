@@ -2,7 +2,7 @@ package com.nodestand.controllers;
 
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
-import com.nodestand.service.NodeUserDetailsService;
+import com.nodestand.service.user.UserService;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,14 +20,14 @@ public class UserController {
     Session session;
 
     @Autowired
-    NodeUserDetailsService nodeUserDetailsService;
+    UserService userService;
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/currentUser")
     public Map<String, Object> currentUser() throws NodeRulesException {
 
-        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        Long userId = userService.getUserIdFromSession();
         if (userId == null) {
             return null;
         }

@@ -9,7 +9,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @ContextConfiguration(classes = {IntegrationContext.class})
-@RunWith(SpringJUnit4ClassRunner.class)
 @ActiveProfiles({"integration"})
 public class Neo4jIntegrationTest {
 

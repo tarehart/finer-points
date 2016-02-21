@@ -2,7 +2,7 @@ package com.nodestand.controllers;
 
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.comment.Comment;
-import com.nodestand.service.NodeUserDetailsService;
+import com.nodestand.service.user.UserService;
 import com.nodestand.service.comment.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,7 +20,7 @@ public class CommentController {
     CommentService commentService;
 
     @Autowired
-    NodeUserDetailsService nodeUserDetailsService;
+    UserService userService;
 
     @PreAuthorize("permitAll")
     @RequestMapping("/comments")
@@ -35,7 +35,7 @@ public class CommentController {
 
         String body = (String) params.get("body");
         Long parentId = Long.valueOf((Integer) params.get("parentId"));
-        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        Long userId = userService.getUserIdFromSession();
 
         return commentService.createComment(body, parentId, userId);
     }
@@ -46,7 +46,7 @@ public class CommentController {
 
         String body = (String) params.get("body");
         Long commentId = Long.valueOf((Integer) params.get("commentId"));
-        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        Long userId = userService.getUserIdFromSession();
 
         return commentService.editComment(body, commentId, userId);
     }

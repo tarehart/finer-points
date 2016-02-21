@@ -13,6 +13,7 @@ import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.source.SourceBody;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.Build;
+import com.nodestand.service.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ public class DatabasePopulator {
     UserRepository userRepository;
 
     @Autowired
-    NodeUserDetailsService udService;
+    UserService udService;
 
     @Autowired
     ArgumentNodeRepository argumentRepository;

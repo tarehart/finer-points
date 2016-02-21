@@ -5,7 +5,7 @@ import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.interpretation.InterpretationBody;
 import com.nodestand.nodes.repository.ArgumentBodyRepository;
 import com.nodestand.nodes.source.SourceBody;
-import com.nodestand.service.NodeUserDetailsService;
+import com.nodestand.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +19,7 @@ import java.util.*;
 public class SearchController {
 
     @Autowired
-    NodeUserDetailsService nodeUserDetailsService;
+    UserService userService;
 
     @Autowired
     ArgumentBodyRepository argumentBodyRepository;
@@ -29,7 +29,7 @@ public class SearchController {
     @RequestMapping("/search")
     public List<ArgumentBody> findByTitle(@RequestParam String query, @RequestParam List<String> types) {
 
-        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        Long userId = userService.getUserIdFromSession();
 
         Set<ArgumentBody> richHits = argumentBodyRepository.queryTitlesRich(String.format("(?i).*%s.*", query), userId);
 

@@ -4,7 +4,7 @@ import com.nodestand.auth.NotAuthorizedException;
 import com.nodestand.controllers.serial.EditResult;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
-import com.nodestand.service.NodeUserDetailsService;
+import com.nodestand.service.user.UserService;
 import com.nodestand.service.argument.ArgumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,7 +23,7 @@ public class EditController {
     ArgumentService argumentService;
 
     @Autowired
-    NodeUserDetailsService nodeUserDetailsService;
+    UserService userService;
 
     /**
      * Hyperlinks within body text have an id corresponding to a major version. That way we don't have to update them
@@ -35,7 +35,7 @@ public class EditController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/editAssertion")
     public ArgumentNode editAssertion(@RequestBody Map<String, Object> params) throws NotAuthorizedException, NodeRulesException {
-        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        Long userId = userService.getUserIdFromSession();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
         String title = (String) params.get("title");
         String body = (String) params.get("body");
@@ -51,7 +51,7 @@ public class EditController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/editInterpretation")
     public ArgumentNode editInterpretation(@RequestBody Map<String, Object> params) throws NotAuthorizedException, NodeRulesException {
-        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        Long userId = userService.getUserIdFromSession();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
         String title = (String) params.get("title");
         String body = (String) params.get("body");
@@ -63,7 +63,7 @@ public class EditController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/editSource")
     public ArgumentNode editSource(@RequestBody Map<String, Object> params) throws NotAuthorizedException, NodeRulesException {
-        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        Long userId = userService.getUserIdFromSession();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
         String title = (String) params.get("title");
         String url = (String) params.get("url");
@@ -74,7 +74,7 @@ public class EditController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/makeDraft")
     public EditResult makeDraft(@RequestBody Map<String, Object> params) throws NotAuthorizedException, NodeRulesException {
-        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        Long userId = userService.getUserIdFromSession();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
         String rootStableId = (String) params.get("rootStableId");
 

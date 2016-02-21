@@ -1,7 +1,7 @@
 package com.nodestand.controllers;
 
 import com.nodestand.nodes.ArgumentNode;
-import com.nodestand.service.NodeUserDetailsService;
+import com.nodestand.service.user.UserService;
 import com.nodestand.service.argument.ArgumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,7 +22,7 @@ public class CreateController {
     ArgumentService argumentService;
 
     @Autowired
-    NodeUserDetailsService nodeUserDetailsService;
+    UserService userService;
 
     /**
      * For now, this will always mark the newly created node as a draft. There will be a separate operation
@@ -41,7 +41,7 @@ public class CreateController {
     @RequestMapping("/createAssertion")
     public ArgumentNode createAssertion(@RequestBody Map<String, Object> params) {
 
-        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        Long userId = userService.getUserIdFromSession();
         String title = (String) params.get("title");
         String body = (String) params.get("body");
         List<Integer> linkedNodes = (List<Integer>) params.get("links");
@@ -57,7 +57,7 @@ public class CreateController {
     @RequestMapping("/createInterpretation")
     public ArgumentNode createInterpretation(@RequestBody Map<String, Object> params) {
 
-        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        Long userId = userService.getUserIdFromSession();
         String title = (String) params.get("title");
         String body = (String) params.get("body");
 
@@ -73,7 +73,7 @@ public class CreateController {
     @RequestMapping("/createSource")
     public ArgumentNode createSource(@RequestBody Map<String, Object> params) {
 
-        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        Long userId = userService.getUserIdFromSession();
         String title = (String) params.get("title");
         String url = (String) params.get("url");
 

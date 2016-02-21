@@ -1,5 +1,6 @@
 package com.nodestand.service.argument;
 
+import com.nodestand.auth.NotAuthorizedException;
 import com.nodestand.controllers.serial.EditResult;
 import com.nodestand.controllers.serial.QuickGraphResponse;
 import com.nodestand.nodes.ArgumentNode;
@@ -30,6 +31,8 @@ public interface ArgumentService {
     SourceNode editSource(long userId, long nodeId, String title, String url) throws NodeRulesException;
 
     EditResult makeDraft(long userId, long nodeId, String rootStableId) throws NodeRulesException;
+
+    ArgumentNode publishNode(long userId, long nodeId) throws NotAuthorizedException, NodeRulesException;
 
     Set<ArgumentNode> getNodesInMajorVersion(long majorVersionId);
 

@@ -5,7 +5,7 @@ import com.nodestand.nodes.User;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.version.Build;
 import com.nodestand.service.VersionHelper;
-import com.nodestand.service.NodeUserDetailsService;
+import com.nodestand.service.user.UserService;
 import com.nodestand.util.BugMitigator;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import java.util.Map;
 public class SnapshotController {
 
     @Autowired
-    NodeUserDetailsService nodeUserDetailsService;
+    UserService userService;
 
     @Autowired
     VersionHelper versionHelper;
@@ -52,7 +52,7 @@ public class SnapshotController {
     @RequestMapping("/snapshotNode")
     public ArgumentNode publishNode(@RequestBody Map<String, Object> params) throws Exception {
 
-        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        Long userId = userService.getUserIdFromSession();
         User user = session.load(User.class, userId);
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
 

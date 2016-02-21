@@ -15,7 +15,7 @@
  */
 package com.nodestand.auth;
 
-import com.nodestand.service.NodeUserDetailsService;
+import com.nodestand.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,17 +41,17 @@ public class ImplicitSignInAdapter implements SignInAdapter {
     }
 
     @Autowired
-    private NodeUserDetailsService nodeUserDetailsService;
+    private UserService userService;
 
     @Override
     public String signIn(String localUserId, Connection<?> connection, NativeWebRequest request) {
         String providerUserId = connection.getKey().getProviderUserId();
         NodeUserDetails userDetails = null;
         try {
-            userDetails = nodeUserDetailsService.loadUserByUsername(providerUserId);
-            nodeUserDetailsService.setCurrentUser(userDetails.getUser());
+            userDetails = userService.loadUserByUsername(providerUserId);
+            userService.setCurrentUser(userDetails.getUser());
         } catch (UsernameNotFoundException e) {
-            userDetails = nodeUserDetailsService.register(providerUserId, connection.getDisplayName());
+            userDetails = userService.register(providerUserId, connection.getDisplayName());
             // TODO: go to registration page so they can change their display name.
         }
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));

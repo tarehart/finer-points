@@ -1,4 +1,4 @@
-package com.nodestand.service;
+package com.nodestand.service.user;
 
 import com.nodestand.auth.NodeUserDetails;
 import com.nodestand.nodes.User;
@@ -11,15 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
  * @author mh
  * @since 08.11.11
  */
-public interface NodeUserDetailsService extends UserDetailsService {
+public interface UserService extends UserDetailsService {
     void setCurrentUser(User user);
 
-    boolean userSignedIn();
-
-    void remove();
-
     @Override
-    NodeUserDetails loadUserByUsername(String login) throws UsernameNotFoundException, DataAccessException;
+    NodeUserDetails loadUserByUsername(String socialId) throws UsernameNotFoundException, DataAccessException;
 
     Long getUserIdFromSession();
 

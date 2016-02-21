@@ -1,4 +1,4 @@
-package com.nodestand.service;
+package com.nodestand.service.user;
 
 import com.nodestand.auth.NodeUserDetails;
 import com.nodestand.nodes.User;
@@ -8,7 +8,6 @@ import org.neo4j.ogm.exception.NotFoundException;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.data.neo4j.util.IterableUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -18,12 +17,8 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * @author mh
- * @since 06.03.11
- */
 @Component
-public class NodeUserDetailsServiceImpl implements NodeUserDetailsService {
+public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepo;
@@ -34,17 +29,6 @@ public class NodeUserDetailsServiceImpl implements NodeUserDetailsService {
     @Override
     public void setCurrentUser(User user) {
         setUserInSession(user);
-    }
-
-    @Override
-    public boolean userSignedIn() {
-        return getUserIdFromSession() != null;
-    }
-
-    @Override
-    public void remove() {
-        SecurityContext context = SecurityContextHolder.getContext();
-        context.setAuthentication(null);
     }
 
     @Override
@@ -111,7 +95,7 @@ public class NodeUserDetailsServiceImpl implements NodeUserDetailsService {
     }
 
 
-    void setUserInSession(User user) {
+    private void setUserInSession(User user) {
         SecurityContext context = SecurityContextHolder.getContext();
         NodeUserDetails userDetails = new NodeUserDetails(user);
         PreAuthenticatedAuthenticationToken authentication = new PreAuthenticatedAuthenticationToken(userDetails, user.getSocialId());

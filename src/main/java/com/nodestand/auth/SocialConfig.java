@@ -1,7 +1,6 @@
 package com.nodestand.auth;
 
-import com.nodestand.nodes.User;
-import com.nodestand.service.NodeUserDetailsService;
+import com.nodestand.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +13,6 @@ import org.springframework.social.config.annotation.SocialConfigurerAdapter;
 import org.springframework.social.connect.*;
 import org.springframework.social.connect.mem.InMemoryUsersConnectionRepository;
 import org.springframework.social.connect.support.ConnectionFactoryRegistry;
-import org.springframework.social.connect.web.ProviderSignInController;
 import org.springframework.social.connect.web.SignInAdapter;
 import org.springframework.social.google.api.Google;
 import org.springframework.social.google.connect.GoogleConnectionFactory;
@@ -32,7 +30,7 @@ public class SocialConfig extends SocialConfigurerAdapter {
     private Environment environment;
 
     @Autowired
-    private NodeUserDetailsService userDetailsService;
+    private UserService userDetailsService;
 
     @Override
     public UsersConnectionRepository getUsersConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {

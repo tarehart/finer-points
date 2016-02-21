@@ -1,15 +1,10 @@
 package com.nodestand.controllers;
 
-import com.nodestand.auth.NotAuthorizedException;
 import com.nodestand.nodes.ArgumentNode;
-import com.nodestand.nodes.repository.ArgumentNodeRepository;
-import com.nodestand.service.VersionHelper;
-import com.nodestand.service.NodeUserDetailsService;
-import com.nodestand.util.BugMitigator;
-import org.neo4j.ogm.session.Session;
+import com.nodestand.service.argument.ArgumentService;
+import com.nodestand.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,16 +15,10 @@ import java.util.Map;
 public class PublishController {
 
     @Autowired
-    NodeUserDetailsService nodeUserDetailsService;
+    UserService userService;
 
     @Autowired
-    VersionHelper versionHelper;
-
-    @Autowired
-    ArgumentNodeRepository nodeRepository;
-
-    @Autowired
-    Session session;
+    ArgumentService argumentService;
 
     /*
 
@@ -46,31 +35,13 @@ public class PublishController {
 
      */
 
-    @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/publishNode")
     public ArgumentNode publishNode(@RequestBody Map<String, Object> params) throws Exception {
 
-        Long userId = nodeUserDetailsService.getUserIdFromSession();
+        Long userId = userService.getUserIdFromSession();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
 
-        ArgumentNode existingNode = BugMitigator.loadArgumentNode(session, nodeId, 2);
-
-        if (!userId.equals(existingNode.getBody().author.getNodeId())) {
-            throw new NotAuthorizedException("Not allowed to publish a draft that you did not create.");
-        }
-
-        if (existingNode.isFinalized()) {
-            throw new Exception("No new changes to publish!");
-        }
-
-        ArgumentNode resultingNode = versionHelper.publish(existingNode);
-
-        // TODO: discover whether this node's dependencies have had any updates within their major versions since the
-        // draft was originally created. If so, we should give the user the opportunity to bring in the new stuff.
-        // However, the default behavior should be to not bring in the new stuff, wary as we are of dummies and vandalism.
-
-        return resultingNode;
-
+        return argumentService.publishNode(userId, nodeId);
     }
 }

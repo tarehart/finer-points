@@ -3,7 +3,7 @@ package com.nodestand;
 import com.nodestand.auth.CsrfHeaderFilter;
 import com.nodestand.auth.RestAuthenticationEntryPoint;
 import com.nodestand.auth.RestAuthenticationSuccessHandler;
-import com.nodestand.service.NodeUserDetailsService;
+import com.nodestand.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +27,7 @@ import java.util.List;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    NodeUserDetailsService nodeUserDetailsService;
+    UserService userService;
 
     @Autowired
     private RestAuthenticationEntryPoint authenticationEntryPoint;
@@ -75,7 +75,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider dao = new DaoAuthenticationProvider();
-        dao.setUserDetailsService(nodeUserDetailsService);
+        dao.setUserDetailsService(userService);
         return dao;
     }
 

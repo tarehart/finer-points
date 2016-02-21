@@ -1,5 +1,6 @@
 package com.nodestand.service.argument;
 
+import com.nodestand.auth.NotAuthorizedException;
 import com.nodestand.controllers.serial.EditResult;
 import com.nodestand.controllers.serial.QuickEdge;
 import com.nodestand.controllers.serial.QuickGraphResponse;
@@ -15,15 +16,14 @@ import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceBody;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.service.VersionHelper;
+import com.nodestand.util.BugMitigator;
 import com.nodestand.util.TwoWayUtil;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class ArgumentServiceNeo4j implements ArgumentService {
@@ -215,6 +215,29 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         result.setGraph(getGraph(newRootStableId));
 
         return result;
+    }
+
+    @Override
+    @Transactional
+    public ArgumentNode publishNode(long userId, long nodeId) throws NotAuthorizedException, NodeRulesException {
+
+        ArgumentNode existingNode = session.load(ArgumentNode.class, nodeId, 2);
+
+        if (userId != existingNode.getBody().author.getNodeId()) {
+            throw new NotAuthorizedException("Not allowed to publish a draft that you did not create.");
+        }
+
+        if (existingNode.isFinalized()) {
+            throw new NodeRulesException("No new changes to publish!");
+        }
+
+        ArgumentNode resultingNode = versionHelper.publish(existingNode);
+
+        // TODO: discover whether this node's dependencies have had any updates within their major versions since the
+        // draft was originally created. If so, we should give the user the opportunity to bring in the new stuff.
+        // However, the default behavior should be to not bring in the new stuff, wary as we are of dummies and vandalism.
+
+        return resultingNode;
     }
 
     @Override
