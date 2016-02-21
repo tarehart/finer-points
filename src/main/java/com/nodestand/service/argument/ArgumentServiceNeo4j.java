@@ -7,9 +7,12 @@ import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
+import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.assertion.AssertionNode;
+import com.nodestand.nodes.interpretation.InterpretationBody;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
+import com.nodestand.nodes.source.SourceBody;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.VersionHelper;
 import com.nodestand.util.TwoWayUtil;
@@ -20,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -30,6 +34,9 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Autowired
     ArgumentNodeRepository argumentRepo;
+
+    @Autowired
+    VersionHelper versionHelper;
 
 
     @Override
@@ -58,6 +65,54 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     public ArgumentNode getFullDetail(long nodeId) {
         ArgumentNode node = session.load(ArgumentNode.class, nodeId);
         session.load(ArgumentBody.class, node.getBody().getId(), 2);
+        return node;
+    }
+
+    @Override
+    @Transactional
+    public AssertionNode createAssertion(long userId, String title, String body, Collection<Long> links) {
+
+        User user = session.load(User.class, userId);
+        AssertionBody assertionBody = new AssertionBody(title, body, user);
+
+        AssertionNode node = assertionBody.constructNode(versionHelper);
+
+        for (Long id : links) {
+            ArgumentNode linked = session.load(ArgumentNode.class, id);
+            node.supportedBy(linked);
+        }
+
+        session.save(node);
+        return node;
+    }
+
+    @Override
+    @Transactional
+    public ArgumentNode createInterpretation(long userId, String title, String body, Long sourceId) {
+
+        User user = session.load(User.class, userId);
+        InterpretationBody interpretationBody = new InterpretationBody(title, body, user);
+
+        InterpretationNode node = interpretationBody.constructNode(versionHelper);
+
+        if (sourceId != null) {
+            SourceNode source = session.load(SourceNode.class, sourceId);
+            node.setSource(source);
+        }
+
+        session.save(node);
+        return node;
+    }
+
+    @Override
+    @Transactional
+    public ArgumentNode createSource(long userId, String title, String url) {
+        User user = session.load(User.class, userId);
+
+        SourceBody sourceBody = new SourceBody(title, user, url);
+        SourceNode node = sourceBody.constructNode(versionHelper);
+
+        session.save(node);
         return node;
     }
 
@@ -161,6 +216,12 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         result.setGraph(getGraph(newRootStableId));
 
         return result;
+    }
+
+    @Override
+    @Transactional
+    public Set<ArgumentNode> getNodesInMajorVersion(long majorVersionId) {
+        return argumentRepo.getNodesInMajorVersion(majorVersionId);
     }
 
     private void checkEditRules(ArgumentNode existingNode) throws NodeRulesException {

@@ -501,11 +501,11 @@
             });
         };
 
-        cache.getLinkChoices = function(bodyId, successCallback, errorCallback) {
+        cache.getLinkChoices = function(majorVersionId, successCallback, errorCallback) {
 
-            $http.get('/bodyChoices', {params: {"bodyId": bodyId}}).success(function (data) {
+            $http.get('/nodesInMajorVersion', {params: {"majorVersionId": majorVersionId}}).success(function (nodeList) {
                 var nodes = [];
-                $.each(data.nodes, function(index, node) {
+                $.each(nodeList, function(index, node) {
                     nodes.push(cache.addOrUpdateNode(node));
                 });
                 successCallback(nodes);

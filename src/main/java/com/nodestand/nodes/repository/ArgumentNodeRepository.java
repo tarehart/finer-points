@@ -12,13 +12,12 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
     @Query("START t=node({0}), r=node({1}) MATCH p=t<-[:SUPPORTED_BY|INTERPRETS*0..]-r RETURN p")
     Iterable<Map<String, Object>> getPaths(long childId, long rootId);
 
-    //@Query("start n=node({0}) match n-[support:SUPPORTED_BY|INTERPRETS*0..5]->(argument:ArgumentNode) return argument")
     @Query("match path=(n:ArgumentNode {stableId: {0}})-[support:SUPPORTED_BY|INTERPRETS*0..5]->(argument:ArgumentNode)-[:DEFINED_BY]->(body:ArgumentBody) return path")
     Set<ArgumentNode> getGraph(String stableRootId);
 
-    @Query("start n=node({0}) match n-[:VERSION_OF]->(mv:MajorVersion) with mv match p=mv<-[:VERSION_OF]-(:ArgumentBody)" +
+    @Query("start mv=node({0}) match p=mv<-[:VERSION_OF]-(:ArgumentBody)" +
             "<-[:DEFINED_BY]-(node:ArgumentNode) return p")
-    Set<ArgumentNode> getBodyChoices(long bodyId);
+    Set<ArgumentNode> getNodesInMajorVersion(long majorVersionId);
 
     @Query("match (node:ArgumentNode) return node")
     Set<ArgumentNode> getAllNodes();
