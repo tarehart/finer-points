@@ -7,7 +7,6 @@ buildscript {
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.3.RELEASE")
-        classpath("se.transmode.gradle:gradle-docker:1.2")
         classpath("be.filipblondeel.gradle:gradle-gulp-plugin:0.1")
     }
 }
@@ -15,9 +14,18 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
-apply plugin: 'docker'
 apply plugin: 'war'
 apply plugin: 'gulp'
+
+configurations.all {
+    resolutionStrategy {
+        // Keeping jackson old for the sake of spring-social-google, bless its heart.
+        // Google sign in fails if the version is allowed to move up to 2.7 or 2.7.1.
+        force 'com.fasterxml.jackson.core:jackson-core:2.6.5'
+        force 'com.fasterxml.jackson.core:jackson-databind:2.6.5'
+        force 'com.fasterxml.jackson.core:jackson-annotations:2.6.5'
+    }
+}
 
 node {
     // It's possibly to specify a version here
@@ -81,7 +89,7 @@ dependencies {
     compile("org.springframework.social:spring-social-google:1.0.0.RELEASE")
     compile("org.springframework:spring-context")
     compile("org.springframework:spring-tx")
-    compile("org.springframework.data:spring-data-neo4j:4.1.0.BUILD-SNAPSHOT")
+    compile("org.springframework.data:spring-data-neo4j:4.1.0.M1") // At this time this is the latest milestone. Feel free to upgrade.
     compile("org.springframework:spring-webmvc")
     compile("joda-time:joda-time:2.8.1")
 
@@ -93,16 +101,4 @@ dependencies {
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.3'
-}
-
-task buildDocker(type: Docker, dependsOn: build) {
-    push = true
-    applicationName = jar.baseName
-    dockerfile = file('src/main/docker/Dockerfile')
-    doFirst {
-        copy {
-            from jar
-            into stageDir
-        }
-    }
 }
