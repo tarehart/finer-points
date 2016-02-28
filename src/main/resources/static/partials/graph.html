@@ -27,15 +27,13 @@
                             <i class="fa fa-check"></i>
                         </button>
                     </span>
-                    <span ng-hide="isSelected(node)" ng-click="toggleSelect(node); $event.stopPropagation();" class="bottom-right-button">
+                    <span ng-hide="isSelected(node)" ng-click="toggleSelect(node); $event.stopPropagation();" class="bottom-right-button pull-right">
                         <i class="fa fa-expand"></i>
                     </span>
                 </div>
 
                 <div class="nodeContent panel-body" ng-hide="!isSelected(node)">
                     <div ng-if="isSelected(node)">
-                        <button ng-click="navigateToNode(node)">Go!</button>
-                        <p class="byLine">Authored by {{node.body.author.displayName}}. v{{node.getVersionString()}}</p>
 
                         <div ng-if="node.editingBody">
                             <textarea ng-if="node.type !== 'source'" node="node" set-text="setBody" done-fn="stopEditingBody" link-fn="linkChild" markdown-editor>{{node.body.body}}</textarea>
@@ -50,6 +48,9 @@
                         <div ng-if="!node.editingBody">
                             <div ng-if="node.type !== 'source'" ng-markdown="node.body.body" render-markdown></div>
                             <a ng-if="node.type === 'source'" ng-href="{{node.body.url}}" target="_blank">{{node.body.url}}</a>
+                            <button ng-click="navigateToNode(node)" class="btn btn-default big-icon" uib-tooltip="Center on this node">
+                                <i class="fa fa-bullseye"></i>
+                            </button>
                             <button ng-if="node.inEditMode" ng-click="node.editingBody = true" type="button" class="btn btn-default btn-xs">Edit</button>
                             <button ng-if="readyToPublish(node)" ng-click="publishNode(node)" type="button" class="btn btn-primary btn-xs">Publish</button>
                         </div>
@@ -58,9 +59,16 @@
                             <button ng-if="authorizedForEdit(node) && !node.inEditMode" ng-click="enterEditMode(node)" type="button" class="btn btn-default btn-xs">Edit</button>
                         </div>
 
-                        <span ng-click="toggleSelect(node);" class="bottom-right-button">
-                            <i class="fa fa-compress"></i>
-                        </span>
+
+                        <div class="gutter clearfix">
+                            <span ng-click="toggleSelect(node);" class="bottom-right-button pull-right">
+                                <i class="fa fa-compress"></i>
+                            </span>
+                            <span class="pull-right">By {{rootNode.body.author.displayName}}. v{{rootNode.getVersionString()}}</span>
+
+                        </div>
+
+
                     </div>
                 </div>
             </div>
@@ -74,7 +82,7 @@
 
         <div class="row">
             <div class="col-md-7" ng-if="rootNode">
-                <div class="panel panel-default">
+                <div class="panel panel-default root-node-panel">
                     <div class="panel-body">
                         <span ng-if="!rootNode.editingTitle">
                             <span class="rootTitle">{{rootNode.body.title}}</span>
@@ -87,10 +95,6 @@
                                 <i class="fa fa-check"></i>
                             </button>
                         </span>
-
-
-
-                        <p class="byLine">Authored by {{rootNode.body.author.displayName}}. v{{rootNode.getVersionString()}}</p>
 
                         <div ng-if="rootNode.editingBody">
                             <textarea ng-if="rootNode.type !== 'source'" node="rootNode" set-text="setBody" done-fn="stopEditingBody" link-fn="linkChild" markdown-editor>{{rootNode.body.body}}</textarea>
@@ -106,8 +110,12 @@
                             <div node="rootNode" vote-button></div>
                             <div ng-if="rootNode.type !== 'source'" ng-markdown="rootNode.body.body" render-markdown></div>
                             <a ng-if="rootNode.type === 'source'" ng-href="{{rootNode.body.url}}" target="_blank">{{rootNode.body.url}}</a>
+
                             <button ng-if="rootNode.inEditMode" ng-click="rootNode.editingBody = true" type="button" class="btn btn-default btn-xs">Edit</button>
                             <button ng-if="readyToPublish(rootNode)" ng-click="publishNode(rootNode)" type="button" class="btn btn-primary btn-xs">Publish</button>
+                            <div class="gutter clearfix">
+                                <span class="pull-right">By {{rootNode.body.author.displayName}}. v{{rootNode.getVersionString()}}</span>
+                            </div>
                         </div>
 
                         <div ng-if="!rootNode.inEditMode">

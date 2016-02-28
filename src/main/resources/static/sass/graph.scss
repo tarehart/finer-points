@@ -51,10 +51,6 @@
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-.byLine {
-  margin-left: 20px;
-}
-
 .node-link {
   border-bottom: solid 2px #d7d7d7;
   background-color: #f3f3f3;
@@ -73,9 +69,18 @@
 }
 
 .bottom-right-button {
-  position: absolute;
-  bottom: 3px;
-  right: 5px;
   color: #b0b0b0;
   cursor: pointer;
+  margin-left: 10px;
+}
+
+.root-node-panel {
+  position: relative;
+}
+
+.gutter {
+  position: absolute;
+  bottom: 2px;
+  right: 8px;
+  left: 8px;
 }
