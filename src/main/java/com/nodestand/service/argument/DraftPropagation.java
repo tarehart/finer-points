@@ -4,11 +4,28 @@ import com.nodestand.controllers.serial.QuickGraphResponse;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
+import org.neo4j.ogm.model.Result;
+import org.neo4j.ogm.response.model.QueryResultModel;
 import org.neo4j.ogm.session.Session;
 
 import java.util.*;
 
 public class DraftPropagation {
+
+
+    private static Set<List<ArgumentNode>> resultToNodeLists(Result result) {
+
+        Iterable<Map<String, Object>> results = result.queryResults();
+
+        Set<List<ArgumentNode>> lists = new HashSet<>();
+
+        for (Map<String, Object> r: results) {
+            List<ArgumentNode> path = (List<ArgumentNode>) r.get("path"); // Keep in sync with ArgumentNodeRepository.getPaths
+            lists.add(path);
+        }
+
+        return lists;
+    }
 
     /**
      * This logic once lived in EditController.java
@@ -27,20 +44,9 @@ public class DraftPropagation {
             nodeLookup.put(node.getStableId(), node);
         }
 
-        Iterable<Map<String, Object>> paths = argumentRepo.getPaths(preEdit.getId(), graph.getRootId());
+        Result rawResult = argumentRepo.getPaths(preEdit.getId(), graph.getRootId());
 
-        Set<List<ArgumentNode>> nicePaths = new HashSet<>();
-
-        for (Map<String, Object> iterPath: paths) {
-            List<ArgumentNode> nicePath = new LinkedList<>();
-            List<Map<String, Object>> roughPath = (List<Map<String, Object>>) iterPath.get("p");
-            for (int i = 0; i < roughPath.size(); i += 2) {
-                String stableId = (String) roughPath.get(i).get("stableId");
-                ArgumentNode hashedNode = nodeLookup.get(stableId);
-                nicePath.add(hashedNode);
-            }
-            nicePaths.add(nicePath);
-        }
+        Set<List<ArgumentNode>> nicePaths = resultToNodeLists(rawResult);
 
         for (List<ArgumentNode> path: nicePaths) {
 

@@ -1,6 +1,8 @@
 package com.nodestand.nodes.repository;
 
 import com.nodestand.nodes.ArgumentNode;
+import org.neo4j.ogm.model.Result;
+import org.neo4j.ogm.response.model.QueryResultModel;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
@@ -9,8 +11,8 @@ import java.util.Set;
 
 public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
 
-    @Query("START t=node({0}), r=node({1}) MATCH p=t<-[:SUPPORTED_BY|INTERPRETS*0..]-r RETURN p")
-    Iterable<Map<String, Object>> getPaths(long childId, long rootId);
+    @Query("START t=node({0}), r=node({1}) MATCH p=t<-[:SUPPORTED_BY|INTERPRETS*0..]-r WITH p RETURN nodes(p) as path")
+    Result getPaths(long childId, long rootId);
 
     @Query("match path=(n:ArgumentNode {stableId: {0}})-[support:SUPPORTED_BY|INTERPRETS*0..5]->(argument:ArgumentNode)-[:DEFINED_BY]->(body:ArgumentBody) return path")
     Set<ArgumentNode> getGraph(String stableRootId);

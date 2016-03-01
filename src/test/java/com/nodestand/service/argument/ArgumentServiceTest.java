@@ -101,30 +101,28 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         Assert.assertTrue(resultingNode.getBody().isPublic());
     }
 
+    @Test
+    public void testChildDraftCreation() throws NotAuthorizedException, NodeRulesException {
+        User kyle = registerUser("5678", "Kyle");
+        AssertionNode assertionNode = createPublishedAssertion();
 
-    private AssertionNode createPublishedAssertion(User jim) throws NodeRulesException, NotAuthorizedException {
-        List<Long> links = new LinkedList<>();
+        InterpretationNode interp = (InterpretationNode) assertionNode.getGraphChildren().iterator().next();
+        SourceNode sourceNode = interp.getSource();
 
-        AssertionNode assertionNode = argumentService.createAssertion(jim.getNodeId(), "Assertion Title", "Hello, world!", links);
+        EditResult result = argumentService.makeDraft(kyle.getNodeId(), sourceNode.getId(), assertionNode.getStableId());
 
-        InterpretationNode interpretationNode = argumentService.createInterpretation(jim.getNodeId(), "Interp Title", "Interp body", null);
-
-        // Edit the assertion to point to the interpretation
-        links.add(interpretationNode.getId());
-        assertionNode = argumentService.editAssertion(jim.getNodeId(), assertionNode.getId(), "Assertion Title", "Hello! {{[" + interpretationNode.getId() + "]link}}", links);
-
-        SourceNode sourceNode = argumentService.createSource(jim.getNodeId(), "Source Title", "http://google.com");
-
-        argumentService.editInterpretation(jim.getNodeId(), interpretationNode.getId(), "Interp Title", "Interp body", sourceNode.getId());
-
-
-        return (AssertionNode) argumentService.publishNode(jim.getNodeId(), assertionNode.getId());
+        Assert.assertNotEquals(assertionNode.getId(), result.getGraph().getRootId()); // Draft creation has propagated to root
+        Assert.assertNotEquals(result.getEditedNode().getId(), result.getGraph().getRootId()); // The root was not the subject of editing
+        Assert.assertFalse(result.getEditedNode().getBody().isPublic());
     }
+
+
+
 
     private AssertionNode createPublishedAssertion() throws NodeRulesException, NotAuthorizedException {
 
         User jim = registerUser("1234", "Jim");
-        return createPublishedAssertion(jim);
+        return ArgumentTestUtil.createPublishedTriple(argumentService, jim);
     }
 
 
