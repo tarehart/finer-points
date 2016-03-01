@@ -18,6 +18,7 @@
                     </div>
                     <span ng-if="!node.editingTitle" class="nodeTitle">
                         {{node.body.title}}
+                        <span ng-if="!node.body.public" uib-tooltip="Private draft">*</span>
                         <button ng-if="node.inEditMode" ng-click="startEditingTitle(node); $event.stopPropagation();" type="button" class="btn btn-default btn-xs">Edit</button>
                     </span>
                     <span ng-if="node.editingTitle">
@@ -85,7 +86,11 @@
                 <div class="panel panel-default root-node-panel">
                     <div class="panel-body">
                         <span ng-if="!rootNode.editingTitle">
-                            <span class="rootTitle">{{rootNode.body.title}}</span>
+                            <span class="rootTitle">
+                                {{rootNode.body.title}}
+                                <span ng-if="!rootNode.body.public" uib-tooltip="Private draft"><i class="fa fa-asterisk"></i></span>
+                            </span>
+
                             <button ng-if="rootNode.inEditMode" ng-click="startEditingTitle(rootNode)" type="button" class="btn btn-default btn-xs">Edit</button>
                         </span>
                         <span ng-if="rootNode.editingTitle">
