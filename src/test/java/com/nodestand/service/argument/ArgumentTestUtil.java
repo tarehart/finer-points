@@ -25,7 +25,8 @@ public class ArgumentTestUtil {
 
         // Edit the assertion to point to the interpretation
         links.add(interpretationNode.getId());
-        assertionNode = argumentService.editAssertion(jim.getNodeId(), assertionNode.getId(), "Assertion Title", "Hello! {{[" + interpretationNode.getId() + "]link}}", links);
+        assertionNode = argumentService.editAssertion(jim.getNodeId(), assertionNode.getId(), "Assertion Title", "Hello! {{[" +
+                interpretationNode.getBody().getMajorVersion().getStableId() + "]link}}", links);
 
         SourceNode sourceNode = argumentService.createSource(jim.getNodeId(), "Source Title", "http://google.com");
 
@@ -48,7 +49,8 @@ public class ArgumentTestUtil {
         // Edit the assertion to point to the interpretation and the triple
         links.add(interpretationNode.getId());
         links.add(triple.getId());
-        root = argumentService.editAssertion(jim.getNodeId(), root.getId(), "Root Title", "Hello! {{[" + interpretationNode.getId() + "]link}} and {{[" + triple.getId() + "]link2}}", links);
+        root = argumentService.editAssertion(jim.getNodeId(), root.getId(), "Root Title", "Hello! {{[" +
+                interpretationNode.getBody().getMajorVersion().getStableId() + "]link}} and {{[" + triple.getBody().getMajorVersion().getStableId() + "]link2}}", links);
 
         SourceNode sourceNode = argumentService.createSource(jim.getNodeId(), "ForkSource Title", "http://google.com");
 

@@ -26,6 +26,11 @@ public class AssertionNode extends ArgumentNode {
     @Relationship(type="SUPPORTED_BY", direction = Relationship.INCOMING)
     private Set<AssertionNode> dependentNodes;
 
+    // List of child node ids in order of appearance in the body text.
+    // Note that these are not the same ids appearing in the text; those are childnode->body->majorversion->stableId.
+    // TODO: make this a String[] when this is fixed: https://github.com/neo4j/neo4j-ogm/issues/127
+    private String childOrder;
+
     public AssertionNode() {}
 
     public AssertionNode(AssertionBody body, Build build) {
@@ -171,5 +176,13 @@ public class AssertionNode extends ArgumentNode {
     @Relationship(type="SUPPORTED_BY", direction = Relationship.INCOMING)
     public void setDependentNodes(Set<AssertionNode> dependentNodes) {
         this.dependentNodes = dependentNodes;
+    }
+
+    public void setChildOrder(String childOrder) {
+        this.childOrder = childOrder;
+    }
+
+    public String getChildOrder() {
+        return childOrder;
     }
 }

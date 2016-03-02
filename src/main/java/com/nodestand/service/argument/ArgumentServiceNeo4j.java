@@ -16,8 +16,10 @@ import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceBody;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.service.VersionHelper;
+import com.nodestand.util.BodyParser;
 import com.nodestand.util.BugMitigator;
 import com.nodestand.util.TwoWayUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -69,17 +71,19 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     @Transactional
-    public AssertionNode createAssertion(long userId, String title, String body, Collection<Long> links) {
+    public AssertionNode createAssertion(long userId, String title, String body, Collection<Long> links) throws NodeRulesException {
 
         User user = session.load(User.class, userId);
         AssertionBody assertionBody = new AssertionBody(title, body, user);
 
         AssertionNode node = assertionBody.constructNode(versionHelper);
 
-        for (Long id : links) {
-            ArgumentNode linked = session.load(ArgumentNode.class, id);
-            node.supportedBy(linked);
-        }
+        Set<ArgumentNode> children = getAndValidateChildNodes(links);
+
+        String[] childOrder = BodyParser.validateAndSortLinks(children, body);
+        node.setChildOrder(StringUtils.join(childOrder, ","));
+
+        TwoWayUtil.updateSupportingNodes(node, children);
 
         session.save(node);
         return node;
@@ -118,22 +122,22 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Override
     @Transactional
     public AssertionNode editAssertion(long userId, long nodeId, String title, String body, Collection<Long> links) throws NodeRulesException {
-        User user = session.load(User.class, userId);
+
         AssertionNode existingNode = session.load(AssertionNode.class, nodeId, 2);
+
+        if (userId != existingNode.getBody().author.getNodeId()) {
+            throw new NodeRulesException("Can't modify a private draft that you don't own");
+        }
 
         checkEditRules(existingNode);
 
         existingNode.getBody().setTitle(title);
         existingNode.getBody().setBody(body);
 
-        Set<ArgumentNode> children = new HashSet<>();
-        for (Long id : links) {
-            ArgumentNode supportingNode = session.load(ArgumentNode.class, id);
-            if (supportingNode instanceof SourceNode) {
-                throw new NodeRulesException("An assertion node cannot link directly to a source!");
-            }
-            children.add(supportingNode);
-        }
+        Set<ArgumentNode> children = getAndValidateChildNodes(links);
+
+        String[] childOrder = BodyParser.validateAndSortLinks(children, body);
+        existingNode.setChildOrder(StringUtils.join(childOrder, ","));
 
         TwoWayUtil.updateSupportingNodes(existingNode, children);
 
@@ -141,6 +145,17 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         return existingNode;
     }
 
+    private Set<ArgumentNode> getAndValidateChildNodes(Collection<Long> links) throws NodeRulesException {
+        Set<ArgumentNode> children = new HashSet<>();
+        for (Long id : links) {
+            ArgumentNode supportingNode = argumentRepo.loadWithMajorVersion(id);
+            if (supportingNode instanceof SourceNode) {
+                throw new NodeRulesException("An assertion node cannot link directly to a source!");
+            }
+            children.add(supportingNode);
+        }
+        return children;
+    }
 
 
     @Override

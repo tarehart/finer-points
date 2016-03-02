@@ -41,4 +41,6 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
             "WHERE NOT support-[:INTERPRETS]->(:SourceNode) AND NOT support-[:SUPPORTED_BY]->(:ArgumentNode) return support")
     Set<ArgumentNode> getUnsupportedNodes(long nodeId);
 
+    @Query("start n=node({0}) match p=n-[:DEFINED_BY]->(:ArgumentBody)-[:VERSION_OF]->(:MajorVersion) return p")
+    ArgumentNode loadWithMajorVersion(long id);
 }

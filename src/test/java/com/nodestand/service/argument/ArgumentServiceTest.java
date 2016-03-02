@@ -18,7 +18,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ArgumentServiceTest extends Neo4jIntegrationTest {
@@ -34,7 +33,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
     }
 
     @Test
-    public void createAssertionTest() {
+    public void createAssertionTest() throws NodeRulesException {
 
         User jim = registerUser("1234", "Jim");
 
@@ -86,8 +85,11 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         Assert.assertEquals(result.getEditedNode().getId(), result.getGraph().getRootId());
         Assert.assertFalse(result.getEditedNode().getBody().isPublic());
 
-        List<Long> links = assertionNode.getSupportingNodes().stream().map(ArgumentNode::getId).collect(Collectors.toList());
-        AssertionNode edited = argumentService.editAssertion(kyle.getNodeId(), result.getEditedNode().getId(), "New Title", "New Body", links);
+        ArgumentNode child = assertionNode.getSupportingNodes().stream().findFirst().get();
+        List<Long> links = new LinkedList<>();
+        links.add(child.getId());
+        String body = "New Body {{[" + child.getBody().getMajorVersion().getStableId() + "]link}}";
+        AssertionNode edited = argumentService.editAssertion(kyle.getNodeId(), result.getEditedNode().getId(), "New Title", body, links);
 
         Assert.assertFalse(edited.getBody().isPublic());
         Assert.assertEquals(assertionNode.getId(), edited.getPreviousVersion().getId());
@@ -96,7 +98,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         Assert.assertEquals(assertionNode.getId(), resultingNode.getId());
         Assert.assertEquals("New Title", resultingNode.getBody().getTitle());
-        Assert.assertEquals("New Body", resultingNode.getBody().getBody());
+        Assert.assertEquals(body, resultingNode.getBody().getBody());
         Assert.assertTrue(resultingNode.getBody().isEditable());
         Assert.assertTrue(resultingNode.getBody().isPublic());
     }

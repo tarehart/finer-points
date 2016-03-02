@@ -1,6 +1,7 @@
 package com.nodestand.controllers;
 
 import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.service.user.UserService;
 import com.nodestand.service.argument.ArgumentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class CreateController {
      */
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/createAssertion")
-    public ArgumentNode createAssertion(@RequestBody Map<String, Object> params) {
+    public ArgumentNode createAssertion(@RequestBody Map<String, Object> params) throws NodeRulesException {
 
         Long userId = userService.getUserIdFromSession();
         String title = (String) params.get("title");

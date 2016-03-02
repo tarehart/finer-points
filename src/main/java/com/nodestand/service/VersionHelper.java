@@ -17,9 +17,7 @@ import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -212,12 +210,13 @@ public class VersionHelper {
             Collection<ArgumentNode> support = session.loadAll(ArgumentNode.class,
                     assertion.getSupportingNodes().stream().map(ArgumentNode::getId).collect(Collectors.toList()), 1);
 
-            Set<ArgumentNode> snappedDescendants = new HashSet<>();
+            SortedSet<ArgumentNode> snappedDescendants = new TreeSet<>();
 
             for (ArgumentNode childNode : support) {
                 if (!childNode.isFinalized()) {
                     snappedDescendants.add(snapshotHelper(childNode, build));
                 }
+                // TODO: need an else clause here?
             }
 
             assertion.setSupportingNodes(snappedDescendants);

@@ -18,7 +18,7 @@ public interface ArgumentService {
 
     ArgumentNode getFullDetail(long nodeId);
 
-    AssertionNode createAssertion(long userId, String title, String body, Collection<Long> links);
+    AssertionNode createAssertion(long userId, String title, String body, Collection<Long> links) throws NodeRulesException;
 
     InterpretationNode createInterpretation(long userId, String title, String body, Long sourceId);
 
