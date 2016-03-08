@@ -7,8 +7,8 @@ import com.nodestand.nodes.comment.Comment;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.vote.VoteType;
 import com.nodestand.service.user.UserService;
-import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +24,7 @@ public class VoteController {
     ArgumentNodeRepository argumentNodeRepository;
 
     @Autowired
-    Session session;
+    Neo4jOperations operations;
 
     @Autowired
     UserService userService;
@@ -35,12 +35,12 @@ public class VoteController {
     public void voteComment(@RequestBody Map<String, Object> params) throws NodeRulesException {
 
         Long userId = userService.getUserIdFromSession();
-        User user = session.load(User.class, userId);
+        User user = operations.load(User.class, userId);
 
         Long commentId = Long.valueOf((Integer) params.get("commentId"));
         Boolean isUpvote = (Boolean) params.get("isUpvote");
 
-        Comment comment = session.load(Comment.class, commentId);
+        Comment comment = operations.load(Comment.class, commentId);
 
 //        if (comment.author.getNodeId().equals(user.getNodeId())) {
 //            throw new NodeRulesException("Can't upvote your own comment!");
@@ -48,7 +48,7 @@ public class VoteController {
 
         user.registerCommentVote(comment, isUpvote);
 
-        session.save(user);
+        operations.save(user);
     }
 
     @Transactional
@@ -56,13 +56,13 @@ public class VoteController {
     @RequestMapping("/unvoteComment")
     public void unvoteComment(@RequestBody Map<String, Object> params) throws NodeRulesException {
         Long userId = userService.getUserIdFromSession();
-        User user = session.load(User.class, userId);
+        User user = operations.load(User.class, userId);
 
         Long commentId = Long.valueOf((Integer) params.get("commentId"));
-        Comment comment = session.load(Comment.class, commentId);
+        Comment comment = operations.load(Comment.class, commentId);
         user.revokeCommentVote(comment);
 
-        session.save(user);
+        operations.save(user);
     }
 
     @Transactional
@@ -70,16 +70,16 @@ public class VoteController {
     @RequestMapping("/voteBody")
     public void voteBody(@RequestBody Map<String, Object> params) throws NodeRulesException {
         Long userId = userService.getUserIdFromSession();
-        User user = session.load(User.class, userId);
+        User user = operations.load(User.class, userId);
 
         Long bodyId = Long.valueOf((Integer) params.get("bodyId"));
-        ArgumentBody body = session.load(ArgumentBody.class, bodyId);
+        ArgumentBody body = operations.load(ArgumentBody.class, bodyId);
         String voteTypeStr = (String) params.get("voteType");
         VoteType voteType = VoteType.valueOf(voteTypeStr.toUpperCase());
 
         user.registerVote(body, voteType);
 
-        session.save(user);
+        operations.save(user);
     }
 
     @Transactional
@@ -87,14 +87,14 @@ public class VoteController {
     @RequestMapping("/unvoteBody")
     public void unvoteBody(@RequestBody Map<String, Object> params) throws NodeRulesException {
         Long userId = userService.getUserIdFromSession();
-        User user = session.load(User.class, userId);
+        User user = operations.load(User.class, userId);
 
         Long bodyId = Long.valueOf((Integer) params.get("bodyId"));
-        ArgumentBody body = session.load(ArgumentBody.class, bodyId);
+        ArgumentBody body = operations.load(ArgumentBody.class, bodyId);
         user.revokeVote(body);
 
-        session.save(body);
-        session.save(user);
+        operations.save(body);
+        operations.save(user);
     }
 
 

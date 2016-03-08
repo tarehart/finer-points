@@ -8,6 +8,7 @@ import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.Build;
 import com.nodestand.service.VersionHelper;
+import com.nodestand.util.BodyParser;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -55,6 +56,11 @@ public class AssertionNode extends ArgumentNode {
         existing.getDependentNodes().removeIf(n -> n.getId().equals(targetNode.getId()));
 
         targetNode.getSupportingNodes().add(replacement);
+    }
+
+    public void updateChildOrder() throws NodeRulesException {
+        String[] links = BodyParser.validateAndSortLinks(getSupportingNodes(), getBody().getBody());
+        childOrder = String.join(",", links);
     }
 
     @Override
@@ -132,11 +138,6 @@ public class AssertionNode extends ArgumentNode {
         return supportingNodes != null? supportingNodes : new HashSet<>(0);
     }
 
-//    @Override
-//    public Set<ArgumentNode> getDependentNodesGeneric() {
-//        return new HashSet<>(getDependentNodes());
-//    }
-
     @JsonIgnore
     @Relationship(type="SUPPORTED_BY", direction = Relationship.OUTGOING)
     public Set<ArgumentNode> getSupportingNodes() {
@@ -176,10 +177,6 @@ public class AssertionNode extends ArgumentNode {
     @Relationship(type="SUPPORTED_BY", direction = Relationship.INCOMING)
     public void setDependentNodes(Set<AssertionNode> dependentNodes) {
         this.dependentNodes = dependentNodes;
-    }
-
-    public void setChildOrder(String childOrder) {
-        this.childOrder = childOrder;
     }
 
     public String getChildOrder() {

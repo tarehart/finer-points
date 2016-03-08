@@ -41,9 +41,13 @@ public final class BodyParser {
         while (m.find()) {
             String id = m.group(1);
 
+            if (majorVersionStables.contains(id)) {
+                continue;
+            }
+
             List<ArgumentNode> matches = remainingChildren.stream().filter(n -> n.getBody().getMajorVersion().getStableId().equals(id)).collect(Collectors.toList());
 
-            if (matches.isEmpty() && !majorVersionStables.contains(id)) {
+            if (matches.isEmpty()) {
                 throw new NodeRulesException("Body text contained an unexpected link!");
             }
 

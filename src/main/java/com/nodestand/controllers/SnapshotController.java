@@ -9,6 +9,7 @@ import com.nodestand.service.user.UserService;
 import com.nodestand.util.BugMitigator;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,7 +31,7 @@ public class SnapshotController {
     ArgumentNodeRepository nodeRepository;
 
     @Autowired
-    Session session;
+    Neo4jOperations operations;
 
     /*
 
@@ -53,10 +54,10 @@ public class SnapshotController {
     public ArgumentNode publishNode(@RequestBody Map<String, Object> params) throws Exception {
 
         Long userId = userService.getUserIdFromSession();
-        User user = session.load(User.class, userId);
+        User user = operations.load(User.class, userId);
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
 
-        ArgumentNode existingNode = BugMitigator.loadArgumentNode(session, nodeId, 2);
+        ArgumentNode existingNode = BugMitigator.loadArgumentNode(operations, nodeId, 2);
 
         if (existingNode.isFinalized()) {
             throw new Exception("Already snapshotted, nothing to do!");

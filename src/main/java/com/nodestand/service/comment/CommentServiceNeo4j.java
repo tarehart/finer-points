@@ -8,8 +8,8 @@ import com.nodestand.nodes.User;
 import com.nodestand.nodes.comment.Comment;
 import com.nodestand.nodes.comment.Commentable;
 import com.nodestand.nodes.repository.CommentableRepository;
-import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +21,7 @@ import java.util.Set;
 public class CommentServiceNeo4j implements CommentService {
 
     @Autowired
-    Session session;
+    Neo4jOperations operations;
 
     @Autowired
     CommentableRepository commentRepo;
@@ -29,7 +29,7 @@ public class CommentServiceNeo4j implements CommentService {
     @Override
     @Transactional
     public QuickCommentResponse getComments(long argumentNodeId) {
-        ArgumentNode baseNode = session.load(ArgumentNode.class, argumentNodeId, 2);
+        ArgumentNode baseNode = operations.load(ArgumentNode.class, argumentNodeId, 2);
 
         Set<Commentable> comments = commentRepo.getComments(baseNode.getBody().getId());
 
@@ -46,13 +46,13 @@ public class CommentServiceNeo4j implements CommentService {
     @Override
     @Transactional
     public Comment createComment(String body, long parentId, long userId) {
-        Commentable parent = session.load(Commentable.class, parentId);
+        Commentable parent = operations.load(Commentable.class, parentId);
 
-        User user = session.load(User.class, userId);
+        User user = operations.load(User.class, userId);
 
         Comment comment = new Comment(parent, user, body);
 
-        session.save(comment);
+        operations.save(comment);
 
         return comment;
     }
@@ -60,7 +60,7 @@ public class CommentServiceNeo4j implements CommentService {
     @Override
     @Transactional
     public Comment editComment(String body, long commentId, long userId) throws NodeRulesException {
-        Comment comment = session.load(Comment.class, commentId);
+        Comment comment = operations.load(Comment.class, commentId);
 
         if (!comment.author.getNodeId().equals(userId)) {
             throw new NodeRulesException("Can't edit somebody else's comment!");
@@ -69,7 +69,7 @@ public class CommentServiceNeo4j implements CommentService {
         comment.setDateEdited(new Date());
         comment.body = body;
 
-        session.save(comment);
+        operations.save(comment);
 
         return comment;
     }

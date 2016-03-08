@@ -19,9 +19,6 @@ public class GraphController {
     @Autowired
     ArgumentNodeRepository repo;
 
-    @Autowired
-    Session session;
-
     @RequestMapping("/graph")
     public QuickGraphResponse getGraph(@RequestParam(value="rootStableId", required=true) String rootStableId) {
 

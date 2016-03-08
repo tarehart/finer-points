@@ -371,6 +371,7 @@
                 cachedNode.body = cachedNode.body || newData.body;
                 cachedNode.body.body = newData.body.body;
                 cachedNode.body.title = newData.body.title;
+                cachedNode.body.public = newData.body.public;
             }
 
             if (!cachedNode.id || cachedNode.id === DRAFT_ID) {
@@ -385,6 +386,10 @@
             if (newData.draft != undefined && newData.draft != null) {
                 cachedNode.draft = newData.draft;
             }
+
+            cachedNode.childOrder = newData.childOrder;
+
+            sortChildren(cachedNode);
         }
 
         function insertNode(node) {
@@ -415,6 +420,20 @@
             return addedNodes;
         };
 
+        function sortChildren(node) {
+            if (!node.childOrder || !node.children || !node.children.length > 1) {
+                return;
+            }
+
+            var childOrder = node.childOrder.split(",");
+            var oldChildren = node.children;
+            node.children = [];
+            $.each(oldChildren, function(i, child) {
+                var index = childOrder.indexOf(child.stableId);
+                node.children[index] = child;
+            });
+        }
+
         function populateChildren(nodeMap, edgeList) {
             Object.keys(nodeMap).forEach(function (id) {
                 var node = cache.get(id);
@@ -430,11 +449,14 @@
                     } else {
                         node.children.push(child);
                     }
-                    if (isInfinite(node)) {
-                        // That's illegal! Remove that child.
-                        node.children.splice(node.children.length - 1, 1);
-                        console.log("Refusing to add child with id " + child.id + " because it creates a cycle!");
-                    }
+                }
+
+                sortChildren(node);
+
+                if (isInfinite(node)) {
+                    // That's illegal! Remove those children.
+                    node.children = [];
+                    console.log("Took away the children of " + node.stableId + " because they create a cycle!");
                 }
             });
         }

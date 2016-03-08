@@ -22,6 +22,7 @@ import com.nodestand.util.TwoWayUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,19 +32,23 @@ import java.util.*;
 public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Autowired
-    Session session;
-
-    @Autowired
     ArgumentNodeRepository argumentRepo;
 
     @Autowired
     VersionHelper versionHelper;
+
+    @Autowired
+    Neo4jOperations operations;
 
 
     @Override
     @Transactional
     public QuickGraphResponse getGraph(String rootStableId) {
         Set<ArgumentNode> nodes = argumentRepo.getGraph(rootStableId);
+
+        if (nodes.isEmpty()) {
+            throw new RuntimeException("Node not found!");
+        }
 
         Set<QuickEdge> edges = new HashSet<>();
 
@@ -64,8 +69,8 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Override
     @Transactional
     public ArgumentNode getFullDetail(long nodeId) {
-        ArgumentNode node = session.load(ArgumentNode.class, nodeId);
-        session.load(ArgumentBody.class, node.getBody().getId(), 2);
+        ArgumentNode node = operations.load(ArgumentNode.class, nodeId);
+        operations.load(ArgumentBody.class, node.getBody().getId(), 2);
         return node;
     }
 
@@ -73,19 +78,16 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Transactional
     public AssertionNode createAssertion(long userId, String title, String body, Collection<Long> links) throws NodeRulesException {
 
-        User user = session.load(User.class, userId);
+        User user = operations.load(User.class, userId);
         AssertionBody assertionBody = new AssertionBody(title, body, user);
 
         AssertionNode node = assertionBody.constructNode(versionHelper);
 
         Set<ArgumentNode> children = getAndValidateChildNodes(links);
 
-        String[] childOrder = BodyParser.validateAndSortLinks(children, body);
-        node.setChildOrder(StringUtils.join(childOrder, ","));
-
         TwoWayUtil.updateSupportingNodes(node, children);
 
-        session.save(node);
+        operations.save(node);
         return node;
     }
 
@@ -93,29 +95,29 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Transactional
     public InterpretationNode createInterpretation(long userId, String title, String body, Long sourceId) {
 
-        User user = session.load(User.class, userId);
+        User user = operations.load(User.class, userId);
         InterpretationBody interpretationBody = new InterpretationBody(title, body, user);
 
         InterpretationNode node = interpretationBody.constructNode(versionHelper);
 
         if (sourceId != null) {
-            SourceNode source = session.load(SourceNode.class, sourceId);
+            SourceNode source = operations.load(SourceNode.class, sourceId);
             node.setSource(source);
         }
 
-        session.save(node);
+        operations.save(node);
         return node;
     }
 
     @Override
     @Transactional
     public SourceNode createSource(long userId, String title, String url) {
-        User user = session.load(User.class, userId);
+        User user = operations.load(User.class, userId);
 
         SourceBody sourceBody = new SourceBody(title, user, url);
         SourceNode node = sourceBody.constructNode(versionHelper);
 
-        session.save(node);
+        operations.save(node);
         return node;
     }
 
@@ -123,7 +125,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Transactional
     public AssertionNode editAssertion(long userId, long nodeId, String title, String body, Collection<Long> links) throws NodeRulesException {
 
-        AssertionNode existingNode = session.load(AssertionNode.class, nodeId, 2);
+        AssertionNode existingNode = operations.load(AssertionNode.class, nodeId, 2);
 
         if (userId != existingNode.getBody().author.getNodeId()) {
             throw new NodeRulesException("Can't modify a private draft that you don't own");
@@ -136,12 +138,9 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         Set<ArgumentNode> children = getAndValidateChildNodes(links);
 
-        String[] childOrder = BodyParser.validateAndSortLinks(children, body);
-        existingNode.setChildOrder(StringUtils.join(childOrder, ","));
-
         TwoWayUtil.updateSupportingNodes(existingNode, children);
 
-        session.save(existingNode);
+        operations.save(existingNode);
         return existingNode;
     }
 
@@ -161,36 +160,36 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Override
     @Transactional
     public InterpretationNode editInterpretation(long userId, long nodeId, String title, String body, Long sourceId) throws NodeRulesException {
-        User user = session.load(User.class, userId);
+        User user = operations.load(User.class, userId);
 
-        InterpretationNode existingNode = session.load(InterpretationNode.class, nodeId, 2);
+        InterpretationNode existingNode = operations.load(InterpretationNode.class, nodeId, 2);
 
         checkEditRules(existingNode);
 
         existingNode.getBody().setTitle(title);
         existingNode.getBody().setBody(body);
 
-        SourceNode sourceNode = session.load(SourceNode.class, sourceId);
+        SourceNode sourceNode = operations.load(SourceNode.class, sourceId);
 
         existingNode.setSource(sourceNode);
 
-        session.save(existingNode);
+        operations.save(existingNode);
         return existingNode;
     }
 
     @Override
     @Transactional
     public SourceNode editSource(long userId, long nodeId, String title, String url) throws NodeRulesException {
-        User user = session.load(User.class, userId);
+        User user = operations.load(User.class, userId);
 
-        SourceNode existingNode = session.load(SourceNode.class, nodeId, 2);
+        SourceNode existingNode = operations.load(SourceNode.class, nodeId, 2);
 
         checkEditRules(existingNode);
 
         existingNode.getBody().setTitle(title);
         existingNode.getBody().setUrl(url);
 
-        session.save(existingNode);
+        operations.save(existingNode);
         return existingNode;
     }
 
@@ -198,7 +197,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Transactional
     public EditResult makeDraft(long userId, long nodeId, String rootStableId) throws NodeRulesException {
 
-        ArgumentNode existingNode = session.load(ArgumentNode.class, nodeId, 2);
+        ArgumentNode existingNode = operations.load(ArgumentNode.class, nodeId, 2);
 
         if (!existingNode.getBody().isEditable()) {
             throw new NodeRulesException("Cannot edit this node!");
@@ -211,19 +210,19 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         // Create a new draft version
 
-        User user = session.load(User.class, userId);
+        User user = operations.load(User.class, userId);
 
         // This will set the previous version on the draft. Later, when we publish the edit,
         // this draft will copy its contents to the previous version and then be destroyed.
         ArgumentNode draftNode = existingNode.createNewDraft(VersionHelper.startBuild(user), true);
 
-        session.save(draftNode);
+        operations.save(draftNode);
 
         String newRootStableId = null;
         if (existingNode.getStableId().equals(rootStableId)) {
             newRootStableId = draftNode.getStableId();
         } else {
-            newRootStableId = DraftPropagation.propagateDraftTowardRoot(draftNode, getGraph(rootStableId), session, argumentRepo);
+            newRootStableId = DraftPropagation.propagateDraftTowardRoot(draftNode, getGraph(rootStableId), operations, argumentRepo);
         }
 
         EditResult result = new EditResult(draftNode);
@@ -236,7 +235,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Transactional
     public ArgumentNode publishNode(long userId, long nodeId) throws NotAuthorizedException, NodeRulesException {
 
-        ArgumentNode existingNode = session.load(ArgumentNode.class, nodeId, 2);
+        ArgumentNode existingNode = operations.load(ArgumentNode.class, nodeId, 2);
 
         if (userId != existingNode.getBody().author.getNodeId()) {
             throw new NotAuthorizedException("Not allowed to publish a draft that you did not create.");

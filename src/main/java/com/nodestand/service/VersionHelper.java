@@ -15,6 +15,7 @@ import com.nodestand.nodes.version.VersionAggregator;
 import com.nodestand.util.TwoWayUtil;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -28,6 +29,9 @@ public class VersionHelper {
 
     @Autowired
     ArgumentBodyRepository bodyRepository;
+
+    @Autowired
+    Neo4jOperations operations;
 
     @Autowired
     Session session;
@@ -99,7 +103,7 @@ public class VersionHelper {
 
             // Make sure it's loaded
             if (previousVersion.getBody() == null) {
-                session.load(previousVersion.getClass(), previousVersion.getId(), 1);
+                operations.load(previousVersion.getClass(), previousVersion.getId(), 1);
             }
 
             // Copy everything over into the previous version
@@ -118,9 +122,9 @@ public class VersionHelper {
             }
 
             // Destroy the current version
-            session.delete(node.getBuild());
-            session.delete(node.getBody());
-            session.delete(node);
+            operations.delete(node.getBuild());
+            operations.delete(node.getBody());
+            operations.delete(node);
 
             TwoWayUtil.forgetBody(node.getBody());
             TwoWayUtil.forgetNode(node);
@@ -133,7 +137,7 @@ public class VersionHelper {
 
         body.setIsPublic(true);
 
-        session.save(resultingNode);
+        operations.save(resultingNode);
 
         return resultingNode;
     }
@@ -156,7 +160,7 @@ public class VersionHelper {
             InterpretationNode interpretation = (InterpretationNode) node;
 
             // If interpretation.getSource returns null, this will go awry. Keep an eye on it.
-            session.load(SourceNode.class, interpretation.getSource().getId());
+            operations.load(SourceNode.class, interpretation.getSource().getId());
 
             if (!interpretation.getSource().getBody().isPublic()) {
                 publish(interpretation.getSource());
@@ -193,7 +197,7 @@ public class VersionHelper {
         clone.setVersion(getNextBuildVersion(body));
         body.setIsEditable(false);
 
-        session.save(clone);
+        operations.save(clone);
 
         return clone;
     }
@@ -224,7 +228,7 @@ public class VersionHelper {
             InterpretationNode interpretation = (InterpretationNode) node;
 
             // If interpretation.getSource returns null, this will go awry. Keep an eye on it.
-            session.load(SourceNode.class, interpretation.getSource().getId());
+            operations.load(SourceNode.class, interpretation.getSource().getId());
 
             if (!interpretation.getSource().isFinalized()) {
 

@@ -7,6 +7,7 @@ import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.response.model.QueryResultModel;
 import org.neo4j.ogm.session.Session;
+import org.springframework.data.neo4j.template.Neo4jOperations;
 
 import java.util.*;
 
@@ -33,7 +34,7 @@ public class DraftPropagation {
      * @return The id of the root node after propagation
      * @throws NodeRulesException
      */
-    static String propagateDraftTowardRoot(ArgumentNode draftNode, QuickGraphResponse graph, Session session, ArgumentNodeRepository argumentRepo) throws NodeRulesException {
+    static String propagateDraftTowardRoot(ArgumentNode draftNode, QuickGraphResponse graph, Neo4jOperations operations, ArgumentNodeRepository argumentRepo) throws NodeRulesException {
 
         ArgumentNode preEdit = draftNode.getPreviousVersion();
 
@@ -72,7 +73,7 @@ public class DraftPropagation {
                 ArgumentNode changeable = pathNode.alterOrCloneToPointToChild(priorInPath, previousChild);
 
                 // The previous child probably got modified by the alterOrClone operation due to abandonment.
-                session.save(previousChild);
+                operations.save(previousChild);
 
                 if (changeable.getGraphChildren().contains(changeable)) {
                     throw new NodeRulesException("Something has gone wrong with publishing and we have a closed loop!");
@@ -83,13 +84,13 @@ public class DraftPropagation {
                     // We stop propagation here.
 
                     // This should save all new nodes because they're linked together
-                    session.save(changeable);
+                    operations.save(changeable);
 
                     break; // No new node was created, so the upstream link is still valid.
 
                 } else if (Objects.equals(pathNode.getId(), path.get(path.size() - 1).getId())) {
                     // We can infer that the root node just got modified!
-                    session.save(changeable);
+                    operations.save(changeable);
                     newRoot = changeable;
                 }
 
