@@ -2,6 +2,7 @@ package com.nodestand;
 
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.assertion.AssertionNode;
+import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -51,24 +52,6 @@ public class Neo4jConfig extends Neo4jConfiguration {
     @Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
     public Session getSession() throws Exception {
         return super.getSession();
-    }
-
-    @Bean
-    ApplicationListener<BeforeSaveEvent> beforeSaveEventApplicationListener() {
-
-        return new ApplicationListener<BeforeSaveEvent>() {
-            @Override
-            public void onApplicationEvent(BeforeSaveEvent event) {
-                Object entity = event.getEntity();
-                if (entity instanceof AssertionNode) {
-                    try {
-                        ((AssertionNode) entity).updateChildOrder();
-                    } catch (NodeRulesException e) {
-                        throw new RuntimeException("Assertion node's children are in a bad state!", e);
-                    }
-                }
-            }
-        };
     }
 
 }

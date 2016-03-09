@@ -13,6 +13,7 @@ import com.nodestand.test.Neo4jIntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -27,6 +28,9 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private Session session;
 
     private User registerUser(String socialId, String name) {
         return userService.register(socialId, name).getUser();
@@ -116,6 +120,35 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         Assert.assertNotEquals(assertionNode.getId(), result.getGraph().getRootId()); // Draft creation has propagated to root
         Assert.assertNotEquals(result.getEditedNode().getId(), result.getGraph().getRootId()); // The root was not the subject of editing
         Assert.assertFalse(result.getEditedNode().getBody().isPublic());
+    }
+
+    @Test
+    public void testPublishWithSessionClears() throws NodeRulesException, NotAuthorizedException {
+
+        User jim = registerUser("1234", "Jim");
+        List<Long> links = new LinkedList<>();
+
+        AssertionNode assertionNode = argumentService.createAssertion(jim.getNodeId(), "Assertion Title", "Hello, world!", links);
+        session.clear();
+
+        InterpretationNode interpretationNode = argumentService.createInterpretation(jim.getNodeId(), "Interp Title", "Interp body", null);
+        session.clear();
+
+        // Edit the assertion to point to the interpretation
+        links.add(interpretationNode.getId());
+        assertionNode = argumentService.editAssertion(jim.getNodeId(), assertionNode.getId(), "Assertion Title", "Hello! {{[" +
+                interpretationNode.getBody().getMajorVersion().getStableId() + "]link}}", links);
+        session.clear();
+
+        SourceNode sourceNode = argumentService.createSource(jim.getNodeId(), "Source Title", "http://google.com");
+        session.clear();
+
+        argumentService.editInterpretation(jim.getNodeId(), interpretationNode.getId(), "Interp Title", "Interp body", sourceNode.getId());
+        session.clear();
+
+        AssertionNode published = (AssertionNode) argumentService.publishNode(jim.getNodeId(), assertionNode.getId());
+
+        Assert.assertTrue(published.getBody().isPublic());
     }
 
 

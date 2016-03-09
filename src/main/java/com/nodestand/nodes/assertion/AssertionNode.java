@@ -5,6 +5,7 @@ import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.interpretation.InterpretationNode;
+import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.nodes.version.Build;
 import com.nodestand.service.VersionHelper;
@@ -58,8 +59,8 @@ public class AssertionNode extends ArgumentNode {
         targetNode.getSupportingNodes().add(replacement);
     }
 
-    public void updateChildOrder() throws NodeRulesException {
-        String[] links = BodyParser.validateAndSortLinks(getSupportingNodes(), getBody().getBody());
+    public void updateChildOrder(ArgumentNodeRepository repo) throws NodeRulesException {
+        String[] links = BodyParser.validateAndSortLinks(getSupportingNodes(), getBody().getBody(), repo);
         childOrder = String.join(",", links);
     }
 

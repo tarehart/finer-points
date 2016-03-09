@@ -2,6 +2,7 @@ package com.nodestand.util;
 
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
+import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -26,10 +27,16 @@ public final class BodyParser {
     }
 
 
-    public static String[] validateAndSortLinks(Collection<ArgumentNode> children, String assertionBodyText) throws NodeRulesException {
+    public static String[] validateAndSortLinks(Collection<ArgumentNode> children, String assertionBodyText, ArgumentNodeRepository repo) throws NodeRulesException {
 
         if (StringUtils.isEmpty(assertionBodyText)) {
             return new String[0];
+        }
+
+        for (ArgumentNode child: children) {
+            if (child.getBody() == null || child.getBody().getMajorVersion() == null) {
+                repo.loadWithMajorVersion(child.getId());
+            }
         }
 
         Matcher m = p.matcher(assertionBodyText);
