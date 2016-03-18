@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.response.model.QueryResultModel;
+import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -36,6 +37,9 @@ public class ArgumentNodeRepositoryTest extends Neo4jIntegrationTest {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private Session session;
+
     private User registerUser(String socialId, String name) {
         return userService.register(socialId, name).getUser();
     }
@@ -49,6 +53,9 @@ public class ArgumentNodeRepositoryTest extends Neo4jIntegrationTest {
 
         InterpretationNode interp = (InterpretationNode) triple.getGraphChildren().iterator().next();
         SourceNode source = interp.getSource();
+
+        session.clear();
+
         QueryResultModel result = (QueryResultModel) argumentNodeRepository.getPaths(source.getId(), triple.getId());
 
         Assert.assertNotNull(result);

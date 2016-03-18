@@ -19,6 +19,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ArgumentServiceTest extends Neo4jIntegrationTest {
@@ -105,6 +106,55 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         Assert.assertEquals(body, resultingNode.getBody().getBody());
         Assert.assertTrue(resultingNode.getBody().isEditable());
         Assert.assertTrue(resultingNode.getBody().isPublic());
+    }
+
+    @Test
+    public void testEditingSourceViaDraft() throws NotAuthorizedException, NodeRulesException {
+        User kyle = registerUser("5678", "Kyle");
+        AssertionNode assertionNode = createPublishedAssertion();
+        Assert.assertNotNull(assertionNode.getBuild());
+
+        InterpretationNode interp = (InterpretationNode) assertionNode.getSupportingNodes().stream().findFirst().get();
+        Assert.assertNotNull(interp.getBuild());
+
+        SourceNode source = interp.getSource();
+
+        session.clear();
+
+        EditResult result = argumentService.makeDraft(kyle.getNodeId(), source.getId(), assertionNode.getStableId());
+
+        Assert.assertNotEquals(source.getId(), result.getEditedNode().getId());
+        Assert.assertNotEquals(assertionNode.getId(), result.getGraph().getRootId());
+
+        ArgumentNode resultRoot = result.getGraph().getNodes().stream().filter(n -> Objects.equals(n.getId(), result.getGraph().getRootId())).findFirst().get();
+        Assert.assertEquals(assertionNode.getId(), resultRoot.getPreviousVersion().getId());
+        Assert.assertFalse(result.getEditedNode().getBody().isPublic());
+
+        session.clear();
+
+        SourceNode edited = argumentService.editSource(kyle.getNodeId(), result.getEditedNode().getId(), "New Title", "new/url");
+
+        Assert.assertFalse(edited.getBody().isPublic());
+        Assert.assertEquals(source.getId(), edited.getPreviousVersion().getId());
+
+        session.clear();
+
+        SourceNode resultingNode = (SourceNode) argumentService.publishNode(kyle.getNodeId(), edited.getId());
+
+        Assert.assertEquals(source.getId(), resultingNode.getId());
+        Assert.assertEquals("New Title", resultingNode.getBody().getTitle());
+        Assert.assertEquals("new/url", resultingNode.getBody().getUrl());
+        Assert.assertTrue(resultingNode.getBody().isEditable());
+        Assert.assertTrue(resultingNode.getBody().isPublic());
+
+        session.clear();
+
+        // Publish the draft interpretation
+        InterpretationNode draftInterp = (InterpretationNode) result.getGraph().getNodes().stream().filter(n -> n instanceof InterpretationNode).findFirst().get();
+        Assert.assertNotEquals(interp.getId(), draftInterp.getId());
+
+        InterpretationNode resultingInterp = (InterpretationNode) argumentService.publishNode(kyle.getNodeId(), draftInterp.getId());
+        Assert.assertEquals(resultingInterp.getId(), interp.getId());
     }
 
     @Test

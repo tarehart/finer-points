@@ -14,7 +14,7 @@ import java.util.*;
 public class DraftPropagation {
 
 
-    private static Set<List<ArgumentNode>> resultToNodeLists(Result result) {
+    private static Set<List<ArgumentNode>> resultToNodeLists(Result result, ArgumentNodeRepository argumentRepo) {
 
         Iterable<Map<String, Object>> results = result.queryResults();
 
@@ -22,6 +22,11 @@ public class DraftPropagation {
 
         for (Map<String, Object> r: results) {
             List<ArgumentNode> path = (List<ArgumentNode>) r.get("path"); // Keep in sync with ArgumentNodeRepository.getPaths
+            for (ArgumentNode n: path) {
+                if (n.getBody() == null || n.getBody().getMajorVersion() == null) {
+                    argumentRepo.loadWithMajorVersion(n.getId()); // TODO: find a faster way, e.g. http://stackoverflow.com/questions/36078020/
+                }
+            }
             lists.add(path);
         }
 
@@ -47,14 +52,12 @@ public class DraftPropagation {
 
         Result rawResult = argumentRepo.getPaths(preEdit.getId(), graph.getRootId());
 
-        Set<List<ArgumentNode>> nicePaths = resultToNodeLists(rawResult);
+        Set<List<ArgumentNode>> nicePaths = resultToNodeLists(rawResult, argumentRepo);
 
         for (List<ArgumentNode> path: nicePaths) {
 
             ArgumentNode priorInPath = draftNode;
-            for (Object nodeObj : path) {
-
-                ArgumentNode pathNode = (ArgumentNode) nodeObj;
+            for (ArgumentNode pathNode : path) {
 
                 if (Objects.equals(pathNode.getId(), path.get(0).getId())) {
                     continue; // Skip the start node; we've already converted it to a draft.
@@ -72,25 +75,22 @@ public class DraftPropagation {
 
                 ArgumentNode changeable = pathNode.alterOrCloneToPointToChild(priorInPath, previousChild);
 
-                // The previous child probably got modified by the alterOrClone operation due to abandonment.
-                operations.save(previousChild);
-
                 if (changeable.getGraphChildren().contains(changeable)) {
                     throw new NodeRulesException("Something has gone wrong with publishing and we have a closed loop!");
                 }
 
+                // The previous child probably got modified by the alterOrClone operation due to abandonment.
+                operations.save(previousChild);
+                operations.save(changeable);
+
                 if (pathNode.getId().equals(changeable.getId())) {
                     // There was no clone necessary, it must already have been a draft.
                     // We stop propagation here.
-
-                    // This should save all new nodes because they're linked together
-                    operations.save(changeable);
-
-                    break; // No new node was created, so the upstream link is still valid.
+                    // No new node was created, so the upstream link is still valid.
+                    break;
 
                 } else if (Objects.equals(pathNode.getId(), path.get(path.size() - 1).getId())) {
                     // We can infer that the root node just got modified!
-                    operations.save(changeable);
                     newRoot = changeable;
                 }
 

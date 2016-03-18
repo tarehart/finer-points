@@ -122,7 +122,8 @@ public class VersionHelper {
             }
 
             // Destroy the current version
-            operations.delete(node.getBuild());
+            // Do not delete the Build because it is possibly still in use. For example, there may have been a draft
+            // propagation touching many nodes, and now we're only publishing one of them.
             operations.delete(node.getBody());
             operations.delete(node);
 
