@@ -22,11 +22,6 @@ public class DraftPropagation {
 
         for (Map<String, Object> r: results) {
             List<ArgumentNode> path = (List<ArgumentNode>) r.get("path"); // Keep in sync with ArgumentNodeRepository.getPaths
-            for (ArgumentNode n: path) {
-                if (n.getBody() == null || n.getBody().getMajorVersion() == null) {
-                    argumentRepo.loadWithMajorVersion(n.getId()); // TODO: find a faster way, e.g. http://stackoverflow.com/questions/36078020/
-                }
-            }
             lists.add(path);
         }
 

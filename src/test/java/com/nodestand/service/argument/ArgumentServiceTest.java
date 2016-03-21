@@ -155,6 +155,11 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         InterpretationNode resultingInterp = (InterpretationNode) argumentService.publishNode(kyle.getNodeId(), draftInterp.getId());
         Assert.assertEquals(resultingInterp.getId(), interp.getId());
+
+        // Stuff goes fuzzy now when you load up the graph of the root node (which one, the draft or the original?).
+        // One of them unexpectedly has no children.
+
+
     }
 
     @Test

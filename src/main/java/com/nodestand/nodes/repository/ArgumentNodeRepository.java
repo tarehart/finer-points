@@ -11,7 +11,9 @@ import java.util.Set;
 
 public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
 
-    @Query("START t=node({0}), r=node({1}) MATCH p=t<-[:SUPPORTED_BY|INTERPRETS*0..]-r WITH p RETURN nodes(p) as path")
+    @Query("START t=node({0}), r=node({1}) MATCH p=t<-[:SUPPORTED_BY|INTERPRETS*0..]-r " +
+            "WITH p as p, nodes(p) as path UNWIND path AS item MATCH mvPath=item-[:DEFINED_BY]->(:ArgumentBody)-[:VERSION_OF]->(:MajorVersion) " +
+            "RETURN path, rels(p), nodes(mvPath), rels(mvPath)")
     Result getPaths(long childId, long rootId);
 
     @Query("match path=(n:ArgumentNode {stableId: {0}})-[support:SUPPORTED_BY|INTERPRETS*0..5]->(argument:ArgumentNode)-[:DEFINED_BY]->(body:ArgumentBody) return path")

@@ -73,6 +73,10 @@ public class ArgumentNodeRepositoryTest extends Neo4jIntegrationTest {
         Assert.assertEquals(source, path.get(0));
         Assert.assertEquals(interp, path.get(1));
         Assert.assertEquals(triple, path.get(2));
+
+        Assert.assertEquals(1, triple.getSupportingNodes().size());
+        Assert.assertNotNull(triple.getBody());
+        Assert.assertNotNull(triple.getBody().getMajorVersion());
     }
 
 
