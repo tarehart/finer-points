@@ -2,6 +2,7 @@ package com.nodestand.service.argument;
 
 import com.nodestand.auth.NotAuthorizedException;
 import com.nodestand.controllers.serial.EditResult;
+import com.nodestand.controllers.serial.QuickGraphResponse;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
@@ -109,7 +110,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
     }
 
     @Test
-    public void testEditingSourceViaDraft() throws NotAuthorizedException, NodeRulesException {
+    public void theGAUNTLET() throws NotAuthorizedException, NodeRulesException {
         User kyle = registerUser("5678", "Kyle");
         AssertionNode assertionNode = createPublishedAssertion();
         Assert.assertNotNull(assertionNode.getBuild());
@@ -159,6 +160,17 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         // Stuff goes fuzzy now when you load up the graph of the root node (which one, the draft or the original?).
         // One of them unexpectedly has no children.
 
+        session.clear();
+
+        QuickGraphResponse draftGraph = argumentService.getGraph(resultRoot.getStableId());
+        AssertionNode draftGraphRoot = (AssertionNode) draftGraph.getNodes().stream().filter(n -> Objects.equals(n.getId(), resultRoot.getId())).findFirst().get();
+        Assert.assertNotNull(draftGraphRoot.getSupportingNodes());
+        Assert.assertFalse(draftGraphRoot.getSupportingNodes().isEmpty());
+
+        QuickGraphResponse originalGraph = argumentService.getGraph(assertionNode.getStableId());
+        AssertionNode originalGraphRoot = (AssertionNode) originalGraph.getNodes().stream().filter(n -> Objects.equals(n.getId(), assertionNode.getId())).findFirst().get();
+        Assert.assertNotNull(originalGraphRoot.getSupportingNodes());
+        Assert.assertFalse(originalGraphRoot.getSupportingNodes().isEmpty());
 
     }
 

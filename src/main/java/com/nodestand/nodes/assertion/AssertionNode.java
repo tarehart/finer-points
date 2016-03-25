@@ -57,6 +57,22 @@ public class AssertionNode extends ArgumentNode {
         existing.getDependentNodes().removeIf(n -> n.getId().equals(targetNode.getId()));
 
         targetNode.getSupportingNodes().add(replacement);
+
+        if (replacement instanceof AssertionNode) {
+            AssertionNode assertionReplacement = ((AssertionNode) replacement);
+            if (assertionReplacement.getDependentNodes() == null) {
+                assertionReplacement.setDependentNodes(new HashSet<>());
+            }
+            assertionReplacement.getDependentNodes().add(targetNode);
+        } else if (replacement instanceof InterpretationNode) {
+            InterpretationNode interpReplacement = ((InterpretationNode) replacement);
+            if (interpReplacement.getDependentNodes() == null) {
+                interpReplacement.setDependentNodes(new HashSet<>());
+            }
+            interpReplacement.getDependentNodes().add(targetNode);
+        } else {
+            throw new NodeRulesException("Can only have Assertions and Interpretations as children of an Assertion.");
+        }
     }
 
     public void updateChildOrder(ArgumentNodeRepository repo) throws NodeRulesException {
