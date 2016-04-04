@@ -78,6 +78,6 @@ public class EditController {
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
         String rootStableId = (String) params.get("rootStableId");
 
-        return argumentService.makeDraft(userId, nodeId, rootStableId);
+        return argumentService.makeDraft(userId, nodeId);
     }
 }

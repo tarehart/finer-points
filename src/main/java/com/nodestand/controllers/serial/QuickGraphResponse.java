@@ -1,5 +1,6 @@
 package com.nodestand.controllers.serial;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.ArgumentNode;
 
 import java.util.Set;
@@ -32,5 +33,10 @@ public class QuickGraphResponse {
 
     public Long getRootId() {
         return rootId;
+    }
+
+    @JsonIgnore
+    public ArgumentNode getRootNode() {
+        return nodes.stream().filter(n -> n.getId().equals(rootId)).findFirst().get();
     }
 }

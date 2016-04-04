@@ -18,6 +18,7 @@ import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -85,7 +86,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         User kyle = registerUser("5678", "Kyle");
         AssertionNode assertionNode = createPublishedAssertion();
 
-        EditResult result = argumentService.makeDraft(kyle.getNodeId(), assertionNode.getId(), assertionNode.getStableId());
+        EditResult result = argumentService.makeDraft(kyle.getNodeId(), assertionNode.getId());
 
         Assert.assertNotEquals(assertionNode.getId(), result.getEditedNode().getId());
         Assert.assertEquals(result.getEditedNode().getId(), result.getGraph().getRootId());
@@ -122,13 +123,12 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         session.clear();
 
-        EditResult result = argumentService.makeDraft(kyle.getNodeId(), source.getId(), assertionNode.getStableId());
+        EditResult result = argumentService.makeDraft(kyle.getNodeId(), source.getId());
 
         Assert.assertNotEquals(source.getId(), result.getEditedNode().getId());
-        Assert.assertNotEquals(assertionNode.getId(), result.getGraph().getRootId());
 
         ArgumentNode resultRoot = result.getGraph().getNodes().stream().filter(n -> Objects.equals(n.getId(), result.getGraph().getRootId())).findFirst().get();
-        Assert.assertEquals(assertionNode.getId(), resultRoot.getPreviousVersion().getId());
+        Assert.assertEquals(source.getId(), resultRoot.getPreviousVersion().getId());
         Assert.assertFalse(result.getEditedNode().getBody().isPublic());
 
         session.clear();
@@ -150,28 +150,69 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         session.clear();
 
-        // Publish the draft interpretation
-        InterpretationNode draftInterp = (InterpretationNode) result.getGraph().getNodes().stream().filter(n -> n instanceof InterpretationNode).findFirst().get();
-        Assert.assertNotEquals(interp.getId(), draftInterp.getId());
 
-        InterpretationNode resultingInterp = (InterpretationNode) argumentService.publishNode(kyle.getNodeId(), draftInterp.getId());
-        Assert.assertEquals(resultingInterp.getId(), interp.getId());
-
-        // Stuff goes fuzzy now when you load up the graph of the root node (which one, the draft or the original?).
-        // One of them unexpectedly has no children.
-
+        // Make sure the interpretation points to the edited source
+        QuickGraphResponse interpGraph =  argumentService.getGraph(interp.getStableId());
+        Assert.assertEquals(resultingNode.getId(), ((InterpretationNode)interpGraph.getRootNode()).getSource().getId());
         session.clear();
 
-        QuickGraphResponse draftGraph = argumentService.getGraph(resultRoot.getStableId());
-        AssertionNode draftGraphRoot = (AssertionNode) draftGraph.getNodes().stream().filter(n -> Objects.equals(n.getId(), resultRoot.getId())).findFirst().get();
-        Assert.assertNotNull(draftGraphRoot.getSupportingNodes());
-        Assert.assertFalse(draftGraphRoot.getSupportingNodes().isEmpty());
+        // Make the interpretation a draft
+        EditResult interpDraftResult = argumentService.makeDraft(kyle.getNodeId(), interp.getId());
 
-        QuickGraphResponse originalGraph = argumentService.getGraph(assertionNode.getStableId());
-        AssertionNode originalGraphRoot = (AssertionNode) originalGraph.getNodes().stream().filter(n -> Objects.equals(n.getId(), assertionNode.getId())).findFirst().get();
-        Assert.assertNotNull(originalGraphRoot.getSupportingNodes());
-        Assert.assertFalse(originalGraphRoot.getSupportingNodes().isEmpty());
+        // Make sure the interpretation draft still points to the source
+        InterpretationNode interpDraft = (InterpretationNode)interpDraftResult.getEditedNode();
+        Assert.assertEquals(resultingNode.getId(), interpDraft.getSource().getId());
+        session.clear();
 
+        // Edit the interp draft
+        argumentService.editInterpretation(kyle.getNodeId(), interpDraft.getId(), "Edited interp", "Edited interp body", resultingNode.getId());
+        session.clear();
+
+        // Make the assertion a draft
+        EditResult assertionDraftResult = argumentService.makeDraft(kyle.getNodeId(), assertionNode.getId());
+        AssertionNode assertionDraft = (AssertionNode) assertionDraftResult.getEditedNode();
+
+        // Make sure the assertion points to the interp original, not the interp draft
+        Assert.assertEquals(1, assertionDraft.getSupportingNodes().size());
+        InterpretationNode child = (InterpretationNode) assertionDraft.getSupportingNodes().stream().findFirst().get();
+        Assert.assertEquals(interp.getId(), child.getId());
+        Assert.assertNotEquals(interpDraft.getId(), child.getId());
+        session.clear();
+
+        // Publish the interp draft
+        InterpretationNode publishedInterp = (InterpretationNode) argumentService.publishNode(kyle.getNodeId(), interpDraft.getId());
+        session.clear();
+
+        // Make sure the original assertion points to the published changed interp
+        QuickGraphResponse latestTree = argumentService.getGraph(assertionNode.getStableId());
+        InterpretationNode treeInterp = (InterpretationNode) latestTree.getRootNode().getGraphChildren().stream().findFirst().get();
+        Assert.assertEquals(publishedInterp.getId(), treeInterp.getId());
+        Assert.assertEquals(publishedInterp.getBody().getTitle(), treeInterp.getBody().getTitle());
+        Assert.assertEquals("Edited interp", publishedInterp.getBody().getTitle());
+        session.clear();
+
+        // Make sure the draft assertion does the same
+        QuickGraphResponse draftTree = argumentService.getGraph(assertionDraft.getStableId());
+        treeInterp = (InterpretationNode) draftTree.getRootNode().getGraphChildren().stream().findFirst().get();
+        Assert.assertEquals(publishedInterp.getId(), treeInterp.getId());
+        session.clear();
+
+        // Edit and publish the assertion
+        List<Long> links = new LinkedList<>();
+        links.add(publishedInterp.getId());
+        argumentService.editAssertion(kyle.getNodeId(), assertionDraft.getId(), "Edited assertion", "Edited assertion body " + assertionNode.getBody().getBody(), links);
+        session.clear();
+        AssertionNode publishedAssertion = (AssertionNode) argumentService.publishNode(kyle.getNodeId(), assertionDraft.getId());
+        session.clear();
+
+        // Make sure the resulting graph looks good
+        QuickGraphResponse finalTree = argumentService.getGraph(publishedAssertion.getStableId());
+        Assert.assertEquals(assertionNode.getId(), finalTree.getRootId());
+
+        // Make sure the drafts are all gone
+        Assert.assertNull(argumentService.getFullDetail(assertionDraft.getId()));
+        Assert.assertNull(argumentService.getFullDetail(interpDraft.getId()));
+        Assert.assertNull(argumentService.getFullDetail(edited.getId()));
     }
 
     @Test
@@ -182,10 +223,10 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         InterpretationNode interp = (InterpretationNode) assertionNode.getGraphChildren().iterator().next();
         SourceNode sourceNode = interp.getSource();
 
-        EditResult result = argumentService.makeDraft(kyle.getNodeId(), sourceNode.getId(), assertionNode.getStableId());
+        EditResult result = argumentService.makeDraft(kyle.getNodeId(), sourceNode.getId());
 
-        Assert.assertNotEquals(assertionNode.getId(), result.getGraph().getRootId()); // Draft creation has propagated to root
-        Assert.assertNotEquals(result.getEditedNode().getId(), result.getGraph().getRootId()); // The root was not the subject of editing
+        Assert.assertEquals(sourceNode.getId(), result.getEditedNode().getPreviousVersion().getId()); // The draft node shows the original as its previous version.
+        Assert.assertEquals(result.getEditedNode().getId(), result.getGraph().getRootId()); // The root was the subject of editing
         Assert.assertFalse(result.getEditedNode().getBody().isPublic());
     }
 

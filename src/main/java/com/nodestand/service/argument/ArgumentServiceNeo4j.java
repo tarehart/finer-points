@@ -16,11 +16,7 @@ import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceBody;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.service.VersionHelper;
-import com.nodestand.util.BodyParser;
-import com.nodestand.util.BugMitigator;
 import com.nodestand.util.TwoWayUtil;
-import org.apache.commons.lang3.StringUtils;
-import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Component;
@@ -70,7 +66,9 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Transactional
     public ArgumentNode getFullDetail(long nodeId) {
         ArgumentNode node = operations.load(ArgumentNode.class, nodeId);
-        operations.load(ArgumentBody.class, node.getBody().getId(), 2);
+        if (node != null) {
+            operations.load(ArgumentBody.class, node.getBody().getId(), 2);
+        }
         return node;
     }
 
@@ -195,7 +193,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     @Transactional
-    public EditResult makeDraft(long userId, long nodeId, String rootStableId) throws NodeRulesException {
+    public EditResult makeDraft(long userId, long nodeId) throws NodeRulesException {
 
         ArgumentNode existingNode = operations.load(ArgumentNode.class, nodeId, 2);
 
@@ -218,15 +216,8 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         operations.save(draftNode);
 
-        String newRootStableId = null;
-        if (existingNode.getStableId().equals(rootStableId)) {
-            newRootStableId = draftNode.getStableId();
-        } else {
-            newRootStableId = DraftPropagation.propagateDraftTowardRoot(draftNode, getGraph(rootStableId), operations, argumentRepo);
-        }
-
         EditResult result = new EditResult(draftNode);
-        result.setGraph(getGraph(newRootStableId));
+        result.setGraph(getGraph(draftNode.getStableId()));
 
         return result;
     }
