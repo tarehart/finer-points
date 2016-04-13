@@ -235,11 +235,10 @@
             return draftNode;
         }
 
-        cache.makeDraft = function(node, root, successCallback, errorCallback) {
+        cache.makeDraft = function(node, successCallback, errorCallback) {
             $http.post('/makeDraft',
                 {
-                    nodeId: node.id,
-                    rootStableId: root.stableId
+                    nodeId: node.id
                 })
                 .success(function (data) {
                     var draftNode = handleDraftCreation(data);

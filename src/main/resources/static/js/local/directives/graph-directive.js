@@ -32,7 +32,7 @@
 
         $scope.enterEditMode = function (node) {
             if (node.body.public) {
-                    NodeCache.makeDraft(node, $scope.rootNode, function(draftNode, data) {
+                    NodeCache.makeDraft(node, function(draftNode, data) {
                     $location.path("/graph/" + data.graph.rootStableId);
 
                 }, function (err) {

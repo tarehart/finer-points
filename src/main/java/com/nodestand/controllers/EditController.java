@@ -76,7 +76,6 @@ public class EditController {
     public EditResult makeDraft(@RequestBody Map<String, Object> params) throws NotAuthorizedException, NodeRulesException {
         Long userId = userService.getUserIdFromSession();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
-        String rootStableId = (String) params.get("rootStableId");
 
         return argumentService.makeDraft(userId, nodeId);
     }
