@@ -1,0 +1,85 @@
+/*
+I am going to remove the bootstrap stylesheet. I still need certain bootstrap styles to support the bootstrap markdown editor
+
+ This works with help from bootstrap-material-design theme: https://github.com/FezVrasta/bootstrap-material-design
+*/
+
+@mixin clearfix() {
+  &:before,
+  &:after {
+    content: " "; // 1
+    display: table; // 2
+  }
+  &:after {
+    clear: both;
+  }
+}
+
+/* Scope everything to the markdown editor */
+.md-editor {
+
+  .hidden {
+    display: none !important;
+  }
+
+  .btn {
+    display: inline-block;
+    margin-bottom: 0; // For input.btn
+    text-align: center;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    background-image: none; // Reset unusual Firefox-on-Android default style; see https://github.com/necolas/normalize.css/issues/214
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+
+  .btn-group {
+    display: inline-block;
+    margin: 0;
+  }
+
+  // Prevent double borders when buttons are next to each other
+  .btn-group {
+    .btn + .btn,
+    .btn + .btn-group,
+    .btn-group + .btn,
+    .btn-group + .btn-group {
+      margin-left: -1px;
+    }
+  }
+
+  // Optional: Group multiple button groups together for a toolbar
+  .btn-toolbar {
+    @include clearfix;
+
+    .btn,
+    .btn-group,
+    .input-group {
+      float: left;
+    }
+    > .btn,
+    > .btn-group,
+    > .input-group {
+      margin-left: 20px;
+    }
+
+    > .btn-group:first-child {
+      margin-left: 0;
+    }
+  }
+
+
+  .btn.btn-sm {
+    padding: 5px 12px;
+  }
+
+}
+
+/* for bootstrap-markdown.min */
+.md-editor>textarea {
+  background-color: white;
+  padding: 5px;
+  border: none;
+  box-sizing: border-box;
+}

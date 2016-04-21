@@ -131,7 +131,13 @@
             saveChanges(node);
         };
 
-        function saveChanges(node) {
+        $scope.saveNode = function(node) {
+            saveChanges(node, function() {
+                node.inEditMode = false;
+            });
+        };
+
+        function saveChanges(node, successCallback) {
             if (NodeCache.isDraftNode(node)) {
                 NodeCache.saveDraftNode(function(newNode) {
 
@@ -144,6 +150,9 @@
             } else {
 
                 NodeCache.saveNodeEdit(node, $scope.rootNode, function(editedNode, data) {
+                    if (successCallback) {
+                        successCallback();
+                    }
                     toastr.success("Saved successfully!");
                 }, function (err) {
                     toastr.error(err.message);

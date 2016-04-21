@@ -81,73 +81,58 @@
 
     <div class="graph-wrapper">
 
-        <div class="row">
-            <div class="col-md-7" ng-if="rootNode">
-                <div class="panel panel-default root-node-panel">
-                    <div class="panel-body">
-                        <span ng-if="!rootNode.editingTitle">
-                            <span class="rootTitle">
+        <div layout="row">
+            <div flex="60" ng-if="rootNode">
+                <md-card ng-if="!rootNode.inEditMode">
+                    <md-card-title>
+                        <md-card-title-text>
+                            <span class="md-headline">
                                 {{rootNode.body.title}}
                                 <span ng-if="!rootNode.body.public" uib-tooltip="Private draft"><i class="fa fa-asterisk draft-marker"></i></span>
                             </span>
+                            <span class="md-subhead">By {{rootNode.body.author.displayName}}. v{{rootNode.getVersionString()}}</span>
+                        </md-card-title-text>
+                    </md-card-title>
+                    <md-card-content>
+                        <div node="rootNode" vote-button></div>
+                        <div ng-if="rootNode.type !== 'source'" ng-markdown="rootNode.body.body" render-markdown></div>
+                        <a ng-if="rootNode.type === 'source'" ng-href="{{rootNode.body.url}}" target="_blank">{{rootNode.body.url}}</a>
+                    </md-card-content>
+                    <md-card-actions layout="row" layout-align="end center">
+                        <md-button ng-if="authorizedForEdit(rootNode) && !rootNode.inEditMode" ng-click="enterEditMode(rootNode)">Edit</md-button>
+                        <md-button ng-if="readyToPublish(rootNode)" ng-click="publishNode(rootNode)" class="md-raised md-primary">Publish</md-button>
+                    </md-card-actions>
+                </md-card>
+                <md-card ng-if="rootNode.inEditMode">
+                    <md-card-content>
+                        <md-input-container class="md-block">
+                            <label>Title</label>
+                            <input ng-model="rootNode.body.title">
+                        </md-input-container>
 
-                            <button ng-if="rootNode.inEditMode" ng-click="startEditingTitle(rootNode)" type="button" class="btn btn-default btn-xs">Edit</button>
-                        </span>
-                        <span ng-if="rootNode.editingTitle">
-                            <input type="text" ng-model="rootNode.body.title" class="form-control" style="display:inline;width:auto" placeholder="Title..."
-                                   enter-fn="stopEditingTitle(rootNode)" />
-                            <button ng-click="stopEditingTitle(rootNode)" type="button" class="btn icon-btn">
-                                <i class="fa fa-check"></i>
-                            </button>
-                        </span>
+                        <textarea ng-if="rootNode.type !== 'source'" node="rootNode" set-text="setBody" link-fn="linkChild" markdown-editor>{{rootNode.body.body}}</textarea>
 
-                        <div ng-if="rootNode.editingBody">
-                            <textarea ng-if="rootNode.type !== 'source'" node="rootNode" set-text="setBody" done-fn="stopEditingBody" link-fn="linkChild" markdown-editor>{{rootNode.body.body}}</textarea>
-                            <div ng-if="rootNode.type === 'source'" class="form-inline">
-                                <input type="text" class="form-control" placeholder="http://..." ng-model="rootNode.body.url" />
-                                <button ng-click="stopEditingBody(rootNode)" type="button" class="btn icon-btn">
-                                    <i class="fa fa-check"></i>
-                                </button>
-                            </div>
-
-                        </div>
-                        <div ng-if="!rootNode.editingBody">
-                            <div node="rootNode" vote-button></div>
-                            <div ng-if="rootNode.type !== 'source'" ng-markdown="rootNode.body.body" render-markdown></div>
-                            <a ng-if="rootNode.type === 'source'" ng-href="{{rootNode.body.url}}" target="_blank">{{rootNode.body.url}}</a>
-
-                            <button ng-if="rootNode.inEditMode" ng-click="rootNode.editingBody = true" type="button" class="btn btn-default btn-xs">Edit</button>
-                            <button ng-if="readyToPublish(rootNode)" ng-click="publishNode(rootNode)" type="button" class="btn btn-primary btn-xs">Publish</button>
-                            <div class="gutter clearfix">
-                                <span class="pull-right">By {{rootNode.body.author.displayName}}. v{{rootNode.getVersionString()}}</span>
-                            </div>
-                        </div>
-
-                        <div ng-if="!rootNode.inEditMode">
-                            <button ng-if="authorizedForEdit(rootNode) && !rootNode.inEditMode" ng-click="enterEditMode(rootNode)" type="button" class="btn btn-default btn-xs">Edit</button>
-                        </div>
-
-                        <div style="clear:both"></div>
-
-
-                    </div>
-                </div>
+                        <md-input-container ng-if="rootNode.type === 'source'">
+                            <label>Link</label>
+                            <input type="text" class="form-control" placeholder="http://..." ng-model="rootNode.body.url" />
+                        </md-input-container>
+                    </md-card-content>
+                    <md-card-actions layout="row" layout-align="end center">
+                        <md-button ng-click="saveNode(rootNode)" class="md-raised md-primary">Save</md-button>
+                    </md-card-actions>
+                </md-card>
 
                 <div ng-if="isPersisted(rootNode)">
                     <div node="rootNode" node-comments></div>
                 </div>
             </div>
 
-            <div ng-if="isPersisted(rootNode)" class="col-md-5">
+            <div flex="40" ng-if="isPersisted(rootNode)">
                 <div root-node="rootNode" viva-graph></div>
                 <div ng-repeat="node in rootNode.children" ng-include="'floatTree'"></div>
             </div>
 
         </div>
     </div>
-
-    <p>
-        <a href="#/graphDiagnostic/{{rootNodes[0].id}}">Debug info</a>
-    </p>
 
 </div>

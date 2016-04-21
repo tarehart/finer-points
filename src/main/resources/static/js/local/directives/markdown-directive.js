@@ -24,27 +24,11 @@
             scope: {
                 node: "=",
                 setText: "=",
-                doneFn: "=",
                 linkFn: "="
             },
             link:     function (scope, element, attrs, ngModel) {
 
                 var additionalButtons = [];
-                additionalButtons.push({
-                    name: 'groupDone',
-                    data: [{
-                        name: 'done',
-                        toggle: false,
-                        hotkey: 'Ctrl+S',
-                        title: 'Save',
-                        btnText: 'Save',
-                        btnClass: 'btn btn-success btn-sm',
-                        icon: { glyph: 'glyphicon glyphicon-ok', fa: 'fa fa-check', 'fa-3': 'icon-search' },
-                        callback: function(e){
-                            scope.doneFn(scope.node);
-                        }
-                    }]
-                });
 
                 if (scope.linkFn) {
                     additionalButtons.push({
@@ -84,6 +68,7 @@
                     },
                     hiddenButtons: ['Preview', 'Image', 'cmdUrl'],
                     fullscreen: {enable: false},
+                    iconlibrary: "fa", // Use font-awesome
                     additionalButtons: additionalButtons
                 });
             }

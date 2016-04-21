@@ -22,7 +22,7 @@ gulp.task('sass', function() {
 
 // This provides a file useful for offline development, e.g. on an airplane
 gulp.task('css-cdn', function() {
-    return gulp.src(root + 'css/cdn/**/*.css')
+    return gulp.src([root + 'css/cdn/**/*.css', "!" + root + 'css/cdn/bootstrap.min.css'])
         .pipe(concat('combined-cdn.css'))
         .pipe(gulp.dest(root + 'dist/'));
 });
@@ -48,8 +48,8 @@ gulp.task('js-cdn', function() {
         root + 'js/cdn/angular-animate.min.js',
         root + 'js/cdn/angular-aria.min.js',
         root + 'js/cdn/angular-material.min.js',
-        root + 'js/cdn/bootstrap.min.js',
-        root + 'js/cdn/ui-bootstrap-tpls-0.14.3.min.js',
+        //root + 'js/cdn/bootstrap.min.js',
+        //root + 'js/cdn/ui-bootstrap-tpls-0.14.3.min.js',
         root + 'js/cdn/showdown.js',
         root + 'js/cdn/**/*.js'])
         .pipe(concat('combined-cdn.js'))

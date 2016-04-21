@@ -5,13 +5,14 @@
 
     var nodeStandApp = angular.module('nodeStandApp', [
         'ngRoute',
+        'ngMaterial',
         'markdown',
         'ui.bootstrap',
         'nodeStandControllers'
     ]);
 
-    nodeStandApp.config(['$routeProvider',
-        function ($routeProvider) {
+    nodeStandApp.config(['$routeProvider', '$mdThemingProvider',
+        function ($routeProvider, $mdThemingProvider) {
             $routeProvider.
                 when('/', {
                     templateUrl: 'partials/gateway.html',
@@ -42,6 +43,10 @@
                 otherwise({
                     redirectTo: '/'
                 });
+
+            $mdThemingProvider.theme('default')
+                .primaryPalette('teal')
+                .accentPalette('cyan');
         }]);
 
     nodeStandApp.run(['$rootScope', 'UserService', function ($rootScope, UserService) {

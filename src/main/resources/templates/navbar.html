@@ -1,30 +1,19 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<nav th:fragment="main" class="navbar navbar-default">
-    <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <span class="navbar-brand"><a href="/#/">Finer Points</a></span>
-        </div>
+<md-toolbar th:fragment="main">
+    <div class="md-toolbar-tools">
 
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul th:if="${user}" class="nav navbar-nav navbar-right">
-                <li><p class="navbar-text">Welcome, <span th:text="${user.displayName}"></span></p></li>
-                <li><a th:href="@{/signout}">Sign Out</a></li>
-            </ul>
-            <ul th:unless="${user}" class="nav navbar-nav navbar-right">
-                <li><a href="#/login">Sign In</a></li>
-            </ul>
-        </div><!-- /.navbar-collapse -->
-    </div><!-- /.container-fluid -->
-</nav>
+        <span class="navbar-brand"><a href="/#/">Finer Points</a></span>
+
+        <span flex=""></span>
+
+        <span ng-if="user">Welcome, {{user.displayName}}</span>
+
+        <md-button href="#/login" ng-if="!user" class="md-raised" aria-label="Sign In">
+            Sign in
+        </md-button>
+    </div>
+</md-toolbar>
 
 </html>

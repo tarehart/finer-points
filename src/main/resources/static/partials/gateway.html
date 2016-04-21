@@ -1,6 +1,6 @@
 
-<div class="panel panel-default">
-    <div class="panel-body">
+<md-card>
+    <md-card-content>
 
         <img class="finer-points-logo" src="/img/finer-points-logo.png" />
 
@@ -20,17 +20,17 @@
                 your own arguments by leveraging the work of others.
             </p>
         </div>
-    </div>
-</div>
+    </md-card-content>
+</md-card>
 
-<div class="row">
+<div layout="row">
 
-    <div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3>Featured trees</h3>
-            </div>
-            <div class="panel-body">
+    <div flex="50">
+        <md-card>
+            <md-card-title>
+                <span class="md-headline">Featured trees</span>
+            </md-card-title>
+            <md-card-content>
                 <table class="table">
                     <thead>
                     <tr>
@@ -47,29 +47,25 @@
                     </tr>
                     </tbody>
                 </table>
-            </div>
-        </div>
-
-
+            </md-card-content>
+        </md-card>
     </div>
-    <div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3>Get started</h3>
-            </div>
+    <div flex="50">
+        <md-card>
+            <md-card-title>
+                <span class="md-headline">Get started</span>
+            </md-card-title>
 
-            <div class="panel-body">
-                <p>
+            <md-card-content>
+                <p ng-if="!user">
                     <a href="#/login">Sign in</a> with Google.
                 </p>
                 <p>
                     <a href="#/create">Create</a> a new tree.
                 </p>
-            </div>
+            </md-card-content>
 
-        </div>
-
-
+        </md-card>
     </div>
 </div>
 

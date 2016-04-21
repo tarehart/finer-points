@@ -1,8 +1,12 @@
-<div class="panel panel-default">
-    <div class="panel-heading clearfix">
-        <h4 class="inline-header">Diagram</h4>
-        <button class="btn btn-default btn-sm panel-heading-button pull-right" ng-click="goFullscreen()">Fullscreen</button>
+
+
+<md-card>
+    <div layout="row">
+        <span flex></span>
+        <md-button ng-click="goFullscreen()">
+            Fullscreen
+        </md-button>
     </div>
     <div id="viva-container" ng-class="{fullscreen: fullscreen}"></div>
-</div>
+</md-card>
 
