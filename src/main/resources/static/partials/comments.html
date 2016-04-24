@@ -53,20 +53,31 @@
     </script>
 
     <div class="commentSection">
-        <div class="panel panel-default">
-            <div class="panel-heading clearfix">
-                <button class="btn btn-default btn-sm panel-heading-button pull-right" ng-if="!editingTopLevel"
-                        ng-click="beginEditingTopLevel()">New comment</button>
-                <h4 class="inline-header clearfix">Comments</h4>
-                <select ng-show="hasComment(node)" ng-init="commentSort = 'score'" ng-model="commentSort" class="comment-sorter form-control input-sm">
-                    <option value="score">By score</option>
-                    <option value="dateCreated">By recent</option>
-                </select>
+        <md-toolbar class="md-hue-5">
+            <div class="md-toolbar-tools">
+                <span>Comments</span>
+
+                <md-input-container>
+                    <md-select ng-show="hasComment(node)" ng-init="commentSort = 'score'" ng-model="commentSort">
+                        <md-option value="score">By score</md-option>
+                        <md-option value="dateCreated">By recent</md-option>
+                    </md-select>
+                </md-input-container>
+                <span flex></span>
+                <md-button ng-if="!editingTopLevel"
+                           ng-click="beginEditingTopLevel()">New comment</md-button>
+            </div>
+        </md-toolbar>
+        <md-card>
+            <div>
+
+
+
             </div>
             <div ng-if="!hasComment(node)" class="panel-body">
                 <span>No comments!</span>
             </div>
-        </div>
+        </md-card>
 
         <div class="editor-wrapper" ng-if="editingTopLevel">
             <textarea node="newComment" set-text="setComment" done-fn="saveComment" markdown-editor>{{newComment.body}}</textarea>

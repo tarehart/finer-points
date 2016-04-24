@@ -2,29 +2,33 @@
     <img src="/img/votes-banner.png" class="vote-label" />
 
     <div class="vote-stack">
-        <button ng-class="['btn', 'btn-default', 'btn-xs', 'vote-great', {chosen: userVote == 'GREAT'}]" tooltip-placement="right"
-                uib-tooltip="Vote: I agree, and this node is well written."
-                ng-click="voteClicked('GREAT')">
+        <md-button ng-class="['vote-great', {chosen: userVote == 'GREAT'}]" ng-click="voteClicked('GREAT')">
             <span class="vote-num">{{votes.GREAT.num}}</span>
             <div class="vote-meter" ng-style="{width: votes.GREAT.pct + '%'}"></div>
-        </button>
-        <button ng-class="['btn', 'btn-default', 'btn-xs', 'vote-weak', {chosen: userVote == 'WEAK'}]" tooltip-placement="right"
-                uib-tooltip="Vote: I agree, but this node needs improvement."
-                ng-click="voteClicked('WEAK')">
+            <md-tooltip md-direction="right">
+                Vote: I agree, and this node is well written.
+            </md-tooltip>
+        </md-button>
+        <md-button ng-class="['vote-weak', {chosen: userVote == 'WEAK'}]" ng-click="voteClicked('WEAK')">
             <span class="vote-num">{{votes.WEAK.num}}</span>
             <div class="vote-meter" ng-style="{width: votes.WEAK.pct + '%'}"></div>
-        </button>
-        <button ng-class="['btn', 'btn-default', 'btn-xs', 'vote-touche', {chosen: userVote == 'TOUCHE'}]" tooltip-placement="right"
-                uib-tooltip="Vote: I disagree, but this node is well written."
-                ng-click="voteClicked('TOUCHE')">
+            <md-tooltip md-direction="right">
+                Vote: I agree, but this node needs improvement.
+            </md-tooltip>
+        </md-button>
+        <md-button ng-class="['vote-touche', {chosen: userVote == 'TOUCHE'}]" ng-click="voteClicked('TOUCHE')">
             <span class="vote-num">{{votes.TOUCHE.num}}</span>
             <div class="vote-meter" ng-style="{width: votes.TOUCHE.pct + '%'}"></div>
-        </button>
-        <button ng-class="['btn', 'btn-default', 'btn-xs', 'vote-trash', {chosen: userVote == 'TRASH'}]" tooltip-placement="right"
-                uib-tooltip="Vote: I disagree, and this node has poor quality."
-                ng-click="voteClicked('TRASH')">
+            <md-tooltip md-direction="right">
+                Vote: I disagree, but this node is well written.
+            </md-tooltip>
+        </md-button>
+        <md-button ng-class="['vote-trash', {chosen: userVote == 'TRASH'}]" ng-click="voteClicked('TRASH')">
             <span class="vote-num">{{votes.TRASH.num}}</span>
             <div class="vote-meter" ng-style="{width: votes.TRASH.pct + '%'}"></div>
-        </button>
+            <md-tooltip md-direction="right">
+                Vote: I disagree, and this node has poor quality.
+            </md-tooltip>
+        </md-button>
     </div>
 </div>

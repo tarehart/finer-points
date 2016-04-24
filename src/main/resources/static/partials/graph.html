@@ -94,7 +94,7 @@
                         </md-card-title-text>
                     </md-card-title>
                     <md-card-content>
-                        <div node="rootNode" vote-button></div>
+                        <div ng-if="rootNode.body.public" node="rootNode" vote-button></div>
                         <div ng-if="rootNode.type !== 'source'" ng-markdown="rootNode.body.body" render-markdown></div>
                         <a ng-if="rootNode.type === 'source'" ng-href="{{rootNode.body.url}}" target="_blank">{{rootNode.body.url}}</a>
                     </md-card-content>

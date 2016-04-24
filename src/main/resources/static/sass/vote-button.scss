@@ -1,8 +1,7 @@
-.vote-cluster {
-  display: inline-block;
-  float: left;
-  margin-right: 10px;
-}
+$chosen-great: #a1ef91;
+$chosen-trash: #f7bbb8;
+$chosen-weak: #f7f46d;
+$chosen-touche: #c2b5f7;
 
 .comment-up.chosen {
     color: #149359;
@@ -12,78 +11,86 @@
     color: red;
 }
 
-.vote-cluster .btn {
+
+.vote-cluster {
+  display: inline-block;
+  float: left;
+  margin-right: 10px;
+
+  .md-button {
     width: 50px;
+    height: 20px;
+    line-height: 20px;
+    min-width: unset;
+    min-height: unset;
     display: block;
-    position:relative;
+    position: relative;
     text-align: left;
     margin-bottom: 4px;
     border: none;
     border-radius: 1px;
-}
+  }
 
-.vote-weak {
+  .vote-weak {
     background-color: #F7F2E0;
-}
+    &.chosen, &:hover {
+      background-color: $chosen-weak;
+    }
+  }
 
-.vote-weak.chosen {
-    background-color: #f7f46d;
-}
-
-.vote-weak .vote-meter {
+  .vote-weak .vote-meter {
     background-color: #FFBC00;
-}
+  }
 
-.vote-great {
+  .vote-great {
     background-color: #DEEFE2;
-}
+    &.chosen, &:hover {
+      background-color: $chosen-great;
+    }
+  }
 
-.vote-great.chosen {
-    background-color: #a1ef91;
-}
-
-.vote-great .vote-meter {
+  .vote-great .vote-meter {
     background-color: green;
-}
+  }
 
-.vote-trash {
+  .vote-trash {
     background-color: #F7ECEE;
-}
+    &.chosen, &:hover {
+      background-color: $chosen-trash;
+    }
+  }
 
-.vote-trash.chosen {
-    background-color: #f7bbb8;
-}
-
-.vote-trash .vote-meter {
+  .vote-trash .vote-meter {
     background-color: red;
-}
+  }
 
-.vote-touche {
+  .vote-touche {
     background-color: #ECE6F7;
-}
+    &.chosen, &:hover {
+      background-color: $chosen-touche;
+    }
+  }
 
-.vote-touche.chosen {
-    background-color: #c2b5f7;
-}
-
-.vote-touche .vote-meter {
+  .vote-touche .vote-meter {
     background-color: purple;
-}
+  }
 
-.vote-meter {
+  .vote-meter {
     position: absolute;
     bottom: 0;
     left: 0;
     height: 2px;
-}
+  }
 
-.vote-label {
+  .vote-label {
     background: url('/img/votes-banner.png');
     opacity: 0.3;
     margin-right: 2px;
     vertical-align: top;
-}
+  }
 
-.vote-stack {
+  .vote-stack {
     display: inline-block;
+  }
+
 }

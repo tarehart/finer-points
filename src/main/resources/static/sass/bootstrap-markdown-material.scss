@@ -1,7 +1,5 @@
 /*
 I am going to remove the bootstrap stylesheet. I still need certain bootstrap styles to support the bootstrap markdown editor
-
- This works with help from bootstrap-material-design theme: https://github.com/FezVrasta/bootstrap-material-design
 */
 
 @mixin clearfix() {
@@ -29,9 +27,21 @@ I am going to remove the bootstrap stylesheet. I still need certain bootstrap st
     vertical-align: middle;
     touch-action: manipulation;
     cursor: pointer;
-    background-image: none; // Reset unusual Firefox-on-Android default style; see https://github.com/necolas/normalize.css/issues/214
     border: 1px solid transparent;
     white-space: nowrap;
+
+    margin-left: 4px;
+    border-radius: 2px;
+    background: white none;
+
+    // Ape some material design styles
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,.26);
+    transition: background-color .4s cubic-bezier(.25,.8,.25,1);
+
+    &:active {
+      background-color: rgba(158,158,158,0.2);
+    }
+
   }
 
   .btn-group {
@@ -39,15 +49,6 @@ I am going to remove the bootstrap stylesheet. I still need certain bootstrap st
     margin: 0;
   }
 
-  // Prevent double borders when buttons are next to each other
-  .btn-group {
-    .btn + .btn,
-    .btn + .btn-group,
-    .btn-group + .btn,
-    .btn-group + .btn-group {
-      margin-left: -1px;
-    }
-  }
 
   // Optional: Group multiple button groups together for a toolbar
   .btn-toolbar {
