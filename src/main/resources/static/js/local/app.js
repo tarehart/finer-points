@@ -46,8 +46,8 @@
                 });
 
             $mdThemingProvider.theme('default')
-                .primaryPalette('teal')
-                .accentPalette('cyan');
+                .primaryPalette('blue-grey')
+                .accentPalette('light-blue');
         }]);
 
     nodeStandApp.run(['$rootScope', 'UserService', function ($rootScope, UserService) {

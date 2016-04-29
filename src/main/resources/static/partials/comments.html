@@ -53,34 +53,43 @@
     </script>
 
     <div class="commentSection">
-        <md-toolbar class="md-hue-5">
-            <div class="md-toolbar-tools">
-                <span>Comments</span>
 
-                <md-input-container>
-                    <md-select ng-show="hasComment(node)" ng-init="commentSort = 'score'" ng-model="commentSort">
-                        <md-option value="score">By score</md-option>
-                        <md-option value="dateCreated">By recent</md-option>
-                    </md-select>
-                </md-input-container>
-                <span flex></span>
-                <md-button ng-if="!editingTopLevel"
-                           ng-click="beginEditingTopLevel()">New comment</md-button>
+        <div ng-if="!editingTopLevel" class="top-right-fabs">
+            <div layout="column" layout-align="center center">
+                <md-button ng-click="beginEditingTopLevel()" aria-label="New comment" class="md-primary md-fab md-raised">
+                    New
+                </md-button>
+
+                <md-menu>
+                    <md-button ng-click="$mdOpenMenu($event)" aria-label="Filter" class="md-fab md-mini md-raised">
+                    </md-button>
+                    <md-menu-content width="4">
+                        <md-menu-item>
+                            <md-button ng-click="commentSort = 'score'">
+                                Sort by score
+                            </md-button>
+                        </md-menu-item>
+                        <md-menu-item>
+                            <md-button ng-click="commentSort = 'dateCreated'">
+                                Sort by date
+                            </md-button>
+                        </md-menu-item>
+                    </md-menu-content>
+                </md-menu>
             </div>
-        </md-toolbar>
-        <md-card>
-            <div>
+        </div>
 
-
-
-            </div>
-            <div ng-if="!hasComment(node)" class="panel-body">
-                <span>No comments!</span>
-            </div>
-        </md-card>
+        <div ng-if="!hasComment(node)">
+            <span>No comments!</span>
+        </div>
 
         <div class="editor-wrapper" ng-if="editingTopLevel">
             <textarea node="newComment" set-text="setComment" done-fn="saveComment" markdown-editor>{{newComment.body}}</textarea>
+            <div layout="row" layout-align="end">
+                <md-button ng-click="saveComment(newComment)" class="md-raised md-primary">
+                    Save
+                </md-button>
+            </div>
         </div>
 
         <div class="comment-block" ng-repeat="comment in node.comments | orderBy : commentSort : true" ng-include="'commentTree'"></div>

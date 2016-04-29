@@ -122,9 +122,21 @@
                     </md-card-actions>
                 </md-card>
 
-                <div ng-if="isPersisted(rootNode)">
-                    <div node="rootNode" node-comments></div>
-                </div>
+                <md-card ng-if="isPersisted(rootNode)">
+                    <md-tabs md-dynamic-height md-border-bottom>
+                        <md-tab label="Comments">
+                            <md-content>
+                                <div node="rootNode" node-comments></div>
+                            </md-content>
+                        </md-tab>
+                        <md-tab label="Consumers">
+                            TODO
+                        </md-tab>
+                    </md-tabs>
+
+
+
+                </md-card>
             </div>
 
             <div flex="40" ng-if="isPersisted(rootNode)">
