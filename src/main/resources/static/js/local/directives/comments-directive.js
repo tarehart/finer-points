@@ -5,53 +5,67 @@
         .module('nodeStandControllers')
         .directive('nodeComments', ['$http', 'UserService', nodeComments]);
 
-    function nodeComments($http, UserService) {
+
+    angular
+        .module('nodeStandControllers')
+        .controller('CommentController', ['$scope', '$http', 'UserService', CommentController]);
+
+    function nodeComments() {
         return {
             restrict: "A",
             scope: {
                 node: "="
             },
             templateUrl: "partials/comments.html",
-            link: function (scope) {
-                initializeComments(scope, $http, UserService);
-            }
+            controller: "CommentController",
+            controllerAs: "commCtrl"
         }
     }
 
-    function initializeComments($scope, $http, UserService) {
+    function CommentController($scope, $http, UserService) {
 
-        fetchComments($http, $scope.node);
+        var ctrl = this;
+        ctrl.node = $scope.node;
 
-        $scope.newComment = {};
+        ctrl.commentSort = 'score';
 
-        $scope.setComment = function(comment, text) {
+        fetchComments($http, ctrl.node);
+
+        ctrl.newComment = {};
+
+        ctrl.setComment = function(comment, text) {
             comment.body = text;
         };
 
         // saves a top-level comment
-        $scope.saveComment = function(comment) {
-
-            createComment($http, comment.body, $scope.node.body.id, function(comment) {
-                $scope.node.comments = $scope.node.comments || [];
-                $scope.node.comments.push(comment);
-                $scope.editingTopLevel = false;
+        ctrl.saveComment = function() {
+            createComment($http, ctrl.newComment.body, ctrl.node.body.id, function(comment) {
+                ctrl.node.comments = ctrl.node.comments || [];
+                ctrl.node.comments.push(comment);
+                ctrl.editingTopLevel = false;
             }, function(err) {
                 toastr.error(err.message);
             });
         };
 
-        $scope.beginEditingTopLevel = function() {
+        ctrl.beginEditingTopLevel = function() {
 
             if (!UserService.getUser()) {
                 toastr.error("Must be signed in to comment!");
                 return;
             }
 
-            $scope.editingTopLevel = true;
-            $scope.newComment.body = null;
+            ctrl.editingTopLevel = true;
+            ctrl.newComment.body = null;
         };
 
-        $scope.beginWritingReply = function (comment) {
+        ctrl.cancelTopLevelComment = function() {
+            ctrl.editingTopLevel = false;
+            ctrl.newComment.body = null;
+            return;
+        };
+
+        ctrl.beginWritingReply = function (comment) {
 
             if (!UserService.getUser()) {
                 toastr.error("Must be signed in to comment!");
@@ -63,15 +77,15 @@
             comment.newReply.body = null;
         };
 
-        $scope.setReplyText = function(comment, text) {
+        ctrl.setReplyText = function(comment, text) {
             comment.newReply.body = text;
         };
 
-        $scope.setEditText = function(comment, text) {
-            comment.body = text;
+        ctrl.setEditText = function(comment, text) {
+            comment.editedBody = text;
         };
 
-        $scope.saveReply = function(comment) {
+        ctrl.saveReply = function(comment) {
 
             createComment($http, comment.newReply.body, comment.id, function(reply) {
                 comment.comments = comment.comments || [];
@@ -82,27 +96,38 @@
             });
         };
 
-        $scope.saveEdit = function(comment) {
+        ctrl.cancelReply = function(comment) {
+            comment.writingReply = false;
+        };
+
+        ctrl.saveEdit = function(comment) {
 
             editComment($http, comment, function(saved) {
                 comment.dateEdited = saved.dateEdited;
+                comment.body = saved.body;
+                comment.editedBody = comment.body;
                 comment.editing = false;
             }, function(err) {
                 toastr.error(err.message);
             });
         };
 
-        $scope.allowedToEdit = function(comment) {
+        ctrl.cancelEdit = function(comment) {
+            comment.editing = false;
+            // TODO: may need to reset content
+        };
+
+        ctrl.allowedToEdit = function(comment) {
             var user = UserService.getUser();
 
             return user && comment.author.id == user.id;
         };
 
-        $scope.hasComment = function(node) {
+        ctrl.hasComment = function(node) {
             return node.comments && node.comments.length;
         };
 
-        $scope.toggleComment = function(comment) {
+        ctrl.toggleComment = function(comment) {
             comment.hideComment = !comment.hideComment;
         }
     }
@@ -130,7 +155,7 @@
 
         $http.post('/editComment',
             {
-                body: comment.body,
+                body: comment.editedBody,
                 commentId: comment.id
             })
             .success(function (data) {

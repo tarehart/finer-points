@@ -1,9 +1,13 @@
-<div class="comment-vote-cluster">
-    <div class="vote-stack">
-        <button ng-class="['btn', 'btn-default', 'btn-xs', 'comment-vote-btn', 'comment-up', {chosen: userVote > 0}]"
-                ng-click="voteClicked(1)"><i class="fa fa-arrow-up"></i></button>
+<span class="comment-vote-cluster">
+    <span class="vote-stack">
+        <md-button ng-class="['md-icon-button', 'md-micro', 'comment-vote-btn', 'comment-up', {chosen: userVote > 0}]"
+                   ng-click="voteClicked(1)" aria-label="upvote comment">
+            <i class="fa fa-arrow-up"></i>
+        </md-button>
 
-        <button ng-class="['btn', 'btn-default', 'btn-xs', 'comment-vote-btn', 'comment-down', {chosen: userVote < 0}]"
-                ng-click="voteClicked(-1)"><i class="fa fa-arrow-down"></i></button>
-    </div>
-</div>
+        <md-button ng-class="['md-icon-button', 'md-micro', 'comment-vote-btn', 'comment-down', {chosen: userVote < 0}]"
+                   ng-click="voteClicked(-1)" aria-label="downvote comment">
+            <i class="fa fa-arrow-down"></i>
+        </md-button>
+    </span>
+</span>

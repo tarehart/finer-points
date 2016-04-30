@@ -2,97 +2,129 @@
 
     <script type="text/ng-template" id="commentTree">
 
-        <div ng-init="comment.isStripe = !comment.parent.isStripe" ng-class="[{stripe: comment.isStripe}, 'panel', 'panel-default']">
-            <div class="panel-body">
-
-                <div ng-if="!comment.hideComment" comment="comment" comment-vote-button></div>
-
-                <div class="comment-heading">
-                    <button class="btn icon-btn btn-xs" ng-click="toggleComment(comment); $event.stopPropagation();">
-                        <span ng-if="comment.hideComment">
-                            <i class="fa fa-plus-circle"></i>
-                        </span>
-                        <span ng-if="!comment.hideComment">
-                            <i class="fa fa-minus-circle"></i>
-                        </span>
-                    </button>
-
-                    <a ng-href="/#/user/{{comment.author.nodeId}}">{{comment.author.displayName}}</a>
-                    <span class="spaced-inline">Score: {{comment.score}}</span>
-                    <span class="created-date spaced-inline">{{comment.dateCreated | date: 'short'}}</span>
-
-                </div>
-                <div ng-if="!comment.hideComment">
-
-                    <div ng-if="!comment.editing">
-                        <span ng-markdown="comment.body" render-markdown></span>
-                        <p>
-                            <span ng-if="!comment.writingReply">
-                                <a ng-if="allowedToEdit(comment)" ng-click="comment.editing = true">Edit</a>
-                                <a class="spaced-inline" ng-click="beginWritingReply(comment)">Reply</a>
+        <md-card ng-init="comment.isStripe = !comment.parent.isStripe" ng-class="[{stripe: comment.isStripe}, 'comment-card']">
+            <div layout="row">
+                <span ng-if="!comment.hideComment" class="comment-vote-wrapper" comment="comment" comment-vote-button></span>
+                <div flex="">
+                    <div class="comment-heading">
+                        <span class="spaced-inline">{{comment.score}} point{{comment.score === 1 ? '' : 's'}}</span>
+                        <a class="spaced-inline" ng-href="/#/user/{{comment.author.nodeId}}">{{comment.author.displayName}}</a>
+                        <span class="created-date spaced-inline">{{comment.dateCreated | date: 'short'}}</span>
+                        <md-button class="md-icon-button md-micro" ng-click="commCtrl.toggleComment(comment); $event.stopPropagation();">
+                            <span ng-if="comment.hideComment">
+                                <i class="fa fa-plus-square-o"></i>
                             </span>
-                            <span class="edited-date spaced-inline" ng-if="comment.dateEdited">Edited {{comment.dateEdited | date: 'short'}}</span>
-                        </p>
-
+                            <span ng-if="!comment.hideComment">
+                                <i class="fa fa-minus-square-o"></i>
+                            </span>
+                        </md-button>
+                        <md-menu style="padding:0">
+                            <md-button ng-click="$mdOpenMenu($event)" aria-label="Comment actions" class="md-icon-button md-micro">
+                                <i class="fa fa-bars"></i>
+                            </md-button>
+                            <md-menu-content width="4">
+                                <md-menu-item>
+                                    <md-button ng-disabled="!commCtrl.allowedToEdit(comment)" ng-click="comment.editing = true">
+                                        Edit
+                                    </md-button>
+                                </md-menu-item>
+                                <md-menu-item>
+                                    <md-button ng-click="commCtrl.beginWritingReply(comment)">
+                                        Reply
+                                    </md-button>
+                                </md-menu-item>
+                            </md-menu-content>
+                        </md-menu>
                     </div>
-                    <div ng-if="comment.editing">
-                        <textarea node="comment" set-text="setEditText" done-fn="saveEdit" markdown-editor>{{comment.body}}</textarea>
-                    </div>
+                    <div ng-if="!comment.hideComment">
+                        <div ng-if="!comment.editing">
+                            <div class="comment-text" ng-markdown="comment.body" render-markdown></div>
+                            <div ng-if="!comment.writingReply" layout="row" layout-align="start center">
+                                <span class="edited-date spaced-inline" ng-if="comment.dateEdited">Edited {{comment.dateEdited | date: 'short'}}</span>
+                                <span flex=""></span>
+                                <md-button ng-if="commCtrl.allowedToEdit(comment)" ng-click="comment.editing = true" class="md-mini">
+                                    Edit
+                                </md-button>
+                                <md-button ng-click="commCtrl.beginWritingReply(comment)" class="md-mini">
+                                    Reply
+                                </md-button>
+                            </div>
+                        </div>
+                        <div class="editor-wrapper" ng-if="comment.editing">
+                            <textarea node="comment" set-text="commCtrl.setEditText" markdown-editor>{{comment.body}}</textarea>
+                            <div layout="row" layout-align="end">
+                                <md-button ng-click="commCtrl.saveEdit(comment)" class="md-raised md-primary">
+                                    Save
+                                </md-button>
+                                <md-button ng-click="commCtrl.cancelEdit(comment)" class="md-raised">
+                                    Cancel
+                                </md-button>
+                            </div>
+                        </div>
 
 
-                    <div ng-if="comment.writingReply">
-                        <textarea node="comment" set-text="setReplyText" done-fn="saveReply" markdown-editor>{{newComment.body}}</textarea>
-                    </div>
-
-                    <div class="replies" ng-if="hasComment(comment) && !comment.hideComments">
-                        <div class="comment-block" ng-repeat="comment in comment.comments | orderBy: commentSort: true" ng-include="'commentTree'"></div>
+                        <div class="editor-wrapper" ng-if="comment.writingReply">
+                            <textarea node="comment" set-text="commCtrl.setReplyText" markdown-editor>{{newComment.body}}</textarea>
+                            <div layout="row" layout-align="end">
+                                <md-button ng-click="commCtrl.saveReply(comment)" class="md-raised md-primary">
+                                    Save
+                                </md-button>
+                                <md-button ng-click="commCtrl.cancelReply(comment)" class="md-raised">
+                                    Cancel
+                                </md-button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+            <div class="replies" ng-if="commCtrl.hasComment(comment) && !comment.hideComment">
+                <div class="comment-block" ng-repeat="comment in comment.comments | orderBy: commCtrl.commentSort: true" ng-include="'commentTree'"></div>
+            </div>
+        </md-card>
     </script>
 
     <div class="commentSection">
-
-        <div ng-if="!editingTopLevel" class="top-right-fabs">
-            <div layout="column" layout-align="center center">
-                <md-button ng-click="beginEditingTopLevel()" aria-label="New comment" class="md-primary md-fab md-raised">
-                    New
+        <div layout="row" layout-align="end">
+            <md-menu style="padding:0">
+                <md-button ng-click="$mdOpenMenu($event)" aria-label="Sort">
+                    Sort
                 </md-button>
+                <md-menu-content width="4">
+                    <md-menu-item>
+                        <md-button ng-click="commCtrl.commentSort = 'score'">
+                            Sort by points
+                        </md-button>
+                    </md-menu-item>
+                    <md-menu-item>
+                        <md-button ng-click="commCtrl.commentSort = 'dateCreated'">
+                            Sort by date
+                        </md-button>
+                    </md-menu-item>
+                </md-menu-content>
+            </md-menu>
 
-                <md-menu>
-                    <md-button ng-click="$mdOpenMenu($event)" aria-label="Filter" class="md-fab md-mini md-raised">
-                    </md-button>
-                    <md-menu-content width="4">
-                        <md-menu-item>
-                            <md-button ng-click="commentSort = 'score'">
-                                Sort by score
-                            </md-button>
-                        </md-menu-item>
-                        <md-menu-item>
-                            <md-button ng-click="commentSort = 'dateCreated'">
-                                Sort by date
-                            </md-button>
-                        </md-menu-item>
-                    </md-menu-content>
-                </md-menu>
-            </div>
+            <md-button ng-click="commCtrl.beginEditingTopLevel()">
+                New comment
+            </md-button>
         </div>
 
-        <div ng-if="!hasComment(node)">
+        <div ng-if="!commCtrl.hasComment(node)">
             <span>No comments!</span>
         </div>
 
-        <div class="editor-wrapper" ng-if="editingTopLevel">
-            <textarea node="newComment" set-text="setComment" done-fn="saveComment" markdown-editor>{{newComment.body}}</textarea>
+        <div class="editor-wrapper" ng-if="commCtrl.editingTopLevel">
+            <textarea node="commCtrl.newComment" set-text="commCtrl.setComment" markdown-editor>{{commCtrl.newComment.body}}</textarea>
             <div layout="row" layout-align="end">
-                <md-button ng-click="saveComment(newComment)" class="md-raised md-primary">
+                <md-button ng-click="commCtrl.saveComment()" class="md-raised md-primary">
                     Save
+                </md-button>
+                <md-button ng-click="commCtrl.cancelTopLevelComment()" class="md-raised">
+                    Cancel
                 </md-button>
             </div>
         </div>
 
-        <div class="comment-block" ng-repeat="comment in node.comments | orderBy : commentSort : true" ng-include="'commentTree'"></div>
+        <div class="comment-block" ng-repeat="comment in node.comments | orderBy : commCtrl.commentSort : true" ng-include="'commentTree'"></div>
     </div>
 
 </div>

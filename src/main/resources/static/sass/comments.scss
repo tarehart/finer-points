@@ -1,9 +1,16 @@
 
-$commentVotePush: 25;
 
 .commentSection{
   .editor-wrapper {
     margin: 10px;
+    clear: left;
+  }
+
+  .comment-text {
+    overflow: auto;
+    margin-right: 5px;
+    font-size: 14px;
+
   }
 
   .panel {
@@ -11,25 +18,30 @@ $commentVotePush: 25;
   }
 
   .comment-block {
-    .panel {
-      background-color: #fafafa;
+    .comment-card {
+      background-color: white;
+      border-top: solid 1px #F0F0F0;
     }
 
-    .panel.stripe {
-      background-color: white;
+    .comment-card.stripe {
+      background-color: #f8f8f8;
+    }
+
+    .comment-card:first-child {
+      margin-top: 0;
     }
 
     .comment-block {
-      margin-left: (-$commentVotePush) + 10 + px;
+      margin-left: 10px;
     }
 
     .panel-body {
-      padding: 4px 10px 5px $commentVotePush + px;
+      padding: 4px 10px 5px 0;
     }
 
     .comment-heading {
-      margin-bottom: 5px;
-      font-size: 0.9em;
+      margin-top: 8px;
+      font-size: 0.85em;
 
       .icon-btn {
         color: #BBB;
@@ -44,18 +56,12 @@ $commentVotePush: 25;
     line-height: 5px;
   }
 
-  .replies {
-    margin-top: 10px;
-  }
-
   .created-date {
     display: inline-block;
-    font-size: 0.9em;
-    color: #149359;
   }
 
-  .edited-date {
-    font-size: 0.9em;
+  .created-date, .edited-date {
+    font-size: 0.85em;
     color: #999;
   }
 
@@ -64,27 +70,25 @@ $commentVotePush: 25;
     display: inline-block;
     width: auto;
   }
+
+  .replies {
+    clear: both;
+  }
 }
 
-.vote-cluster, .comment-vote-cluster {
+.vote-cluster, .comment-vote-wrapper {
   display: inline-block;
   float: left;
 }
 
 .comment-vote-cluster {
 
-  margin-left: -$commentVotePush + px;
-
-  .comment-vote-btn.btn {
-    background: none;
-  }
-
-  .comment-vote-btn.btn:hover {
+  .comment-vote-btn:hover {
     color: black;
   }
 }
 
-.comment-vote-btn.btn {
+.comment-vote-btn {
   display: block;
   color: lightgray;
   border: none;
