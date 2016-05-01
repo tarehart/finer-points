@@ -6,10 +6,11 @@
             <div layout="row">
                 <span ng-if="!comment.hideComment" class="comment-vote-wrapper" comment="comment" comment-vote-button></span>
                 <div flex="">
-                    <div class="comment-heading">
+                    <div layout="row" layout-align="start center" class="comment-heading">
                         <span class="spaced-inline">{{comment.score}} point{{comment.score === 1 ? '' : 's'}}</span>
                         <a class="spaced-inline" ng-href="/#/user/{{comment.author.nodeId}}">{{comment.author.displayName}}</a>
                         <span class="created-date spaced-inline">{{comment.dateCreated | date: 'short'}}</span>
+                        <span class="edited-date spaced-inline" ng-if="comment.dateEdited">Edited {{comment.dateEdited | date: 'short'}}</span>
                         <md-button class="md-icon-button md-micro" ng-click="commCtrl.toggleComment(comment); $event.stopPropagation();">
                             <span ng-if="comment.hideComment">
                                 <i class="fa fa-plus-square-o"></i>
@@ -18,6 +19,7 @@
                                 <i class="fa fa-minus-square-o"></i>
                             </span>
                         </md-button>
+                        <span flex=""></span>
                         <md-menu style="padding:0">
                             <md-button ng-click="$mdOpenMenu($event)" aria-label="Comment actions" class="md-icon-button md-micro">
                                 <i class="fa fa-bars"></i>
@@ -39,16 +41,6 @@
                     <div ng-if="!comment.hideComment">
                         <div ng-if="!comment.editing">
                             <div class="comment-text" ng-markdown="comment.body" render-markdown></div>
-                            <div ng-if="!comment.writingReply" layout="row" layout-align="start center">
-                                <span class="edited-date spaced-inline" ng-if="comment.dateEdited">Edited {{comment.dateEdited | date: 'short'}}</span>
-                                <span flex=""></span>
-                                <md-button ng-if="commCtrl.allowedToEdit(comment)" ng-click="comment.editing = true" class="md-mini">
-                                    Edit
-                                </md-button>
-                                <md-button ng-click="commCtrl.beginWritingReply(comment)" class="md-mini">
-                                    Reply
-                                </md-button>
-                            </div>
                         </div>
                         <div class="editor-wrapper" ng-if="comment.editing">
                             <textarea node="comment" set-text="commCtrl.setEditText" markdown-editor>{{comment.body}}</textarea>
