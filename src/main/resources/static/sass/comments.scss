@@ -9,6 +9,7 @@
   .comment-text {
     overflow: auto;
     margin-right: 5px;
+    margin-left: 5px;
     font-size: 14px;
 
   }
@@ -40,7 +41,8 @@
     }
 
     .comment-heading {
-      margin-top: 8px;
+      margin-top: 2px;
+      margin-left: 5px;
       font-size: 0.85em;
 
       .icon-btn {

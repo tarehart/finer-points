@@ -1,11 +1,12 @@
 .childrenDiv {
-  margin-left: 12px;
   position: relative;
+  display: inline-block;
 }
 
 .nodeDiv {
   margin-bottom: 0;
   margin-top: 4px;
+  padding: 5px;
 }
 
 .nodeDiv.highlighted {
@@ -13,23 +14,6 @@
     background-color: #E2ECE0;
   }
 }
-
-.childrenDiv:before {
-  content: "";
-  position: absolute;
-  top: -10px;
-  bottom: 1px;
-  left: -7px;
-  width: 4px;
-  z-index: -1;
-
-  background-color: rgb(217, 217, 217);
-
-}
-
-/*.nodeContent {*/
-/*display: inline-block;*/
-/*}*/
 
 .node-heading.leftPaddingWithChild {
   padding-left: 0;

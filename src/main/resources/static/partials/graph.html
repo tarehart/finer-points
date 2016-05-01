@@ -1,82 +1,86 @@
 <div>
 
     <script type="text/ng-template" id="floatTree">
-        <div ng-class="['familyWrapper', node.type]">
-            <div ng-class="[{selected:isSelected(node), highlighted: node === highlightedNode }, 'nodeDiv', 'panel', 'panel-default']">
+        <md-card ng-class="[{selected:isSelected(node), highlighted: node === highlightedNode }, 'nodeDiv']">
 
-                <div class="panel-heading node-heading" ng-click="toggleSelect(node)" ng-class="{leftPaddingWithChild: hasChild(node)}">
-                    <div class="toggleChildren" ng-if="hasChild(node)">
+            <div ng-if="!node.inEditMode">
 
-                        <button class="btn icon-btn children-toggle" ng-click="toggleChildren(node); $event.stopPropagation();">
-                            <span ng-if="node.hideChildren">
-                                <i class="fa fa-plus-circle"></i>
-                            </span>
-                            <span ng-if="!node.hideChildren">
-                                <i class="fa fa-minus-circle"></i>
-                            </span>
-                        </button>
-                    </div>
-                    <span ng-if="!node.editingTitle" class="nodeTitle">
-                        {{node.body.title}}
-                        <span ng-if="!node.body.public" uib-tooltip="Private draft"><i class="fa fa-asterisk draft-marker"></i></span>
-                        <button ng-if="node.inEditMode" ng-click="startEditingTitle(node); $event.stopPropagation();" type="button" class="btn btn-default btn-xs">Edit</button>
-                    </span>
-                    <span ng-if="node.editingTitle">
-                        <input type="text" ng-model="node.body.title" class="form-control" style="display:inline;width:auto" placeholder="Title..."
-                                enter-fn="stopEditingTitle(node)" />
-                        <button ng-click="stopEditingTitle(node); $event.stopPropagation();" type="button" class="btn icon-btn">
-                            <i class="fa fa-check"></i>
-                        </button>
-                    </span>
-                    <span ng-hide="isSelected(node)" ng-click="toggleSelect(node); $event.stopPropagation();" class="bottom-right-button pull-right">
-                        <i class="fa fa-expand"></i>
-                    </span>
+                <span class="md-title">
+                    {{node.body.title}}
+                    <span ng-if="!node.body.public" uib-tooltip="Private draft"><i class="fa fa-asterisk draft-marker"></i></span>
+                </span>
+
+                <div ng-if="!isSelected(node)" layout="row" layout-align="center">
+                    <md-button ng-click="toggleSelect(node)" class="md-icon-button">
+                        <i class="fa fa-angle-double-down"></i>
+                    </md-button>
                 </div>
 
-                <div class="nodeContent panel-body" ng-hide="!isSelected(node)">
-                    <div ng-if="isSelected(node)">
+                <!--Collapsible portion-->
+                <div ng-if="isSelected(node)">
 
-                        <div ng-if="node.editingBody">
-                            <textarea ng-if="node.type !== 'source'" node="node" set-text="setBody" done-fn="stopEditingBody" link-fn="linkChild" markdown-editor>{{node.body.body}}</textarea>
-                            <div ng-if="node.type === 'source'" class="form-inline">
-                                <input type="text" class="form-control" placeholder="http://..." ng-model="node.body.url" />
-                                <button ng-click="stopEditingBody(node)" type="button" class="btn icon-btn">
-                                    <i class="fa fa-check"></i>
-                                </button>
-                            </div>
+                    <!--Subheader-->
+                    <div>
+                        <span class="md-subhead">By {{node.body.author.displayName}}. v{{node.getVersionString()}}</span>
+                        <md-button ng-click="navigateToNode(node)" class="md-icon-button">
+                            <i class="fa fa-external-link"></i>
+                            <md-tooltip md-direction="right">
+                                Navigate to this node
+                            </md-tooltip>
+                        </md-button>
+                    </div>
 
-                        </div>
-                        <div ng-if="!node.editingBody">
-                            <div ng-if="node.type !== 'source'" ng-markdown="node.body.body" render-markdown></div>
-                            <a ng-if="node.type === 'source'" ng-href="{{node.body.url}}" target="_blank">{{node.body.url}}</a>
-                            <button ng-click="navigateToNode(node)" class="btn btn-default big-icon" uib-tooltip="Center on this node">
-                                <i class="fa fa-bullseye"></i>
-                            </button>
-                            <button ng-if="node.inEditMode" ng-click="node.editingBody = true" type="button" class="btn btn-default btn-xs">Edit</button>
-                            <button ng-if="readyToPublish(node)" ng-click="publishNode(node)" type="button" class="btn btn-primary btn-xs">Publish</button>
-                        </div>
+                    <div ng-if="node.type !== 'source'" ng-markdown="node.body.body" render-markdown></div>
+                    <a ng-if="node.type === 'source'" ng-href="{{node.body.url}}" target="_blank">{{node.body.url}}</a>
 
-                        <div ng-if="!node.inEditMode">
-                            <button ng-if="authorizedForEdit(node) && !node.inEditMode" ng-click="enterEditMode(node)" type="button" class="btn btn-default btn-xs">Edit</button>
-                        </div>
-
-
-                        <div class="gutter clearfix">
-                            <span ng-click="toggleSelect(node);" class="bottom-right-button pull-right">
-                                <i class="fa fa-compress"></i>
-                            </span>
-                            <span class="pull-right">By {{rootNode.body.author.displayName}}. v{{rootNode.getVersionString()}}</span>
-
-                        </div>
-
-
+                    <div layout="row" layout-align="end center">
+                        <md-button ng-if="authorizedForEdit(node) && !node.inEditMode" ng-click="enterEditMode(node)">Edit</md-button>
+                        <md-button ng-if="readyToPublish(node)" ng-click="publishNode(node)" class="md-raised md-primary">Publish</md-button>
                     </div>
                 </div>
             </div>
-            <div class="childrenDiv" ng-if="hasChild(node) && !node.hideChildren">
+            <div ng-if="node.inEditMode">
+
+                <md-input-container class="md-block">
+                    <label>Title</label>
+                    <input ng-model="node.body.title">
+                </md-input-container>
+
+                <textarea ng-if="node.type !== 'source'" node="node" set-text="setBody" link-fn="linkChild" markdown-editor>{{node.body.body}}</textarea>
+
+                <md-input-container ng-if="node.type === 'source'">
+                    <label>Link</label>
+                    <input type="text" class="form-control" placeholder="http://..." ng-model="node.body.url" />
+                </md-input-container>
+
+                <md-card-actions layout="row" layout-align="end center">
+                    <md-button ng-click="saveNode(node)" class="md-raised md-primary">Save</md-button>
+                </md-card-actions>
+            </div>
+
+
+        </md-card>
+
+        <div ng-if="hasChild(node)" layout="row" layout-align="start start">
+
+            <span ng-if="node.hideChildren">
+                <md-button class="md-icon-button md-micro" ng-click="toggleChildren(node)">
+                    <i class="fa fa-plus-square-o"></i>
+                </md-button>
+                <span>Show hidden children</span>
+            </span>
+            <span ng-if="!node.hideChildren">
+                <md-button class="md-icon-button md-micro" ng-click="toggleChildren(node)">
+                    <i class="fa fa-minus-square-o"></i>
+                </md-button>
+            </span>
+
+            <div flex="" class="childrenDiv" ng-if="hasChild(node) && !node.hideChildren">
                 <div ng-repeat="node in node.children" class="childDiv" ng-include="'floatTree'"></div>
             </div>
+
         </div>
+
     </script>
 
     <div class="graph-wrapper">
