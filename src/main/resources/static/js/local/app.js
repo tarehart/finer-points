@@ -7,7 +7,6 @@
         'ngRoute',
         'ngMaterial',
         'markdown',
-        'ui.bootstrap',
         'particles',
         'nodeStandControllers'
     ]);
