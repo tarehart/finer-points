@@ -1,39 +1,53 @@
-<div class="modal-header">
-    <h3 class="modal-title">Link a child node</h3>
-</div>
-<div class="modal-body">
-
-    <div ng-show="!isResultSelected">
-        <p>Search or enter new title</p>
-        <div class="well">
-            <input type="text" ng-model="searchQuery" placeholder="Search existing nodes"
-                   typeahead="body.title for body in getSearchResults($viewValue)" typeahead-on-select="searchResultSelected($item, $model, $label)"
-                   typeahead-min-length="3" typeahead-wait-ms="200" typeahead-editable="true"
-                   class="form-control" auto-focus>
+<md-dialog>
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2>Link a child node</h2>
+            <span flex></span>
+            <md-button class="md-icon-button" ng-click="cancel()">
+                <i class="fa fa-times"></i>
+            </md-button>
         </div>
+    </md-toolbar>
+    <md-dialog-content>
+        <div class="md-dialog-content">
+            <div ng-if="!makeNew">
+                <md-autocomplete
+                        md-selected-item="ctrl.selectedItem"
+                        md-search-text="$parent.searchQuery"
+                        md-selected-item-change="searchResultSelected(item)"
+                        md-items="item in getSearchResults(searchQuery)"
+                        md-item-text="item.title"
+                        md-min-length="3"
+                        placeholder="Search here">
+                    <md-item-template>
+                        <span md-highlight-text="ctrl.searchText" md-highlight-flags="^i">{{item.title}}</span>
+                    </md-item-template>
+                    <md-not-found>
+                        No matches.
+                        <md-button class="md-raised" ng-click="toggleMakeNew()">Create New</md-button>
 
-        <p>
-            <span>Can't find anything?</span>
-            <button class="btn btn-primary" ng-show="canCreateAssertion()" ng-click="createAssertion()">Create assertion with this title</button>
-            <button class="btn btn-primary" ng-show="canCreateInterpretation()" ng-click="createInterpretation()">Create interpretation with this title</button>
-            <button class="btn btn-primary" ng-show="canCreateSource()" ng-click="createSource()">Create source with this title</button>
-        </p>
-    </div>
-    <div ng-show="isResultSelected">
-        <h3 class="node-link">{{chosenNode.body.title}}</h3>
-        <button class="btn" ng-click="clearSelection()">Clear</button>
-        <button class="btn btn-primary" ng-click="select()">Select</button>
-    </div>
+                    </md-not-found>
+                </md-autocomplete>
+            </div>
+            <div ng-show="makeNew">
+                <p>Create new</p>
+                <!--Radio buttons-->
+                <md-radio-group ng-model="newNodeType">
+                    <md-radio-button value="assertion" ng-show="canLinkTo('assertion')">Assertion</md-radio-button>
+                    <md-radio-button value="interpretation" ng-show="canLinkTo('interpretation')">Interpretation</md-radio-button>
+                    <md-radio-button value="source" ng-show="canLinkTo('source')">Source</md-radio-button>
+                </md-radio-group>
 
-    <!--<p>OR</p>-->
-    <!--<div class="well">-->
-        <!--<p>Create a new node</p>-->
-        <!--<input id="titleInput" type="text" placeholder="Title for new node" class="form-control" ng-model="newTitle" />-->
-        <!--<button class="btn" ng-click="createNew()">Create</button>-->
-    <!--</div>-->
-
-
-</div>
-<div class="modal-footer">
-    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
-</div>
+                <md-input-container class="md-input-compact">
+                    <label>Title</label>
+                    <input ng-model="searchQuery">
+                </md-input-container>
+            </div>
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions layout="row" layout-align="end center">
+        <md-button class="md-raised md-primary"  ng-show="makeNew" ng-disabled="!newNodeType || !searchQuery" ng-click="createNewNode()">Create</md-button>
+        <md-button class="md-raised md-primary" ng-show="isResultSelected" ng-click="select()">Link Node</md-button>
+        <md-button ng-click="cancel()">Cancel</md-button>
+    </md-dialog-actions>
+</md-dialog>

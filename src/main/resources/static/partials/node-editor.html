@@ -1,0 +1,17 @@
+<div>
+    <md-input-container class="md-block">
+        <label>Title</label>
+        <input ng-model="nodeEditCtrl.node.body.title">
+    </md-input-container>
+
+    <textarea ng-if="node.type !== 'source'" node="node" set-text="nodeEditCtrl.setBody" link-fn="nodeEditCtrl.linkChild" markdown-editor>{{nodeEditCtrl.node.body.body}}</textarea>
+
+    <md-input-container ng-if="nodeEditCtrl.node.type === 'source'">
+        <label>Link</label>
+        <input type="text" class="form-control" placeholder="http://..." ng-model="nodeEditCtrl.node.body.url" />
+    </md-input-container>
+
+    <md-card-actions layout="row" layout-align="end center">
+        <md-button ng-click="nodeEditCtrl.saveNode(nodeEditCtrl.node)" class="md-raised md-primary">Save</md-button>
+    </md-card-actions>
+</div>

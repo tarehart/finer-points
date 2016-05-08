@@ -13,3 +13,11 @@
   width: 24px;
   min-height: 24px;
 }
+
+md-input-container.md-input-compact {
+  margin-bottom: 0;
+
+  .md-errors-spacer {
+    min-height: 0;
+  }
+}

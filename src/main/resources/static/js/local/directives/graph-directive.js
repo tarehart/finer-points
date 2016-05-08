@@ -3,9 +3,9 @@
 
     angular
         .module('nodeStandControllers')
-        .directive('nodeGraph', ['$routeParams', '$uibModal', '$location', 'NodeCache', nodeGraph]);
+        .directive('nodeGraph', ['$routeParams', '$mdDialog', '$location', 'NodeCache', nodeGraph]);
 
-    function nodeGraph($routeParams, $uibModal, $location, NodeCache) {
+    function nodeGraph($routeParams, $mdDialog, $location, NodeCache) {
         return {
             restrict: "A",
             scope: {
@@ -13,12 +13,12 @@
             },
             templateUrl: "partials/graph.html",
             link: function (scope) {
-                initializeGraph(scope, $routeParams, $uibModal, $location, NodeCache);
+                initializeGraph(scope, $routeParams, $mdDialog, $location, NodeCache);
             }
         }
     }
 
-    function initializeGraph($scope, $routeParams, $uibModal, $location, NodeCache) {
+    function initializeGraph($scope, $routeParams, $mdDialog, $location, NodeCache) {
 
         $scope.publishableNodes = [];
 
@@ -109,7 +109,10 @@
         };
 
         $scope.authorizedForEdit = function (node) {
-            return true;
+            // Currently, I only want to allow child editing if the children are already private.
+            // This is because I don't intend to mess with draft propagation anymore.
+            // If you want to edit a public child, the user needs to navigate to it first.
+            return node === $scope.rootNode || !node.body.public;
         };
 
         function ensureDetail(node) {
@@ -121,15 +124,6 @@
         function hasFullDetail(node) {
             return node.getVersionString();
         }
-
-        $scope.startEditingTitle = function(node) {
-            node.editingTitle = true;
-        };
-
-        $scope.stopEditingTitle = function(node) {
-            node.editingTitle = false;
-            saveChanges(node);
-        };
 
         $scope.saveNode = function(node) {
             saveChanges(node, function() {
@@ -159,84 +153,6 @@
                 });
             }
         }
-
-        $scope.stopEditingBody = function(node) {
-            node.editingBody = false;
-
-            var idsInBody = [];
-            var regex = /{{\[([0-9a-z]{1,25})\](.+?)(?=}})}}/g;
-            var match = regex.exec(node.body.body);
-            while (match != null) {
-                idsInBody.push(match[1]);
-                match = regex.exec(node.body.body);
-            }
-
-            // Remove any children that are no longer supported by the body text.
-            for (var i = node.children.length - 1; i >= 0; i--) {
-                var child = node.children[i];
-                var expectedId = child.body.majorVersion.stableId; // This is a pretty deep reference chain, make sure you populate
-                if (idsInBody.indexOf(expectedId) < 0) {
-                    // Remove the child
-                    node.children.splice(i, 1);
-                    $scope.$broadcast("edgeRemoved", node, child);
-
-                    // Keep the removed child around to support a text-based undo of the deletion.
-                    node.deletedChildren = node.deletedChildren || {};
-                    node.deletedChildren[child.body.majorVersion.stableId] = child;
-                }
-            }
-
-            // If the user manually restored the text of a link that they previously deleted,
-            // restore the link.
-            if (node.deletedChildren) {
-                $.each(idsInBody, function (index, id) {
-                    var nodeForId = node.deletedChildren[id];
-                    if (nodeForId && node.children.indexOf(nodeForId) < 0) {
-                        node.children.push(nodeForId);
-                        $scope.$broadcast("edgeAdded", node, nodeForId);
-                    }
-                });
-            }
-
-            saveChanges(node);
-        };
-
-        $scope.linkChild = function(node, linkCallback) {
-
-            function attachChild(child) {
-                node.children.push(child); // TODO: insert the child in the right order
-                linkCallback(child.body.majorVersion.stableId, child.body.title);
-
-                saveChanges(node);
-                ensureDetail(child);
-                NodeCache.fetchGraphForId(child.stableId, function() {
-                    $scope.$broadcast("nodeAdded", node, child);
-                });
-            }
-
-            function errorHandler(err) {
-                toastr.error(err.message);
-            }
-
-            function nodeChosenForLinking(result) {
-                if (result.chosenNode) {
-                    var child = NodeCache.addOrUpdateNode(result.chosenNode);
-                    attachChild(child);
-                } else {
-                    NodeCache.createAndSaveNode(result.newTitle, result.type, attachChild, errorHandler);
-                }
-            }
-
-            $uibModal.open({
-                templateUrl: "partials/link-child.html",
-                controller: "LinkChildController",
-                resolve: {
-                    linkCallback: function() {return nodeChosenForLinking; },
-                    currentNode: function() {return node; }
-                }
-            });
-
-        };
 
         $scope.setBody = function(node, text) {
             node.body.body = text;

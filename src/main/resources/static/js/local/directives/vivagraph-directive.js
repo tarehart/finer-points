@@ -3,9 +3,9 @@
 
     angular
         .module('nodeStandControllers')
-        .directive('vivaGraph', ['$routeParams', '$rootScope', '$modal', 'NodeCache', vivaGraph]);
+        .directive('vivaGraph', ['$rootScope', vivaGraph]);
 
-    function vivaGraph($routeParams, $rootScope, $modal, NodeCache) {
+    function vivaGraph($rootScope) {
         return {
             restrict: "A",
             scope: {
@@ -17,7 +17,6 @@
             }
         }
     }
-
 
 
     function setupEventHandlers(scope, $rootScope) {

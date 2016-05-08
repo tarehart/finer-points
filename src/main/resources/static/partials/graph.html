@@ -5,8 +5,8 @@
 
             <div ng-if="!node.inEditMode">
 
-                <span class="md-title">
-                    {{node.body.title}}
+                <span class="child-node-title">
+                    <a href="#/graph/{{node.stableId}}">{{node.body.title}}</a>
                     <span ng-if="!node.body.public" uib-tooltip="Private draft"><i class="fa fa-asterisk draft-marker"></i></span>
                 </span>
 
@@ -21,13 +21,7 @@
 
                     <!--Subheader-->
                     <div>
-                        <span class="md-subhead">By {{node.body.author.displayName}}. v{{node.getVersionString()}}</span>
-                        <md-button ng-click="navigateToNode(node)" class="md-icon-button">
-                            <i class="fa fa-external-link"></i>
-                            <md-tooltip md-direction="right">
-                                Navigate to this node
-                            </md-tooltip>
-                        </md-button>
+                        <span>By {{node.body.author.displayName}}. v{{node.getVersionString()}}</span>
                     </div>
 
                     <div ng-if="node.type !== 'source'" ng-markdown="node.body.body" render-markdown></div>
@@ -39,25 +33,10 @@
                     </div>
                 </div>
             </div>
+
             <div ng-if="node.inEditMode">
-
-                <md-input-container class="md-block">
-                    <label>Title</label>
-                    <input ng-model="node.body.title">
-                </md-input-container>
-
-                <textarea ng-if="node.type !== 'source'" node="node" set-text="setBody" link-fn="linkChild" markdown-editor>{{node.body.body}}</textarea>
-
-                <md-input-container ng-if="node.type === 'source'">
-                    <label>Link</label>
-                    <input type="text" class="form-control" placeholder="http://..." ng-model="node.body.url" />
-                </md-input-container>
-
-                <md-card-actions layout="row" layout-align="end center">
-                    <md-button ng-click="saveNode(node)" class="md-raised md-primary">Save</md-button>
-                </md-card-actions>
+                <div node-editor node="node"></div>
             </div>
-
 
         </md-card>
 
@@ -85,7 +64,7 @@
 
     <div class="graph-wrapper">
 
-        <div layout="row">
+        <div layout="column" layout-gt-sm="row">
             <div flex="60" ng-if="rootNode">
                 <md-card ng-if="!rootNode.inEditMode">
                     <md-card-title>
@@ -109,21 +88,8 @@
                 </md-card>
                 <md-card ng-if="rootNode.inEditMode">
                     <md-card-content>
-                        <md-input-container class="md-block">
-                            <label>Title</label>
-                            <input ng-model="rootNode.body.title">
-                        </md-input-container>
-
-                        <textarea ng-if="rootNode.type !== 'source'" node="rootNode" set-text="setBody" link-fn="linkChild" markdown-editor>{{rootNode.body.body}}</textarea>
-
-                        <md-input-container ng-if="rootNode.type === 'source'">
-                            <label>Link</label>
-                            <input type="text" class="form-control" placeholder="http://..." ng-model="rootNode.body.url" />
-                        </md-input-container>
+                        <div node-editor node="rootNode"></div>
                     </md-card-content>
-                    <md-card-actions layout="row" layout-align="end center">
-                        <md-button ng-click="saveNode(rootNode)" class="md-raised md-primary">Save</md-button>
-                    </md-card-actions>
                 </md-card>
 
                 <md-card ng-if="isPersisted(rootNode)">

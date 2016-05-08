@@ -6,7 +6,8 @@
 .nodeDiv {
   margin-bottom: 0;
   margin-top: 4px;
-  padding: 5px;
+  padding: 10px;
+  font-size: 14px;
 }
 
 .nodeDiv.highlighted {
@@ -17,6 +18,10 @@
 
 .node-heading.leftPaddingWithChild {
   padding-left: 0;
+}
+
+.child-node-title {
+  font-size: 18px;
 }
 
 
