@@ -1,9 +1,17 @@
 {
   "name": "node-stand",
   "devDependencies": {
-    "gulp-concat": "*",
-    "gulp-uglify": "*",
-    "gulp-sourcemaps": "*",
-    "gulp-sass": "*"
+    "webpack-dev-server": "*",
+    "webpack": "*",
+    "babel-core": "*",
+    "babel-loader": "*",
+    "babel-preset-es2015": "*",
+    "babel-polyfill": "*",
+    "style-loader": "*",
+    "postcss-loader": "*",
+    "css-loader": "*",
+    "sass-loader": "*",
+    "node-sass": "*",
+    "extract-text-webpack-plugin": "*"
   }
 }

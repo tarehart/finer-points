@@ -1,4 +1,6 @@
-$finer-background: #edf1f2;
+@import 'material-fix';
+@import 'colors';
+
 
 body, .body-inner {
   background-color: $finer-background;

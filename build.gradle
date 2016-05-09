@@ -1,6 +1,10 @@
+import com.moowork.gradle.node.task.NodeTask
+//import org.gradle.api.tasks.Exec
+
 buildscript {
     repositories {
         maven { url "https://repo.spring.io/libs-release" }
+        maven { url "https://plugins.gradle.org/m2/" }
         mavenLocal()
         mavenCentral()
         jcenter()
@@ -8,6 +12,7 @@ buildscript {
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.3.RELEASE")
         classpath("be.filipblondeel.gradle:gradle-gulp-plugin:0.1")
+        classpath("com.moowork.gradle:gradle-node-plugin:0.12")
     }
 }
 
@@ -15,7 +20,7 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
 apply plugin: 'war'
-apply plugin: 'gulp'
+apply plugin: 'com.moowork.node'
 
 configurations.all {
     resolutionStrategy {
@@ -28,18 +33,25 @@ configurations.all {
 }
 
 node {
-    // It's possibly to specify a version here
+    // Version of node to use
+    version = '4.4.4'
     download = true
 }
 
+task webpack(type: NodeTask, dependsOn: 'npmInstall') {
+    script = project.file('node_modules/webpack/bin/webpack')
+}
+
 // makes sure on each build that gulp is installed
-gulp_build.dependsOn 'installGulp'
+//gulp_build.dependsOn 'installGulp'
 
 // processes package.json before running gulp build
-gulp_build.dependsOn 'npmInstall'
+//gulp_build.dependsOn 'npmInstall'
 
 // runs "gulp build" as part of other tasks
-processResources.dependsOn gulp_build
+//processResources.dependsOn gulp_build
+
+processResources.dependsOn webpack
 
 war {
     baseName = 'FinerPoints'
