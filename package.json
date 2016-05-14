@@ -13,6 +13,21 @@
     "sass-loader": "*",
     "node-sass": "*",
     "extract-text-webpack-plugin": "*",
-    "ng-annotate-loader": "*"
+    "ng-annotate-loader": "*",
+    "jquery": "2.2.3",
+    "angular": "1.5.5",
+    "angular-route": "1.5.5",
+    "angular-sanitize": "1.5.5",
+    "angular-animate": "1.5.5",
+    "angular-aria": "1.5.5",
+    "angular-material": "1.0.7",
+    "particles.js": "~2.0.0",
+    "showdown": "*",
+    "bootstrap-markdown": "*",
+    "font-awesome-webpack": "*",
+    "file-loader": "*",
+    "url-loader": "*",
+    "script-loader": "*",
+    "globals-loader": "*"
   }
 }

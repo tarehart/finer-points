@@ -3,8 +3,6 @@ require('../../sass/common.scss');
 (function() {
     'use strict';
 
-    var angular = require('angular');
-
     angular.module('nodeStandControllers', []);
 
     require('./controllers/gateway-controller');

@@ -1,6 +1,4 @@
 
-require('../lib/particles');
-
 (function() {
     'use strict';
 
@@ -16,7 +14,9 @@ require('../lib/particles');
             template: '<div class="particleJs" id="particleJs"></div>',
             link: function(scope, element, attrs, fn) {
 
-                $window.particlesJS('particleJs', {
+                var particlesJS = require('particles.js');
+
+                particlesJS('particleJs', {
                     "particles": {
                         "number": {
                             "value": 100,
