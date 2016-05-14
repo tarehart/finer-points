@@ -7,8 +7,8 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
     entry: {
-        "app": ROOT + '/js/local/app.js',
-        "vendor": ROOT + '/js/local/vendor.js'
+        "app": ROOT + '/js/app.js',
+        "vendor": ROOT + '/js/vendor.js'
     },
     output: {
         path: DEST,
@@ -20,7 +20,7 @@ module.exports = {
         loaders: [
             {
                 test: /\.js$/,
-                exclude: /node_modules|cdn/,
+                exclude: /node_modules/,
                 loader: 'ng-annotate!babel-loader?presets[]=es2015'
             },
             {

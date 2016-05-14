@@ -1,4 +1,4 @@
-require('../../sass/common.scss');
+require('../sass/common.scss');
 
 (function() {
     'use strict';

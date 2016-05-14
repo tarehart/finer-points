@@ -1,4 +1,4 @@
-require('../../../sass/vivagraph.scss');
+require('../../sass/vivagraph.scss');
 
 (function() {
     'use strict';

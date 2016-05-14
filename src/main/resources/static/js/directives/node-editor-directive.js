@@ -1,4 +1,4 @@
-require('../../../sass/bootstrap-markdown-material.scss');
+require('../../sass/bootstrap-markdown-material.scss');
 require('./markdown-directive');
 
 (function() {

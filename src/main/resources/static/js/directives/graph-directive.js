@@ -1,4 +1,4 @@
-require('../../../sass/graph.scss');
+require('../../sass/graph.scss');
 require('../controllers/node-cache');
 require('./vivagraph-directive');
 require('./comments-directive');
