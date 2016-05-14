@@ -8,16 +8,8 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 module.exports = {
     entry: {
         "app": ROOT + '/js/local/app.js',
-        "vendor": ['jquery', 'angular', 'angular-route', 'angular-sanitize', 'angular-animate', 'angular-aria',
-            'angular-material', 'font-awesome-webpack', 'showdown', 'particles.js',
-            './node_modules/bootstrap-markdown/js/bootstrap-markdown.js',
-            './node_modules/bootstrap-markdown/css/bootstrap-markdown.min.css']
+        "vendor": ROOT + '/js/local/vendor.js'
     },
-    // externals: {
-    //     'angular': 'angular',
-    //     'particles.js': 'particlesJS',
-    //     'jquery': 'jQuery'
-    // },
     output: {
         path: DEST,
         filename: '[name].bundle.js',
@@ -28,7 +20,7 @@ module.exports = {
         loaders: [
             {
                 test: /\.js$/,
-                exclude: /node_modules/,
+                exclude: /node_modules|cdn/,
                 loader: 'ng-annotate!babel-loader?presets[]=es2015'
             },
             {
@@ -47,12 +39,7 @@ module.exports = {
         ]
     },
     plugins: [
-        new ExtractTextPlugin("[name].bundle.css"),
-        new webpack.ProvidePlugin({
-            $: "jquery",
-            jQuery: "jquery",
-            angular: "angular"
-        })
+        new ExtractTextPlugin("[name].bundle.css")
     ],
     debug: true
 };

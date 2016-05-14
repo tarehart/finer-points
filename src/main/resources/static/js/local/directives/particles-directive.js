@@ -14,8 +14,6 @@
             template: '<div class="particleJs" id="particleJs"></div>',
             link: function(scope, element, attrs, fn) {
 
-                var particlesJS = require('particles.js');
-
                 particlesJS('particleJs', {
                     "particles": {
                         "number": {

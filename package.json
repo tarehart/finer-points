@@ -27,7 +27,6 @@
     "font-awesome-webpack": "*",
     "file-loader": "*",
     "url-loader": "*",
-    "script-loader": "*",
-    "globals-loader": "*"
+    "expose-loader": "*"
   }
 }
