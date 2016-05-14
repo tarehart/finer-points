@@ -33,13 +33,18 @@ configurations.all {
 }
 
 node {
-    // Version of node to use
+    // Version of node to use. Keep webpack-watch.sh in sync with this.
     version = '4.4.4'
     download = true
 }
 
 task webpack(type: NodeTask, dependsOn: 'npmInstall') {
     script = project.file('node_modules/webpack/bin/webpack')
+}
+
+task webpackWatch(type: NodeTask, dependsOn: 'npmInstall') {
+    script = project.file('node_modules/webpack/bin/webpack')
+    args = ['--watch']
 }
 
 // makes sure on each build that gulp is installed

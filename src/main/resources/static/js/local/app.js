@@ -1,15 +1,21 @@
-import angular from 'angular';
+require('../../sass/common.scss');
 
 (function() {
     'use strict';
 
+    var angular = require('angular');
+
     angular.module('nodeStandControllers', []);
+
+    require('./controllers/gateway-controller');
+    require('./controllers/login-controller');
+    require('./services/user-service');
+    require('./directives/graph-directive');
 
     var nodeStandApp = angular.module('nodeStandApp', [
         'ngRoute',
         'ngMaterial',
-        'markdown',
-        'particles',
+        'ngSanitize',
         'nodeStandControllers'
     ]);
 
@@ -24,23 +30,11 @@ import angular from 'angular';
                     templateUrl: 'partials/signin.html',
                     controller: 'LoginController'
                 }).
-                when('/graph', {
-                    templateUrl: 'partials/node-menu.html',
-                    controller: 'NodeMenuController'
-                }).
                 when('/graph/:rootStableId', {
                     templateUrl: 'partials/explorer.html'
                 }).
                 when('/create', {
                     templateUrl: 'partials/create.html'
-                }).
-                when('/graphDiagnostic/:rootId', {
-                    templateUrl: 'partials/graphDiagnostic.html',
-                    controller: 'GraphController'
-                }).
-                when('/d/:id', {
-                    templateUrl: 'partials/detail.html',
-                    controller: 'DetailController'
                 }).
                 otherwise({
                     redirectTo: '/'

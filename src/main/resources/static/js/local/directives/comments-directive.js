@@ -1,3 +1,6 @@
+require('./comment-vote-directive');
+require('../../../sass/comments.scss');
+
 (function() {
     'use strict';
 

@@ -1,3 +1,5 @@
+require('../../../sass/vote-button.scss');
+
 (function() {
     'use strict';
 

@@ -1,5 +1,9 @@
+require('../../../sass/vivagraph.scss');
+
 (function() {
     'use strict';
+
+    var Viva = require('../lib/vivagraph');
 
     angular
         .module('nodeStandControllers')

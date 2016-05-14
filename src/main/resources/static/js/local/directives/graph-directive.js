@@ -1,3 +1,11 @@
+require('../../../sass/graph.scss');
+require('../controllers/node-cache');
+require('./vivagraph-directive');
+require('./comments-directive');
+require('./node-editor-directive');
+require('./vote-button-directive');
+require('./markdown-directive');
+
 (function() {
     'use strict';
 

@@ -1,8 +1,11 @@
+
+require('../lib/particles');
+
 (function() {
     'use strict';
 
     angular
-        .module('particles', [])
+        .module('nodeStandControllers')
         .directive("particles", ["$window", particles]);
 
 

@@ -1,3 +1,6 @@
+require('../../../sass/bootstrap-markdown-material.scss');
+require('./markdown-directive');
+
 (function() {
     'use strict';
 

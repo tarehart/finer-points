@@ -1,3 +1,5 @@
+require('../directives/particles-directive');
+
 (function() {
     'use strict';
 
