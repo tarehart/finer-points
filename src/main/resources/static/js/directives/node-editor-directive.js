@@ -164,6 +164,13 @@ require('./markdown-directive');
                 };
 
                 $scope.searchResultSelected = function(bodyNode) {
+
+                    if (!bodyNode) {
+                        $scope.chosenNode = null;
+                        $scope.isResultSelected = false;
+                        return;
+                    }
+
                     NodeCache.getLinkChoices(bodyNode.majorVersion.id, function(nodes) {
                         // Although the nodes param is a list, it's actually associated with a single selection in the search
                         // box. That's because search results are rolled up by major version to prevent the perception of
