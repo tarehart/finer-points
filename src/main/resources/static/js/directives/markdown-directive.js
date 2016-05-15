@@ -4,8 +4,8 @@
     angular
         .module('nodeStandControllers')
         .provider('markdownConverter', markdownConverter)
-        .directive("markdownEditor", ['$sanitize', 'markdownConverter', markdownEditor])
-        .directive("renderMarkdown", ['$sanitize', 'markdownConverter', renderMarkdown]);
+        .directive("markdownEditor", markdownEditor)
+        .directive("renderMarkdown", ['markdownConverter', renderMarkdown]);
 
     function markdownConverter() {
         return {
@@ -18,7 +18,7 @@
         };
     }
 
-    function markdownEditor($sanitize, markdownConverter) {
+    function markdownEditor() {
         return {
             restrict: "A",
             scope: {
@@ -63,7 +63,6 @@
                     savable:false,
                     onChange: function(e){
                         var text = e.getContent();
-                        // TODO: sanitize
                         scope.setText(scope.node, text);
                         scope.$apply();
                     },
@@ -76,12 +75,14 @@
         }
     }
 
-    function renderMarkdown($sanitize, markdownConverter) {
+    function renderMarkdown(markdownConverter) {
         return {
             restrict: "A",
             scope: {
                 ngMarkdown: "="
             },
+            // ng-bind-html sanitizes the html behind the scenes to prevent XSS.
+            // https://docs.angularjs.org/api/ngSanitize/service/$sanitize
             template: '<div ng-bind-html="html"></div>',
             link: function (scope, element, attrs, ngModel) {
                 scope.$watch(function(scope) {return scope.ngMarkdown;}, function (v) {
