@@ -47,6 +47,7 @@ I am going to remove the bootstrap stylesheet. I still need certain bootstrap st
   .btn-group {
     display: inline-block;
     margin: 0;
+    margin-bottom: 8px;
   }
 
 
@@ -62,7 +63,7 @@ I am going to remove the bootstrap stylesheet. I still need certain bootstrap st
     > .btn,
     > .btn-group,
     > .input-group {
-      margin-left: 20px;
+      margin-right: 5px;
     }
 
     > .btn-group:first-child {
@@ -70,17 +71,20 @@ I am going to remove the bootstrap stylesheet. I still need certain bootstrap st
     }
   }
 
-
-  .btn.btn-sm {
-    padding: 5px 12px;
+  > textarea {
+    background-color: white;
+    padding: 5px;
+    border: none;
+    box-sizing: border-box;
   }
 
-}
+  >.md-header {
+    padding-bottom: 0;
+  }
 
-/* for bootstrap-markdown.min */
-.md-editor>textarea {
-  background-color: white;
-  padding: 5px;
-  border: none;
-  box-sizing: border-box;
+
+  .btn.btn-sm {
+    padding: 3px 8px;
+  }
+
 }
