@@ -1,0 +1,25 @@
+.custom-toast {
+
+  position: fixed; // https://github.com/angular/material/issues/1106
+
+  &.toast-success {
+    i {
+      color: #7DC57D;
+    }
+  }
+
+  &.toast-error {
+    i {
+      color: #c55947;
+    }
+  }
+
+  i {
+    font-size: 36px;
+    margin-left: -14px;
+    margin-right: 10px;
+  }
+
+}
+
+

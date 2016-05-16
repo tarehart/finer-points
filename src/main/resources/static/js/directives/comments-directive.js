@@ -1,17 +1,15 @@
 require('./comment-vote-directive');
 require('../../sass/comments.scss');
+require('../services/toast-service');
 
 (function() {
     'use strict';
 
     angular
         .module('nodeStandControllers')
-        .directive('nodeComments', ['$http', 'UserService', nodeComments]);
-
-
-    angular
-        .module('nodeStandControllers')
-        .controller('CommentController', ['$scope', '$http', 'UserService', CommentController]);
+        .directive('nodeComments', nodeComments)
+        .controller('CommentController', CommentController);
+        
 
     function nodeComments() {
         return {
@@ -25,7 +23,7 @@ require('../../sass/comments.scss');
         }
     }
 
-    function CommentController($scope, $http, UserService) {
+    function CommentController($scope, $http, UserService, ToastService) {
 
         var ctrl = this;
         ctrl.node = $scope.node;
@@ -47,14 +45,14 @@ require('../../sass/comments.scss');
                 ctrl.node.comments.push(comment);
                 ctrl.editingTopLevel = false;
             }, function(err) {
-                toastr.error(err.message);
+                ToastService.error(err.message);
             });
         };
 
         ctrl.beginEditingTopLevel = function() {
 
             if (!UserService.getUser()) {
-                toastr.error("Must be signed in to comment!");
+                ToastService.error("Must be signed in to comment!");
                 return;
             }
 
@@ -71,7 +69,7 @@ require('../../sass/comments.scss');
         ctrl.beginWritingReply = function (comment) {
 
             if (!UserService.getUser()) {
-                toastr.error("Must be signed in to comment!");
+                ToastService.error("Must be signed in to comment!");
                 return;
             }
 
@@ -95,7 +93,7 @@ require('../../sass/comments.scss');
                 comment.comments.push(reply);
                 comment.writingReply = false;
             }, function(err) {
-                toastr.error(err.message);
+                ToastService.error(err.message);
             });
         };
 
@@ -111,7 +109,7 @@ require('../../sass/comments.scss');
                 comment.editedBody = comment.body;
                 comment.editing = false;
             }, function(err) {
-                toastr.error(err.message);
+                ToastService.error(err.message);
             });
         };
 

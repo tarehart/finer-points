@@ -1,30 +1,32 @@
+require('../services/toast-service');
+
 (function() {
     'use strict';
 
     angular
         .module('nodeStandControllers')
-        .directive('commentVoteButton', ['$http', 'UserService', voteButton]);
+        .directive('commentVoteButton', voteButton)
+        .controller('CommentVoteController', CommentVoteController);
 
-    function voteButton($http, UserService) {
+    function voteButton() {
         return {
             restrict: "A",
             scope: {
                 comment: "="
             },
             templateUrl: "partials/comment-vote-button.html",
-            link: function (scope) {
-
-                initializeVoteButton(scope, scope.comment, $http, UserService);
-            }
+            controller: 'CommentVoteController'
         }
     }
 
-    function initializeVoteButton(scope, comment, $http, UserService) {
+    function CommentVoteController($scope, $http, UserService, ToastService) {
 
 
         var user = UserService.getUser();
+        var comment = $scope.comment;
+        
         if (user == null) {
-            UserService.subscribeSuccessfulLogin(scope, function() {
+            UserService.subscribeSuccessfulLogin($scope, function() {
                 user = UserService.getUser();
                 getUserVote();
             });
@@ -34,8 +36,8 @@
 
         function getUserVote() {
             if (user && user.commentVotes) {
-                scope.userVote = user.commentVotes[comment.id];
-                return scope.userVote;
+                $scope.userVote = user.commentVotes[comment.id];
+                return $scope.userVote;
             }
             return null;
         }
@@ -45,13 +47,13 @@
                 if (!user.commentVotes) {
                     user.commentVotes = {};
                 }
-                scope.userVote = user.commentVotes[comment.id] = vote;
+                $scope.userVote = user.commentVotes[comment.id] = vote;
             }
         }
 
-        scope.voteClicked = function(voteType) {
+        $scope.voteClicked = function(voteType) {
             if (!user) {
-                toastr.error("Must be logged in to vote!");
+                ToastService.error("Must be logged in to vote!");
                 return;
             }
 
@@ -80,7 +82,7 @@
                     setUserVote(voteDelta);
                 })
                 .error(function(err) {
-                    toastr.error(err.message);
+                    ToastService.error(err.message);
                 });
         }
 
@@ -94,7 +96,7 @@
                     setUserVote(null);
                 })
                 .error(function(err) {
-                    toastr.error(err.message);
+                    ToastService.error(err.message);
                 });
         }
 

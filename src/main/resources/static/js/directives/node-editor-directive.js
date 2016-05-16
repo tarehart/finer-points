@@ -1,5 +1,6 @@
 require('../../sass/bootstrap-markdown-material.scss');
 require('./markdown-directive');
+require('../services/toast-service');
 
 (function() {
     'use strict';
@@ -10,7 +11,7 @@ require('./markdown-directive');
 
     angular
         .module('nodeStandControllers')
-        .controller('NodeEditorController', ['$scope', '$http', '$mdDialog', '$location', 'NodeCache', NodeEditorController]);
+        .controller('NodeEditorController', NodeEditorController);
 
     function nodeEditor() {
         return {
@@ -24,7 +25,7 @@ require('./markdown-directive');
         }
     }
 
-    function NodeEditorController($scope, $http, $mdDialog, $location, NodeCache) {
+    function NodeEditorController($scope, $http, $mdDialog, $location, ToastService, NodeCache) {
 
         var self = this;
 
@@ -44,7 +45,7 @@ require('./markdown-directive');
                     // the nodes are in the NodeCache.
                     $location.path("/graph/" + newNode.stableId);
                 }, function(err) {
-                    toastr.error(err.message);
+                    ToastService.error(err.message);
                 });
             } else {
 
@@ -52,9 +53,9 @@ require('./markdown-directive');
                     if (successCallback) {
                         successCallback();
                     }
-                    toastr.success("Saved successfully!");
+                    ToastService.success("Saved successfully!");
                 }, function (err) {
-                    toastr.error(err.message);
+                    ToastService.error(err.message);
                 });
             }
         }
@@ -118,7 +119,7 @@ require('./markdown-directive');
             }
 
             function errorHandler(err) {
-                toastr.error(err.message);
+                ToastService.error(err.message);
             }
 
             function nodeChosenForLinking(result) {

@@ -1,36 +1,40 @@
 require('../../sass/vote-button.scss');
+require('../services/toast-service');
 
 (function() {
     'use strict';
 
     angular
         .module('nodeStandControllers')
-        .directive('voteButton', ['$http', 'UserService', voteButton]);
+        .directive('voteButton', voteButton)
+        .controller('VoteButtonController', VoteButtonController);
 
-    function voteButton($http, UserService) {
+    function voteButton() {
         return {
             restrict: "A",
             scope: {
                 node: "="
             },
             templateUrl: "partials/vote-button.html",
-            link: function (scope) {
-
-                initializeVoteButton(scope, scope.node, $http, UserService);
-
-                scope.$on("rootData", function(evt, rootNode) {
-                   initializeVoteButton(scope, rootNode, $http, UserService);
-                });
-            }
+            controller: 'VoteButtonController'
         }
     }
 
-    function initializeVoteButton(scope, rootNode, $http, UserService) {
+    function VoteButtonController($scope, $http, UserService, ToastService) {
 
+        var rootNode = $scope.node;
+        if (rootNode == null) {
+            $scope.$on("rootData", function(evt, node) {
+                rootNode = node;
+                setupMeters();
+            });
+        } else {
+            setupMeters();
+        }
 
         var user = UserService.getUser();
         if (user == null) {
-            UserService.subscribeSuccessfulLogin(scope, function() {
+            UserService.subscribeSuccessfulLogin($scope, function() {
                 user = UserService.getUser();
                 getUserVote();
             });
@@ -42,8 +46,8 @@ require('../../sass/vote-button.scss');
 
         function getUserVote() {
             if (user && user.bodyVotes) {
-                scope.userVote = user.bodyVotes[rootNode.body.id];
-                return scope.userVote;
+                $scope.userVote = user.bodyVotes[rootNode.body.id];
+                return $scope.userVote;
             }
             return null;
         }
@@ -53,22 +57,22 @@ require('../../sass/vote-button.scss');
                 if (!user.bodyVotes) {
                     user.bodyVotes = {};
                 }
-                scope.userVote = user.bodyVotes[rootNode.body.id] = voteType ? voteType.toUpperCase() : null;
+                $scope.userVote = user.bodyVotes[rootNode.body.id] = voteType ? voteType.toUpperCase() : null;
             }
         }
 
         function setupMeters() {
-            scope.votes = {GREAT: {}, WEAK: {}, TOUCHE: {}, TRASH: {}};
+            $scope.votes = {GREAT: {}, WEAK: {}, TOUCHE: {}, TRASH: {}};
 
             var max = 0;
-            $.each(scope.votes, function (key, val) {
+            $.each($scope.votes, function (key, val) {
                 val.num = rootNode.body[getBodyVotesKey(key)] || 0;  // e.g. body.greatVotes = 5
                 if (val.num > max) {
                     max = val.num;
                 }
             });
 
-            $.each(scope.votes, function (key, val) {
+            $.each($scope.votes, function (key, val) {
                 val.pct = max > 0 ? val.num * 100 / max : 0;
             });
         }
@@ -77,9 +81,9 @@ require('../../sass/vote-button.scss');
             return voteType.toLowerCase() + 'Votes';
         }
 
-        scope.voteClicked = function(voteType) {
+        $scope.voteClicked = function(voteType) {
             if (!user) {
-                toastr.error("Must be logged in to vote!");
+                ToastService.error("Must be logged in to vote!");
                 return;
             }
 
@@ -106,7 +110,7 @@ require('../../sass/vote-button.scss');
                     setupMeters();
                 })
                 .error(function(err) {
-                    toastr.error(err.message);
+                    ToastService.error(err.message);
                 });
         }
 
@@ -121,7 +125,7 @@ require('../../sass/vote-button.scss');
                     setupMeters();
                 })
                 .error(function(err) {
-                    toastr.error(err.message);
+                    ToastService.error(err.message);
                 });
         }
 

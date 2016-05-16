@@ -1,11 +1,13 @@
+require('./toast-service');
+
 (function () {
     'use strict';
 
     angular
         .module('nodeStandControllers')
-        .service('UserService', ['$http', '$rootScope', UserService]);
+        .service('UserService', UserService);
 
-    function UserService($http, $rootScope) {
+    function UserService($http, $rootScope, ToastService) {
         var self = this;
 
         self.loggedInUser = null;
@@ -38,7 +40,7 @@
                     if (err.status === 401) {
                         return; // This is expected, it just means that nobody is logged in right now.
                     }
-                    toastr.error(err.message);
+                    ToastService.error(err.message);
                 });
         }
     }

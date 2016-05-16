@@ -1,0 +1,9 @@
+<md-toast ng-class="['toast-' + toastCtrl.type, 'custom-toast', 'md-capsule']">
+    <span ng-if="toastCtrl.type === 'success' ">
+        <i class="fa fa-check-circle"></i>
+    </span>
+    <span ng-if="toastCtrl.type === 'error' ">
+        <i class="fa fa-times-circle"></i>
+    </span>
+    <span flex>{{toastCtrl.message}}</span>
+</md-toast>

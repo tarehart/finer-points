@@ -11,22 +11,21 @@ require('./markdown-directive');
 
     angular
         .module('nodeStandControllers')
-        .directive('nodeGraph', ['$routeParams', '$mdDialog', '$location', 'NodeCache', nodeGraph]);
+        .directive('nodeGraph', nodeGraph)
+        .controller('GraphController', GraphController);
 
-    function nodeGraph($routeParams, $mdDialog, $location, NodeCache) {
+    function nodeGraph() {
         return {
             restrict: "A",
             scope: {
                 starterNode: "=starterNode"
             },
             templateUrl: "partials/graph.html",
-            link: function (scope) {
-                initializeGraph(scope, $routeParams, $mdDialog, $location, NodeCache);
-            }
+            controller: 'GraphController'
         }
     }
 
-    function initializeGraph($scope, $routeParams, $mdDialog, $location, NodeCache) {
+    function GraphController($scope, $routeParams, $location, NodeCache, ToastService) {
 
         $scope.publishableNodes = [];
 
@@ -44,7 +43,7 @@ require('./markdown-directive');
                     $location.path("/graph/" + data.graph.rootStableId);
 
                 }, function (err) {
-                    toastr.error(err.message);
+                    ToastService.error(err.message);
                 });
 
             } else {
@@ -147,7 +146,7 @@ require('./markdown-directive');
                     // the nodes are in the NodeCache.
                     $location.path("/graph/" + newNode.stableId);
                 }, function(err) {
-                    toastr.error(err.message);
+                    ToastService.error(err.message);
                 });
             } else {
 
@@ -155,9 +154,9 @@ require('./markdown-directive');
                     if (successCallback) {
                         successCallback();
                     }
-                    toastr.success("Saved successfully!");
+                    ToastService.success("Saved successfully!");
                 }, function (err) {
-                    toastr.error(err.message);
+                    ToastService.error(err.message);
                 });
             }
         }
