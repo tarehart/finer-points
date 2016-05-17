@@ -11,3 +11,8 @@ neo4j-home/
 node_modules/
 **/static/dist/
 **/static/sass/compiled/
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

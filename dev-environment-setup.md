@@ -28,15 +28,15 @@ Exit the `bootRun` process (Ctrl+C) and re-run it.
 
 ### JS / CSS
 
-The project currently uses 'Gulp' to process .scss files, combine, minify, etc.
-There are two different methods of getting it to constantly watch for changes.
+The project currently uses 'webpack' to process .scss files, combine, minify, etc.
+To get it to constantly watch for changes:
 
-1. Command line
-    1. Open a terminal and execute `./gradlew gulp_watch`
-2. Or, if you prefer, via IntelliJ
-    1. Setup gulp task runner in Intellij: https://www.jetbrains.com/idea/help/using-gulp-task-runner.html
-        - When that page tells you to install node, you can skip that step. You should already have a version in ~/.gradle/nodejs/.
-          This directory should have been created during the gradle build.
-    2. Open gulpfile.js, right click on the "watch" task and run it.
+`./gradlew webpackWatch`
 
-When `watch` is running, you can just change a JS, CSS, or SCSS file and then refresh the browser.
+When `webpackWatch` is running, you can just change a JS, CSS, or SCSS file and then refresh the browser.
+
+## Deploying to Prod
+
+Set up the Elastic Beanstalk CLI: http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3.html
+
+If that's done correctly, you can just use `eb deploy`
