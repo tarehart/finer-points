@@ -3,6 +3,7 @@
   "devDependencies": {
     "webpack-dev-server": "*",
     "webpack": "*",
+    "source-map": "*",
     "babel-core": "*",
     "babel-loader": "*",
     "babel-preset-es2015": "*",
@@ -12,6 +13,8 @@
     "css-loader": "*",
     "sass-loader": "*",
     "node-sass": "*",
+    "less-loader": "*",
+    "less": "*",
     "extract-text-webpack-plugin": "*",
     "ng-annotate-loader": "*",
     "jquery": "2.2.3",
@@ -25,6 +28,7 @@
     "showdown": "*",
     "bootstrap-markdown": "*",
     "font-awesome-webpack": "*",
+    "font-awesome": "*",
     "file-loader": "*",
     "url-loader": "*",
     "expose-loader": "*"
