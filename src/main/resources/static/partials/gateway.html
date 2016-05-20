@@ -35,22 +35,7 @@
                 <span class="md-headline">Featured trees</span>
             </md-card-title>
             <md-card-content>
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Author</th>
-                        <th>Created</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr ng-repeat="node in nodes">
-                        <td><a href="#/graph/{{node.stableId}}">{{node.body.title}}</a></td>
-                        <td>{{node.body.author.displayName}}</td>
-                        <td>{{node.body.dateCreated | date}}</td>
-                    </tr>
-                    </tbody>
-                </table>
+                <div node-list list="nodes"></div>
             </md-card-content>
         </md-card>
     </div>

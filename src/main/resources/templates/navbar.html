@@ -8,7 +8,10 @@
 
         <span flex=""></span>
 
-        <span ng-if="user">Welcome, {{user.displayName}}</span>
+
+        <span ng-if="user" class="header-text">Welcome, {{user.displayName}}</span>
+        <md-button ng-if="user" href="/signout">Sign Out</md-button>
+
 
         <md-button href="#/login" ng-if="!user" class="md-raised" aria-label="Sign In">
             Sign in

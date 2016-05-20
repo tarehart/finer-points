@@ -2,6 +2,7 @@ require('../../sass/graph.scss');
 require('../controllers/node-cache');
 require('./vivagraph-directive');
 require('./comments-directive');
+require('./consumers-directive');
 require('./node-editor-directive');
 require('./vote-button-directive');
 require('./markdown-directive');

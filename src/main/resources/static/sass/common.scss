@@ -54,11 +54,6 @@ a:hover {
   }
 }
 
-.inline-header {
-  margin: 0;
-  display: inline-block;
-}
-
 .spaced-inline {
   margin-left: 10px;
 }
@@ -67,21 +62,6 @@ a:hover {
   margin-left: 0;
 }
 
-.btn.big-icon {
-  font-size: 1.5em;
-  padding: 2px;
-  line-height: 0;
-
-}
-
-.panel-heading-button {
-  margin: -5px;
-}
-
-.top-right-fabs {
-  top: 20px;
-  right: 20px;
-  bottom: auto;
-  left: auto;
-  position: absolute;
+.header-text {
+  font-size: 16px;
 }

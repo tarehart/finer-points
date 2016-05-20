@@ -29,7 +29,7 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
     @Query("match p=(node:ArgumentNode)-[:DEFINED_BY]->(body:ArgumentBody)-[:AUTHORED_BY]->(:User) return p")
     Set<ArgumentNode> getAllNodesRich();
 
-    @Query("match p=(n:AssertionNode)-[:DEFINED_BY]->(:ArgumentBody)-[:AUTHORED_BY]->(:User) where not (:AssertionNode)-[:SUPPORTED_BY]->(n) return p")
+    @Query("match p=(n:AssertionNode)-[:DEFINED_BY]->(:ArgumentBody {isPublic:true})-[:AUTHORED_BY]->(:User) where not (:AssertionNode)-[:SUPPORTED_BY]->(n) return p")
     Set<ArgumentNode> getRootNodesRich();
 
     @Query("start n=node({0}) match body-[VERSION_OF]->n return max(body.minorVersion)")
@@ -49,6 +49,9 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
     @Query("start u=node({0}) match p=u<-[:AUTHORED_BY]-(b:ArgumentBody)<-[:DEFINED_BY]-(n:ArgumentNode) where not b.isPublic return p")
     Set<ArgumentNode> getDraftNodesRich(long userId);
 
-    @Query("start n=node({0}) match (c:ArgumentNode)-[:SUPPORTED_BY|INTERPRETS]->n with c match p=c-[:DEFINED_BY]->(:ArgumentBody) return p")
+    @Query("start n=node({0}) match (c:ArgumentNode)-[:SUPPORTED_BY|INTERPRETS]->n with c match p=c-[:DEFINED_BY]->(b:ArgumentBody)-[:AUTHORED_BY]->(:User) where b.isPublic return p")
     Set<ArgumentNode> getConsumerNodes(long nodeId);
+
+    @Query("start n=node({0}), u=node({1}) match (c:ArgumentNode)-[:SUPPORTED_BY|INTERPRETS]->n with c, u match p=c-[:DEFINED_BY]->(b:ArgumentBody)-[:AUTHORED_BY]->(a:User) where b.isPublic or a = u return p")
+    Set<ArgumentNode> getConsumerNodes(long nodeId, long userId);
 }

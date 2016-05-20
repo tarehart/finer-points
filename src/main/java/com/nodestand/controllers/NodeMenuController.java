@@ -40,8 +40,12 @@ public class NodeMenuController {
     @Transactional
     @RequestMapping("/consumerNodes")
     public Set<ArgumentNode> getConsumerNodes(@RequestParam Long nodeId) {
-
-        return argumentNodeRepository.getConsumerNodes(nodeId);
+        Long userId = userService.getUserIdFromSession();
+        if (userId != null) {
+            return argumentNodeRepository.getConsumerNodes(nodeId, userId);
+        } else {
+            return argumentNodeRepository.getConsumerNodes(nodeId);
+        }
     }
 
 }
