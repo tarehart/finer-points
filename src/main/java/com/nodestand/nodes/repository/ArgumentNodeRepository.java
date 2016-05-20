@@ -45,4 +45,10 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
 
     @Query("start n=node({0}) match p=n-[:DEFINED_BY]->(:ArgumentBody)-[:VERSION_OF]->(:MajorVersion) return p")
     ArgumentNode loadWithMajorVersion(long id);
+
+    @Query("start u=node({0}) match p=u<-[:AUTHORED_BY]-(b:ArgumentBody)<-[:DEFINED_BY]-(n:ArgumentNode) where not b.isPublic return p")
+    Set<ArgumentNode> getDraftNodesRich(long userId);
+
+    @Query("start n=node({0}) match (c:ArgumentNode)-[:SUPPORTED_BY|INTERPRETS]->n with c match p=c-[:DEFINED_BY]->(:ArgumentBody) return p")
+    Set<ArgumentNode> getConsumerNodes(long nodeId);
 }
