@@ -1,34 +1,26 @@
-<div class="vote-cluster">
-    <img src="/img/votes-banner.png" class="vote-label" />
-
-    <div class="vote-stack">
-        <md-button ng-class="['vote-great', {chosen: userVote == 'GREAT'}]" ng-click="voteClicked('GREAT')">
-            <span class="vote-num">{{votes.GREAT.num}}</span>
-            <div class="vote-meter" ng-style="{width: votes.GREAT.pct + '%'}"></div>
-            <md-tooltip md-direction="right">
-                Vote: I agree, and this node is well written.
-            </md-tooltip>
-        </md-button>
-        <md-button ng-class="['vote-weak', {chosen: userVote == 'WEAK'}]" ng-click="voteClicked('WEAK')">
-            <span class="vote-num">{{votes.WEAK.num}}</span>
-            <div class="vote-meter" ng-style="{width: votes.WEAK.pct + '%'}"></div>
-            <md-tooltip md-direction="right">
-                Vote: I agree, but this node needs improvement.
-            </md-tooltip>
-        </md-button>
-        <md-button ng-class="['vote-touche', {chosen: userVote == 'TOUCHE'}]" ng-click="voteClicked('TOUCHE')">
-            <span class="vote-num">{{votes.TOUCHE.num}}</span>
-            <div class="vote-meter" ng-style="{width: votes.TOUCHE.pct + '%'}"></div>
-            <md-tooltip md-direction="right">
-                Vote: I disagree, but this node is well written.
-            </md-tooltip>
-        </md-button>
-        <md-button ng-class="['vote-trash', {chosen: userVote == 'TRASH'}]" ng-click="voteClicked('TRASH')">
-            <span class="vote-num">{{votes.TRASH.num}}</span>
-            <div class="vote-meter" ng-style="{width: votes.TRASH.pct + '%'}"></div>
-            <md-tooltip md-direction="right">
-                Vote: I disagree, and this node has poor quality.
-            </md-tooltip>
-        </md-button>
-    </div>
+<div layout="row" class="vote-strip">
+    <md-button ng-style="{width: votes.GREAT.pct + '%'}" ng-class="['vote-great', {chosen: userVote == 'GREAT'}]" ng-click="voteClicked('GREAT')">
+        <span class="vote-num">{{votes.GREAT.num}}</span>
+        <md-tooltip md-direction="top">
+            Vote: I agree, and this node is well written.
+        </md-tooltip>
+    </md-button>
+    <md-button ng-style="{width: votes.WEAK.pct + '%'}" ng-class="['vote-weak', {chosen: userVote == 'WEAK'}]" ng-click="voteClicked('WEAK')">
+        <span class="vote-num">{{votes.WEAK.num}}</span>
+        <md-tooltip md-direction="top">
+            Vote: I agree, but this node needs improvement.
+        </md-tooltip>
+    </md-button>
+    <md-button ng-style="{width: votes.TOUCHE.pct + '%'}" ng-class="['vote-touche', {chosen: userVote == 'TOUCHE'}]" ng-click="voteClicked('TOUCHE')">
+        <span class="vote-num">{{votes.TOUCHE.num}}</span>
+        <md-tooltip md-direction="top">
+            Vote: I disagree, but this node is well written.
+        </md-tooltip>
+    </md-button>
+    <md-button flex="" ng-class="['vote-trash', {chosen: userVote == 'TRASH'}]" ng-click="voteClicked('TRASH')">
+        <span class="vote-num">{{votes.TRASH.num}}</span>
+        <md-tooltip md-direction="top">
+            Vote: I disagree, and this node has poor quality.
+        </md-tooltip>
+    </md-button>
 </div>

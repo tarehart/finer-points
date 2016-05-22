@@ -11,7 +11,7 @@
                 </span>
 
                 <div ng-if="!isSelected(node)" layout="row" layout-align="center">
-                    <md-button ng-click="toggleSelect(node)" class="md-icon-button">
+                    <md-button ng-click="toggleSelect(node)" class="md-icon-button md-micro">
                         <i class="fa fa-angle-double-down"></i>
                     </md-button>
                 </div>
@@ -66,7 +66,7 @@
 
         <div layout="column" layout-gt-sm="row">
             <div flex="60" ng-if="rootNode">
-                <md-card ng-if="!rootNode.inEditMode">
+                <md-card ng-if="!rootNode.inEditMode" class="root-node-card">
                     <md-card-title>
                         <md-card-title-text>
                             <span class="md-headline">
@@ -77,7 +77,6 @@
                         </md-card-title-text>
                     </md-card-title>
                     <md-card-content>
-                        <div ng-if="rootNode.body.public" node="rootNode" vote-button></div>
                         <div ng-if="rootNode.type !== 'source'" ng-markdown="rootNode.body.body" render-markdown></div>
                         <a ng-if="rootNode.type === 'source'" ng-href="{{rootNode.body.url}}" target="_blank">{{rootNode.body.url}}</a>
                     </md-card-content>
@@ -85,6 +84,7 @@
                         <md-button ng-if="authorizedForEdit(rootNode) && !rootNode.inEditMode" ng-click="enterEditMode(rootNode)">Edit</md-button>
                         <md-button ng-if="readyToPublish(rootNode)" ng-click="publishNode(rootNode)" class="md-raised md-primary">Publish</md-button>
                     </md-card-actions>
+                    <div ng-if="rootNode.body.public" node="rootNode" vote-button></div>
                 </md-card>
                 <md-card ng-if="rootNode.inEditMode">
                     <md-card-content>

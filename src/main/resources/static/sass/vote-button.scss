@@ -12,23 +12,17 @@ $chosen-touche: #c2b5f7;
 }
 
 
-.vote-cluster {
-  display: inline-block;
-  float: left;
-  margin-right: 10px;
+.vote-strip {
 
   .md-button {
-    width: 50px;
     height: 20px;
     line-height: 20px;
-    min-width: unset;
+    min-width: 40px;
     min-height: unset;
-    display: block;
-    position: relative;
     text-align: left;
-    margin-bottom: 4px;
+    margin: 0;
+    border-radius: 0;
     border: none;
-    border-radius: 1px;
   }
 
   .vote-weak {
@@ -80,17 +74,6 @@ $chosen-touche: #c2b5f7;
     bottom: 0;
     left: 0;
     height: 2px;
-  }
-
-  .vote-label {
-    background: url('/img/votes-banner.png');
-    opacity: 0.3;
-    margin-right: 2px;
-    vertical-align: top;
-  }
-
-  .vote-stack {
-    display: inline-block;
   }
 
 }

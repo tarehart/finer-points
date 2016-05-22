@@ -65,15 +65,18 @@ require('../services/toast-service');
             $scope.votes = {GREAT: {}, WEAK: {}, TOUCHE: {}, TRASH: {}};
 
             var max = 0;
+            var sum = 0;
             $.each($scope.votes, function (key, val) {
                 val.num = rootNode.body[getBodyVotesKey(key)] || 0;  // e.g. body.greatVotes = 5
                 if (val.num > max) {
                     max = val.num;
                 }
+                sum += val.num;
             });
 
             $.each($scope.votes, function (key, val) {
-                val.pct = max > 0 ? val.num * 100 / max : 0;
+                val.pctMax = max > 0 ? val.num * 100 / max : 25;
+                val.pct = sum > 0 ? val.num * 100 / sum : 25;
             });
         }
 

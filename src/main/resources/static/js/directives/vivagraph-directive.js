@@ -225,7 +225,7 @@ require('../../sass/vivagraph.scss');
             } else if (elem.webkitRequestFullscreen) {
                 elem.webkitRequestFullscreen();
             }
-        }
+        };
     }
 
     function getColor(node) {

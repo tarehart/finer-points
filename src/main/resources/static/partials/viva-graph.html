@@ -1,12 +1,9 @@
 
 
-<md-card>
-    <div layout="row">
-        <span flex></span>
-        <md-button ng-click="goFullscreen()">
-            Fullscreen
-        </md-button>
-    </div>
+<md-card class="vivagraph-card" style="position:relative">
+    <md-button class="md-fab md-fab-top-right md-mini md-primary" aria-label="Fullscreen" ng-click="goFullscreen()">
+        <i class="fa fa-arrows-alt" aria-hidden="true"></i>
+    </md-button>
     <div id="viva-container" ng-class="{fullscreen: fullscreen}"></div>
 </md-card>
 

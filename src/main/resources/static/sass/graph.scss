@@ -23,7 +23,7 @@
 }
 
 .child-node-title {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 
@@ -65,8 +65,8 @@
   margin-left: 10px;
 }
 
-.root-node-panel {
-  position: relative;
+.root-node-card, .vivagraph-card {
+  margin-bottom: 15px;
 }
 
 .gutter {
