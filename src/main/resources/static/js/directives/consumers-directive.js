@@ -23,12 +23,12 @@ require('./node-list-directive');
         }
     }
 
-    function NodeConsumersController($scope, $http, ToastService) {
+    function NodeConsumersController($scope, NodeCache, ToastService) {
 
         var self = this;
         self.nodes = [];
-        
-        fetchConsumers($scope.node.id, $http, function(data) {
+
+        fetchConsumers($scope.node, NodeCache, function(data) {
             self.nodes.push.apply(self.nodes, data); // Push data to nodes
         },
         function(err) {
@@ -36,19 +36,14 @@ require('./node-list-directive');
         });
     }
 
-    function fetchConsumers(nodeId, $http, successCallback, errorCallback) {
+    function fetchConsumers(node, NodeCache, successCallback, errorCallback) {
 
-        $http.get('/consumerNodes', {params: {nodeId: nodeId}}).then(
-            function (response) {
-                if (successCallback) {
-                    successCallback(response.data);
-                }
-            },
-            function(err) {
-                if (errorCallback) {
-                    errorCallback(err);
-                }
-            });
+        if (node.consumers) {
+            successCallback(node.consumers);
+            return;
+        }
+
+        NodeCache.fetchConsumers(node.id, successCallback, errorCallback);
     }
 
 

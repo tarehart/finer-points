@@ -22,23 +22,26 @@ require('./markdown-directive');
                 starterNode: "=starterNode"
             },
             templateUrl: "partials/graph.html",
-            controller: 'GraphController'
+            controller: 'GraphController',
+            controllerAs: 'graphCtrl'
         }
     }
 
-    function GraphController($scope, $routeParams, $location, NodeCache, ToastService) {
+    function GraphController($scope, $routeParams, $location, $mdDialog, NodeCache, ToastService) {
 
-        $scope.publishableNodes = [];
+        var self = this;
+
+        self.publishableNodes = [];
 
         function setHighlighted(node) {
-            $scope.highlightedNode = node;
+            self.highlightedNode = node;
         }
 
         $scope.$on("nodeHighlighted", function(e, node) {
             setHighlighted(node);
         });
 
-        $scope.enterEditMode = function (node) {
+        self.enterEditMode = function (node) {
             if (node.body.public) {
                 NodeCache.makeDraft(node, function(draftNode, data) {
                     $location.path("/graph/" + data.graph.rootStableId);
@@ -59,27 +62,27 @@ require('./markdown-directive');
 
         if ($routeParams && $routeParams.rootStableId) {
             NodeCache.fetchGraphForId($routeParams.rootStableId, function() {
-                $scope.rootNodes = [];
-                $scope.rootNodes.push(NodeCache.getByStableId($routeParams.rootStableId));
-                $scope.rootNode = $scope.rootNodes[0];
-                ensureDetail($scope.rootNode);
-                $scope.$broadcast("rootData", $scope.rootNode);
+                self.rootNodes = [];
+                self.rootNodes.push(NodeCache.getByStableId($routeParams.rootStableId));
+                self.rootNode = self.rootNodes[0];
+                ensureDetail(self.rootNode);
+                $scope.$broadcast("rootData", self.rootNode);
             });
         } else if ($scope.starterNode) {
-            $scope.rootNodes = [$scope.starterNode];
-            $scope.rootNode = $scope.rootNodes[0];
-            $scope.$broadcast("rootData", $scope.rootNode);
+            self.rootNodes = [$scope.starterNode];
+            self.rootNode = self.rootNodes[0];
+            $scope.$broadcast("rootData", self.rootNode);
         } else {
             var starterNode = NodeCache.getOrCreateDraftNode();
-            $scope.rootNodes = [starterNode];
-            $scope.rootNode = $scope.rootNodes[0];
-            $scope.$broadcast("rootData", $scope.rootNode);
-            $scope.draftNodes = [starterNode];
-            $scope.enterEditMode(starterNode);
+            self.rootNodes = [starterNode];
+            self.rootNode = self.rootNodes[0];
+            $scope.$broadcast("rootData", self.rootNode);
+            self.draftNodes = [starterNode];
+            self.enterEditMode(starterNode);
             starterNode.isSelected = true;
         }
 
-        $scope.hasChild = function (node) {
+        self.hasChild = function (node) {
             return node.children && node.children.length;
         };
 
@@ -87,15 +90,15 @@ require('./markdown-directive');
         // fit in the html because in html there are a bunch of nested scopes
         // and access to $scope there is weird.
 
-        $scope.isSelected = function (node) {
+        self.isSelected = function (node) {
             return node.isSelected;
         };
 
-        $scope.isPersisted = function (node) {
+        self.isPersisted = function (node) {
             return node && node.id !== "draft";
         };
 
-        $scope.toggleSelect = function (node) {
+        self.toggleSelect = function (node) {
             node.isSelected = !node.isSelected;
             if (node.isSelected) {
                 ensureDetail(node);
@@ -106,26 +109,29 @@ require('./markdown-directive');
             return true;
         };
 
-        $scope.toggleChildren = function (node) {
+        self.toggleChildren = function (node) {
             node.hideChildren = !node.hideChildren;
         };
 
-        $scope.navigateToNode = function (node) {
+        self.navigateToNode = function (node) {
             // Change the page url and reload the graph. All the UI state should stay the same because
             // the nodes are in the NodeCache.
             $location.path("/graph/" + node.stableId);
         };
 
-        $scope.authorizedForEdit = function (node) {
+        self.authorizedForEdit = function (node) {
             // Currently, I only want to allow child editing if the children are already private.
             // This is because I don't intend to mess with draft propagation anymore.
             // If you want to edit a public child, the user needs to navigate to it first.
-            return node === $scope.rootNode || !node.body.public;
+            return node === self.rootNode || !node.body.public;
         };
 
         function ensureDetail(node) {
             if (!hasFullDetail(node)) {
                 NodeCache.getFullDetail(node.id);
+            }
+            if (!node.consumers) {
+                NodeCache.fetchConsumers(node.id);
             }
         }
 
@@ -133,7 +139,7 @@ require('./markdown-directive');
             return node.getVersionString();
         }
 
-        $scope.saveNode = function(node) {
+        self.saveNode = function(node) {
             saveChanges(node, function() {
                 node.inEditMode = false;
             });
@@ -151,7 +157,7 @@ require('./markdown-directive');
                 });
             } else {
 
-                NodeCache.saveNodeEdit(node, $scope.rootNode, function(editedNode, data) {
+                NodeCache.saveNodeEdit(node, self.rootNode, function(editedNode, data) {
                     if (successCallback) {
                         successCallback();
                     }
@@ -162,20 +168,20 @@ require('./markdown-directive');
             }
         }
 
-        $scope.setBody = function(node, text) {
+        self.setBody = function(node, text) {
             node.body.body = text;
         };
 
-        $scope.readyToPublish = function(node) {
+        self.readyToPublish = function(node) {
             return (!node.body.public) && allowsPublish(node, {});
         };
 
-        $scope.publishNode = function(node) {
+        self.publishNode = function(node) {
             var publishableSet = {};
             if (allowsPublish(node, publishableSet)) {
                 NodeCache.publishNode(node, function(resultingNode) {
 
-                    var rootNode = $scope.rootNodes[0];
+                    var rootNode = self.rootNode;
 
                     if (node === rootNode) {
                         NodeCache.get(resultingNode.id).hasFullGraph = false; // Make sure the full graph is fetched again upon reload.
@@ -189,6 +195,28 @@ require('./markdown-directive');
                 // TODO: display an error
             }
         };
+
+
+        self.toggleConsumers = function(node) {
+
+            $mdDialog.show({
+                template: '<div node-consumers node="consumersCtrl.rootNode"></div>',
+                controller: ConsumersDialogController,
+                controllerAs: "consumersCtrl",
+                clickOutsideToClose: true,
+                openFrom: "#consumers-btn"
+            });
+
+        };
+
+        function ConsumersDialogController($scope, $mdDialog) {
+            var consumersCtrl = this;
+            consumersCtrl.rootNode = self.rootNode;
+
+            $scope.$on('$locationChangeStart', function() {
+                $mdDialog.hide();
+            });
+        }
 
         function allowsPublish(node, publishableSet) {
 
