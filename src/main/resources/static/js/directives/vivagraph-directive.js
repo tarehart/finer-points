@@ -16,20 +16,20 @@ require('../../sass/vivagraph.scss');
                 rootNode: "="
             },
             templateUrl: "partials/viva-graph.html",
-            link: function (scope) {
-                setupEventHandlers(scope, $rootScope);
+            link: function (scope, element) {
+                setupEventHandlers(scope, element, $rootScope);
             }
         }
     }
 
 
-    function setupEventHandlers(scope, $rootScope) {
+    function setupEventHandlers(scope, element, $rootScope) {
 
         var graph = Viva.Graph.graph();
 
         var highlightedNode = null;
 
-        var vivaContainer = document.getElementById('viva-container');
+        var vivaContainer = element.find("#viva-container")[0];
 
         var layout = Viva.Graph.Layout.forceDirected(graph, {
             springLength : 45, // default is 30

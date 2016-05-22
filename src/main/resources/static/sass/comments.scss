@@ -1,6 +1,12 @@
 
 
 .commentSection{
+
+  .comments-header {
+    font-size: 18px;
+    margin-left: 10px;
+  }
+
   .editor-wrapper {
     margin: 10px;
     clear: left;
@@ -96,5 +102,6 @@
   border: none;
 }
 
-
-
+.comment-section-card {
+  margin-bottom: 20px;
+}
