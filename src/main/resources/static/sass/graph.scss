@@ -7,29 +7,14 @@
 
 .nodeDiv {
   margin-bottom: 0;
-  margin-top: 4px;
+  margin-left: 0;
+  margin-top: 8px;
   padding: 10px;
   font-size: 14px;
 }
 
-.nodeDiv.highlighted {
-  .panel-heading {
-    background-color: #E2ECE0;
-  }
-}
-
-.node-heading.leftPaddingWithChild {
-  padding-left: 0;
-}
-
 .child-node-title {
   font-size: 16px;
-}
-
-
-.toggleChildren {
-  display: inline-block;
-  color: rgb(149, 176, 164);
 }
 
 .nodeDiv .icon-btn {
@@ -47,35 +32,18 @@
   background-color: #f3f3f3;
 }
 
-.node-heading {
-  padding: 3px 8px;
-}
-
-.node-heading, .nodeContent {
-  position: relative;
-}
-
 .node-id {
   display: none;
-}
-
-.bottom-right-button {
-  color: #b0b0b0;
-  cursor: pointer;
-  margin-left: 10px;
 }
 
 .root-node-card, .vivagraph-card {
   margin-bottom: 15px;
 }
 
-.gutter {
-  position: absolute;
-  bottom: 2px;
-  right: 8px;
-  left: 8px;
-}
-
 .draft-marker {
   color: gray;
+}
+
+.child-visibility {
+  margin-top: 8px;
 }

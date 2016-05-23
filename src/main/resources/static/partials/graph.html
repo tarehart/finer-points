@@ -41,17 +41,18 @@
         </md-card>
 
         <div ng-if="graphCtrl.hasChild(node)" layout="row" layout-align="start start">
-
-            <span ng-if="node.hideChildren">
-                <md-button class="md-icon-button md-micro" ng-click="graphCtrl.toggleChildren(node)">
-                    <i class="fa fa-plus-square-o"></i>
-                </md-button>
-                <span>Show hidden children</span>
-            </span>
-            <span ng-if="!node.hideChildren">
-                <md-button class="md-icon-button md-micro" ng-click="graphCtrl.toggleChildren(node)">
-                    <i class="fa fa-minus-square-o"></i>
-                </md-button>
+            <span class="child-visibility">
+                <span ng-if="node.hideChildren">
+                    <md-button class="md-icon-button md-micro" ng-click="graphCtrl.toggleChildren(node)">
+                        <i class="fa fa-plus-square-o"></i>
+                    </md-button>
+                    <span>Show hidden children</span>
+                </span>
+                <span ng-if="!node.hideChildren">
+                    <md-button class="md-icon-button md-micro" ng-click="graphCtrl.toggleChildren(node)">
+                        <i class="fa fa-minus-square-o"></i>
+                    </md-button>
+                </span>
             </span>
 
             <div flex="" class="childrenDiv" ng-if="graphCtrl.hasChild(node) && !node.hideChildren">

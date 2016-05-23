@@ -17,7 +17,7 @@
             Vote: I disagree, but this node is well written.
         </md-tooltip>
     </md-button>
-    <md-button flex="" ng-class="['vote-trash', {chosen: userVote == 'TRASH'}]" ng-click="voteClicked('TRASH')">
+    <md-button ng-style="{width: votes.TRASH.pct + '%'}" ng-class="['vote-trash', {chosen: userVote == 'TRASH'}]" ng-click="voteClicked('TRASH')">
         <span class="vote-num">{{votes.TRASH.num}}</span>
         <md-tooltip md-direction="top">
             Vote: I disagree, and this node has poor quality.
