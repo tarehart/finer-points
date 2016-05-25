@@ -5,6 +5,7 @@ import com.nodestand.nodes.comment.Comment;
 import com.nodestand.nodes.vote.ArgumentVote;
 import com.nodestand.nodes.vote.CommentVote;
 import com.nodestand.nodes.vote.VoteType;
+import com.nodestand.util.IdGenerator;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -33,12 +34,11 @@ public class User {
     @Transient
     private Map<Long, Integer> commentVoteMap;
 
-
-    //@Indexed
     String displayName;
 
-    //@Indexed(unique = true)
     String socialId;
+
+    private String stableId;
 
     private Roles[] roles;
 
@@ -50,6 +50,7 @@ public class User {
         this.roles = roles;
         this.displayName = displayName;
         this.socialId = socialId;
+        this.stableId = IdGenerator.newId();
     }
 
     @Override
@@ -91,6 +92,10 @@ public class User {
     @JsonIgnore
     public Map<Long, Integer> getCommentVoteMap() {
         return commentVoteMap;
+    }
+
+    public String getStableId() {
+        return stableId;
     }
 
     public enum Roles implements GrantedAuthority {

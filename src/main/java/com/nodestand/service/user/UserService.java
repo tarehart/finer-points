@@ -23,4 +23,6 @@ public interface UserService extends UserDetailsService {
 
     @Transactional
     NodeUserDetails register(String socialId, String login);
+
+    User getProfile(String stableId);
 }

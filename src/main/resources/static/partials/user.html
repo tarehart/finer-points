@@ -1,0 +1,24 @@
+
+<md-card>
+    <md-card-title>
+        <span class="md-headline">{{profileCtrl.subject.displayName}}</span>
+    </md-card-title>
+    <md-card-content>
+
+    </md-card-content>
+</md-card>
+
+<div layout="column" layout-gt-sm="row">
+
+    <div ng-if="profileCtrl.subject.stableId === user.stableId" ng-show="profileCtrl.draftNodes.length">
+        <md-card>
+            <md-card-title>
+                <span class="md-headline">Drafts</span>
+            </md-card-title>
+            <md-card-content>
+                <div node-list list="profileCtrl.draftNodes"></div>
+            </md-card-content>
+        </md-card>
+    </div>
+</div>
+

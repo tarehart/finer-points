@@ -7,6 +7,7 @@ require('../sass/common.scss');
 
     require('./controllers/gateway-controller');
     require('./controllers/login-controller');
+    require('./controllers/profile-controller');
     require('./services/user-service');
     require('./directives/graph-directive');
 
@@ -33,6 +34,11 @@ require('../sass/common.scss');
                 }).
                 when('/create', {
                     templateUrl: 'partials/create.html'
+                }).
+                when('/user/:userStableId', {
+                    templateUrl: 'partials/user.html',
+                    controller: 'ProfileController',
+                    controllerAs: 'profileCtrl'
                 }).
                 otherwise({
                     redirectTo: '/'

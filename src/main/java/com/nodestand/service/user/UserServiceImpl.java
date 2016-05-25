@@ -1,6 +1,7 @@
 package com.nodestand.service.user;
 
 import com.nodestand.auth.NodeUserDetails;
+import com.nodestand.controllers.ResourceNotFoundException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.repository.UserRepository;
 import org.neo4j.ogm.cypher.Filter;
@@ -92,6 +93,17 @@ public class UserServiceImpl implements UserService {
 
         setUserInSession(user);
         return new NodeUserDetails(user);
+    }
+
+    @Override
+    public User getProfile(String stableId) {
+        User user = userRepo.getUser(stableId);
+
+        if (user == null) {
+            throw new ResourceNotFoundException("No user found with id " + stableId);
+        }
+
+        return userRepo.getUser(stableId);
     }
 
 

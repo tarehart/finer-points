@@ -2,12 +2,15 @@ package com.nodestand.controllers;
 
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
+import com.nodestand.nodes.repository.UserRepository;
 import com.nodestand.service.user.UserService;
+import org.neo4j.graphdb.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
@@ -39,5 +42,12 @@ public class UserController {
         map.put("commentVotes", user.getCommentVoteMap());
 
         return map;
+    }
+
+    @Transactional
+    @RequestMapping("/getProfile")
+    public User getProfile(@RequestParam String stableId) throws NodeRulesException {
+
+        return userService.getProfile(stableId);
     }
 }
