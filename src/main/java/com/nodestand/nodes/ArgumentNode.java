@@ -1,7 +1,6 @@
 package com.nodestand.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nodestand.nodes.version.Build;
 import com.nodestand.util.IdGenerator;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -20,9 +19,6 @@ public abstract class ArgumentNode {
 
     protected int buildVersion = -1;
 
-    @Relationship(type="BUILT_BY", direction = Relationship.OUTGOING)
-    protected Build build;
-
     @Relationship(type="DEFINED_BY", direction = Relationship.OUTGOING)
     protected ArgumentBody body;
 
@@ -34,17 +30,12 @@ public abstract class ArgumentNode {
 
     public ArgumentNode() {}
 
-    public ArgumentNode(ArgumentBody body, Build build) {
+    public ArgumentNode(ArgumentBody body) {
         this.body = body;
-        this.build = build;
         this.stableId = IdGenerator.newId();
     }
 
     public abstract ArgumentBody getBody();
-
-    public Build getBuild() {
-        return build;
-    }
 
     public void setVersion(int buildVersion) {
         this.buildVersion = buildVersion;
@@ -75,15 +66,6 @@ public abstract class ArgumentNode {
 
     public abstract String getType();
 
-    /**
-     * This will set the body and build properly, but it does not address the buildVersion property. That must be
-     * taken care of separately.
-     *
-     * If the node is a draft, this will not actually produce a clone, it will just modify the draft in place and
-     * return it.
-     */
-    public abstract ArgumentNode alterOrCloneToPointToChild(ArgumentNode updatedChildNode, ArgumentNode existingChildNode) throws NodeRulesException;
-
     public abstract void alterToPointToChild(ArgumentNode replacementChild, ArgumentNode existingChildNode) throws NodeRulesException;
 
     /**
@@ -102,11 +84,7 @@ public abstract class ArgumentNode {
      */
     public abstract ArgumentBody createDraftBody(User author, boolean install) throws NodeRulesException;
 
-    public abstract ArgumentNode createNewDraft(Build build, boolean createBodyDraft) throws NodeRulesException;
-
-    public void setBuild(Build build) {
-        this.build = build;
-    }
+    public abstract ArgumentNode createNewDraft(User author, boolean createBodyDraft) throws NodeRulesException;
 
     public ArgumentNode getPreviousVersion() {
         return previousVersion;

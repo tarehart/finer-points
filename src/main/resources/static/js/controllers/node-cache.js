@@ -35,17 +35,13 @@
                     if (node.body.minorVersion < 0) {
                         return version + "x";
                     }
-                    version += node.body.minorVersion + "." + (isValidBuildVersion(node.buildVersion) ? node.buildVersion : "x");
+                    version += node.body.minorVersion;
                 }
 
                 return version;
             };
 
             return node;
-        }
-
-        function isValidBuildVersion(buildVersion) {
-            return $.isNumeric(buildVersion) && buildVersion >= 0;
         }
 
         cache.get = function(id) {
@@ -376,10 +372,6 @@
             if (!cachedNode.id || cachedNode.id === DRAFT_ID) {
                 cachedNode.id = newData.id;
                 cachedNode.stableId = newData.stableId;
-            }
-
-            if (isValidBuildVersion(newData.buildVersion)) {
-                cachedNode.buildVersion = newData.buildVersion;
             }
 
             if (newData.draft != undefined && newData.draft != null) {

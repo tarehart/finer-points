@@ -5,7 +5,6 @@ import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.interpretation.InterpretationNode;
-import com.nodestand.nodes.version.Build;
 import com.nodestand.service.VersionHelper;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -20,18 +19,13 @@ public class SourceNode extends ArgumentNode {
 
     public SourceNode() {};
 
-    public SourceNode(SourceBody body, Build build) {
-        super(body, build);
+    public SourceNode(SourceBody body) {
+        super(body);
     }
 
     @Override
     public String getType() {
         return type;
-    }
-
-    @Override
-    public ArgumentNode alterOrCloneToPointToChild(ArgumentNode updatedChildNode, ArgumentNode existing) {
-        return this; // Nothing to do, there are no children.
     }
 
     @Override
@@ -57,7 +51,7 @@ public class SourceNode extends ArgumentNode {
     }
 
     @Override
-    public SourceNode createNewDraft(Build build, boolean createBodyDraft) throws NodeRulesException {
+    public SourceNode createNewDraft(User author, boolean createBodyDraft) throws NodeRulesException {
         SourceNode copy;
 
         if (!body.isPublic()) {
@@ -65,10 +59,10 @@ public class SourceNode extends ArgumentNode {
         }
 
         if (createBodyDraft) {
-            SourceBody freshBody = createDraftBody(build.author, false);
-            copy = new SourceNode(freshBody, build);
+            SourceBody freshBody = createDraftBody(author, false);
+            copy = new SourceNode(freshBody);
         } else {
-            copy = new SourceNode(getBody(), build);
+            copy = new SourceNode(getBody());
         }
 
         copy.setPreviousVersion(this);

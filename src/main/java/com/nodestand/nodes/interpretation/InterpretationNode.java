@@ -6,7 +6,6 @@ import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.source.SourceNode;
-import com.nodestand.nodes.version.Build;
 import com.nodestand.service.VersionHelper;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -26,8 +25,8 @@ public class InterpretationNode extends ArgumentNode {
 
     public InterpretationNode() {}
 
-    public InterpretationNode(InterpretationBody body, Build build) {
-        super(body, build);
+    public InterpretationNode(InterpretationBody body) {
+        super(body);
 
     }
 
@@ -55,22 +54,6 @@ public class InterpretationNode extends ArgumentNode {
     }
 
     @Override
-    public ArgumentNode alterOrCloneToPointToChild(ArgumentNode updatedChildNode, ArgumentNode existing) throws NodeRulesException {
-        InterpretationNode copy;
-        if (shouldEditInPlace()) {
-            copy = this;
-        } else {
-            copy = createNewDraft(updatedChildNode.getBuild(), true);
-        }
-
-        performChildReplacement(updatedChildNode, existing, copy);
-
-        return copy;
-    }
-
-
-
-    @Override
     public InterpretationBody createDraftBody(User author, boolean install) throws NodeRulesException {
         InterpretationBody freshBody = new InterpretationBody(getBody().getTitle(), getBody().getBody(), author, getBody().getMajorVersion());
         VersionHelper.decorateDraftBody(freshBody);
@@ -81,7 +64,7 @@ public class InterpretationNode extends ArgumentNode {
     }
 
     @Override
-    public InterpretationNode createNewDraft(Build build, boolean createBodyDraft) throws NodeRulesException {
+    public InterpretationNode createNewDraft(User author, boolean createBodyDraft) throws NodeRulesException {
         InterpretationNode copy;
 
         if (!body.isPublic()) {
@@ -89,10 +72,10 @@ public class InterpretationNode extends ArgumentNode {
         }
 
         if (createBodyDraft) {
-            InterpretationBody freshBody = createDraftBody(build.author, false);
-            copy = new InterpretationNode(freshBody, build);
+            InterpretationBody freshBody = createDraftBody(author, false);
+            copy = new InterpretationNode(freshBody);
         } else {
-            copy = new InterpretationNode(getBody(), build);
+            copy = new InterpretationNode(getBody());
         }
 
         copy.setSource(this.getSource());

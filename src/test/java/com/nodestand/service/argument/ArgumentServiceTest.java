@@ -114,10 +114,8 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
     public void theGAUNTLET() throws NotAuthorizedException, NodeRulesException {
         User kyle = registerUser("5678", "Kyle");
         AssertionNode assertionNode = createPublishedAssertion();
-        Assert.assertNotNull(assertionNode.getBuild());
 
         InterpretationNode interp = (InterpretationNode) assertionNode.getSupportingNodes().stream().findFirst().get();
-        Assert.assertNotNull(interp.getBuild());
 
         SourceNode source = interp.getSource();
 

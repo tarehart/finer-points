@@ -4,7 +4,6 @@ import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.ImmutableNodeException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.version.MajorVersion;
-import com.nodestand.service.VersionHelper;
 
 public class InterpretationBody extends ArgumentBody {
 
@@ -13,9 +12,9 @@ public class InterpretationBody extends ArgumentBody {
     public InterpretationBody() {}
 
     @Override
-    public InterpretationNode constructNode(VersionHelper versionHelper) {
+    public InterpretationNode constructNode() {
 
-        return new InterpretationNode(this, VersionHelper.startBuild(author));
+        return new InterpretationNode(this);
     }
 
     public InterpretationBody(String title, String body, User author) {

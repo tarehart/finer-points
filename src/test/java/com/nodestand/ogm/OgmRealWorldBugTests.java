@@ -38,8 +38,8 @@ public class OgmRealWorldBugTests extends MultiDriverTestClass {
     public void shouldLoadAllRelatedEntitiesWhenLoadingSuperclasses() {
         AssertionBody assertionBody = new AssertionBody();
         InterpretationBody interpretationBody = new InterpretationBody();
-        AssertionNode childA = new AssertionNode(assertionBody, null);
-        InterpretationNode childB = new InterpretationNode(interpretationBody, null);
+        AssertionNode childA = new AssertionNode(assertionBody);
+        InterpretationNode childB = new InterpretationNode(interpretationBody);
         session.save(childA);
         session.save(childB);
 

@@ -7,7 +7,6 @@ import com.nodestand.nodes.User;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceNode;
-import com.nodestand.nodes.version.Build;
 import com.nodestand.service.VersionHelper;
 import com.nodestand.util.BodyParser;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -35,8 +34,8 @@ public class AssertionNode extends ArgumentNode {
 
     public AssertionNode() {}
 
-    public AssertionNode(AssertionBody body, Build build) {
-        super(body, build);
+    public AssertionNode(AssertionBody body) {
+        super(body);
     }
 
     @Override
@@ -103,22 +102,6 @@ public class AssertionNode extends ArgumentNode {
     }
 
     @Override
-    public ArgumentNode alterOrCloneToPointToChild(ArgumentNode updatedChildNode, ArgumentNode existing) throws NodeRulesException {
-
-        AssertionNode copy;
-
-        if (shouldEditInPlace()) {
-            copy = this;
-        } else {
-            copy = createNewDraft(updatedChildNode.getBuild(), true);
-        }
-
-        performChildReplacement(updatedChildNode, existing, copy);
-
-        return copy;
-    }
-
-    @Override
     public AssertionBody createDraftBody(User author, boolean install) throws NodeRulesException {
         AssertionBody freshBody = new AssertionBody(getBody().getTitle(), getBody().getBody(), author, getBody().getMajorVersion());
         VersionHelper.decorateDraftBody(freshBody);
@@ -129,7 +112,7 @@ public class AssertionNode extends ArgumentNode {
     }
 
     @Override
-    public AssertionNode createNewDraft(Build build, boolean createBodyDraft) throws NodeRulesException {
+    public AssertionNode createNewDraft(User author, boolean createBodyDraft) throws NodeRulesException {
 
         AssertionNode copy;
 
@@ -138,10 +121,10 @@ public class AssertionNode extends ArgumentNode {
         }
 
         if (createBodyDraft) {
-            AssertionBody freshBody = createDraftBody(build.author, false);
-            copy = new AssertionNode(freshBody, build);
+            AssertionBody freshBody = createDraftBody(author, false);
+            copy = new AssertionNode(freshBody);
         } else {
-            copy = new AssertionNode(getBody(), build);
+            copy = new AssertionNode(getBody());
         }
 
         copy.setSupportingNodes(new HashSet<>(getSupportingNodes()));

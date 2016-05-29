@@ -22,7 +22,9 @@ import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component
 public class ArgumentServiceNeo4j implements ArgumentService {
@@ -79,7 +81,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         User user = operations.load(User.class, userId);
         AssertionBody assertionBody = new AssertionBody(title, body, user);
 
-        AssertionNode node = assertionBody.constructNode(versionHelper);
+        AssertionNode node = assertionBody.constructNode();
 
         Set<ArgumentNode> children = getAndValidateChildNodes(links);
 
@@ -96,7 +98,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         User user = operations.load(User.class, userId);
         InterpretationBody interpretationBody = new InterpretationBody(title, body, user);
 
-        InterpretationNode node = interpretationBody.constructNode(versionHelper);
+        InterpretationNode node = interpretationBody.constructNode();
 
         if (sourceId != null) {
             SourceNode source = operations.load(SourceNode.class, sourceId);
@@ -113,7 +115,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         User user = operations.load(User.class, userId);
 
         SourceBody sourceBody = new SourceBody(title, user, url);
-        SourceNode node = sourceBody.constructNode(versionHelper);
+        SourceNode node = sourceBody.constructNode();
 
         operations.save(node);
         return node;
@@ -212,7 +214,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         // This will set the previous version on the draft. Later, when we publish the edit,
         // this draft will copy its contents to the previous version and then be destroyed.
-        ArgumentNode draftNode = existingNode.createNewDraft(VersionHelper.startBuild(user), true);
+        ArgumentNode draftNode = existingNode.createNewDraft(user, true);
 
         operations.save(draftNode);
 

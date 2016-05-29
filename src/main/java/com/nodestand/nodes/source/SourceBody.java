@@ -13,8 +13,8 @@ public class SourceBody extends ArgumentBody {
     public SourceBody() {}
 
     @Override
-    public SourceNode constructNode(VersionHelper versionHelper) {
-        return new SourceNode(this, VersionHelper.startBuild(author));
+    public SourceNode constructNode() {
+        return new SourceNode(this);
     }
 
     public SourceBody(String title, User author, String url) {

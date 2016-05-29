@@ -88,7 +88,7 @@ public abstract class ArgumentBody implements Commentable {
         return minorVersion;
     }
 
-    public abstract ArgumentNode constructNode(VersionHelper versionHelper);
+    public abstract ArgumentNode constructNode();
 
     public void applyEditTo(ArgumentBody targetBody) {
         targetBody.title = title;

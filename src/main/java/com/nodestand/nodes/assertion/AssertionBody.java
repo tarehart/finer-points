@@ -16,8 +16,8 @@ public class AssertionBody extends ArgumentBody {
     public AssertionBody() {}
 
     @Override
-    public AssertionNode constructNode(VersionHelper versionHelper) {
-        return new AssertionNode(this, VersionHelper.startBuild(author));
+    public AssertionNode constructNode() {
+        return new AssertionNode(this);
     }
 
     @Override

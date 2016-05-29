@@ -3,13 +3,11 @@ package com.nodestand.service;
 import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
-import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentBodyRepository;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceNode;
-import com.nodestand.nodes.version.Build;
 import com.nodestand.nodes.version.MajorVersion;
 import com.nodestand.nodes.version.VersionAggregator;
 import com.nodestand.util.TwoWayUtil;
@@ -18,7 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -58,26 +57,9 @@ public class VersionHelper {
 
     }
 
-    public static Build startBuild(User author) {
-        Build build = new Build();
-        build.author = author;
-        return build;
-    }
-
     private int getNextMinorVersion(MajorVersion majorVersion) {
 
         Integer max = nodeRepository.getMaxMinorVersion(majorVersion.getId());
-
-        if (max != null) {
-            return max + 1;
-        }
-
-        return 0;
-    }
-
-    private int getNextBuildVersion(ArgumentBody body) {
-
-        Integer max = nodeRepository.getMaxBuildVersion(body.getId());
 
         if (max != null) {
             return max + 1;
@@ -167,76 +149,6 @@ public class VersionHelper {
                 publish(interpretation.getSource());
             }
         }
-    }
-
-
-
-    public void snapshot(ArgumentNode node, Build build) throws NodeRulesException {
-
-        if (!node.getType().equals("source")) {
-            // validate that the node and its descendants follow all the rules, e.g. being grounded in sources
-            if (hasMissingSupport(node)) {
-                throw new NodeRulesException("The roots of this node do not all end in sources!");
-            }
-        }
-
-        snapshotHelper(node, build);
-    }
-
-    private ArgumentNode snapshotHelper(ArgumentNode node, Build build) throws NodeRulesException {
-        if (node.isFinalized()) {
-            return node;
-        }
-
-        // TODO: make some effort to dedupe with existing snapshots, in terms of both nodes and bodies.
-        ArgumentNode clone = node.createNewDraft(build, true);
-
-        snapshotDescendants(clone, build);
-
-        ArgumentBody body = clone.getBody();
-
-        clone.setVersion(getNextBuildVersion(body));
-        body.setIsEditable(false);
-
-        operations.save(clone);
-
-        return clone;
-    }
-
-    /**
-     * Assumes node has already been cloned. Will replace node's descendants with snapshots.
-     */
-    private void snapshotDescendants(ArgumentNode node, Build build) throws NodeRulesException {
-
-        if (node instanceof AssertionNode) {
-            AssertionNode assertion = (AssertionNode) node;
-
-            // If assertion.getSupportingNodes returns null, this will go awry. Keep an eye on it.
-            Collection<ArgumentNode> support = session.loadAll(ArgumentNode.class,
-                    assertion.getSupportingNodes().stream().map(ArgumentNode::getId).collect(Collectors.toList()), 1);
-
-            SortedSet<ArgumentNode> snappedDescendants = new TreeSet<>();
-
-            for (ArgumentNode childNode : support) {
-                if (!childNode.isFinalized()) {
-                    snappedDescendants.add(snapshotHelper(childNode, build));
-                }
-                // TODO: need an else clause here?
-            }
-
-            assertion.setSupportingNodes(snappedDescendants);
-        } else if (node instanceof InterpretationNode) {
-            InterpretationNode interpretation = (InterpretationNode) node;
-
-            // If interpretation.getSource returns null, this will go awry. Keep an eye on it.
-            operations.load(SourceNode.class, interpretation.getSource().getId());
-
-            if (!interpretation.getSource().isFinalized()) {
-
-                interpretation.setSource((SourceNode) snapshotHelper(interpretation.getSource(), build));
-            }
-        }
-
     }
 
     private boolean hasMissingSupport(ArgumentNode node) {
