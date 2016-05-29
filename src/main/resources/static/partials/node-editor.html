@@ -6,7 +6,7 @@
 
     <textarea ng-if="node.type !== 'source'" node="node" set-text="nodeEditCtrl.setBody" link-fn="nodeEditCtrl.linkChild" markdown-editor>{{nodeEditCtrl.node.body.body}}</textarea>
 
-    <md-input-container ng-if="nodeEditCtrl.node.type === 'source'">
+    <md-input-container class="md-block" ng-if="nodeEditCtrl.node.type === 'source'">
         <label>Link</label>
         <input type="text" class="form-control" placeholder="http://..." ng-model="nodeEditCtrl.node.body.url" />
     </md-input-container>

@@ -120,10 +120,12 @@ require('./markdown-directive');
         };
 
         self.authorizedForEdit = function (node) {
-            // Currently, I only want to allow child editing if the children are already private.
+            // Currently, I only want to allow child editing if the children are already private,
+            // or if the child's immediate parent is private.
             // This is because I don't intend to mess with draft propagation anymore.
-            // If you want to edit a public child, the user needs to navigate to it first.
-            return node === self.rootNode || !node.body.public;
+            // If you want to edit a public child, the user needs to navigate to it first,
+            // or start edit its parent.
+            return node === self.rootNode || !node.body.public; // TODO: allow children with private parents
         };
 
         function ensureDetail(node) {
