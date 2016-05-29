@@ -84,7 +84,7 @@
                 editingBody: true,
                 editingTitle: true,
                 type: "assertion",
-                body: {draft: true}
+                body: {draft: true, qualifier: "Original version"}
             });
 
             cache.nodes[node.id] = node;
@@ -108,9 +108,9 @@
             }, errorCallback);
         };
 
-        cache.createAndSaveNode = function(title, type, successCallback, errorCallback) {
+        cache.createAndSaveNode = function(title, qualifier, type, successCallback, errorCallback) {
             var node = {
-                body: {title: title},
+                body: {title: title, qualifier:qualifier},
                 children: [],
                 getType: function() {return type;}
             };
@@ -137,6 +137,7 @@
             $http.post('/createAssertion',
                 {
                     title: node.body.title,
+                    qualifier: node.body.qualifier,
                     body: node.body.body,
                     links: links
                 })
@@ -165,6 +166,7 @@
             $http.post('/createInterpretation',
                 {
                     title: node.body.title,
+                    qualifier: node.body.qualifier,
                     body: node.body.body,
                     sourceId: sourceId
                 })
@@ -192,6 +194,7 @@
             $http.post('/createSource',
                 {
                     title: node.body.title,
+                    qualifier: node.body.qualifier,
                     url: node.body.url
                 })
                 .success(function (data) {
@@ -265,6 +268,7 @@
                 {
                     nodeId: node.id,
                     title: node.body.title,
+                    qualifier: node.body.qualifier,
                     body: node.body.body,
                     links: links
                 })
@@ -294,6 +298,7 @@
                 {
                     nodeId: node.id,
                     title: node.body.title,
+                    qualifier: node.body.qualifier,
                     body: node.body.body,
                     sourceId: sourceId
                 })
@@ -322,6 +327,7 @@
                 {
                     nodeId: node.id,
                     title: node.body.title,
+                    qualifier: node.body.qualifier,
                     url: node.body.url
                 })
                 .success(function (data) {
@@ -366,6 +372,7 @@
                 cachedNode.body = cachedNode.body || newData.body;
                 cachedNode.body.body = newData.body.body;
                 cachedNode.body.title = newData.body.title;
+                cachedNode.body.qualifier = newData.body.qualifier;
                 cachedNode.body.public = newData.body.public;
             }
 

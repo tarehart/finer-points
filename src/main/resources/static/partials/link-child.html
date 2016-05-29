@@ -38,9 +38,16 @@
                     <md-radio-button value="source" ng-show="canLinkTo('source')">Source</md-radio-button>
                 </md-radio-group>
 
+                <br />
+
                 <md-input-container class="md-block md-input-compact">
                     <label>Title</label>
                     <input ng-model="searchQuery">
+                </md-input-container>
+
+                <md-input-container class="md-block md-input-compact">
+                    <label>Version Description</label>
+                    <input ng-model="newQualifier">
                 </md-input-container>
             </div>
         </div>

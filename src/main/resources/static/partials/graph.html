@@ -20,9 +20,10 @@
                 <div ng-if="graphCtrl.isSelected(node)">
 
                     <!--Subheader-->
-                    <div>
-                        <span>By {{node.body.author.displayName}}. v{{node.getVersionString()}}</span>
-                    </div>
+                    <span>
+                        {{node.body.qualifier}}, by
+                        <a href="/#/user/{{node.body.author.stableId}}">{{node.body.author.displayName}}</a>
+                    </span>
 
                     <div ng-if="node.type !== 'source'" ng-markdown="node.body.body" render-markdown></div>
                     <a ng-if="node.type === 'source'" ng-href="{{node.body.url}}" target="_blank">{{node.body.url}}</a>
@@ -74,7 +75,10 @@
                                 {{graphCtrl.rootNode.body.title}}
                                 <span ng-if="!graphCtrl.rootNode.body.public" uib-tooltip="Private draft"><i class="fa fa-asterisk draft-marker"></i></span>
                             </span>
-                            <span class="md-subhead">By {{graphCtrl.rootNode.body.author.displayName}}. v{{graphCtrl.rootNode.getVersionString()}}</span>
+                            <span class="md-subhead">
+                                {{graphCtrl.rootNode.body.qualifier}}, by
+                                <a href="/#/user/{{graphCtrl.rootNode.body.author.stableId}}">{{graphCtrl.rootNode.body.author.displayName}}</a>
+                            </span>
                         </md-card-title-text>
                     </md-card-title>
                     <md-card-content>

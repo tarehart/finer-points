@@ -103,7 +103,7 @@ public class AssertionNode extends ArgumentNode {
 
     @Override
     public AssertionBody createDraftBody(User author, boolean install) throws NodeRulesException {
-        AssertionBody freshBody = new AssertionBody(getBody().getTitle(), getBody().getBody(), author, getBody().getMajorVersion());
+        AssertionBody freshBody = new AssertionBody(getBody().getTitle(), getBody().getQualifier(), getBody().getBody(), author, getBody().getMajorVersion());
         VersionHelper.decorateDraftBody(freshBody);
         if (install) {
             installBody(freshBody);

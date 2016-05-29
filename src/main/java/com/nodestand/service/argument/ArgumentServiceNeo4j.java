@@ -76,10 +76,10 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     @Transactional
-    public AssertionNode createAssertion(long userId, String title, String body, Collection<Long> links) throws NodeRulesException {
+    public AssertionNode createAssertion(long userId, String title, String qualifier, String body, Collection<Long> links) throws NodeRulesException {
 
         User user = operations.load(User.class, userId);
-        AssertionBody assertionBody = new AssertionBody(title, body, user);
+        AssertionBody assertionBody = new AssertionBody(title, qualifier, body, user);
 
         AssertionNode node = assertionBody.constructNode();
 
@@ -93,10 +93,10 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     @Transactional
-    public InterpretationNode createInterpretation(long userId, String title, String body, Long sourceId) {
+    public InterpretationNode createInterpretation(long userId, String title, String qualifier, String body, Long sourceId) {
 
         User user = operations.load(User.class, userId);
-        InterpretationBody interpretationBody = new InterpretationBody(title, body, user);
+        InterpretationBody interpretationBody = new InterpretationBody(title, qualifier, body, user);
 
         InterpretationNode node = interpretationBody.constructNode();
 
@@ -111,10 +111,10 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     @Transactional
-    public SourceNode createSource(long userId, String title, String url) {
+    public SourceNode createSource(long userId, String title, String qualifier, String url) {
         User user = operations.load(User.class, userId);
 
-        SourceBody sourceBody = new SourceBody(title, user, url);
+        SourceBody sourceBody = new SourceBody(title, qualifier, user, url);
         SourceNode node = sourceBody.constructNode();
 
         operations.save(node);
@@ -123,7 +123,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     @Transactional
-    public AssertionNode editAssertion(long userId, long nodeId, String title, String body, Collection<Long> links) throws NodeRulesException {
+    public AssertionNode editAssertion(long userId, long nodeId, String title, String qualifier, String body, Collection<Long> links) throws NodeRulesException {
 
         AssertionNode existingNode = operations.load(AssertionNode.class, nodeId, 2);
 
@@ -134,6 +134,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         checkEditRules(existingNode);
 
         existingNode.getBody().setTitle(title);
+        existingNode.getBody().setQualifier(qualifier);
         existingNode.getBody().setBody(body);
 
         Set<ArgumentNode> children = getAndValidateChildNodes(links);
@@ -159,7 +160,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     @Transactional
-    public InterpretationNode editInterpretation(long userId, long nodeId, String title, String body, Long sourceId) throws NodeRulesException {
+    public InterpretationNode editInterpretation(long userId, long nodeId, String title, String qualifier, String body, Long sourceId) throws NodeRulesException {
         User user = operations.load(User.class, userId);
 
         InterpretationNode existingNode = operations.load(InterpretationNode.class, nodeId, 2);
@@ -167,6 +168,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         checkEditRules(existingNode);
 
         existingNode.getBody().setTitle(title);
+        existingNode.getBody().setQualifier(qualifier);
         existingNode.getBody().setBody(body);
 
         SourceNode sourceNode = operations.load(SourceNode.class, sourceId);
@@ -179,7 +181,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     @Transactional
-    public SourceNode editSource(long userId, long nodeId, String title, String url) throws NodeRulesException {
+    public SourceNode editSource(long userId, long nodeId, String title, String qualifier, String url) throws NodeRulesException {
         User user = operations.load(User.class, userId);
 
         SourceNode existingNode = operations.load(SourceNode.class, nodeId, 2);
@@ -187,6 +189,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         checkEditRules(existingNode);
 
         existingNode.getBody().setTitle(title);
+        existingNode.getBody().setQualifier(qualifier);
         existingNode.getBody().setUrl(url);
 
         operations.save(existingNode);

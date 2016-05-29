@@ -18,7 +18,6 @@ import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -46,13 +45,15 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         List<Long> links = new LinkedList<>();
 
-        AssertionNode assertionNode = argumentService.createAssertion(jim.getNodeId(), "Test Title", "Hello, world!", links);
+        AssertionNode assertionNode = argumentService.createAssertion(jim.getNodeId(), "Test Title", "Test Qual",
+                "Hello, world!", links);
 
         Assert.assertNotNull(assertionNode);
         Assert.assertFalse(assertionNode.isFinalized());
         Assert.assertFalse(assertionNode.getBody().isPublic());
         Assert.assertTrue(assertionNode.getBody().isEditable());
         Assert.assertEquals("Test Title", assertionNode.getBody().getTitle());
+        Assert.assertEquals("Test Qual", assertionNode.getBody().getQualifier());
         Assert.assertEquals("Hello, world!", assertionNode.getBody().getBody());
 
     }
@@ -74,7 +75,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         AssertionNode assertionNode = createPublishedAssertion();
 
         try {
-            argumentService.editAssertion(kyle.getNodeId(), assertionNode.getId(), "Title", "Body", new LinkedList<>());
+            argumentService.editAssertion(kyle.getNodeId(), assertionNode.getId(), "Title", "Q", "Body", new LinkedList<>());
             Assert.fail("Should have thrown an exception because you can't edit a published node directly.");
         } catch (NodeRulesException e) {
             // Good.
@@ -96,7 +97,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         List<Long> links = new LinkedList<>();
         links.add(child.getId());
         String body = "New Body {{[" + child.getBody().getMajorVersion().getStableId() + "]link}}";
-        AssertionNode edited = argumentService.editAssertion(kyle.getNodeId(), result.getEditedNode().getId(), "New Title", body, links);
+        AssertionNode edited = argumentService.editAssertion(kyle.getNodeId(), result.getEditedNode().getId(), "New Title", "New Qual", body, links);
 
         Assert.assertFalse(edited.getBody().isPublic());
         Assert.assertEquals(assertionNode.getId(), edited.getPreviousVersion().getId());
@@ -105,6 +106,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         Assert.assertEquals(assertionNode.getId(), resultingNode.getId());
         Assert.assertEquals("New Title", resultingNode.getBody().getTitle());
+        Assert.assertEquals("New Qual", resultingNode.getBody().getQualifier());
         Assert.assertEquals(body, resultingNode.getBody().getBody());
         Assert.assertTrue(resultingNode.getBody().isEditable());
         Assert.assertTrue(resultingNode.getBody().isPublic());
@@ -131,7 +133,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         session.clear();
 
-        SourceNode edited = argumentService.editSource(kyle.getNodeId(), result.getEditedNode().getId(), "New Title", "new/url");
+        SourceNode edited = argumentService.editSource(kyle.getNodeId(), result.getEditedNode().getId(), "New Title", "Q2", "new/url");
 
         Assert.assertFalse(edited.getBody().isPublic());
         Assert.assertEquals(source.getId(), edited.getPreviousVersion().getId());
@@ -142,6 +144,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         Assert.assertEquals(source.getId(), resultingNode.getId());
         Assert.assertEquals("New Title", resultingNode.getBody().getTitle());
+        Assert.assertEquals("Q2", resultingNode.getBody().getQualifier());
         Assert.assertEquals("new/url", resultingNode.getBody().getUrl());
         Assert.assertTrue(resultingNode.getBody().isEditable());
         Assert.assertTrue(resultingNode.getBody().isPublic());
@@ -163,7 +166,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         session.clear();
 
         // Edit the interp draft
-        argumentService.editInterpretation(kyle.getNodeId(), interpDraft.getId(), "Edited interp", "Edited interp body", resultingNode.getId());
+        argumentService.editInterpretation(kyle.getNodeId(), interpDraft.getId(), "Edited interp", "Q2", "Edited interp body", resultingNode.getId());
         session.clear();
 
         // Make the assertion a draft
@@ -198,7 +201,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         // Edit and publish the assertion
         List<Long> links = new LinkedList<>();
         links.add(publishedInterp.getId());
-        argumentService.editAssertion(kyle.getNodeId(), assertionDraft.getId(), "Edited assertion", "Edited assertion body " + assertionNode.getBody().getBody(), links);
+        argumentService.editAssertion(kyle.getNodeId(), assertionDraft.getId(), "Edited assertion", "Q2", "Edited assertion body " + assertionNode.getBody().getBody(), links);
         session.clear();
         AssertionNode publishedAssertion = (AssertionNode) argumentService.publishNode(kyle.getNodeId(), assertionDraft.getId());
         session.clear();
@@ -234,22 +237,24 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         User jim = registerUser("1234", "Jim");
         List<Long> links = new LinkedList<>();
 
-        AssertionNode assertionNode = argumentService.createAssertion(jim.getNodeId(), "Assertion Title", "Hello, world!", links);
+        AssertionNode assertionNode = argumentService.createAssertion(jim.getNodeId(), "Assertion Title", "Original",
+                "Hello, world!", links);
         session.clear();
 
-        InterpretationNode interpretationNode = argumentService.createInterpretation(jim.getNodeId(), "Interp Title", "Interp body", null);
+        InterpretationNode interpretationNode = argumentService.createInterpretation(jim.getNodeId(), "Interp Title",
+                "Original", "Interp body", null);
         session.clear();
 
         // Edit the assertion to point to the interpretation
         links.add(interpretationNode.getId());
-        assertionNode = argumentService.editAssertion(jim.getNodeId(), assertionNode.getId(), "Assertion Title", "Hello! {{[" +
+        assertionNode = argumentService.editAssertion(jim.getNodeId(), assertionNode.getId(), "Assertion Title", "Q", "Hello! {{[" +
                 interpretationNode.getBody().getMajorVersion().getStableId() + "]link}}", links);
         session.clear();
 
-        SourceNode sourceNode = argumentService.createSource(jim.getNodeId(), "Source Title", "http://google.com");
+        SourceNode sourceNode = argumentService.createSource(jim.getNodeId(), "Source Title", "Original", "http://google.com");
         session.clear();
 
-        argumentService.editInterpretation(jim.getNodeId(), interpretationNode.getId(), "Interp Title", "Interp body", sourceNode.getId());
+        argumentService.editInterpretation(jim.getNodeId(), interpretationNode.getId(), "Interp Title", "Q2", "Interp body", sourceNode.getId());
         session.clear();
 
         AssertionNode published = (AssertionNode) argumentService.publishNode(jim.getNodeId(), assertionNode.getId());

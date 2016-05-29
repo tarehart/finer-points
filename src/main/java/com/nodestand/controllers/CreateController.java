@@ -44,10 +44,11 @@ public class CreateController {
 
         Long userId = userService.getUserIdFromSession();
         String title = (String) params.get("title");
+        String qualifier = (String) params.get("qualifier");
         String body = (String) params.get("body");
         List<Integer> linkedNodes = (List<Integer>) params.get("links");
 
-        return argumentService.createAssertion(userId, title, body, convertToLong(linkedNodes));
+        return argumentService.createAssertion(userId, title, qualifier, body, convertToLong(linkedNodes));
     }
 
     private List<Long> convertToLong(List<Integer> links) {
@@ -60,6 +61,7 @@ public class CreateController {
 
         Long userId = userService.getUserIdFromSession();
         String title = (String) params.get("title");
+        String qualifier = (String) params.get("qualifier");
         String body = (String) params.get("body");
 
         Long sourceId = null;
@@ -67,7 +69,7 @@ public class CreateController {
             sourceId = Long.valueOf((Integer) params.get("sourceId"));
         }
 
-        return argumentService.createInterpretation(userId, title, body, sourceId);
+        return argumentService.createInterpretation(userId, title, qualifier, body, sourceId);
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -76,9 +78,10 @@ public class CreateController {
 
         Long userId = userService.getUserIdFromSession();
         String title = (String) params.get("title");
+        String qualifier = (String) params.get("qualifier");
         String url = (String) params.get("url");
 
-        return argumentService.createSource(userId, title, url);
+        return argumentService.createSource(userId, title, qualifier, url);
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")

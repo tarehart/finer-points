@@ -21,6 +21,10 @@ public abstract class ArgumentBody implements Commentable {
 
     private String title;
 
+    // Justification for the existence of this body if it is in competition with another body with
+    // similar title. Examples: "Original version", "Formal logic style", "Curated by Hershey's"
+    private String qualifier;
+
     @Relationship(type="AUTHORED_BY", direction = Relationship.OUTGOING)
     public User author;
 
@@ -53,12 +57,9 @@ public abstract class ArgumentBody implements Commentable {
 
     public ArgumentBody() {}
 
-    public ArgumentBody(String title, User author) {
-        this(title, author, null);
-    }
-
-    public ArgumentBody(String title, User author, MajorVersion majorVersion) {
+    public ArgumentBody(String title, String qualifier, User author, MajorVersion majorVersion) {
         this.title = title;
+        this.qualifier = qualifier;
         this.author = author;
         this.majorVersion = majorVersion;
         this.dateCreated = new Date();
@@ -80,6 +81,14 @@ public abstract class ArgumentBody implements Commentable {
         return title;
     }
 
+    public String getQualifier() {
+        return qualifier;
+    }
+
+    public void setQualifier(String qualifier) {
+        this.qualifier = qualifier;
+    }
+
     public MajorVersion getMajorVersion() {
         return majorVersion;
     }
@@ -92,6 +101,7 @@ public abstract class ArgumentBody implements Commentable {
 
     public void applyEditTo(ArgumentBody targetBody) {
         targetBody.title = title;
+        targetBody.qualifier = qualifier;
         targetBody.editor = author;
         targetBody.dateEdited = new Date();
     };

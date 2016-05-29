@@ -57,7 +57,7 @@ States:
 - Private pending edit (any context)
   - Visible only to author
 
-### Explicitly competing / forked nodes
+#### Explicitly competing / forked nodes
 
 We may want a sub header where users can express the distinction without changing
 the main title. Examples:
@@ -67,3 +67,12 @@ the main title. Examples:
   - Fast and loose, possibly insulting
 
 It is legitimate to have competing community wikis. Use the word "fork"?
+
+#### Class design
+
+Parent-child relationships exist among ArgumentNode instances.
+
+ArgumentNode has a ArgumentBody
+
+ArgumentBody has title, subheading, pointer to previous version,
+pointer to MajorVersion.

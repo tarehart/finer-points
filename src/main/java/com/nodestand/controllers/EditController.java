@@ -38,10 +38,11 @@ public class EditController {
         Long userId = userService.getUserIdFromSession();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
         String title = (String) params.get("title");
+        String qualifier = (String) params.get("qualifier");
         String body = (String) params.get("body");
         List<Integer> links = (List<Integer>) params.get("links");
 
-        return argumentService.editAssertion(userId, nodeId, title, body, convertToLong(links));
+        return argumentService.editAssertion(userId, nodeId, title, qualifier, body, convertToLong(links));
     }
 
     private List<Long> convertToLong(List<Integer> links) {
@@ -54,10 +55,11 @@ public class EditController {
         Long userId = userService.getUserIdFromSession();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
         String title = (String) params.get("title");
+        String qualifier = (String) params.get("qualifier");
         String body = (String) params.get("body");
         Long sourceId = (long) (Integer) params.get("sourceId");
 
-        return argumentService.editInterpretation(userId, nodeId, title, body, sourceId);
+        return argumentService.editInterpretation(userId, nodeId, title, qualifier, body, sourceId);
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -66,9 +68,10 @@ public class EditController {
         Long userId = userService.getUserIdFromSession();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
         String title = (String) params.get("title");
+        String qualifier = (String) params.get("qualifier");
         String url = (String) params.get("url");
 
-        return argumentService.editSource(userId, nodeId, title, url);
+        return argumentService.editSource(userId, nodeId, title, qualifier, url);
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")

@@ -55,7 +55,7 @@ public class InterpretationNode extends ArgumentNode {
 
     @Override
     public InterpretationBody createDraftBody(User author, boolean install) throws NodeRulesException {
-        InterpretationBody freshBody = new InterpretationBody(getBody().getTitle(), getBody().getBody(), author, getBody().getMajorVersion());
+        InterpretationBody freshBody = new InterpretationBody(getBody().getTitle(), getBody().getQualifier(), getBody().getBody(), author, getBody().getMajorVersion());
         VersionHelper.decorateDraftBody(freshBody);
         if (install) {
             installBody(freshBody);

@@ -17,12 +17,12 @@ public class InterpretationBody extends ArgumentBody {
         return new InterpretationNode(this);
     }
 
-    public InterpretationBody(String title, String body, User author) {
-        this(title, body, author, null);
+    public InterpretationBody(String title, String qualifier, String body, User author) {
+        this(title, qualifier, body, author, null);
     }
 
-    public InterpretationBody(String title, String body, User author, MajorVersion majorVersion) {
-        super(title, author, majorVersion);
+    public InterpretationBody(String title, String qualifier, String body, User author, MajorVersion majorVersion) {
+        super(title, qualifier, author, majorVersion);
 
         this.body = body;
     }

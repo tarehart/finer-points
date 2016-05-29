@@ -40,7 +40,7 @@ public class SourceNode extends ArgumentNode {
 
     @Override
     public SourceBody createDraftBody(User author, boolean install) throws NodeRulesException {
-        SourceBody freshBody = new SourceBody(getBody().getTitle(), author, getBody().getUrl(), getBody().getMajorVersion());
+        SourceBody freshBody = new SourceBody(getBody().getTitle(), getBody().getQualifier(), author, getBody().getUrl(), getBody().getMajorVersion());
         VersionHelper.decorateDraftBody(freshBody);
 
         if (install) {

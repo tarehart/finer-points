@@ -127,7 +127,7 @@ require('../services/toast-service');
                     var child = NodeCache.addOrUpdateNode(result.chosenNode);
                     attachChild(child);
                 } else {
-                    NodeCache.createAndSaveNode(result.newTitle, result.type, attachChild, errorHandler);
+                    NodeCache.createAndSaveNode(result.newTitle, result.newQualifier, result.type, attachChild, errorHandler);
                 }
             }
 
@@ -145,6 +145,8 @@ require('../services/toast-service');
                 } else if (node.getType() == "interpretation") {
                     linkableTypes = ["source"];
                 }
+
+                $scope.newQualifier = "Original version"; // Default this field.
 
                 $scope.canLinkTo = function(type) {
                     return linkableTypes.indexOf(type) >= 0;
@@ -216,7 +218,7 @@ require('../services/toast-service');
 
                 $scope.createNewNode = function() {
                     $mdDialog.cancel();
-                    nodeChosenForLinking({newTitle: $scope.searchQuery, type: $scope.newNodeType});
+                    nodeChosenForLinking({newTitle: $scope.searchQuery, newQualifier: $scope.newQualifier, type: $scope.newNodeType});
                 };
 
                 $scope.cancel = function() {

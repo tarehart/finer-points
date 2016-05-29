@@ -18,17 +18,17 @@ public interface ArgumentService {
 
     ArgumentNode getFullDetail(long nodeId);
 
-    AssertionNode createAssertion(long userId, String title, String body, Collection<Long> links) throws NodeRulesException;
+    AssertionNode createAssertion(long userId, String title, String qualifier, String body, Collection<Long> links) throws NodeRulesException;
 
-    InterpretationNode createInterpretation(long userId, String title, String body, Long sourceId);
+    InterpretationNode createInterpretation(long userId, String title, String qualifier, String body, Long sourceId);
 
-    SourceNode createSource(long userId, String title, String url);
+    SourceNode createSource(long userId, String title, String qualifier, String url);
 
-    AssertionNode editAssertion(long userId, long nodeId, String title, String body, Collection<Long> links) throws NodeRulesException;
+    AssertionNode editAssertion(long userId, long nodeId, String title, String qualifier, String body, Collection<Long> links) throws NodeRulesException;
 
-    InterpretationNode editInterpretation(long userId, long nodeId, String title, String body, Long sourceId) throws NodeRulesException;
+    InterpretationNode editInterpretation(long userId, long nodeId, String title, String qualifier, String body, Long sourceId) throws NodeRulesException;
 
-    SourceNode editSource(long userId, long nodeId, String title, String url) throws NodeRulesException;
+    SourceNode editSource(long userId, long nodeId, String title, String qualifier, String url) throws NodeRulesException;
 
     EditResult makeDraft(long userId, long nodeId) throws NodeRulesException;
 

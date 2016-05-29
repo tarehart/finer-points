@@ -19,18 +19,18 @@ public class ArgumentTestUtil {
     public static AssertionNode createPublishedTriple(ArgumentService argumentService, User jim) throws NodeRulesException, NotAuthorizedException {
         List<Long> links = new LinkedList<>();
 
-        AssertionNode assertionNode = argumentService.createAssertion(jim.getNodeId(), "Assertion Title", "Hello, world!", links);
+        AssertionNode assertionNode = argumentService.createAssertion(jim.getNodeId(), "Assertion Title", "Original", "Hello, world!", links);
 
-        InterpretationNode interpretationNode = argumentService.createInterpretation(jim.getNodeId(), "Interp Title", "Interp body", null);
+        InterpretationNode interpretationNode = argumentService.createInterpretation(jim.getNodeId(), "Interp Title", "Orig int", "Interp body", null);
 
         // Edit the assertion to point to the interpretation
         links.add(interpretationNode.getId());
-        assertionNode = argumentService.editAssertion(jim.getNodeId(), assertionNode.getId(), "Assertion Title", "Hello! {{[" +
+        assertionNode = argumentService.editAssertion(jim.getNodeId(), assertionNode.getId(), "Assertion Title", "QA", "Hello! {{[" +
                 interpretationNode.getBody().getMajorVersion().getStableId() + "]link}}", links);
 
-        SourceNode sourceNode = argumentService.createSource(jim.getNodeId(), "Source Title", "http://google.com");
+        SourceNode sourceNode = argumentService.createSource(jim.getNodeId(), "Source Title", "Original src", "http://google.com");
 
-        argumentService.editInterpretation(jim.getNodeId(), interpretationNode.getId(), "Interp Title", "Interp body", sourceNode.getId());
+        argumentService.editInterpretation(jim.getNodeId(), interpretationNode.getId(), "Interp Title", "QI", "Interp body", sourceNode.getId());
 
 
         return (AssertionNode) argumentService.publishNode(jim.getNodeId(), assertionNode.getId());
@@ -42,19 +42,19 @@ public class ArgumentTestUtil {
 
         List<Long> links = new LinkedList<>();
 
-        AssertionNode root = argumentService.createAssertion(jim.getNodeId(), "Root title", "Hi root", links);
+        AssertionNode root = argumentService.createAssertion(jim.getNodeId(), "Root title", "Orig", "Hi root", links);
 
-        InterpretationNode interpretationNode = argumentService.createInterpretation(jim.getNodeId(), "Interp Title", "Interp body", null);
+        InterpretationNode interpretationNode = argumentService.createInterpretation(jim.getNodeId(), "Interp Title", "Qual", "Interp body", null);
 
         // Edit the assertion to point to the interpretation and the triple
         links.add(interpretationNode.getId());
         links.add(triple.getId());
-        root = argumentService.editAssertion(jim.getNodeId(), root.getId(), "Root Title", "Hello! {{[" +
+        root = argumentService.editAssertion(jim.getNodeId(), root.getId(), "Root Title", "Orig", "Hello! {{[" +
                 interpretationNode.getBody().getMajorVersion().getStableId() + "]link}} and {{[" + triple.getBody().getMajorVersion().getStableId() + "]link2}}", links);
 
-        SourceNode sourceNode = argumentService.createSource(jim.getNodeId(), "ForkSource Title", "http://google.com");
+        SourceNode sourceNode = argumentService.createSource(jim.getNodeId(), "ForkSource Title", "Forked", "http://google.com");
 
-        argumentService.editInterpretation(jim.getNodeId(), interpretationNode.getId(), "ForkInterp Title", "ForkInterp body", sourceNode.getId());
+        argumentService.editInterpretation(jim.getNodeId(), interpretationNode.getId(), "ForkInterp Title", "QF", "ForkInterp body", sourceNode.getId());
 
 
         return (AssertionNode) argumentService.publishNode(jim.getNodeId(), root.getId());
@@ -66,14 +66,14 @@ public class ArgumentTestUtil {
 
         List<Long> links = new LinkedList<>();
 
-        AssertionNode root = argumentService.createAssertion(jim.getNodeId(), "Root title", "Hi root", links);
+        AssertionNode root = argumentService.createAssertion(jim.getNodeId(), "Root title", "Original", "Hi root", links);
 
         InterpretationNode interpretationNode = (InterpretationNode) triple.getGraphChildren().stream().findFirst().get();
 
         // Edit the assertion to point to the interpretation and the triple
         links.add(interpretationNode.getId());
         links.add(triple.getId());
-        root = argumentService.editAssertion(jim.getNodeId(), root.getId(), "Root Title", "Hello! {{[" + interpretationNode.getId() + "]link}} and {{[" + triple.getId() + "]link2}}", links);
+        root = argumentService.editAssertion(jim.getNodeId(), root.getId(), "Root Title", "QR", "Hello! {{[" + interpretationNode.getId() + "]link}} and {{[" + triple.getId() + "]link2}}", links);
 
         root = (AssertionNode) argumentService.publishNode(jim.getNodeId(), root.getId());
 

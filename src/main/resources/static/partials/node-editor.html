@@ -4,6 +4,11 @@
         <input ng-model="nodeEditCtrl.node.body.title">
     </md-input-container>
 
+    <md-input-container class="md-block">
+        <label>Version Description</label>
+        <input ng-model="nodeEditCtrl.node.body.qualifier">
+    </md-input-container>
+
     <textarea ng-if="node.type !== 'source'" node="node" set-text="nodeEditCtrl.setBody" link-fn="nodeEditCtrl.linkChild" markdown-editor>{{nodeEditCtrl.node.body.body}}</textarea>
 
     <md-input-container class="md-block" ng-if="nodeEditCtrl.node.type === 'source'">

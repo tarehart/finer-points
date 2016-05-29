@@ -26,12 +26,12 @@ public class AssertionBody extends ArgumentBody {
         ((AssertionBody) targetBody).body = body;
     }
 
-    public AssertionBody(String title, String body, User author) {
-        this(title, body, author, null);
+    public AssertionBody(String title, String qualifier, String body, User author) {
+        this(title, qualifier, body, author, null);
     }
 
-    public AssertionBody(String title, String body, User author, MajorVersion majorVersion) {
-        super(title, author, majorVersion);
+    public AssertionBody(String title, String qualifier, String body, User author, MajorVersion majorVersion) {
+        super(title, qualifier, author, majorVersion);
 
         this.body = body;
     }

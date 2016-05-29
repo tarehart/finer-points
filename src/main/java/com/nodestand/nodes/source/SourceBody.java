@@ -17,12 +17,12 @@ public class SourceBody extends ArgumentBody {
         return new SourceNode(this);
     }
 
-    public SourceBody(String title, User author, String url) {
-        this(title, author, url, null);
+    public SourceBody(String title, String qualifier, User author, String url) {
+        this(title, qualifier, author, url, null);
     }
 
-    public SourceBody(String title, User author, String url, MajorVersion majorVersion) {
-        super(title, author, majorVersion);
+    public SourceBody(String title, String qualifier, User author, String url, MajorVersion majorVersion) {
+        super(title, qualifier, author, majorVersion);
         this.url = url;
     }
 
