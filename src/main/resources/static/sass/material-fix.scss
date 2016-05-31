@@ -20,6 +20,21 @@ md-tooltip {
   font-size: 14px;
 }
 
+// Font Awesome integration
+
+.md-icon-button {
+  .fa {
+    font-size: 1.5em;
+  }
+
+  &.md-micro {
+    .fa {
+      font-size: inherit;
+    }
+  }
+}
+
+
 // Actual bugs
 
 // https://github.com/angular/material/issues/7155

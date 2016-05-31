@@ -1,4 +1,4 @@
-
+@import 'colors';
 
 .childrenDiv {
   position: relative;
@@ -50,12 +50,25 @@
   md-card-content {
     padding-bottom: 0;
   }
+
+  md-card-title {
+    padding-top: 10px;
+  }
 }
 
-.draft-marker {
-  color: gray;
+.draft-node-pill {
+  color: white;
+  background-color: #777;
+  font-size: .9em;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .child-visibility {
   margin-top: 8px;
+}
+
+.child-node-title {
+  display: inline-block;
+  margin-bottom: 8px;
 }

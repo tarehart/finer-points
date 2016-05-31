@@ -41,10 +41,34 @@ require('./markdown-directive');
             setHighlighted(node);
         });
 
+        function swapInChild(newChild, oldChild, rootNode) {
+            if (!rootNode.body.public) {
+                $.each(rootNode.children, function(index, child) {
+                    if (child === oldChild) {
+                        // modify rootNode to point to the draft instead of the original
+                        rootNode.children[index] = newChild;
+                        // Save root node
+                        saveChanges(rootNode);
+                        return false; // break out of $.each
+                    } else {
+                        swapInChild(newChild, oldChild, child);
+                    }
+                });
+            }
+        }
+
         self.enterEditMode = function (node) {
             if (node.body.public) {
                 NodeCache.makeDraft(node, function(draftNode, data) {
-                    $location.path("/graph/" + data.graph.rootStableId);
+
+                    if (node === self.rootNode) {
+                        $location.path("/graph/" + data.graph.rootStableId);
+                    } else {
+                        // Modify all the parent node so it points to the new draft. There may be multiple
+                        // parent nodes in the tree; modify them all.
+                        swapInChild(data.editedNode, node, self.rootNode);
+                    }
+                    self.enterEditMode(data.editedNode);
 
                 }, function (err) {
                     ToastService.error(err.message);
@@ -119,13 +143,13 @@ require('./markdown-directive');
             $location.path("/graph/" + node.stableId);
         };
 
-        self.authorizedForEdit = function (node) {
+        self.authorizedForEdit = function (node, parent) {
             // Currently, I only want to allow child editing if the children are already private,
             // or if the child's immediate parent is private.
             // This is because I don't intend to mess with draft propagation anymore.
             // If you want to edit a public child, the user needs to navigate to it first,
             // or start edit its parent.
-            return node === self.rootNode || !node.body.public; // TODO: allow children with private parents
+            return node === self.rootNode || !node.body.public || (parent && !parent.body.public);
         };
 
         function ensureDetail(node) {
@@ -189,8 +213,8 @@ require('./markdown-directive');
                         NodeCache.get(resultingNode.id).hasFullGraph = false; // Make sure the full graph is fetched again upon reload.
                         $location.path("/graph/" + resultingNode.stableId); // Change url back to public version
                     } else {
-                        // TODO: it seems like this is not getting rid of the publish buttons on children as expected.
-                        NodeCache.fetchGraphForId(rootNode.stableId, null, null, true); // Refresh the graph
+
+                        swapInChild(resultingNode, node, rootNode);
                     }
                 });
             } else {

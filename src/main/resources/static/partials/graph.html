@@ -5,15 +5,22 @@
 
             <div ng-if="!node.inEditMode">
 
-                <span class="child-node-title">
-                    <a href="#/graph/{{node.stableId}}">{{node.body.title}}</a>
-                    <span ng-if="!node.body.public" uib-tooltip="Private draft"><i class="fa fa-asterisk draft-marker"></i></span>
-                </span>
+                <div layout="row" layout-align="center">
+                    <div flex="">
+                        <a class="child-node-title" href="#/graph/{{node.stableId}}">{{node.body.title}}</a>
+                        <div ng-if="!graphCtrl.isSelected(node)">
+                            {{node.body.qualifier}}
+                            <span ng-if="!node.body.public" class="draft-node-pill">
+                                Private draft
+                            </span>
+                        </div>
+                    </div>
 
-                <div ng-if="!graphCtrl.isSelected(node)" layout="row" layout-align="center">
-                    <md-button ng-click="graphCtrl.toggleSelect(node)" class="md-icon-button md-micro">
-                        <i class="fa fa-angle-double-down"></i>
-                    </md-button>
+                    <span ng-if="!graphCtrl.isSelected(node)">
+                        <md-button ng-click="graphCtrl.toggleSelect(node)" class="md-icon-button">
+                            <i class="fa fa-angle-double-down"></i>
+                        </md-button>
+                    </span>
                 </div>
 
                 <!--Collapsible portion-->
@@ -29,7 +36,7 @@
                     <a ng-if="node.type === 'source'" ng-href="{{node.body.url}}" target="_blank">{{node.body.url}}</a>
 
                     <div layout="row" layout-align="end center">
-                        <md-button ng-if="graphCtrl.authorizedForEdit(node) && !node.inEditMode" ng-click="graphCtrl.enterEditMode(node)">Edit</md-button>
+                        <md-button ng-if="graphCtrl.authorizedForEdit(node, parent) && !node.inEditMode" ng-click="graphCtrl.enterEditMode(node)">Edit</md-button>
                         <md-button ng-if="graphCtrl.readyToPublish(node)" ng-click="graphCtrl.publishNode(node)" class="md-raised md-primary">Publish</md-button>
                     </div>
                 </div>
@@ -57,7 +64,7 @@
             </span>
 
             <div flex="" class="childrenDiv" ng-if="graphCtrl.hasChild(node) && !node.hideChildren">
-                <div ng-repeat="node in node.children" class="childDiv" ng-include="'floatTree'"></div>
+                <div ng-repeat="node in node.children" class="childDiv" ng-include="'floatTree'" ng-init="parent = node"></div>
             </div>
 
         </div>
@@ -73,11 +80,15 @@
                         <md-card-title-text>
                             <span class="md-headline">
                                 {{graphCtrl.rootNode.body.title}}
-                                <span ng-if="!graphCtrl.rootNode.body.public" uib-tooltip="Private draft"><i class="fa fa-asterisk draft-marker"></i></span>
                             </span>
                             <span class="md-subhead">
                                 {{graphCtrl.rootNode.body.qualifier}}, by
-                                <a href="/#/user/{{graphCtrl.rootNode.body.author.stableId}}">{{graphCtrl.rootNode.body.author.displayName}}</a>
+                                <a class="spaced-inline-right" href="/#/user/{{graphCtrl.rootNode.body.author.stableId}}">
+                                    {{graphCtrl.rootNode.body.author.displayName}}
+                                </a>
+                                <span ng-if="!graphCtrl.rootNode.body.public" class="draft-node-pill">
+                                    Private draft
+                                </span>
                             </span>
                         </md-card-title-text>
                     </md-card-title>
@@ -107,7 +118,8 @@
             <div flex="40" ng-if="graphCtrl.isPersisted(graphCtrl.rootNode)">
                 <div root-node="graphCtrl.rootNode" viva-graph></div>
                 <div class="child-nodes">
-                    <div ng-repeat="node in graphCtrl.rootNode.children" ng-include="'floatTree'"></div>
+                    <div ng-repeat="node in graphCtrl.rootNode.children" ng-include="'floatTree'"
+                         ng-init="parent = graphCtrl.rootNode"></div>
                 </div>
             </div>
 
