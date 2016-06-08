@@ -36,4 +36,12 @@ public interface ArgumentService {
 
     Set<ArgumentNode> getNodesInMajorVersion(long majorVersionId);
 
+    Set<ArgumentNode> getRootNodes();
+
+    Set<ArgumentNode> getDraftNodes(long userId);
+
+    Set<ArgumentNode> getConsumerNodes(long nodeId);
+
+    Set<ArgumentNode> getConsumerNodesIncludingDrafts(long userId, long nodeId);
+
 }

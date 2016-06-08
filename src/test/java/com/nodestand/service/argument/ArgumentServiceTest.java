@@ -21,6 +21,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ArgumentServiceTest extends Neo4jIntegrationTest {
@@ -263,6 +264,50 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
     }
 
 
+    @Test
+    public void testPublishingChildOfDraft() throws NotAuthorizedException, NodeRulesException {
+        User kyle = registerUser("5678", "Kyle");
+        AssertionNode assertionNode = createPublishedAssertion();
+
+        EditResult rootDraft = argumentService.makeDraft(kyle.getNodeId(), assertionNode.getId());
+
+        ArgumentNode childOriginal = assertionNode.getGraphChildren().iterator().next();
+        Assert.assertEquals(childOriginal.getId(), rootDraft.getEditedNode().getGraphChildren().iterator().next().getId());
+
+        session.clear();
+
+        ArgumentNode childDraft = argumentService.makeDraft(kyle.getNodeId(), childOriginal.getId()).getEditedNode();
+
+        // The javascript will call edit on the parent (which is a draft) to make it point to this draft version of the child.
+        List<Long> links = new LinkedList<>();
+        links.add(childDraft.getId());
+        String body = "New Body {{[" + childDraft.getBody().getMajorVersion().getStableId() + "]link}}";
+        argumentService.editAssertion(kyle.getNodeId(), rootDraft.getEditedNode().getId(), "Ed Root", "Qual", body, links);
+
+        session.clear();
+
+        // Now publish the child
+        ArgumentNode publishedChild = argumentService.publishNode(kyle.getNodeId(), childDraft.getId());
+
+        session.clear();
+
+        // Make sure the published child has same id as original child
+        Assert.assertEquals(childOriginal.getStableId(), publishedChild.getStableId());
+
+        // The draft root should now be pointing to the published version of the child.
+        ArgumentNode draftNow = argumentService.getGraph(rootDraft.getEditedNode().getStableId()).getRootNode();
+        Assert.assertEquals(1, draftNow.getGraphChildren().size());
+        Assert.assertEquals(publishedChild.getStableId(), draftNow.getGraphChildren().iterator().next().getStableId());
+
+        // The original root should also be pointing to the published version of the child.
+        ArgumentNode rootNow = argumentService.getGraph(assertionNode.getStableId()).getRootNode();
+        Assert.assertEquals(1, rootNow.getGraphChildren().size());
+        Assert.assertEquals(publishedChild.getStableId(), rootNow.getGraphChildren().iterator().next().getStableId());
+
+        // The published child should have two consumers
+        Set<ArgumentNode> consumers = argumentService.getConsumerNodesIncludingDrafts(kyle.getNodeId(), publishedChild.getId());
+        Assert.assertEquals(2, consumers.size());
+    }
 
 
     private AssertionNode createPublishedAssertion() throws NodeRulesException, NotAuthorizedException {

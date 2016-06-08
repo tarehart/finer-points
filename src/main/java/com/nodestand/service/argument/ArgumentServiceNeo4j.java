@@ -256,6 +256,26 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         return argumentRepo.getNodesInMajorVersion(majorVersionId);
     }
 
+    @Override
+    public Set<ArgumentNode> getRootNodes() {
+        return argumentRepo.getRootNodesRich();
+    }
+
+    @Override
+    public Set<ArgumentNode> getDraftNodes(long userId) {
+        return argumentRepo.getDraftNodesRich(userId);
+    }
+
+    @Override
+    public Set<ArgumentNode> getConsumerNodes(long nodeId) {
+        return argumentRepo.getConsumerNodes(nodeId);
+    }
+
+    @Override
+    public Set<ArgumentNode> getConsumerNodesIncludingDrafts(long userId, long nodeId) {
+        return argumentRepo.getConsumerNodes(nodeId, userId);
+    }
+
     private void checkEditRules(ArgumentNode existingNode) throws NodeRulesException {
         if (!existingNode.getBody().isEditable()) {
             throw new NodeRulesException("Cannot edit this node!");

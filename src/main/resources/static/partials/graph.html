@@ -64,7 +64,8 @@
             </span>
 
             <div flex="" class="childrenDiv" ng-if="graphCtrl.hasChild(node) && !node.hideChildren">
-                <div ng-repeat="node in node.children" class="childDiv" ng-include="'floatTree'" ng-init="parent = node"></div>
+                <!--http://stackoverflow.com/questions/23247707/how-to-access-parent-object-in-recursive-template-->
+                <div ng-repeat="node in node.children" class="childDiv" ng-include="'floatTree'" ng-init="parent = $parent.$parent.node"></div>
             </div>
 
         </div>

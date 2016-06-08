@@ -205,6 +205,12 @@ require('./markdown-directive');
         self.publishNode = function(node) {
             var publishableSet = {};
             if (allowsPublish(node, publishableSet)) {
+
+                // Problem: draft -> draft -> published
+                // Publish the middle one
+                // Now the middle one appears to have no child and no author.
+                // Upon refresh, it has correct child and author.
+
                 NodeCache.publishNode(node, function(resultingNode) {
 
                     var rootNode = self.rootNode;
