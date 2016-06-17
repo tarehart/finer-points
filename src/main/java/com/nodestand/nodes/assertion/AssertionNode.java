@@ -7,7 +7,6 @@ import com.nodestand.nodes.User;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceNode;
-import com.nodestand.service.VersionHelper;
 import com.nodestand.util.BodyParser;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -101,32 +100,21 @@ public class AssertionNode extends ArgumentNode {
         }
     }
 
-    @Override
-    public AssertionBody createDraftBody(User author, boolean install) throws NodeRulesException {
-        AssertionBody freshBody = new AssertionBody(getBody().getTitle(), getBody().getQualifier(), getBody().getBody(), author, getBody().getMajorVersion());
-        VersionHelper.decorateDraftBody(freshBody);
-        if (install) {
-            installBody(freshBody);
-        }
+    private AssertionBody createDraftBody(User author) throws NodeRulesException {
+        AssertionBody freshBody = new AssertionBody(body.getTitle(), body.getQualifier(), getBody().getBody(), author, body.getMajorVersion());
+        setupDraftBody(freshBody);
         return freshBody;
     }
 
     @Override
-    public AssertionNode createNewDraft(User author, boolean createBodyDraft) throws NodeRulesException {
-
-        AssertionNode copy;
+    public AssertionNode createNewDraft(User author) throws NodeRulesException {
 
         if (!body.isPublic()) {
             throw new NodeRulesException("Node is already a draft!");
         }
+        AssertionBody freshBody = createDraftBody(author);
 
-        if (createBodyDraft) {
-            AssertionBody freshBody = createDraftBody(author, false);
-            copy = new AssertionNode(freshBody);
-        } else {
-            copy = new AssertionNode(getBody());
-        }
-
+        AssertionNode copy = new AssertionNode(freshBody);
         copy.setSupportingNodes(new HashSet<>(getSupportingNodes()));
         copy.setPreviousVersion(this);
 

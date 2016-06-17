@@ -20,12 +20,6 @@ public class AssertionBody extends ArgumentBody {
         return new AssertionNode(this);
     }
 
-    @Override
-    public void applyEditTo(ArgumentBody targetBody) {
-        super.applyEditTo(targetBody);
-        ((AssertionBody) targetBody).body = body;
-    }
-
     public AssertionBody(String title, String qualifier, String body, User author) {
         this(title, qualifier, body, author, null);
     }

@@ -17,6 +17,7 @@ import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -88,9 +89,14 @@ public class VersionHelper {
                 operations.load(previousVersion.getClass(), previousVersion.getId(), 1);
             }
 
-            // Copy everything over into the previous version
+            // Copy links to children into the previous version
             node.copyContentTo(previousVersion);
-            node.getBody().applyEditTo(previousVersion.getBody());
+
+            previousVersion.setBody(node.getBody());
+
+            ArgumentBody freshlyPublishedBody = previousVersion.getBody();
+            freshlyPublishedBody.setDateEdited(new Date());
+            freshlyPublishedBody.setIsPublic(true);
 
             resultingNode = previousVersion;
 
@@ -104,12 +110,8 @@ public class VersionHelper {
             }
 
             // Destroy the current version
-            // Do not delete the Build because it is possibly still in use. For example, there may have been a draft
-            // propagation touching many nodes, and now we're only publishing one of them.
-            operations.delete(node.getBody());
             operations.delete(node);
 
-            TwoWayUtil.forgetBody(node.getBody());
             TwoWayUtil.forgetNode(node);
         }
 

@@ -217,7 +217,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         // This will set the previous version on the draft. Later, when we publish the edit,
         // this draft will copy its contents to the previous version and then be destroyed.
-        ArgumentNode draftNode = existingNode.createNewDraft(user, true);
+        ArgumentNode draftNode = existingNode.createNewDraft(user);
 
         operations.save(draftNode);
 

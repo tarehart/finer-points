@@ -28,11 +28,14 @@ public abstract class ArgumentBody implements Commentable {
     @Relationship(type="AUTHORED_BY", direction = Relationship.OUTGOING)
     public User author;
 
-    @Relationship(type="EDITED_BY", direction = Relationship.OUTGOING)
-    public User editor;
+    @Relationship(type="ORIGINAL_AUTHOR", direction = Relationship.OUTGOING)
+    public User originalAuthor;
 
     @Relationship(type="VERSION_OF", direction = Relationship.OUTGOING)
     private MajorVersion majorVersion;
+
+    @Relationship(type="PRECEDED_BY", direction = Relationship.OUTGOING)
+    protected ArgumentBody previousVersion;
 
     @Relationship(type="ARGUMENT_VOTE", direction = Relationship.INCOMING)
     private Set<ArgumentVote> argumentVotes;
@@ -61,6 +64,7 @@ public abstract class ArgumentBody implements Commentable {
         this.title = title;
         this.qualifier = qualifier;
         this.author = author;
+        this.originalAuthor = author;
         this.majorVersion = majorVersion;
         this.dateCreated = new Date();
 
@@ -98,13 +102,6 @@ public abstract class ArgumentBody implements Commentable {
     }
 
     public abstract ArgumentNode constructNode();
-
-    public void applyEditTo(ArgumentBody targetBody) {
-        targetBody.title = title;
-        targetBody.qualifier = qualifier;
-        targetBody.editor = author;
-        targetBody.dateEdited = new Date();
-    };
 
     public void setMinorVersion(int minorVersion) {
         this.minorVersion = minorVersion;
@@ -144,6 +141,14 @@ public abstract class ArgumentBody implements Commentable {
 
     public void setDateEdited(Date dateEdited) {
         this.dateEdited = dateEdited;
+    }
+
+    public ArgumentBody getPreviousVersion() {
+        return previousVersion;
+    }
+
+    public void setPreviousVersion(ArgumentBody previousVersion) {
+        this.previousVersion = previousVersion;
     }
 
     public void decrementVote(VoteType voteType) throws NodeRulesException {

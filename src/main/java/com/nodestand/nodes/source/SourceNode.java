@@ -5,7 +5,6 @@ import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.interpretation.InterpretationNode;
-import com.nodestand.service.VersionHelper;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.HashSet;
@@ -38,33 +37,22 @@ public class SourceNode extends ArgumentNode {
         // Do nothing
     }
 
-    @Override
-    public SourceBody createDraftBody(User author, boolean install) throws NodeRulesException {
+    private SourceBody createDraftBody(User author) throws NodeRulesException {
         SourceBody freshBody = new SourceBody(getBody().getTitle(), getBody().getQualifier(), author, getBody().getUrl(), getBody().getMajorVersion());
-        VersionHelper.decorateDraftBody(freshBody);
-
-        if (install) {
-            installBody(freshBody);
-        }
-
+        setupDraftBody(freshBody);
         return freshBody;
     }
 
     @Override
-    public SourceNode createNewDraft(User author, boolean createBodyDraft) throws NodeRulesException {
-        SourceNode copy;
+    public SourceNode createNewDraft(User author) throws NodeRulesException {
 
         if (!body.isPublic()) {
             throw new NodeRulesException("Node is already a draft!");
         }
 
-        if (createBodyDraft) {
-            SourceBody freshBody = createDraftBody(author, false);
-            copy = new SourceNode(freshBody);
-        } else {
-            copy = new SourceNode(getBody());
-        }
+        SourceBody freshBody = createDraftBody(author);
 
+        SourceNode copy = new SourceNode(freshBody);
         copy.setPreviousVersion(this);
 
         return copy;

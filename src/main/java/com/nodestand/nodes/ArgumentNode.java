@@ -1,6 +1,7 @@
 package com.nodestand.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nodestand.service.VersionHelper;
 import com.nodestand.util.IdGenerator;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -36,6 +37,10 @@ public abstract class ArgumentNode {
     }
 
     public abstract ArgumentBody getBody();
+
+    public void setBody(ArgumentBody body) {
+        this.body = body;
+    }
 
     public void setVersion(int buildVersion) {
         this.buildVersion = buildVersion;
@@ -74,6 +79,12 @@ public abstract class ArgumentNode {
      */
     public abstract void copyContentTo(ArgumentNode target) throws NodeRulesException;
 
+    protected void setupDraftBody(ArgumentBody freshBody) {
+        freshBody.originalAuthor = body.originalAuthor;
+        freshBody.setPreviousVersion(body);
+        VersionHelper.decorateDraftBody(freshBody);
+    }
+
     /**
      * This is useful for when the node is already a draft but the body is not. That situation can arise when a
      * child of this node has been edited. If we are in that state and then receive an edit for the title or content,
@@ -82,9 +93,9 @@ public abstract class ArgumentNode {
      * @param install true if you want the new draft body to replace this node's existing body.
      * @return
      */
-    public abstract ArgumentBody createDraftBody(User author, boolean install) throws NodeRulesException;
+    //public abstract ArgumentBody createDraftBody(User author) throws NodeRulesException;
 
-    public abstract ArgumentNode createNewDraft(User author, boolean createBodyDraft) throws NodeRulesException;
+    public abstract ArgumentNode createNewDraft(User author) throws NodeRulesException;
 
     public ArgumentNode getPreviousVersion() {
         return previousVersion;
@@ -96,14 +107,6 @@ public abstract class ArgumentNode {
 
     protected boolean shouldEditInPlace() {
         return !body.isPublic();
-    }
-
-    protected void installBody(ArgumentBody freshBody) throws NodeRulesException {
-        if (isFinalized()) {
-            throw new NodeRulesException("Cannot install a draft body on a node that has been finalized!");
-        }
-        //body.getDependentNodes().remove(this);
-        body = freshBody;
     }
 
     public boolean isFinalized() {
