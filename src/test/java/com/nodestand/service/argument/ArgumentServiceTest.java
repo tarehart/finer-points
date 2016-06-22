@@ -309,6 +309,22 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         Assert.assertEquals(2, consumers.size());
     }
 
+    @Test
+    public void testConsumersWhichAreDrafts() throws NotAuthorizedException, NodeRulesException {
+        User kyle = registerUser("5678", "Kyle");
+        AssertionNode assertionNode = ArgumentTestUtil.createPublishedTriple(argumentService, kyle);
+
+        EditResult rootDraft = argumentService.makeDraft(kyle.getNodeId(), assertionNode.getId());
+
+        ArgumentNode childOriginal = assertionNode.getGraphChildren().iterator().next();
+        Assert.assertEquals(childOriginal.getId(), rootDraft.getEditedNode().getGraphChildren().iterator().next().getId());
+
+        session.clear();
+
+        Set<ArgumentNode> consumers = argumentService.getConsumerNodesIncludingDrafts(kyle.getNodeId(), childOriginal.getId());
+        Assert.assertEquals(2, consumers.size());
+    }
+
 
     private AssertionNode createPublishedAssertion() throws NodeRulesException, NotAuthorizedException {
 

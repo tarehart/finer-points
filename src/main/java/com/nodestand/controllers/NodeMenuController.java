@@ -45,7 +45,7 @@ public class NodeMenuController {
     public Set<ArgumentNode> getConsumerNodes(@RequestParam Long nodeId) {
         Long userId = userService.getUserIdFromSession();
         if (userId != null) {
-            return argumentService.getConsumerNodesIncludingDrafts(nodeId, userId);
+            return argumentService.getConsumerNodesIncludingDrafts(userId, nodeId);
         } else {
             return argumentService.getConsumerNodes(nodeId);
         }

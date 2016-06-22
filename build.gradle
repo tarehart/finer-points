@@ -105,13 +105,13 @@ dependencies {
     compile("org.springframework.social:spring-social-google:1.0.0.RELEASE")
     compile("org.springframework:spring-context")
     compile("org.springframework:spring-tx")
-    compile("org.springframework.data:spring-data-neo4j:4.1.0.M1") // At this time this is the latest milestone. Feel free to upgrade.
+    compile("org.springframework.data:spring-data-neo4j:4.1.2.RELEASE") // At this time this is the latest stable version. Feel free to upgrade.
     compile("org.springframework:spring-webmvc")
     compile("joda-time:joda-time:2.8.1")
 
     testCompile("junit:junit")
-    testCompile(group: 'org.neo4j', name: 'neo4j-ogm-test', version: '2.0.0-M02')
-    testCompile(group: 'org.neo4j.test', name: 'neo4j-harness', version: '2.3.1')
+    testCompile(group: 'org.neo4j', name: 'neo4j-ogm-test', version: '2.0.1')
+    testCompile(group: 'org.neo4j.test', name: 'neo4j-harness', version: '2.3.5')
     testCompile("org.springframework:spring-test")
 }
 

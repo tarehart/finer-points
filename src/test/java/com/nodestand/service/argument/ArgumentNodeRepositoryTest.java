@@ -1,7 +1,6 @@
 package com.nodestand.service.argument;
 
 import com.nodestand.auth.NotAuthorizedException;
-import com.nodestand.controllers.serial.EditResult;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
@@ -14,16 +13,13 @@ import com.nodestand.test.Neo4jIntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.response.model.QueryResultModel;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ArgumentNodeRepositoryTest extends Neo4jIntegrationTest {

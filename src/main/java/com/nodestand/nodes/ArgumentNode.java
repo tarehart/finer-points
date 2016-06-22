@@ -85,16 +85,6 @@ public abstract class ArgumentNode {
         VersionHelper.decorateDraftBody(freshBody);
     }
 
-    /**
-     * This is useful for when the node is already a draft but the body is not. That situation can arise when a
-     * child of this node has been edited. If we are in that state and then receive an edit for the title or content,
-     * you'll want to create a draft body to hold that edit.
-     * @param author the author of this new body
-     * @param install true if you want the new draft body to replace this node's existing body.
-     * @return
-     */
-    //public abstract ArgumentBody createDraftBody(User author) throws NodeRulesException;
-
     public abstract ArgumentNode createNewDraft(User author) throws NodeRulesException;
 
     public ArgumentNode getPreviousVersion() {
