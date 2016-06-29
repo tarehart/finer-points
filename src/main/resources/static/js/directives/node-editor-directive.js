@@ -25,14 +25,15 @@ require('../services/toast-service');
         }
     }
 
-    function NodeEditorController($scope, $http, $mdDialog, $location, ToastService, NodeCache) {
+    function NodeEditorController($scope, $rootScope, $http, $mdDialog, $location, ToastService, NodeCache) {
 
         var self = this;
 
         self.node = $scope.node;
 
         self.saveNode = function(node) {
-            saveChanges(node, function() {
+
+            stopEditingBody(node, function() {
                 node.inEditMode = false;
             });
         };
@@ -60,7 +61,7 @@ require('../services/toast-service');
             }
         }
 
-        self.stopEditingBody = function(node) {
+        function stopEditingBody(node, successCallback) {
             node.editingBody = false;
 
             var idsInBody = [];
@@ -78,7 +79,7 @@ require('../services/toast-service');
                 if (idsInBody.indexOf(expectedId) < 0) {
                     // Remove the child
                     node.children.splice(i, 1);
-                    $scope.$broadcast("edgeRemoved", node, child);
+                    $rootScope.$broadcast("edgeRemoved", node, child);
 
                     // Keep the removed child around to support a text-based undo of the deletion.
                     node.deletedChildren = node.deletedChildren || {};
@@ -93,13 +94,13 @@ require('../services/toast-service');
                     var nodeForId = node.deletedChildren[id];
                     if (nodeForId && node.children.indexOf(nodeForId) < 0) {
                         node.children.push(nodeForId);
-                        $scope.$broadcast("edgeAdded", node, nodeForId);
+                        $rootScope.$broadcast("edgeAdded", node, nodeForId);
                     }
                 });
             }
 
-            saveChanges(node);
-        };
+            saveChanges(node, successCallback);
+        }
 
         self.setBody = function(node, text) {
             node.body.body = text;
@@ -114,7 +115,7 @@ require('../services/toast-service');
                 saveChanges(node);
                 NodeCache.getFullDetail(child.id);
                 NodeCache.fetchGraphForId(child.stableId, function() {
-                    $scope.$broadcast("nodeAdded", node, child);
+                    $rootScope.$broadcast("nodeAdded", node, child);
                 });
             }
 
