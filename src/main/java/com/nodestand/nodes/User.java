@@ -2,6 +2,7 @@ package com.nodestand.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.comment.Comment;
+import com.nodestand.nodes.version.MajorVersion;
 import com.nodestand.nodes.vote.ArgumentVote;
 import com.nodestand.nodes.vote.CommentVote;
 import com.nodestand.nodes.vote.VoteType;
@@ -75,7 +76,7 @@ public class User {
     @Relationship(type="ARGUMENT_VOTE", direction = Relationship.OUTGOING)
     public void setArgumentVotes(Set<ArgumentVote> argumentVotes) {
         this.argumentVotes = argumentVotes;
-        bodyVotes = argumentVotes.stream().collect(Collectors.toMap(v -> v.argumentBody.getId(), v -> v.voteType));
+        bodyVotes = argumentVotes.stream().collect(Collectors.toMap(v -> v.majorVersion.getId(), v -> v.voteType));
     }
 
     @JsonIgnore
@@ -122,39 +123,39 @@ public class User {
         return nodeId;
     }
 
-    public void registerVote(ArgumentBody body, VoteType voteType) throws NodeRulesException {
+    public void registerVote(MajorVersion mv, VoteType voteType) throws NodeRulesException {
 
         if (argumentVotes == null) {
             argumentVotes = new HashSet<>();
         }
 
-        Optional<ArgumentVote> existingVote = argumentVotes.stream().filter(v -> v.argumentBody.getId().equals(body.getId())).findFirst();
+        Optional<ArgumentVote> existingVote = argumentVotes.stream().filter(v -> v.majorVersion.getId().equals(mv.getId())).findFirst();
 
 
         if (existingVote.isPresent()) {
             ArgumentVote vote = existingVote.get();
             if (!vote.voteType.equals(voteType)) {
-                body.decrementVote(vote.voteType);
-                body.incrementVote(voteType);
+                mv.decrementVote(vote.voteType);
+                mv.incrementVote(voteType);
                 existingVote.get().voteType = voteType;
             }
         } else {
             ArgumentVote newVote = new ArgumentVote();
             newVote.voteType = voteType;
-            newVote.argumentBody = body;
+            newVote.majorVersion = mv;
             newVote.user = this;
             argumentVotes.add(newVote);
-            body.incrementVote(voteType);
+            mv.incrementVote(voteType);
         }
     }
 
 
-    public void revokeVote(ArgumentBody body) throws NodeRulesException {
+    public void revokeVote(MajorVersion mv) throws NodeRulesException {
 
-        Optional<ArgumentVote> existingVote = argumentVotes.stream().filter(v -> v.argumentBody.getId().equals(body.getId())).findFirst();
+        Optional<ArgumentVote> existingVote = argumentVotes.stream().filter(v -> v.majorVersion.getId().equals(mv.getId())).findFirst();
         if (existingVote.isPresent()) {
-            body.decrementVote(existingVote.get().voteType);
-            argumentVotes.removeIf(v -> v.argumentBody.getId().equals(body.getId()));
+            mv.decrementVote(existingVote.get().voteType);
+            argumentVotes.removeIf(v -> v.majorVersion.getId().equals(mv.getId()));
         }
     }
 

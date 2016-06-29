@@ -28,10 +28,9 @@ public class CommentServiceNeo4j implements CommentService {
 
     @Override
     @Transactional
-    public QuickCommentResponse getComments(long argumentNodeId) {
-        ArgumentNode baseNode = operations.load(ArgumentNode.class, argumentNodeId, 2);
+    public QuickCommentResponse getComments(long majorVersionId) {
 
-        Set<Commentable> comments = commentRepo.getComments(baseNode.getBody().getId());
+        Set<Commentable> comments = commentRepo.getComments(majorVersionId);
 
         Set<QuickEdge> edges = new HashSet<>();
 
@@ -40,7 +39,7 @@ public class CommentServiceNeo4j implements CommentService {
             edges.add(new QuickEdge(comment.getId(), comment.parent.getId()));
         });
 
-        return new QuickCommentResponse(comments, edges, baseNode.getBody().getId());
+        return new QuickCommentResponse(comments, edges);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.comment.Comment;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
+import com.nodestand.nodes.version.MajorVersion;
 import com.nodestand.nodes.vote.VoteType;
 import com.nodestand.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,12 +73,12 @@ public class VoteController {
         Long userId = userService.getUserIdFromSession();
         User user = operations.load(User.class, userId);
 
-        Long bodyId = Long.valueOf((Integer) params.get("bodyId"));
-        ArgumentBody body = operations.load(ArgumentBody.class, bodyId);
+        Long majorVersionId = Long.valueOf((Integer) params.get("majorVersionId"));
+        MajorVersion mv = operations.load(MajorVersion.class, majorVersionId);
         String voteTypeStr = (String) params.get("voteType");
         VoteType voteType = VoteType.valueOf(voteTypeStr.toUpperCase());
 
-        user.registerVote(body, voteType);
+        user.registerVote(mv, voteType);
 
         operations.save(user);
     }
@@ -89,11 +90,11 @@ public class VoteController {
         Long userId = userService.getUserIdFromSession();
         User user = operations.load(User.class, userId);
 
-        Long bodyId = Long.valueOf((Integer) params.get("bodyId"));
-        ArgumentBody body = operations.load(ArgumentBody.class, bodyId);
-        user.revokeVote(body);
+        Long majorVersionId = Long.valueOf((Integer) params.get("majorVersionId"));
+        MajorVersion mv = operations.load(MajorVersion.class, majorVersionId);
+        user.revokeVote(mv);
 
-        operations.save(body);
+        operations.save(mv);
         operations.save(user);
     }
 

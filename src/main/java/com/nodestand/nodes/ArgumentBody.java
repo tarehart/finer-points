@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.Set;
 
 @NodeEntity
-public abstract class ArgumentBody implements Commentable {
+public abstract class ArgumentBody {
 
     @GraphId
     protected Long id;
@@ -36,15 +36,6 @@ public abstract class ArgumentBody implements Commentable {
 
     @Relationship(type="PRECEDED_BY", direction = Relationship.OUTGOING)
     protected ArgumentBody previousVersion;
-
-    @Relationship(type="ARGUMENT_VOTE", direction = Relationship.INCOMING)
-    private Set<ArgumentVote> argumentVotes;
-
-    // I'm not using a map for this because you're not allowed to save maps on nodes.
-    public int greatVotes;
-    public int weakVotes;
-    public int toucheVotes;
-    public int trashVotes;
 
     private int minorVersion;
 
@@ -71,7 +62,6 @@ public abstract class ArgumentBody implements Commentable {
         VersionHelper.decorateDraftBody(this);
     }
 
-    @Override
     public Long getId() {
         return id;
     }
@@ -151,41 +141,5 @@ public abstract class ArgumentBody implements Commentable {
         this.previousVersion = previousVersion;
     }
 
-    public void decrementVote(VoteType voteType) throws NodeRulesException {
-        switch (voteType) {
-            case GREAT:
-                greatVotes--;
-                break;
-            case WEAK:
-                weakVotes--;
-                break;
-            case TOUCHE:
-                toucheVotes--;
-                break;
-            case TRASH:
-                trashVotes--;
-                break;
-            default:
-                throw new NodeRulesException("Unexpected vote type: " + voteType.name());
-        }
-    }
 
-    public void incrementVote(VoteType voteType) throws NodeRulesException {
-        switch (voteType) {
-            case GREAT:
-                greatVotes++;
-                break;
-            case WEAK:
-                weakVotes++;
-                break;
-            case TOUCHE:
-                toucheVotes++;
-                break;
-            case TRASH:
-                trashVotes++;
-                break;
-            default:
-                throw new NodeRulesException("Unexpected vote type: " + voteType.name());
-        }
-    }
 }

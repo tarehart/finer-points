@@ -38,6 +38,11 @@ require('../../sass/vivagraph.scss');
             gravity : -1.2 // default is -1.2. More negative is more node repulsion.
         });
 
+        function appendVoteArcsFromNode(ui, argumentNode) {
+            var majorVersion = argumentNode.body.majorVersion;
+            appendVoteArcs(ui, majorVersion.greatVotes, majorVersion.weakVotes, majorVersion.toucheVotes, majorVersion.trashVotes);
+        }
+        
         function appendVoteArcs(ui, greatVotes, weakVotes, toucheVotes, trashVotes) {
 
             var r = 19;
@@ -99,9 +104,7 @@ require('../../sass/vivagraph.scss');
 
             ui.append(circle);
 
-            var body = node.data.node.body;
-            appendVoteArcs(ui, body.greatVotes, body.weakVotes, body.toucheVotes, body.trashVotes);
-            //appendVoteArcs(ui, 3, 3, 3, 3);
+            appendVoteArcsFromNode(ui, node.data.node);
 
             circle.addEventListener('click', tapListener);
             circle.addEventListener('touchend', tapListener);
@@ -184,6 +187,15 @@ require('../../sass/vivagraph.scss');
 
                 highlightedNode = node;
             }
+        });
+
+        scope.$on("voteChanged", function(e, node) {
+            var ui = graphics.getNodeUI(node.id);
+            $.each(ui.getElementsByClassName("voteArc"), function(index, element) {
+                element.remove();
+            });
+            
+            appendVoteArcsFromNode(ui, node);
         });
 
         $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', handleFullscreenChange);

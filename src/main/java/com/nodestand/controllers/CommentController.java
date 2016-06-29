@@ -24,7 +24,7 @@ public class CommentController {
 
     @PreAuthorize("permitAll")
     @RequestMapping("/comments")
-    public Object getGraph(@RequestParam(value="id", required=true) Integer id) {
+    public Object getCommentsOnMajorVersion(@RequestParam(value="id", required=true) Integer id) {
 
         return commentService.getComments(id);
     }

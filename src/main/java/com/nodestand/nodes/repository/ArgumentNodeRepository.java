@@ -16,7 +16,8 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
             "RETURN path, rels(p), nodes(mvPath), rels(mvPath)")
     Result getPaths(long childId, long rootId);
 
-    @Query("match path=(n:ArgumentNode {stableId: {0}})-[support:SUPPORTED_BY|INTERPRETS*0..5]->(argument:ArgumentNode)-[:DEFINED_BY]->(body:ArgumentBody) return path")
+    @Query("match path=(n:ArgumentNode {stableId: {0}})-[support:SUPPORTED_BY|INTERPRETS*0..5]->(argument:ArgumentNode)" +
+            "-[:DEFINED_BY]->(body:ArgumentBody)-[:VERSION_OF]->(:MajorVersion) return path")
     Set<ArgumentNode> getGraph(String stableRootId);
 
     @Query("start mv=node({0}) match p=mv<-[:VERSION_OF]-(:ArgumentBody)" +

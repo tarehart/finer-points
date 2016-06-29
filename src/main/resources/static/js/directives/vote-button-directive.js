@@ -20,9 +20,10 @@ require('../services/toast-service');
         }
     }
 
-    function VoteButtonController($scope, $http, UserService, ToastService) {
+    function VoteButtonController($scope, $rootScope, $http, UserService, ToastService) {
 
         var rootNode = $scope.node;
+        var majorVersion = rootNode.body.majorVersion;
         if (rootNode == null) {
             $scope.$on("rootData", function(evt, node) {
                 rootNode = node;
@@ -46,7 +47,7 @@ require('../services/toast-service');
 
         function getUserVote() {
             if (user && user.bodyVotes) {
-                $scope.userVote = user.bodyVotes[rootNode.body.id];
+                $scope.userVote = user.bodyVotes[majorVersion.id];
                 return $scope.userVote;
             }
             return null;
@@ -57,7 +58,7 @@ require('../services/toast-service');
                 if (!user.bodyVotes) {
                     user.bodyVotes = {};
                 }
-                $scope.userVote = user.bodyVotes[rootNode.body.id] = voteType ? voteType.toUpperCase() : null;
+                $scope.userVote = user.bodyVotes[majorVersion.id] = voteType ? voteType.toUpperCase() : null;
             }
         }
 
@@ -67,7 +68,7 @@ require('../services/toast-service');
             var max = 0;
             var sum = 0;
             $.each($scope.votes, function (key, val) {
-                val.num = rootNode.body[getBodyVotesKey(key)] || 0;  // e.g. body.greatVotes = 5
+                val.num = majorVersion[getBodyVotesKey(key)] || 0;  // e.g. majorVersion.greatVotes = 5
                 if (val.num > max) {
                     max = val.num;
                 }
@@ -102,15 +103,16 @@ require('../services/toast-service');
             $http.post('/voteBody',
                 {
                     voteType: voteType,
-                    bodyId: rootNode.body.id
+                    majorVersionId: majorVersion.id
                 })
                 .success(function (data) {
                     if (currentVote) {
-                        rootNode.body[getBodyVotesKey(currentVote)]--;
+                        majorVersion[getBodyVotesKey(currentVote)]--;
                     }
-                    rootNode.body[getBodyVotesKey(voteType)]++;
+                    majorVersion[getBodyVotesKey(voteType)]++;
                     setUserVote(voteType);
                     setupMeters();
+                    $rootScope.$broadcast("voteChanged", rootNode);
                 })
                 .error(function(err) {
                     ToastService.error(err.message);
@@ -120,10 +122,10 @@ require('../services/toast-service');
         function revokeVote(currentVote) {
             $http.post('/unvoteBody',
                 {
-                    bodyId: rootNode.body.id
+                    majorVersionId: majorVersion.id
                 })
                 .success(function (data) {
-                    rootNode.body[getBodyVotesKey(currentVote)]--;
+                    majorVersion[getBodyVotesKey(currentVote)]--;
                     setUserVote(null);
                     setupMeters();
                 })

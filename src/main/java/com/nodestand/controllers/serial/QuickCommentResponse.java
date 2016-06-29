@@ -10,10 +10,9 @@ public class QuickCommentResponse {
     private Set<QuickEdge> edges;
     private Long bodyId;
 
-    public QuickCommentResponse(Set<Commentable> nodes, Set<QuickEdge> edges, Long bodyId) {
+    public QuickCommentResponse(Set<Commentable> nodes, Set<QuickEdge> edges) {
         this.nodes = nodes;
         this.edges = edges;
-        this.bodyId = bodyId;
     }
 
     public Set<Commentable> getNodes() {
@@ -22,9 +21,5 @@ public class QuickCommentResponse {
 
     public Set<QuickEdge> getEdges() {
         return edges;
-    }
-
-    public Long getBodyId() {
-        return bodyId;
     }
 }

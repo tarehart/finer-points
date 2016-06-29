@@ -40,7 +40,7 @@ require('../services/toast-service');
 
         // saves a top-level comment
         ctrl.saveComment = function() {
-            createComment($http, ctrl.newComment.body, ctrl.node.body.id, function(comment) {
+            createComment($http, ctrl.newComment.body, ctrl.node.body.majorVersion.id, function(comment) {
                 ctrl.node.comments = ctrl.node.comments || [];
                 ctrl.node.comments.push(comment);
                 ctrl.editingTopLevel = false;
@@ -177,18 +177,15 @@ require('../services/toast-service');
             return;
         }
 
-        $http.get('/comments', {params: {"id": node.id}}).success(function (data) {
-
-            // we're dealing with comments here!
-            // TODO: make sure we're aggregating comments across everything within the major version and
-            // indicating which minor version they are attributed to.
+        $http.get('/comments', {params: {"id": node.body.majorVersion.id}}).success(function (data) {
+            
             var commentables = {};
             for (var i = 0; i < data.nodes.length; i++) {
                 var commentableId = data.nodes[i].id;
-                if (commentableId == node.body.id) {
+                if (commentableId == node.body.majorVersion.id) {
 
                     // This line is tricky. The node.id does NOT match returnedId. This will ultimately have the affect
-                    // of attributing comments to the ArgumentNode when really they belong to the ArgumentBod(ies).
+                    // of attributing comments to the ArgumentNode when really they belong to the MajorVersion.
                     commentables[commentableId] = node;
                 } else {
                     commentables[commentableId] = data.nodes[i];

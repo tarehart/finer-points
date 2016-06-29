@@ -2,6 +2,7 @@ package com.nodestand.nodes.vote;
 
 import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.User;
+import com.nodestand.nodes.version.MajorVersion;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -18,6 +19,6 @@ public class ArgumentVote {
     public User user;
 
     @EndNode
-    public ArgumentBody argumentBody;
+    public MajorVersion majorVersion;
 
 }

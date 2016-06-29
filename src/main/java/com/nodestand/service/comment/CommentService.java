@@ -6,7 +6,7 @@ import com.nodestand.nodes.comment.Comment;
 
 public interface CommentService {
 
-    QuickCommentResponse getComments(long argumentNodeId);
+    QuickCommentResponse getComments(long majorVersionId);
 
     Comment createComment(String body, long parentId, long userId);
 
