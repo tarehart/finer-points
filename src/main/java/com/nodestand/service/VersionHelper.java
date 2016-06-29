@@ -70,6 +70,10 @@ public class VersionHelper {
     }
 
     public ArgumentNode publish(ArgumentNode node) throws NodeRulesException {
+
+        // We'll need the reference to the major version later.
+        nodeRepository.loadWithMajorVersion(node.getId());
+
         if (!node.getType().equals("source")) {
             // validate that the node and its descendants follow all the rules, e.g. being grounded in sources
             if (hasMissingSupport(node)) {

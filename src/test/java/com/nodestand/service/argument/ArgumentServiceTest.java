@@ -310,6 +310,35 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
     }
 
     @Test
+    public void testPublishingDraftWithDraftChild() throws NotAuthorizedException, NodeRulesException {
+        User kyle = registerUser("5678", "Kyle");
+        AssertionNode assertionNode = createPublishedAssertion();
+
+        EditResult rootDraft = argumentService.makeDraft(kyle.getNodeId(), assertionNode.getId());
+
+        ArgumentNode childOriginal = assertionNode.getGraphChildren().iterator().next();
+        Assert.assertEquals(childOriginal.getId(), rootDraft.getEditedNode().getGraphChildren().iterator().next().getId());
+
+        session.clear();
+
+        ArgumentNode childDraft = argumentService.makeDraft(kyle.getNodeId(), childOriginal.getId()).getEditedNode();
+
+        // The javascript will call edit on the parent (which is a draft) to make it point to this draft version of the child.
+        List<Long> links = new LinkedList<>();
+        links.add(childDraft.getId());
+        String body = "New Body {{[" + childDraft.getBody().getMajorVersion().getStableId() + "]link}}";
+        argumentService.editAssertion(kyle.getNodeId(), rootDraft.getEditedNode().getId(), "Ed Root", "Qual", body, links);
+
+        session.clear();
+
+        // Now publish the parent. This used to throw a null pointer.
+        ArgumentNode publishedNode = argumentService.publishNode(kyle.getNodeId(), rootDraft.getEditedNode().getId());
+
+        Assert.assertEquals(publishedNode.getStableId(), assertionNode.getStableId());
+
+    }
+
+    @Test
     public void testConsumersWhichAreDrafts() throws NotAuthorizedException, NodeRulesException {
         User kyle = registerUser("5678", "Kyle");
         AssertionNode assertionNode = ArgumentTestUtil.createPublishedTriple(argumentService, kyle);
