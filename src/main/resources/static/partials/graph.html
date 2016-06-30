@@ -9,7 +9,7 @@
                     <div flex="">
                         <a class="child-node-title" href="#/graph/{{node.stableId}}">{{node.body.title}}</a>
                         <div ng-if="!graphCtrl.isSelected(node)">
-                            {{node.body.qualifier}}
+                            <span class="spaced-inline-right">{{node.body.qualifier}}</span>
                             <span ng-if="!node.body.public" class="draft-node-pill">
                                 Private draft
                             </span>
@@ -29,11 +29,17 @@
                     <!--Subheader-->
                     <span>
                         {{node.body.qualifier}}, by
-                        <a href="/#/user/{{node.body.author.stableId}}">{{node.body.author.displayName}}</a>
+                        <a class="spaced-inline-right" href="/#/user/{{node.body.author.stableId}}">{{node.body.author.displayName}}</a>
+                        <span ng-if="!node.body.public" class="draft-node-pill">
+                            Private draft
+                        </span>
                     </span>
 
-                    <div ng-if="node.type !== 'source'" ng-markdown="node.body.body" render-markdown></div>
-                    <a ng-if="node.type === 'source'" ng-href="{{node.body.url}}" target="_blank">{{node.body.url}}</a>
+
+                    <div ng-if="node.type !== 'source'" class="child-body" ng-markdown="node.body.body" render-markdown></div>
+                    <div ng-if="node.type === 'source'" class="child-body">
+                        <a ng-href="{{node.body.url}}" target="_blank">{{node.body.url}}</a>
+                    </div>
 
                     <div layout="row" layout-align="end center">
                         <md-button ng-if="graphCtrl.authorizedForEdit(node, parent) && !node.inEditMode" ng-click="graphCtrl.enterEditMode(node)">Edit</md-button>

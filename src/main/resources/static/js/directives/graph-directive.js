@@ -162,7 +162,7 @@ require('./markdown-directive');
         }
 
         function hasFullDetail(node) {
-            return node.getVersionString();
+            return node.body && node.body.author && node.body.author.stableId;
         }
 
         self.saveNode = function(node) {
