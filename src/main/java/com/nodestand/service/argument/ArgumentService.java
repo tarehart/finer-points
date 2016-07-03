@@ -32,7 +32,7 @@ public interface ArgumentService {
 
     EditResult makeDraft(long userId, long nodeId) throws NodeRulesException;
 
-    ArgumentNode publishNode(long userId, long nodeId) throws NotAuthorizedException, NodeRulesException;
+    QuickGraphResponse publishNode(long userId, long nodeId) throws NotAuthorizedException, NodeRulesException;
 
     Set<ArgumentNode> getNodesInMajorVersion(long majorVersionId);
 

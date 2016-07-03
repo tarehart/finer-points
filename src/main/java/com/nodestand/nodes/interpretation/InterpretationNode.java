@@ -34,22 +34,18 @@ public class InterpretationNode extends ArgumentNode {
         return type;
     }
 
-    private static void performChildReplacement(ArgumentNode updatedChildNode, ArgumentNode existing, InterpretationNode targetNode) throws NodeRulesException {
+    @Override
+    public void alterToPointToChild(ArgumentNode updatedChildNode, ArgumentNode existingChildNode) throws NodeRulesException {
 
-        if (!targetNode.getSource().getId().equals(existing.getId())) {
+        if (!this.getSource().getId().equals(existingChildNode.getId())) {
             throw new NodeRulesException("Incorrect behavior while performing child replacement. " +
-                    "Tried to swap out " + existing + " as the source on " + targetNode);
+                    "The caller thought that " + this + " had " + existingChildNode + " as a child, but the current child is actually " + this.getSource());
         }
 
-        targetNode.setSource((SourceNode) updatedChildNode);
+        this.setSource((SourceNode) updatedChildNode);
 
         // Make sure the old source no longer claims this as a dependent.
-        existing.getDependentNodes().removeIf(n -> n.getId().equals(targetNode.getId()));
-    }
-
-    @Override
-    public void alterToPointToChild(ArgumentNode updatedChildNode, ArgumentNode existing) throws NodeRulesException {
-        performChildReplacement(updatedChildNode, existing, this);
+        existingChildNode.getDependentNodes().removeIf(n -> n.getId().equals(this.getId()));
     }
 
     private InterpretationBody createDraftBody(User author) throws NodeRulesException {

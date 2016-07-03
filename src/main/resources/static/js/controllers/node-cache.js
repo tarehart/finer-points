@@ -93,11 +93,11 @@
 
         // This refers to whether this node is completely unsaved and does not exist in the database,
         // NOT whether it has been published (which is what node.isDraft determines).
-        cache.isDraftNode = function(node) {
+        cache.isBlankSlateNode = function(node) {
             return node == cache.get(DRAFT_ID);
         };
 
-        cache.saveDraftNode = function(successCallback, errorCallback) {
+        cache.saveBlankSlateNode = function(successCallback, errorCallback) {
             var node = cache.get(DRAFT_ID);
             saveNewAssertion(node, function(data) {
                 // Next time the draft node is requested, a fresh blank one should be built.
@@ -212,13 +212,13 @@
                 });
         }
 
-        cache.saveNodeEdit = function(node, root, successCallback, errorCallback) {
+        cache.saveNodeEdit = function(node, successCallback, errorCallback) {
             if (node.getType() == "assertion") {
-                saveAssertionEdit(node, root, successCallback, errorCallback);
+                saveAssertionEdit(node, successCallback, errorCallback);
             } else if (node.getType() == "interpretation") {
-                saveInterpretationEdit(node, root, successCallback, errorCallback);
+                saveInterpretationEdit(node, successCallback, errorCallback);
             } else if (node.getType() == "source") {
-                saveSourceEdit(node, root, successCallback, errorCallback);
+                saveSourceEdit(node, successCallback, errorCallback);
             } else {
                 console.log("Can't edit node because its type is unknown!");
             }
@@ -257,7 +257,7 @@
             return cache.addOrUpdateNode(editedNode);
         }
 
-        function saveAssertionEdit(node, root, successCallback, errorCallback) {
+        function saveAssertionEdit(node, successCallback, errorCallback) {
 
             var links = node.children.map(function(child) {
                 return child.id;
@@ -286,7 +286,7 @@
                 });
         }
 
-        function saveInterpretationEdit(node, root, successCallback, errorCallback) {
+        function saveInterpretationEdit(node, successCallback, errorCallback) {
 
             var sourceId = null;
             if (node.children && node.children.length) {
@@ -316,7 +316,7 @@
                 });
         }
 
-        function saveSourceEdit(node, root, successCallback, errorCallback) {
+        function saveSourceEdit(node, successCallback, errorCallback) {
 
             var links = node.children.map(function(child) {
                 return child.id;
@@ -350,7 +350,7 @@
                     nodeId: node.id
                 })
                 .success(function (data) {
-                    cache.addOrUpdateNode(data);
+                    inductQuickGraph(data);
 
                     if (successCallback) {
                         successCallback(data); // This callback probably ought to change the URL to incorporate the new id.
@@ -364,16 +364,18 @@
         };
 
         function mergeIntoNode(cachedNode, newData) {
-            if (newData.body.majorVersion) {
-                // This is a good indicator that node's body is fully fleshed out and should be trusted.
-                cachedNode.body = newData.body;
-                cachedNode.type = newData.type;
-            } else {
-                cachedNode.body = cachedNode.body || newData.body;
-                cachedNode.body.body = newData.body.body;
-                cachedNode.body.title = newData.body.title;
-                cachedNode.body.qualifier = newData.body.qualifier;
-                cachedNode.body.public = newData.body.public;
+            if (newData.body) {
+                if (newData.body.majorVersion) {
+                    // This is a good indicator that node's body is fully fleshed out and should be trusted.
+                    cachedNode.body = newData.body;
+                    cachedNode.type = newData.type;
+                } else {
+                    cachedNode.body = cachedNode.body || newData.body;
+                    cachedNode.body.body = newData.body.body;
+                    cachedNode.body.title = newData.body.title;
+                    cachedNode.body.qualifier = newData.body.qualifier;
+                    cachedNode.body.public = newData.body.public;
+                }
             }
 
             if (!cachedNode.id || cachedNode.id === DRAFT_ID) {
@@ -428,7 +430,13 @@
             node.children = [];
             $.each(oldChildren, function(i, child) {
                 var index = childOrder.indexOf(child.stableId);
-                node.children[index] = child;
+                if (index >= 0) {
+                    node.children[index] = child;
+                } else {
+                    console.log("The ids listed in childOrder are out of sync with the actual children!");
+                    node.children = oldChildren; // Give up on trying to sort
+                    return false; // Break out of the loop.
+                }
             });
         }
 

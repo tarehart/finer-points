@@ -4,9 +4,11 @@ import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
+import com.nodestand.nodes.source.SourceNode;
 import org.springframework.util.CollectionUtils;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class TwoWayUtil {
@@ -41,6 +43,21 @@ public class TwoWayUtil {
         }
 
         node.setSupportingNodes(children);
+    }
+
+    public static void updateSupportingNodes(InterpretationNode node, SourceNode sourceNode) {
+
+        SourceNode existingSource = node.getSource();
+        if (existingSource != null && !Objects.equals(existingSource.getId(), sourceNode.getId())) {
+            existingSource.getDependentNodes().remove(node);
+
+            if (sourceNode.getDependentNodes() == null) {
+                sourceNode.setDependentNodes(new HashSet<>());
+            }
+            sourceNode.getDependentNodes().add(node);
+        }
+
+        node.setSource(sourceNode);
     }
 
     public static void forgetBody(ArgumentBody body) {

@@ -33,7 +33,7 @@ public class ArgumentTestUtil {
         argumentService.editInterpretation(jim.getNodeId(), interpretationNode.getId(), "Interp Title", "QI", "Interp body", sourceNode.getId());
 
 
-        return (AssertionNode) argumentService.publishNode(jim.getNodeId(), assertionNode.getId());
+        return (AssertionNode) argumentService.publishNode(jim.getNodeId(), assertionNode.getId()).getRootNode();
     }
 
     public static AssertionNode createPublishedTreeSmall(ArgumentService argumentService, User jim) throws NotAuthorizedException, NodeRulesException {
@@ -57,7 +57,7 @@ public class ArgumentTestUtil {
         argumentService.editInterpretation(jim.getNodeId(), interpretationNode.getId(), "ForkInterp Title", "QF", "ForkInterp body", sourceNode.getId());
 
 
-        return (AssertionNode) argumentService.publishNode(jim.getNodeId(), root.getId());
+        return (AssertionNode) argumentService.publishNode(jim.getNodeId(), root.getId()).getRootNode();
     }
 
     public static NodeAndRoot createPublishedMultiPathSmall(ArgumentService argumentService, User jim) throws NotAuthorizedException, NodeRulesException {
@@ -75,7 +75,7 @@ public class ArgumentTestUtil {
         links.add(triple.getId());
         root = argumentService.editAssertion(jim.getNodeId(), root.getId(), "Root Title", "QR", "Hello! {{[" + interpretationNode.getId() + "]link}} and {{[" + triple.getId() + "]link2}}", links);
 
-        root = (AssertionNode) argumentService.publishNode(jim.getNodeId(), root.getId());
+        root = (AssertionNode) argumentService.publishNode(jim.getNodeId(), root.getId()).getRootNode();
 
         return new NodeAndRoot(interpretationNode, root);
     }

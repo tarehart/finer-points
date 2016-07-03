@@ -103,7 +103,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         Assert.assertFalse(edited.getBody().isPublic());
         Assert.assertEquals(assertionNode.getId(), edited.getPreviousVersion().getId());
 
-        AssertionNode resultingNode = (AssertionNode) argumentService.publishNode(kyle.getNodeId(), edited.getId());
+        AssertionNode resultingNode = (AssertionNode) argumentService.publishNode(kyle.getNodeId(), edited.getId()).getRootNode();
 
         Assert.assertEquals(assertionNode.getId(), resultingNode.getId());
         Assert.assertEquals("New Title", resultingNode.getBody().getTitle());
@@ -141,7 +141,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         session.clear();
 
-        SourceNode resultingNode = (SourceNode) argumentService.publishNode(kyle.getNodeId(), edited.getId());
+        SourceNode resultingNode = (SourceNode) argumentService.publishNode(kyle.getNodeId(), edited.getId()).getRootNode();
 
         Assert.assertEquals(source.getId(), resultingNode.getId());
         Assert.assertEquals("New Title", resultingNode.getBody().getTitle());
@@ -182,7 +182,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         session.clear();
 
         // Publish the interp draft
-        InterpretationNode publishedInterp = (InterpretationNode) argumentService.publishNode(kyle.getNodeId(), interpDraft.getId());
+        InterpretationNode publishedInterp = (InterpretationNode) argumentService.publishNode(kyle.getNodeId(), interpDraft.getId()).getRootNode();
         session.clear();
 
         // Make sure the original assertion points to the published changed interp
@@ -204,7 +204,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         links.add(publishedInterp.getId());
         argumentService.editAssertion(kyle.getNodeId(), assertionDraft.getId(), "Edited assertion", "Q2", "Edited assertion body " + assertionNode.getBody().getBody(), links);
         session.clear();
-        AssertionNode publishedAssertion = (AssertionNode) argumentService.publishNode(kyle.getNodeId(), assertionDraft.getId());
+        AssertionNode publishedAssertion = (AssertionNode) argumentService.publishNode(kyle.getNodeId(), assertionDraft.getId()).getRootNode();
         session.clear();
 
         // Make sure the resulting graph looks good
@@ -258,7 +258,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         argumentService.editInterpretation(jim.getNodeId(), interpretationNode.getId(), "Interp Title", "Q2", "Interp body", sourceNode.getId());
         session.clear();
 
-        AssertionNode published = (AssertionNode) argumentService.publishNode(jim.getNodeId(), assertionNode.getId());
+        AssertionNode published = (AssertionNode) argumentService.publishNode(jim.getNodeId(), assertionNode.getId()).getRootNode();
 
         Assert.assertTrue(published.getBody().isPublic());
     }
@@ -287,7 +287,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         session.clear();
 
         // Now publish the child
-        ArgumentNode publishedChild = argumentService.publishNode(kyle.getNodeId(), childDraft.getId());
+        ArgumentNode publishedChild = argumentService.publishNode(kyle.getNodeId(), childDraft.getId()).getRootNode();
 
         session.clear();
 
@@ -332,7 +332,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         session.clear();
 
         // Now publish the parent. This used to throw a null pointer.
-        ArgumentNode publishedNode = argumentService.publishNode(kyle.getNodeId(), rootDraft.getEditedNode().getId());
+        ArgumentNode publishedNode = argumentService.publishNode(kyle.getNodeId(), rootDraft.getEditedNode().getId()).getRootNode();
 
         Assert.assertEquals(publishedNode.getStableId(), assertionNode.getStableId());
 

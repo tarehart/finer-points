@@ -66,9 +66,11 @@ require('./markdown-directive');
                     } else {
                         // Modify all the parent node so it points to the new draft. There may be multiple
                         // parent nodes in the tree; modify them all.
+                        // TODO: consider doing this server side, as we do with publish
                         swapInChild(data.editedNode, node, self.rootNode);
                     }
                     self.enterEditMode(data.editedNode);
+                    data.editedNode.isSelected = true;
 
                 }, function (err) {
                     ToastService.error(err.message);
@@ -172,8 +174,8 @@ require('./markdown-directive');
         };
 
         function saveChanges(node, successCallback) {
-            if (NodeCache.isDraftNode(node)) {
-                NodeCache.saveDraftNode(function(newNode) {
+            if (NodeCache.isBlankSlateNode(node)) {
+                NodeCache.saveBlankSlateNode(function(newNode) {
 
                     // Change the page url and reload the graph. All the UI state should stay the same because
                     // the nodes are in the NodeCache.
@@ -183,7 +185,7 @@ require('./markdown-directive');
                 });
             } else {
 
-                NodeCache.saveNodeEdit(node, self.rootNode, function(editedNode, data) {
+                NodeCache.saveNodeEdit(node, function(editedNode, data) {
                     if (successCallback) {
                         successCallback();
                     }
@@ -211,16 +213,12 @@ require('./markdown-directive');
                 // Now the middle one appears to have no child and no author.
                 // Upon refresh, it has correct child and author.
 
-                NodeCache.publishNode(node, function(resultingNode) {
+                NodeCache.publishNode(node, function(quickGraph) {
 
                     var rootNode = self.rootNode;
 
                     if (node === rootNode) {
-                        NodeCache.get(resultingNode.id).hasFullGraph = false; // Make sure the full graph is fetched again upon reload.
-                        $location.path("/graph/" + resultingNode.stableId); // Change url back to public version
-                    } else {
-
-                        swapInChild(resultingNode, node, rootNode);
+                        $location.path("/graph/" + quickGraph.rootStableId); // Change url back to public version
                     }
                 });
             } else {

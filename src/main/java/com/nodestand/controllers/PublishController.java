@@ -1,6 +1,6 @@
 package com.nodestand.controllers;
 
-import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.controllers.serial.QuickGraphResponse;
 import com.nodestand.service.argument.ArgumentService;
 import com.nodestand.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ public class PublishController {
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/publishNode")
-    public ArgumentNode publishNode(@RequestBody Map<String, Object> params) throws Exception {
+    public QuickGraphResponse publishNode(@RequestBody Map<String, Object> params) throws Exception {
 
         Long userId = userService.getUserIdFromSession();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));

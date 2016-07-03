@@ -16,9 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -69,54 +67,59 @@ public class VersionHelper {
         return 0;
     }
 
-    public ArgumentNode publish(ArgumentNode node) throws NodeRulesException {
+    public ArgumentNode publish(ArgumentNode draftNode) throws NodeRulesException {
 
         // We'll need the reference to the major version later.
-        nodeRepository.loadWithMajorVersion(node.getId());
+        nodeRepository.loadWithMajorVersion(draftNode.getId());
 
-        if (!node.getType().equals("source")) {
+        if (!draftNode.getType().equals("source")) {
             // validate that the node and its descendants follow all the rules, e.g. being grounded in sources
-            if (hasMissingSupport(node)) {
+            if (hasMissingSupport(draftNode)) {
                 throw new NodeRulesException("The roots of this node do not all end in sources!");
             }
-            publishDescendants(node);
+            publishDescendants(draftNode);
         }
 
-        ArgumentNode resultingNode = node;
+        ArgumentNode resultingNode = draftNode;
 
-        ArgumentNode previousVersion = node.getPreviousVersion();
-        if (previousVersion != null && !previousVersion.isFinalized()) {
+        ArgumentNode publicVersion = draftNode.getPreviousVersion();
+        if (publicVersion != null && !publicVersion.isFinalized()) {
             // previous version is the edit target.
 
             // Make sure it's loaded
-            if (previousVersion.getBody() == null) {
-                operations.load(previousVersion.getClass(), previousVersion.getId(), 1);
+            if (publicVersion.getBody() == null) {
+                operations.load(publicVersion.getClass(), publicVersion.getId(), 1);
             }
 
             // Copy links to children into the previous version
-            node.copyContentTo(previousVersion);
+            draftNode.copyContentTo(publicVersion);
 
-            previousVersion.setBody(node.getBody());
+            publicVersion.setBody(draftNode.getBody());
 
-            ArgumentBody freshlyPublishedBody = previousVersion.getBody();
+            ArgumentBody freshlyPublishedBody = publicVersion.getBody();
             freshlyPublishedBody.setDateEdited(new Date());
             freshlyPublishedBody.setIsPublic(true);
 
-            resultingNode = previousVersion;
-
             // Any parents that had pointed to the draft should be modified so that they point to the
-            // published version. The draft is going away.
-            Set<? extends ArgumentNode> dependentNodes = node.getDependentNodes();
-            if (dependentNodes != null) {
-                for (ArgumentNode parent : node.getDependentNodes()) {
-                    parent.alterToPointToChild(resultingNode, node);
+            // published version. The draft is going away. We will save them later when the dust has settled a bit.
+            Set<ArgumentNode> dependentNodes = new HashSet<>();
+            if (draftNode.getDependentNodes() != null) {
+                dependentNodes.addAll(draftNode.getDependentNodes());
+                for (ArgumentNode parent : dependentNodes) {
+                    parent.alterToPointToChild(publicVersion, draftNode);
                 }
             }
 
             // Destroy the current version
-            operations.delete(node);
+            operations.delete(draftNode);
 
-            TwoWayUtil.forgetNode(node);
+            TwoWayUtil.forgetNode(draftNode);
+
+            for (ArgumentNode parent : dependentNodes) {
+                operations.save(parent);
+            }
+
+            resultingNode = publicVersion;
         }
 
         ArgumentBody body = resultingNode.getBody();

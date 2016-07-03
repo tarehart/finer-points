@@ -39,8 +39,8 @@ require('../services/toast-service');
         };
 
         function saveChanges(node, successCallback) {
-            if (NodeCache.isDraftNode(node)) { // A draft in the sense that it's brand new. This should be renamed.
-                NodeCache.saveDraftNode(function(newNode) {
+            if (NodeCache.isBlankSlateNode(node)) {
+                NodeCache.saveBlankSlateNode(function(newNode) {
 
                     // Change the page url and reload the graph. All the UI state should stay the same because
                     // the nodes are in the NodeCache.
@@ -50,7 +50,7 @@ require('../services/toast-service');
                 });
             } else {
 
-                NodeCache.saveNodeEdit(node, $scope.rootNode, function(editedNode, data) {
+                NodeCache.saveNodeEdit(node, function(editedNode, data) {
                     if (successCallback) {
                         successCallback();
                     }

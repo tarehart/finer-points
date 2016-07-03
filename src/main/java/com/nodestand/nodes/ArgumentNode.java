@@ -123,4 +123,9 @@ public abstract class ArgumentNode {
     public String getStableId() {
         return stableId;
     }
+
+    @Override
+    public String toString() {
+        return "[" + getType() + " " + id + " " + stableId + " " + body.getTitle() + "]";
+    }
 }

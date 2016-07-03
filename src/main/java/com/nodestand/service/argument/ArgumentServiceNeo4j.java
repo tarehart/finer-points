@@ -161,9 +161,12 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Override
     @Transactional
     public InterpretationNode editInterpretation(long userId, long nodeId, String title, String qualifier, String body, Long sourceId) throws NodeRulesException {
-        User user = operations.load(User.class, userId);
 
         InterpretationNode existingNode = operations.load(InterpretationNode.class, nodeId, 2);
+
+        if (userId != existingNode.getBody().author.getNodeId()) {
+            throw new NodeRulesException("Can't modify a private draft that you don't own");
+        }
 
         checkEditRules(existingNode);
 
@@ -173,7 +176,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         SourceNode sourceNode = operations.load(SourceNode.class, sourceId);
 
-        existingNode.setSource(sourceNode);
+        TwoWayUtil.updateSupportingNodes(existingNode, sourceNode);
 
         operations.save(existingNode);
         return existingNode;
@@ -182,9 +185,12 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Override
     @Transactional
     public SourceNode editSource(long userId, long nodeId, String title, String qualifier, String url) throws NodeRulesException {
-        User user = operations.load(User.class, userId);
 
         SourceNode existingNode = operations.load(SourceNode.class, nodeId, 2);
+
+        if (userId != existingNode.getBody().author.getNodeId()) {
+            throw new NodeRulesException("Can't modify a private draft that you don't own");
+        }
 
         checkEditRules(existingNode);
 
@@ -229,7 +235,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     @Transactional
-    public ArgumentNode publishNode(long userId, long nodeId) throws NotAuthorizedException, NodeRulesException {
+    public QuickGraphResponse publishNode(long userId, long nodeId) throws NotAuthorizedException, NodeRulesException {
 
         ArgumentNode existingNode = operations.load(ArgumentNode.class, nodeId, 2);
 
@@ -243,11 +249,38 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         ArgumentNode resultingNode = versionHelper.publish(existingNode);
 
-        // TODO: discover whether this node's dependencies have had any updates within their major versions since the
-        // draft was originally created. If so, we should give the user the opportunity to bring in the new stuff.
-        // However, the default behavior should be to not bring in the new stuff, wary as we are of dummies and vandalism.
+        // We're pretty confident at this point that the entire tree is in memory, so don't bother hitting the db again.
+        return buildGraphResponseFromNode(resultingNode);
+    }
 
-        return resultingNode;
+    private QuickGraphResponse buildGraphResponseFromNode(ArgumentNode node) {
+        Set<ArgumentNode> nodes = new HashSet<>();
+        Set<QuickEdge> edges = new HashSet<>();
+
+        collectDescendingNodesAndEdges(node, nodes, edges);
+        collectAscendingNodesAndEdges(node, nodes, edges);
+
+        return new QuickGraphResponse(nodes, edges, node.getId(), node.getStableId());
+    }
+
+    private void collectDescendingNodesAndEdges(ArgumentNode node, Set<ArgumentNode> nodes, Set<QuickEdge> edges) {
+        nodes.add(node);
+        if (node.getGraphChildren() != null) {
+            for (ArgumentNode child : node.getGraphChildren()) {
+                edges.add(new QuickEdge(node.getId(), child.getId()));
+                collectDescendingNodesAndEdges(child, nodes, edges);
+            }
+        }
+    }
+
+    private void collectAscendingNodesAndEdges(ArgumentNode node, Set<ArgumentNode> nodes, Set<QuickEdge> edges) {
+        nodes.add(node);
+        if (node.getDependentNodes() != null) {
+            for (ArgumentNode parent : node.getDependentNodes()) {
+                edges.add(new QuickEdge(parent.getId(), node.getId()));
+                collectAscendingNodesAndEdges(parent, nodes, edges);
+            }
+        }
     }
 
     @Override

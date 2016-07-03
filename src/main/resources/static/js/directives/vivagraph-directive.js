@@ -177,15 +177,17 @@ require('../../sass/vivagraph.scss');
                 }
 
                 var nodeUI = graphics.getNodeUI(node.id);
-                nodeUI.append(
-                    Viva.Graph.svg('circle', {
-                        class: 'highlight',
-                        r: 13,
-                        fill: 'none'
-                    })
-                );
+                if (nodeUI) {
+                    nodeUI.append(
+                        Viva.Graph.svg('circle', {
+                            class: 'highlight',
+                            r: 13,
+                            fill: 'none'
+                        })
+                    );
 
-                highlightedNode = node;
+                    highlightedNode = node;
+                }
             }
         });
 
