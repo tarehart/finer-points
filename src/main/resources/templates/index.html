@@ -3,7 +3,7 @@
 <head>
     <title>Finer Points</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=10.0" />
 
     <meta name="_csrf" th:content="${_csrf.token}"/>
 
@@ -49,6 +49,10 @@
             <div th:replace="navbar :: main"></div>
 
             <div data-ng-view=""></div>
+
+            <div th:replace="footer :: main"></div>
+
+
 
         </div>
 

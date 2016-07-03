@@ -10,8 +10,6 @@ body, .body-inner {
   max-width: 1500px;
   margin-left: auto;
   margin-right: auto;
-  padding-right: 8px;
-  padding-left: 8px;
 }
 
 h1 {
@@ -28,11 +26,16 @@ a:hover {
   text-decoration: underline;
 }
 
+.hero-bullets {
+  list-style-type: circle;
+  line-height: 1.5em;
+}
+
 .hero-emphasis {
   font-weight: bold;
-  font-size: 1.05em;
+  font-size: 0.95em;
   font-style: italic;
-  color: #5d7d8e;
+  color: #495a63;
 }
 
 .finer-points-logo {
@@ -64,4 +67,26 @@ a:hover {
 
 .header-text {
   font-size: 16px;
+}
+
+.footer {
+  color: #AAA;
+  font-size: .9em;
+  margin: 150px auto 50px;
+  max-width: 800px;
+
+  .footer-chunk {
+    display: inline-block;
+    vertical-align: top;
+    text-align: left;
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+
+  ul li {
+    list-style-type: circle;
+    a {
+      color: #AAA;
+    }
+  }
 }
