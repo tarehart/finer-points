@@ -39,7 +39,7 @@
                             hotkey: 'Ctrl+K',
                             title: 'Link Node',
                             btnText: 'Link Node',
-                            btnClass: 'btn btn-primary btn-sm',
+                            btnClass: 'btn btn-primary btn-sm md-accent',
                             icon: { glyph: 'glyphicon glyphicon-link', fa: 'fa fa-link', 'fa-3': 'icon-link' },
                             callback: function(e){
                                 var selection = e.getSelection();

@@ -1,3 +1,5 @@
+@import 'colors';
+
 /*
 I am going to remove the bootstrap stylesheet. I still need certain bootstrap styles to support the bootstrap markdown editor
 */
@@ -85,6 +87,10 @@ I am going to remove the bootstrap stylesheet. I still need certain bootstrap st
 
   .btn.btn-sm {
     padding: 3px 8px;
+  }
+
+  .md-accent {
+    background-color: $md-accent-color;
   }
 
 }
