@@ -1,8 +1,16 @@
 <md-list>
-    <md-list-item class="md-2-line" ng-repeat="node in listCtrl.list">
+    <md-list-item class="md-3-line node-list-item" ng-repeat="node in listCtrl.list">
         <div class="md-list-item-text" layout="column">
-            <h3><a href="#/graph/{{node.stableId}}">{{node.body.title}}</a></h3>
-            <h4>{{ node.body.author.displayName }}, {{node.body.dateCreated | date: 'short'}}</h4>
+            <div class="node-list-title">
+                <a href="#/graph/{{node.stableId}}">{{node.body.title}}</a>
+                <span ng-if="!node.body.public">
+                    (draft)
+                </span>
+            </div>
+            <div>
+                <span class="node-qualifier">{{node.body.qualifier}}</span>
+            </div>
+            <div class="node-list-author">{{ node.body.author.displayName }}, {{node.body.dateCreated | date: 'short'}}</div>
         </div>
     </md-list-item>
 </md-list>

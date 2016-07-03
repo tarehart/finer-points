@@ -90,3 +90,21 @@ a:hover {
     }
   }
 }
+
+.node-qualifier {
+  color: #777;
+  font-style: italic;
+  font-size: .9em;
+}
+
+.node-list-item {
+  .node-list-title {
+    margin-bottom: 5px;
+  }
+
+  .node-list-author {
+    font-size: .9em;
+    margin-top: 5px;
+    color: #777;
+  }
+}
