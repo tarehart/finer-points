@@ -99,6 +99,7 @@
 
         cache.saveBlankSlateNode = function(successCallback, errorCallback) {
             var node = cache.get(DRAFT_ID);
+            node.body.title = node.body.title || 'Untitled';
             saveNewAssertion(node, function(data) {
                 // Next time the draft node is requested, a fresh blank one should be built.
                 cache.nodes[DRAFT_ID] = null;
@@ -439,6 +440,18 @@
                 }
             });
         }
+
+        cache.addChildToNode = function(node, child) {
+            // TODO: insert the child in the right order
+
+            for (var i = 0; i < node.children.length; i++) {
+                if (node.children[i].id === child.id) {
+                    return;
+                }
+            }
+
+            node.children.push(child);
+        };
 
         function populateChildren(nodeMap, edgeList) {
             Object.keys(nodeMap).forEach(function (id) {

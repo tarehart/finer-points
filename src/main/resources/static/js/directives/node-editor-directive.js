@@ -1,4 +1,5 @@
 require('../../sass/bootstrap-markdown-material.scss');
+require('../../sass/node-linker.scss');
 require('./markdown-directive');
 require('../services/toast-service');
 
@@ -109,7 +110,9 @@ require('../services/toast-service');
         self.linkChild = function(node, linkCallback) {
 
             function attachChild(child) {
-                node.children.push(child); // TODO: insert the child in the right order
+
+                NodeCache.addChildToNode(node, child);
+                
                 linkCallback(child.body.majorVersion.stableId, child.body.title);
 
                 saveChanges(node);
@@ -145,6 +148,9 @@ require('../services/toast-service');
                     linkableTypes = ["assertion", "interpretation"];
                 } else if (node.getType() == "interpretation") {
                     linkableTypes = ["source"];
+
+                    // Go ahead and select it
+                    $scope.newNodeType = "source";
                 }
 
                 $scope.newQualifier = "Original version"; // Default this field.
@@ -163,8 +169,16 @@ require('../services/toast-service');
                         .then(function(response){
 
                             var bodyList = response.data;
+
+                            // Insert a dummy object at the beginning of the list. We know how to deal with this in searchResultSelected.
+                            bodyList.splice(0, 0, {createNew: true});
+
                             return bodyList;
                         });
+                };
+
+                $scope.searchTextChanged = function() {
+                    $scope.newTitle = $scope.searchQuery;
                 };
 
                 $scope.searchResultSelected = function(bodyNode) {
@@ -172,6 +186,13 @@ require('../services/toast-service');
                     if (!bodyNode) {
                         $scope.chosenNode = null;
                         $scope.isResultSelected = false;
+                        return;
+                    }
+                    
+                    if (bodyNode.createNew) {
+                        $scope.chosenNode = null;
+                        $scope.isResultSelected = false;
+                        $scope.toggleMakeNew();
                         return;
                     }
 
@@ -219,7 +240,7 @@ require('../services/toast-service');
 
                 $scope.createNewNode = function() {
                     $mdDialog.cancel();
-                    nodeChosenForLinking({newTitle: $scope.searchQuery, newQualifier: $scope.newQualifier, type: $scope.newNodeType});
+                    nodeChosenForLinking({newTitle: $scope.newTitle, newQualifier: $scope.newQualifier, type: $scope.newNodeType});
                 };
 
                 $scope.cancel = function() {

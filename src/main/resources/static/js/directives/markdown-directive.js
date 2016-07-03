@@ -18,7 +18,7 @@
         };
     }
 
-    function markdownEditor() {
+    function markdownEditor($timeout) {
         return {
             restrict: "A",
             scope: {
@@ -62,9 +62,10 @@
                 $(element).markdown({
                     savable:false,
                     onChange: function(e){
-                        var text = e.getContent();
-                        scope.setText(scope.node, text);
-                        scope.$apply();
+                        $timeout(function() {
+                            var text = e.getContent();
+                            scope.setText(scope.node, text);
+                        }, 0);
                     },
                     hiddenButtons: ['Preview', 'Image', 'cmdUrl'],
                     fullscreen: {enable: false},

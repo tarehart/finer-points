@@ -10,23 +10,26 @@
     </md-toolbar>
     <md-dialog-content>
         <div class="md-dialog-content">
-            <div ng-if="!makeNew">
+            <div ng-show="!makeNew">
                 <md-autocomplete
                         md-selected-item="ctrl.selectedItem"
-                        md-search-text="$parent.searchQuery"
+                        md-search-text="searchQuery"
+                        md-search-text-change="searchTextChanged()"
                         md-selected-item-change="searchResultSelected(item)"
                         md-items="item in getSearchResults(searchQuery)"
                         md-item-text="item.title"
                         md-min-length="3"
-                        placeholder="Search here">
+                        placeholder="Search here"
+                        md-menu-class="node-autocomplete">
                     <md-item-template>
-                        <span md-highlight-text="ctrl.searchText" md-highlight-flags="^i">{{item.title}}</span>
+                        <div ng-class="{createNew: item.createNew}">
+                            <div class="autocomplete-title">{{item.title}}</div>
+                            <div class="autocomplete-qualifier">{{item.qualifier}}</div>
+                            <div class="autocomplete-new" ng-if="item.createNew">
+                                Create a New Node
+                            </div>
+                        </div>
                     </md-item-template>
-                    <md-not-found>
-                        No matches.
-                        <md-button class="md-raised" ng-click="toggleMakeNew()">Create New</md-button>
-
-                    </md-not-found>
                 </md-autocomplete>
             </div>
             <div ng-show="makeNew">
@@ -35,14 +38,14 @@
                 <md-radio-group ng-model="newNodeType">
                     <md-radio-button value="assertion" ng-show="canLinkTo('assertion')">Assertion</md-radio-button>
                     <md-radio-button value="interpretation" ng-show="canLinkTo('interpretation')">Interpretation</md-radio-button>
-                    <md-radio-button value="source" ng-show="canLinkTo('source')">Source</md-radio-button>
+                    <md-radio-button value="source" ng-show="canLinkTo('source')" selecte>Source</md-radio-button>
                 </md-radio-group>
 
                 <br />
 
                 <md-input-container class="md-block md-input-compact">
                     <label>Title</label>
-                    <input ng-model="searchQuery">
+                    <input ng-model="newTitle">
                 </md-input-container>
 
                 <md-input-container class="md-block md-input-compact">
@@ -53,7 +56,7 @@
         </div>
     </md-dialog-content>
     <md-dialog-actions layout="row" layout-align="end center">
-        <md-button class="md-raised md-primary"  ng-show="makeNew" ng-disabled="!newNodeType || !searchQuery" ng-click="createNewNode()">Create</md-button>
+        <md-button class="md-raised md-primary"  ng-show="makeNew" ng-disabled="!newNodeType || !newTitle" ng-click="createNewNode()">Create</md-button>
         <md-button class="md-raised md-primary" ng-show="isResultSelected" ng-click="select()">Link Node</md-button>
         <md-button ng-click="cancel()">Cancel</md-button>
     </md-dialog-actions>
