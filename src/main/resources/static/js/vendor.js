@@ -14,3 +14,5 @@ require('font-awesome-webpack');
 require('particles.js');
 require('../../../../../node_modules/bootstrap-markdown/js/bootstrap-markdown');
 require('../../../../../node_modules/bootstrap-markdown/css/bootstrap-markdown.min.css');
+require('expose?toastr!toastr');
+require('../../../../../node_modules/toastr/build/toastr.min.css');

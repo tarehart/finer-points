@@ -1,39 +1,27 @@
-require('../../sass/toast.scss');
 
 (function () {
     'use strict';
 
     angular
         .module('nodeStandControllers')
-        .service('ToastService', ToastService)
-        .controller('ToastController', ToastController);
+        .service('ToastService', ToastService);
 
-    function ToastService($mdToast) {
+    function ToastService() {
         var self = this;
 
+        toastr.options = {
+            closeButton: true,
+            positionClass: 'toast-bottom-right',
+            timeOut: 4000
+        };
+
         self.success = function(message) {
-            toast(message, 'success');
+            toastr.success(message);
         };
 
         self.error = function (message) {
-            toast(message, 'error');
+            toastr.error(message);
         };
-            
-        function toast(message, type) {
-            $mdToast.show({
-                templateUrl: 'partials/toast-template.html',
-                hideDelay: type === 'error' ? 10000 : 800,
-                position: 'bottom',
-                locals: {message: message, type: type},
-                bindToController: true,
-                controller: 'ToastController',
-                controllerAs: 'toastCtrl'
-            });
-        }
-    }
-
-    function ToastController($scope) {
-
     }
 
 })();
