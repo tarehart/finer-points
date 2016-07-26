@@ -42,7 +42,7 @@ public class CreateController {
     @RequestMapping("/createAssertion")
     public ArgumentNode createAssertion(@RequestBody Map<String, Object> params) throws NodeRulesException {
 
-        Long userId = userService.getUserIdFromSession();
+        Long userId = userService.getUserNodeIdFromSecurityContext();
         String title = (String) params.get("title");
         String qualifier = (String) params.get("qualifier");
         String body = (String) params.get("body");
@@ -59,7 +59,7 @@ public class CreateController {
     @RequestMapping("/createInterpretation")
     public ArgumentNode createInterpretation(@RequestBody Map<String, Object> params) {
 
-        Long userId = userService.getUserIdFromSession();
+        Long userId = userService.getUserNodeIdFromSecurityContext();
         String title = (String) params.get("title");
         String qualifier = (String) params.get("qualifier");
         String body = (String) params.get("body");
@@ -76,7 +76,7 @@ public class CreateController {
     @RequestMapping("/createSource")
     public ArgumentNode createSource(@RequestBody Map<String, Object> params) {
 
-        Long userId = userService.getUserIdFromSession();
+        Long userId = userService.getUserNodeIdFromSecurityContext();
         String title = (String) params.get("title");
         String qualifier = (String) params.get("qualifier");
         String url = (String) params.get("url");

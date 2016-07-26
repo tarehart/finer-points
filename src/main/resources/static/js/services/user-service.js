@@ -1,4 +1,5 @@
 require('./toast-service');
+require('./token-storage');
 
 (function () {
     'use strict';
@@ -7,7 +8,7 @@ require('./toast-service');
         .module('nodeStandControllers')
         .service('UserService', UserService);
 
-    function UserService($http, $rootScope, ToastService) {
+    function UserService($http, $rootScope, $cookies, ToastService, TokenStorage) {
         var self = this;
 
         self.loggedInUser = null;
@@ -28,7 +29,20 @@ require('./toast-service');
             $rootScope.$emit('successful-login');
         }
 
+        $rootScope.logout = function () {
+            TokenStorage.clear();
+            $rootScope.user = null;
+            self.loggedInUser = null;
+        };
+
         function getUserFromServer() {
+
+            var authCookie = $cookies.get('AUTH-TOKEN');
+            if (authCookie) {
+                TokenStorage.store(authCookie);
+                $cookies.remove('AUTH-TOKEN');
+            }
+
             $http.get('/currentUser')
                 .success(function (data) {
                     data.user.bodyVotes = data.bodyVotes;
@@ -37,7 +51,7 @@ require('./toast-service');
                     notifySuccessfulLogin();
                 })
                 .error(function(err) {
-                    if (err.status === 401) {
+                    if (err.status === 403) {
                         return; // This is expected, it just means that nobody is logged in right now.
                     }
                     ToastService.error(err.message);

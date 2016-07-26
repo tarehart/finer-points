@@ -2,6 +2,7 @@ package com.nodestand.controllers;
 
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
+import com.nodestand.nodes.repository.UserRepository;
 import com.nodestand.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
@@ -23,12 +24,15 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    UserRepository userRepository;
+
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/currentUser")
     public Map<String, Object> currentUser() throws NodeRulesException {
 
-        Long userId = userService.getUserIdFromSession();
+        Long userId = userService.getUserNodeIdFromSecurityContext();
         if (userId == null) {
             return null;
         }
@@ -46,6 +50,6 @@ public class UserController {
     @RequestMapping("/getProfile")
     public User getProfile(@RequestParam String stableId) throws NodeRulesException {
 
-        return userService.getProfile(stableId);
+        return userRepository.getUser(stableId);
     }
 }

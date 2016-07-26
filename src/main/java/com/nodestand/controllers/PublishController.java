@@ -39,7 +39,7 @@ public class PublishController {
     @RequestMapping("/publishNode")
     public QuickGraphResponse publishNode(@RequestBody Map<String, Object> params) throws Exception {
 
-        Long userId = userService.getUserIdFromSession();
+        Long userId = userService.getUserNodeIdFromSecurityContext();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
 
         return argumentService.publishNode(userId, nodeId);

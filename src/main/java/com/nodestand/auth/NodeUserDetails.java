@@ -2,6 +2,7 @@ package com.nodestand.auth;
 
 import com.nodestand.nodes.User;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.social.security.SocialUserDetails;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,7 +12,7 @@ import java.util.Collections;
 * @author mh
 * @since 07.03.11
 */
-public class NodeUserDetails implements org.springframework.security.core.userdetails.UserDetails {
+public class NodeUserDetails implements SocialUserDetails {
     private final User user;
 
     public NodeUserDetails(User user) {
@@ -27,7 +28,7 @@ public class NodeUserDetails implements org.springframework.security.core.userde
 
     @Override
     public String getPassword() {
-        return user.getSocialId();
+        throw new IllegalStateException("password should never be used");
     }
 
     @Override
@@ -57,5 +58,18 @@ public class NodeUserDetails implements org.springframework.security.core.userde
 
     public User getUser() {
         return user;
+    }
+
+    @Override
+    public String getUserId() {
+        return user.getStableId();
+    }
+
+    public String getProviderId() {
+        return user.getProviderId();
+    }
+
+    public String getProviderUserId() {
+        return user.getProviderUserId();
     }
 }

@@ -102,6 +102,8 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.boot:spring-boot-starter-thymeleaf")
     compile("org.springframework.boot:spring-boot-starter-security")
+    compile("io.jsonwebtoken:jjwt:0.6.0")
+    compile("org.springframework.social:spring-social-security:1.1.4.RELEASE")
     compile("org.springframework.social:spring-social-google:1.0.0.RELEASE")
     compile("org.springframework:spring-context")
     compile("org.springframework:spring-tx")

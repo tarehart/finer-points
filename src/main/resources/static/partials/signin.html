@@ -7,11 +7,10 @@
     <md-card-content>
         <p>Please sign in with a social account. No password required!</p>
 
-        <div ng-if="csrfToken">
+        <div>
             <form action="signin/google" method="POST">
                 <md-button type="submit" class="md-primary md-raised">Sign in with Google</md-button>
                 <input type="hidden" name="scope" value="profile" />
-                <input type="hidden" name="_csrf" ng-value="csrfToken" />
             </form>
         </div>
 

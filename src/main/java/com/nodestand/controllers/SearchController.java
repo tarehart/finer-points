@@ -29,7 +29,7 @@ public class SearchController {
     @RequestMapping("/search")
     public List<ArgumentBody> findByTitle(@RequestParam String query, @RequestParam List<String> types) {
 
-        Long userId = userService.getUserIdFromSession();
+        Long userId = userService.getUserNodeIdFromSecurityContext();
 
         Set<ArgumentBody> richHits = argumentBodyRepository.queryTitlesRich(String.format("(?i).*%s.*", query), userId);
 

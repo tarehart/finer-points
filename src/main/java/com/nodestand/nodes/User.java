@@ -37,26 +37,27 @@ public class User {
 
     String displayName;
 
-    String socialId;
-
     private String stableId;
 
     private Roles[] roles;
+    private String providerId;
+    private String providerUserId;
 
 
     public User() {
     }
 
-    public User(String socialId, String displayName, Roles... roles) {
+    public User(String providerId, String providerUserId, String displayName, Roles... roles) {
         this.roles = roles;
         this.displayName = displayName;
-        this.socialId = socialId;
+        this.providerId = providerId;
+        this.providerUserId = providerUserId;
         this.stableId = IdGenerator.newId();
     }
 
     @Override
     public String toString() {
-        return String.format("%s (%s)", displayName, socialId);
+        return String.format("%s (%s)", displayName, providerUserId);
     }
 
     @JsonIgnore
@@ -69,8 +70,13 @@ public class User {
     }
 
     @JsonIgnore
-    public String getSocialId() {
-        return socialId;
+    public String getProviderId() {
+        return providerId;
+    }
+
+    @JsonIgnore
+    public String getProviderUserId() {
+        return providerUserId;
     }
 
     @Relationship(type="ARGUMENT_VOTE", direction = Relationship.OUTGOING)

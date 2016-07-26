@@ -4,6 +4,7 @@
     "angular-sanitize": "~1.5.5",
     "angular-animate": "~1.5.5",
     "angular-route": "~1.5.5",
+    "angular-cookies": "~1.5.5",
     "expose-loader": "~0.7.1",
     "style-loader": "~0.13.1",
     "url-loader": "~0.5.7",

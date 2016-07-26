@@ -3,26 +3,29 @@ package com.nodestand.service.user;
 import com.nodestand.auth.NodeUserDetails;
 import com.nodestand.nodes.User;
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.social.connect.ConnectionKey;
+import org.springframework.social.security.SocialUserDetails;
+import org.springframework.social.security.SocialUserDetailsService;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author mh
  * @since 08.11.11
  */
-public interface UserService extends UserDetailsService {
-    void setCurrentUser(User user);
+public interface UserService extends UserDetailsService, SocialUserDetailsService {
+
+    Long getUserNodeIdFromSecurityContext();
+
+    User getUserFromSecurityContext();
 
     @Override
-    NodeUserDetails loadUserByUsername(String socialId) throws UsernameNotFoundException, DataAccessException;
+    NodeUserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 
-    Long getUserIdFromSession();
+    @Override
+    NodeUserDetails loadUserByUserId(String userId);
 
-    String getSocialIdFromSession();
-
-    @Transactional
-    NodeUserDetails register(String socialId, String login);
-
-    User getProfile(String stableId);
+    NodeUserDetails loadUserByConnectionKey(ConnectionKey key);
 }

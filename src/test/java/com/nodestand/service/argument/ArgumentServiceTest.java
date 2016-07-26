@@ -8,6 +8,7 @@ import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
+import com.nodestand.nodes.repository.UserRepository;
 import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.service.user.UserService;
 import com.nodestand.test.Neo4jIntegrationTest;
@@ -33,10 +34,22 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
     private UserService userService;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private Session session;
 
     private User registerUser(String socialId, String name) {
-        return userService.register(socialId, name).getUser();
+
+        final User user = new User(
+                "google",
+                socialId,
+                name,
+                User.Roles.ROLE_USER);
+
+        userRepository.save(user);
+
+        return user;
     }
 
     @Test

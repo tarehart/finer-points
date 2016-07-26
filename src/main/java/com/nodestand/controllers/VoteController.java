@@ -1,6 +1,5 @@
 package com.nodestand.controllers;
 
-import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.comment.Comment;
@@ -35,7 +34,7 @@ public class VoteController {
     @RequestMapping("/voteComment")
     public void voteComment(@RequestBody Map<String, Object> params) throws NodeRulesException {
 
-        Long userId = userService.getUserIdFromSession();
+        Long userId = userService.getUserNodeIdFromSecurityContext();
         User user = operations.load(User.class, userId);
 
         Long commentId = Long.valueOf((Integer) params.get("commentId"));
@@ -56,7 +55,7 @@ public class VoteController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/unvoteComment")
     public void unvoteComment(@RequestBody Map<String, Object> params) throws NodeRulesException {
-        Long userId = userService.getUserIdFromSession();
+        Long userId = userService.getUserNodeIdFromSecurityContext();
         User user = operations.load(User.class, userId);
 
         Long commentId = Long.valueOf((Integer) params.get("commentId"));
@@ -70,7 +69,7 @@ public class VoteController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/voteBody")
     public void voteBody(@RequestBody Map<String, Object> params) throws NodeRulesException {
-        Long userId = userService.getUserIdFromSession();
+        Long userId = userService.getUserNodeIdFromSecurityContext();
         User user = operations.load(User.class, userId);
 
         Long majorVersionId = Long.valueOf((Integer) params.get("majorVersionId"));
@@ -87,7 +86,7 @@ public class VoteController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/unvoteBody")
     public void unvoteBody(@RequestBody Map<String, Object> params) throws NodeRulesException {
-        Long userId = userService.getUserIdFromSession();
+        Long userId = userService.getUserNodeIdFromSecurityContext();
         User user = operations.load(User.class, userId);
 
         Long majorVersionId = Long.valueOf((Integer) params.get("majorVersionId"));

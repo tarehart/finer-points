@@ -12,7 +12,7 @@
 
 
         <span ng-if="user" class="header-text">Welcome, <a href="/#/user/{{user.stableId}}">{{user.displayName}}</a></span>
-        <md-button ng-if="user" href="/signout">Sign Out</md-button>
+        <md-button ng-if="user" ng-click="logout()">Sign Out</md-button>
 
 
         <md-button href="#/login" ng-if="!user" class="md-raised" aria-label="Sign In">

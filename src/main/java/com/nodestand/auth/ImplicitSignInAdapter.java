@@ -19,7 +19,6 @@ import com.nodestand.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
@@ -27,11 +26,14 @@ import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.web.SignInAdapter;
 import org.springframework.web.context.request.NativeWebRequest;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 public class ImplicitSignInAdapter implements SignInAdapter {
+
+    private static final String AUTH_COOKIE_NAME = "AUTH-TOKEN";
 
     private final RequestCache requestCache;
 
@@ -43,18 +45,22 @@ public class ImplicitSignInAdapter implements SignInAdapter {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private TokenHandler tokenHandler;
+
     @Override
     public String signIn(String localUserId, Connection<?> connection, NativeWebRequest request) {
-        String providerUserId = connection.getKey().getProviderUserId();
-        NodeUserDetails userDetails = null;
-        try {
-            userDetails = userService.loadUserByUsername(providerUserId);
-            userService.setCurrentUser(userDetails.getUser());
-        } catch (UsernameNotFoundException e) {
-            userDetails = userService.register(providerUserId, connection.getDisplayName());
-            // TODO: go to registration page so they can change their display name.
-        }
+        NodeUserDetails userDetails = userService.loadUserByConnectionKey(connection.getKey());
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
+
+        final String token = tokenHandler.generateToken(userDetails);
+
+        HttpServletResponse response = (HttpServletResponse) request.getNativeResponse();
+
+        // Put the token into a cookie because the client can't capture response
+        // headers of redirects / full page reloads.
+        // (Its reloaded as a result of this response triggering a redirect back to "/")
+        response.addCookie(createCookieForToken(token));
 
         return extractOriginalUrl(request);
     }
@@ -76,6 +82,12 @@ public class ImplicitSignInAdapter implements SignInAdapter {
             return;
         }
         session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+    }
+
+    private Cookie createCookieForToken(String token) {
+        final Cookie authCookie = new Cookie(AUTH_COOKIE_NAME, token);
+        authCookie.setPath("/");
+        return authCookie;
     }
 
 }

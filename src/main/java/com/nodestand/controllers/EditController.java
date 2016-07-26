@@ -35,7 +35,7 @@ public class EditController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/editAssertion")
     public ArgumentNode editAssertion(@RequestBody Map<String, Object> params) throws NotAuthorizedException, NodeRulesException {
-        Long userId = userService.getUserIdFromSession();
+        Long userId = userService.getUserNodeIdFromSecurityContext();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
         String title = (String) params.get("title");
         String qualifier = (String) params.get("qualifier");
@@ -52,7 +52,7 @@ public class EditController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/editInterpretation")
     public ArgumentNode editInterpretation(@RequestBody Map<String, Object> params) throws NotAuthorizedException, NodeRulesException {
-        Long userId = userService.getUserIdFromSession();
+        Long userId = userService.getUserNodeIdFromSecurityContext();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
         String title = (String) params.get("title");
         String qualifier = (String) params.get("qualifier");
@@ -65,7 +65,7 @@ public class EditController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/editSource")
     public ArgumentNode editSource(@RequestBody Map<String, Object> params) throws NotAuthorizedException, NodeRulesException {
-        Long userId = userService.getUserIdFromSession();
+        Long userId = userService.getUserNodeIdFromSecurityContext();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
         String title = (String) params.get("title");
         String qualifier = (String) params.get("qualifier");
@@ -77,7 +77,7 @@ public class EditController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/makeDraft")
     public EditResult makeDraft(@RequestBody Map<String, Object> params) throws NotAuthorizedException, NodeRulesException {
-        Long userId = userService.getUserIdFromSession();
+        Long userId = userService.getUserNodeIdFromSecurityContext();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
 
         return argumentService.makeDraft(userId, nodeId);

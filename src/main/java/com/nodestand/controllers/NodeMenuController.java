@@ -32,7 +32,7 @@ public class NodeMenuController {
     @RequestMapping("/draftNodes")
     public Set<ArgumentNode> getDraftNodes() {
 
-        Long userId = userService.getUserIdFromSession();
+        Long userId = userService.getUserNodeIdFromSecurityContext();
         if (userId == null) {
             throw new NotAuthorizedException("Must be logged in to retrieve drafts.");
         }
@@ -43,7 +43,7 @@ public class NodeMenuController {
     @Transactional
     @RequestMapping("/consumerNodes")
     public Set<ArgumentNode> getConsumerNodes(@RequestParam Long nodeId) {
-        Long userId = userService.getUserIdFromSession();
+        Long userId = userService.getUserNodeIdFromSecurityContext();
         if (userId != null) {
             return argumentService.getConsumerNodesIncludingDrafts(userId, nodeId);
         } else {

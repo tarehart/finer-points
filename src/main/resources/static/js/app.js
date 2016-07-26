@@ -3,10 +3,10 @@ require('../sass/common.scss');
 (function() {
     'use strict';
 
-    angular.module('nodeStandControllers', []);
+    angular.module('nodeStandControllers', ['ngCookies']);
 
+    require('./services/token-interceptor');
     require('./controllers/gateway-controller');
-    require('./controllers/login-controller');
     require('./controllers/profile-controller');
     require('./services/user-service');
     require('./directives/graph-directive');
@@ -26,8 +26,7 @@ require('../sass/common.scss');
                     controller: 'GatewayController'
                 }).
                 when('/login', {
-                    templateUrl: 'partials/signin.html',
-                    controller: 'LoginController'
+                    templateUrl: 'partials/signin.html'
                 }).
                 when('/graph/:rootStableId', {
                     templateUrl: 'partials/explorer.html'

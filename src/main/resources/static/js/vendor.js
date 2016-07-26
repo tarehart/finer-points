@@ -8,6 +8,7 @@ require('angular-route');
 require('angular-sanitize');
 require('angular-animate');
 require('angular-aria');
+require('angular-cookies');
 require('angular-material');
 require('../../../../../node_modules/angular-material/angular-material.css');
 require('font-awesome-webpack');

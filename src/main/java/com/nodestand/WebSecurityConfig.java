@@ -1,26 +1,19 @@
 package com.nodestand;
 
-import com.nodestand.auth.CsrfHeaderFilter;
-import com.nodestand.auth.RestAuthenticationEntryPoint;
-import com.nodestand.auth.RestAuthenticationSuccessHandler;
+import com.nodestand.auth.StatelessAuthenticationFilter;
 import com.nodestand.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.security.web.csrf.CsrfFilter;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
-import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.social.UserIdSource;
+import org.springframework.social.security.SpringSocialConfigurer;
 
 @Configuration
 @EnableWebMvcSecurity
@@ -30,60 +23,41 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     UserService userService;
 
     @Autowired
-    private RestAuthenticationEntryPoint authenticationEntryPoint;
+    private StatelessAuthenticationFilter statelessAuthenticationFilter;
 
     @Autowired
-    private RestAuthenticationSuccessHandler authenticationSuccessHandler;
+    private UserIdSource userIdSource;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         http
-                .formLogin()
-                    .successHandler(authenticationSuccessHandler)
-                    .failureHandler(new SimpleUrlAuthenticationFailureHandler())
-                .and()
-                    .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
-                .and()
-                    .logout()
-                    .logoutRequestMatcher(new AntPathRequestMatcher("/signout"))
-                    .logoutSuccessUrl("/")
-                    .invalidateHttpSession(true)
-                    .deleteCookies("JSESSIONID")
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                     .authorizeRequests()
-                    .antMatchers("/", "/signin/**", "/js/**", "/css/**", "/favicon.ico", "/partials/**", "/list", "/nodeMenu", "/graph", "/generateTestData").permitAll()
+                    .antMatchers("/", "/signin/**", "/js/**", "/css/**", "/favicon.ico", "/partials/**").permitAll()
                 .and()
-                    .csrf()
-                    .csrfTokenRepository(csrfTokenRepository())
-                .and()
-                    // https://spring.io/guides/tutorials/spring-security-and-angular-js/
-                    .addFilterAfter(new CsrfHeaderFilter(), CsrfFilter.class);
-    }
+                // add custom authentication filter for complete stateless JWT based authentication
+                .addFilterBefore(statelessAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class)
 
-    /**
-     * https://spring.io/guides/tutorials/spring-security-and-angular-js/
-     * @return
-     */
-    private CsrfTokenRepository csrfTokenRepository() {
-        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
-        repository.setHeaderName("X-XSRF-TOKEN");
-        return repository;
+                // apply the configuration from the socialConfigurer (adds the SocialAuthenticationFilter)
+                .apply(new SpringSocialConfigurer().userIdSource(userIdSource));
     }
-
 
     @Bean
-    DaoAuthenticationProvider daoAuthenticationProvider() {
-        DaoAuthenticationProvider dao = new DaoAuthenticationProvider();
-        dao.setUserDetailsService(userService);
-        return dao;
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userService);
+    }
 
-    @Bean
-    public ProviderManager providerManager() {
-        List<AuthenticationProvider> list = new ArrayList<>();
-        list.add(daoAuthenticationProvider());
-        return new ProviderManager(list);
+    @Override
+    protected UserService userDetailsService() {
+        return userService;
     }
 }

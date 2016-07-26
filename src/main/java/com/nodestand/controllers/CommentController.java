@@ -35,7 +35,7 @@ public class CommentController {
 
         String body = (String) params.get("body");
         Long parentId = Long.valueOf((Integer) params.get("parentId"));
-        Long userId = userService.getUserIdFromSession();
+        Long userId = userService.getUserNodeIdFromSecurityContext();
 
         return commentService.createComment(body, parentId, userId);
     }
@@ -46,7 +46,7 @@ public class CommentController {
 
         String body = (String) params.get("body");
         Long commentId = Long.valueOf((Integer) params.get("commentId"));
-        Long userId = userService.getUserIdFromSession();
+        Long userId = userService.getUserNodeIdFromSecurityContext();
 
         return commentService.editComment(body, commentId, userId);
     }
