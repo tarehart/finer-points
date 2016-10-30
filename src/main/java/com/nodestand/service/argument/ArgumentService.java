@@ -16,7 +16,7 @@ public interface ArgumentService {
 
     QuickGraphResponse getGraph(String rootStableId);
 
-    ArgumentNode getFullDetail(long nodeId);
+    ArgumentNode getFullDetail(String stableId);
 
     AssertionNode createAssertion(long userId, String title, String qualifier, String body, Collection<Long> links) throws NodeRulesException;
 
@@ -44,4 +44,5 @@ public interface ArgumentService {
 
     Set<ArgumentNode> getConsumerNodesIncludingDrafts(long userId, long nodeId);
 
+    Set<ArgumentNode> getNodesPublishedByUser(String userStableId);
 }

@@ -23,13 +23,13 @@ public abstract class ArgumentBody {
 
     // Justification for the existence of this body if it is in competition with another body with
     // similar title. Examples: "Original version", "Formal logic style", "Curated by Hershey's"
+    // TODO: shouldn't this be a member of MajorVersion?
     private String qualifier;
 
+    // From the big picture perspective, i.e. when looking at a major version in the UI, this will
+    // be more of an "edited by" field.
     @Relationship(type="AUTHORED_BY", direction = Relationship.OUTGOING)
     public User author;
-
-    @Relationship(type="ORIGINAL_AUTHOR", direction = Relationship.OUTGOING)
-    public User originalAuthor;
 
     @Relationship(type="VERSION_OF", direction = Relationship.OUTGOING)
     private MajorVersion majorVersion;
@@ -55,7 +55,6 @@ public abstract class ArgumentBody {
         this.title = title;
         this.qualifier = qualifier;
         this.author = author;
-        this.originalAuthor = author;
         this.majorVersion = majorVersion;
         this.dateCreated = new Date();
 

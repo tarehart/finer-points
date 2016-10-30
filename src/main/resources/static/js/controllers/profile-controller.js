@@ -11,9 +11,10 @@ require('../directives/node-list-directive');
 
         var self = this;
         
-        self.subject = {displayName: "Danny"};
+        self.subject = {};
         self.stableId = $routeParams.userStableId;
         self.draftNodes = [];
+        self.publishedNodes = [];
 
         $http.get('/getProfile', {params: {stableId: self.stableId}}).success(function (data) {
             self.subject = data;
@@ -21,6 +22,10 @@ require('../directives/node-list-directive');
         
         $http.get('/draftNodes').success(function (data) {
             self.draftNodes.push.apply(self.draftNodes, data); // Push data to nodes
+        });
+
+        $http.get('/nodesPublishedByUser', {params: {stableId: self.stableId}}).success(function (data) {
+            self.publishedNodes.push.apply(self.publishedNodes, data); // Push data to nodes
         });
     }
 

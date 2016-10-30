@@ -26,8 +26,8 @@ public class GraphController {
     }
 
     @RequestMapping("/fullDetail")
-    public ArgumentNode getFullDetail(@RequestParam(value="nodeId", required=true) Integer nodeId) {
-        return argumentService.getFullDetail(nodeId);
+    public ArgumentNode getFullDetail(@RequestParam(value="stableId", required=true) String stableId) {
+        return argumentService.getFullDetail(stableId);
     }
 
 }

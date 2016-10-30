@@ -533,9 +533,9 @@
             populateChildren(addedNodes, quickGraphResponse.edges);
         }
 
-        cache.getFullDetail = function(nodeId) {
+        cache.getFullDetail = function(nodeStableId) {
 
-            $http.get('/fullDetail', {params: {nodeId: nodeId}}).success(function (node) {
+            $http.get('/fullDetail', {params: {stableId: nodeStableId}}).success(function (node) {
 
                 // returns the current ArgumentNode in full detail
                 cache.addOrUpdateNode(node);

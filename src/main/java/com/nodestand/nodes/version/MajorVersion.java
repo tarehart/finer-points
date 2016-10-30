@@ -1,6 +1,7 @@
 package com.nodestand.nodes.version;
 
 import com.nodestand.nodes.NodeRulesException;
+import com.nodestand.nodes.User;
 import com.nodestand.nodes.comment.Commentable;
 import com.nodestand.nodes.vote.ArgumentVote;
 import com.nodestand.nodes.vote.VoteType;
@@ -24,8 +25,8 @@ public class MajorVersion implements Commentable {
     @Relationship(type="VERSION_OF", direction = Relationship.OUTGOING)
     protected VersionAggregator versionAggregator;
 
-    @Relationship(type="ARGUMENT_VOTE", direction = Relationship.INCOMING)
-    private Set<ArgumentVote> argumentVotes;
+    @Relationship(type="AUTHORED_BY", direction = Relationship.OUTGOING)
+    public User author;
 
     // I'm not using a map for this because you're not allowed to save maps on nodes.
     public int greatVotes;
@@ -35,10 +36,11 @@ public class MajorVersion implements Commentable {
 
     public MajorVersion() {}
 
-    public MajorVersion(int versionNumber, VersionAggregator versionAggregator) {
+    public MajorVersion(int versionNumber, VersionAggregator versionAggregator, User author) {
         this.versionNumber = versionNumber;
         this.versionAggregator = versionAggregator;
         this.stableId = IdGenerator.newId();
+        this.author = author;
     }
 
     public int getVersionNumber() {

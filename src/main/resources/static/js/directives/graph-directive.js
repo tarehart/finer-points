@@ -156,7 +156,7 @@ require('./markdown-directive');
 
         function ensureDetail(node) {
             if (!hasFullDetail(node)) {
-                NodeCache.getFullDetail(node.id);
+                NodeCache.getFullDetail(node.stableId);
             }
             if (!node.consumers) {
                 NodeCache.fetchConsumers(node.id);

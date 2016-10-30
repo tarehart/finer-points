@@ -45,7 +45,7 @@ public class VersionHelper {
             // If the major version is null, we assume this is a brand new body, i.e. version 1.0.0.
             // Normally we would wait until publish to set the version numbers, but we already know what they are.
             // Doing it eagerly because why not.
-            MajorVersion mv = new MajorVersion(1, new VersionAggregator());
+            MajorVersion mv = new MajorVersion(1, new VersionAggregator(), body.author);
             body.setVersion(mv, 0);
         } else {
             // A minor version of -1 is set for all drafts. It will receive a real version number later

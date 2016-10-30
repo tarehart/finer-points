@@ -41,6 +41,12 @@ public class NodeMenuController {
     }
 
     @Transactional
+    @RequestMapping("/nodesPublishedByUser")
+    public Set<ArgumentNode> getNodesPublishedByUser(@RequestParam String stableId) {
+        return argumentService.getNodesPublishedByUser(stableId);
+    }
+
+    @Transactional
     @RequestMapping("/consumerNodes")
     public Set<ArgumentNode> getConsumerNodes(@RequestParam Long nodeId) {
         Long userId = userService.getUserNodeIdFromSecurityContext();

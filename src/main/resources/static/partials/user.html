@@ -20,5 +20,19 @@
             </md-card-content>
         </md-card>
     </div>
+
+    <div ng-show="profileCtrl.publishedNodes.length">
+        <md-card>
+            <md-card-title>
+                <span class="md-headline">Published Nodes</span>
+            </md-card-title>
+            <md-card-content>
+                <div node-list list="profileCtrl.publishedNodes"></div>
+                <p ng-show="profileCtrl.publishedNodes.length === 0">
+                    No published nodes.
+                </p>
+            </md-card-content>
+        </md-card>
+    </div>
 </div>
 

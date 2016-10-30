@@ -66,12 +66,8 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     @Transactional
-    public ArgumentNode getFullDetail(long nodeId) {
-        ArgumentNode node = operations.load(ArgumentNode.class, nodeId);
-        if (node != null) {
-            operations.load(ArgumentBody.class, node.getBody().getId(), 2);
-        }
-        return node;
+    public ArgumentNode getFullDetail(String stableId) {
+        return argumentRepo.getNodeRich(stableId);
     }
 
     @Override
@@ -307,6 +303,11 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Override
     public Set<ArgumentNode> getConsumerNodesIncludingDrafts(long userId, long nodeId) {
         return argumentRepo.getConsumerNodes(nodeId, userId);
+    }
+
+    @Override
+    public Set<ArgumentNode> getNodesPublishedByUser(String userStableId) {
+        return argumentRepo.getNodesOriginallyAuthoredByUser(userStableId);
     }
 
     private void checkEditRules(ArgumentNode existingNode) throws NodeRulesException {

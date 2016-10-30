@@ -116,7 +116,7 @@ require('../services/toast-service');
                 linkCallback(child.body.majorVersion.stableId, child.body.title);
 
                 saveChanges(node);
-                NodeCache.getFullDetail(child.id);
+                NodeCache.getFullDetail(child.stableId);
                 NodeCache.fetchGraphForId(child.stableId, function() {
                     $rootScope.$broadcast("nodeAdded", node, child);
                 });

@@ -225,9 +225,9 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         Assert.assertEquals(assertionNode.getId(), finalTree.getRootId());
 
         // Make sure the drafts are all gone
-        Assert.assertNull(argumentService.getFullDetail(assertionDraft.getId()));
-        Assert.assertNull(argumentService.getFullDetail(interpDraft.getId()));
-        Assert.assertNull(argumentService.getFullDetail(edited.getId()));
+        Assert.assertNull(argumentService.getFullDetail(assertionDraft.getStableId()));
+        Assert.assertNull(argumentService.getFullDetail(interpDraft.getStableId()));
+        Assert.assertNull(argumentService.getFullDetail(edited.getStableId()));
     }
 
     @Test

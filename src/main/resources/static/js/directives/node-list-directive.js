@@ -27,19 +27,4 @@ require('../services/toast-service');
         self.list = $scope.list;
     }
 
-    function fetchDrafts($http, successCallback, errorCallback) {
-
-        $http.get('/draftNodes')
-            .success(function (data) {
-                if (successCallback) {
-                    successCallback(data);
-                }
-            })
-            .error(function(err) {
-                if (errorCallback) {
-                    errorCallback(err);
-                }
-            });
-    }
-
 })();

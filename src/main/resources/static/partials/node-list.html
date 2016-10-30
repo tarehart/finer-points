@@ -10,7 +10,11 @@
             <div>
                 <span class="node-qualifier">{{node.body.qualifier}}</span>
             </div>
-            <div class="node-list-author">{{ node.body.author.displayName }}, {{node.body.dateCreated | date: 'short'}}</div>
+            <div class="node-list-author">
+                <span>{{ node.body.majorVersion.author.displayName }},</span>
+                <span ng-if="node.body.majorVersion.author.stableId !== node.body.author.stableId">edited by {{node.body.author.displayName}},</span>
+                <span>{{node.body.dateCreated | date: 'short'}}</span>
+            </div>
         </div>
     </md-list-item>
 </md-list>

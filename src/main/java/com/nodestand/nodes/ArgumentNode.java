@@ -80,7 +80,6 @@ public abstract class ArgumentNode {
     public abstract void copyContentTo(ArgumentNode target) throws NodeRulesException;
 
     protected void setupDraftBody(ArgumentBody freshBody) {
-        freshBody.originalAuthor = body.originalAuthor;
         freshBody.setPreviousVersion(body);
         VersionHelper.decorateDraftBody(freshBody);
     }
