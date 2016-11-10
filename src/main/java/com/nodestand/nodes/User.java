@@ -32,6 +32,11 @@ public class User {
     @Relationship(type="COMMENT_VOTE", direction = Relationship.OUTGOING)
     private Set<CommentVote> commentVotes;
 
+    /**
+     * Mapping of comment node id to either 1 or -1, representing this user's up-vote or down-vote on that comment.
+     *
+     * Transient because it does not get persisted in the database.
+     */
     @Transient
     private Map<Long, Integer> commentVoteMap;
 
@@ -172,11 +177,13 @@ public class User {
         }
 
         Optional<CommentVote> existingVote = commentVotes.stream().filter(v -> v.comment.getId().equals(comment.getId())).findFirst();
+        int numericRepresentation = isUpvote ? 1 : -1;
 
         if (existingVote.isPresent()) {
             CommentVote vote = existingVote.get();
             if (vote.isUpvote != isUpvote) {
-                comment.modifyScore(isUpvote ? 2 : -2);
+                commentVoteMap.put(comment.getId(), numericRepresentation);
+                comment.modifyScore(numericRepresentation * 2); // We're reversing the direction of a vote, so it's a two-point swing.
                 existingVote.get().isUpvote = isUpvote;
             }
         } else {
@@ -185,8 +192,8 @@ public class User {
             newVote.comment = comment;
             newVote.user = this;
             commentVotes.add(newVote);
-            // TODO: update comment vote map
-            comment.modifyScore(isUpvote ? 1 : -1);
+            commentVoteMap.put(comment.getId(), numericRepresentation);
+            comment.modifyScore(numericRepresentation);
         }
     }
 
