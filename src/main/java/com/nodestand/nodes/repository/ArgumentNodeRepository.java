@@ -2,11 +2,9 @@ package com.nodestand.nodes.repository;
 
 import com.nodestand.nodes.ArgumentNode;
 import org.neo4j.ogm.model.Result;
-import org.neo4j.ogm.response.model.QueryResultModel;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
-import java.util.Map;
 import java.util.Set;
 
 public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {

@@ -1,19 +1,14 @@
 package com.nodestand;
 
-import com.nodestand.nodes.NodeRulesException;
-import com.nodestand.nodes.assertion.AssertionNode;
-import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.env.Environment;
 import org.springframework.data.neo4j.config.Neo4jConfiguration;
-import org.springframework.data.neo4j.event.BeforeSaveEvent;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 
 @org.springframework.context.annotation.Configuration

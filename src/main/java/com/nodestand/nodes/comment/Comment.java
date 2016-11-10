@@ -8,7 +8,6 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.DateLong;
 
 import java.util.Date;
-import java.util.HashSet;
 
 @NodeEntity
 public class Comment implements Commentable {

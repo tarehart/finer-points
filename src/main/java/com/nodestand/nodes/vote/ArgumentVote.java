@@ -1,6 +1,5 @@
 package com.nodestand.nodes.vote;
 
-import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.version.MajorVersion;
 import org.neo4j.ogm.annotation.EndNode;

@@ -1,9 +1,7 @@
 package com.nodestand.nodes.vote;
 
-import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.comment.Comment;
-import com.nodestand.nodes.comment.Commentable;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.RelationshipEntity;

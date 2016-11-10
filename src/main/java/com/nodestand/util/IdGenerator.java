@@ -2,7 +2,6 @@ package com.nodestand.util;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.Base64;
 import java.util.UUID;
 
 public class IdGenerator {

@@ -1,9 +1,6 @@
 package com.nodestand.nodes;
 
-import com.nodestand.nodes.comment.Commentable;
 import com.nodestand.nodes.version.MajorVersion;
-import com.nodestand.nodes.vote.ArgumentVote;
-import com.nodestand.nodes.vote.VoteType;
 import com.nodestand.service.VersionHelper;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -11,7 +8,6 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.DateLong;
 
 import java.util.Date;
-import java.util.Set;
 
 @NodeEntity
 public abstract class ArgumentBody {
@@ -21,9 +17,13 @@ public abstract class ArgumentBody {
 
     private String title;
 
-    // Justification for the existence of this body if it is in competition with another body with
-    // similar title. Examples: "Original version", "Formal logic style", "Curated by Hershey's"
-    // TODO: shouldn't this be a member of MajorVersion?
+    /**
+     * Justification for the existence of this body if it is in competition with another body with
+     * similar title. Examples: "Original version", "Formal logic style", "Curated by Hershey's"
+     *
+     * This might appear to belong on a {@link MajorVersion} instead, but I'm keeping it here because I
+     * want it to be editable in a predictable way.
+     */
     private String qualifier;
 
     // From the big picture perspective, i.e. when looking at a major version in the UI, this will

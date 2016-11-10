@@ -4,7 +4,6 @@ import com.nodestand.controllers.serial.QuickGraphResponse;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.service.argument.ArgumentService;
-import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

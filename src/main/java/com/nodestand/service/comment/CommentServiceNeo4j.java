@@ -2,7 +2,6 @@ package com.nodestand.service.comment;
 
 import com.nodestand.controllers.serial.QuickCommentResponse;
 import com.nodestand.controllers.serial.QuickEdge;
-import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.comment.Comment;

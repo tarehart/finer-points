@@ -4,7 +4,6 @@ import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.ImmutableNodeException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.version.MajorVersion;
-import com.nodestand.service.VersionHelper;
 
 public class SourceBody extends ArgumentBody {
 

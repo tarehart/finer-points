@@ -3,14 +3,11 @@ package com.nodestand.nodes.version;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.comment.Commentable;
-import com.nodestand.nodes.vote.ArgumentVote;
 import com.nodestand.nodes.vote.VoteType;
 import com.nodestand.util.IdGenerator;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-
-import java.util.Set;
 
 @NodeEntity
 public class MajorVersion implements Commentable {

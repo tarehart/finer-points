@@ -2,8 +2,8 @@ package com.nodestand.controllers;
 
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.comment.Comment;
-import com.nodestand.service.user.UserService;
 import com.nodestand.service.comment.CommentService;
+import com.nodestand.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
