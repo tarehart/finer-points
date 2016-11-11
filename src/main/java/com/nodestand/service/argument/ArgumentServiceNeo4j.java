@@ -4,6 +4,7 @@ import com.nodestand.auth.NotAuthorizedException;
 import com.nodestand.controllers.serial.EditResult;
 import com.nodestand.controllers.serial.QuickEdge;
 import com.nodestand.controllers.serial.QuickGraphResponse;
+import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -307,6 +309,12 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Override
     public Set<ArgumentNode> getNodesPublishedByUser(String userStableId) {
         return argumentRepo.getNodesOriginallyAuthoredByUser(userStableId);
+    }
+
+    @Override
+    public ArgumentNode getEditHistory(String stableId) {
+        ArgumentNode editHistory = argumentRepo.getEditHistory(stableId);
+        return editHistory;
     }
 
     private void checkEditRules(ArgumentNode existingNode) throws NodeRulesException {

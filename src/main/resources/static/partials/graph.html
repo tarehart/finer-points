@@ -89,7 +89,7 @@
                 <md-card ng-if="!graphCtrl.rootNode.inEditMode" class="root-node-card">
                     <md-card-title>
                         <md-card-title-text>
-                            <span class="md-headline">
+                            <span class="md-title">
                                 {{graphCtrl.rootNode.body.title}}
                             </span>
                             <span class="md-subhead">
@@ -103,6 +103,8 @@
                                 <span ng-if="!graphCtrl.rootNode.body.public" class="draft-node-pill">
                                     Private draft
                                 </span>
+                                <br>
+                                <a href="/#/history/{{graphCtrl.rootNode.stableId}}">View History</a>
                             </span>
                         </md-card-title-text>
                     </md-card-title>

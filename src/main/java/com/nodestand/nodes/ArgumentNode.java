@@ -23,9 +23,17 @@ public abstract class ArgumentNode {
     @Relationship(type="DEFINED_BY", direction = Relationship.OUTGOING)
     protected ArgumentBody body;
 
+    /**
+     * This is just around to facilitate some publish logic. At the moment,
+     * it gets obliterated after publish.
+     */
     @Relationship(type="PRECEDED_BY", direction = Relationship.OUTGOING)
     protected ArgumentNode previousVersion;
 
+    /**
+     * This is really just here to make the relationship two-way, which can avoid certain
+     * bugs in Neo4j OGM.
+     */
     @Relationship(type="PRECEDED_BY", direction = Relationship.INCOMING)
     protected Set<ArgumentNode> subsequentVersions;
 

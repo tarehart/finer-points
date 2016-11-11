@@ -3,6 +3,7 @@ package com.nodestand.service.argument;
 import com.nodestand.auth.NotAuthorizedException;
 import com.nodestand.controllers.serial.EditResult;
 import com.nodestand.controllers.serial.QuickGraphResponse;
+import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.assertion.AssertionNode;
@@ -10,6 +11,7 @@ import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.source.SourceNode;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 public interface ArgumentService {
@@ -45,4 +47,6 @@ public interface ArgumentService {
     Set<ArgumentNode> getConsumerNodesIncludingDrafts(long userId, long nodeId);
 
     Set<ArgumentNode> getNodesPublishedByUser(String userStableId);
+
+    ArgumentNode getEditHistory(String stableId);
 }

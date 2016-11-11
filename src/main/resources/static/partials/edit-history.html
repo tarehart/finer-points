@@ -1,0 +1,10 @@
+<md-card ng-repeat="entry in historyCtrl.history">
+    <md-card-title>
+        <span class="md-title">{{entry.body.title}}</span>
+    </md-card-title>
+    <md-card-content>
+        <span>{{ (entry.body.dateEdited || entry.body.dateCreated) | date }}</span>
+        <a ng-if="entry.nodeStableId" ng-href="#/graph/{{entry.nodeStableId}}">(view node)</a>
+        <div ng-markdown="entry.body.body" render-markdown></div>
+    </md-card-content>
+</md-card>

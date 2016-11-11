@@ -1,5 +1,6 @@
 package com.nodestand.nodes;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.version.MajorVersion;
 import com.nodestand.service.VersionHelper;
 import org.neo4j.ogm.annotation.GraphId;
@@ -34,6 +35,12 @@ public abstract class ArgumentBody {
     @Relationship(type="VERSION_OF", direction = Relationship.OUTGOING)
     private MajorVersion majorVersion;
 
+    @Relationship(type="DEFINED_BY", direction = Relationship.INCOMING)
+    private ArgumentNode node;
+
+    /**
+     * We use this for tracking edit history.
+     */
     @Relationship(type="PRECEDED_BY", direction = Relationship.OUTGOING)
     protected ArgumentBody previousVersion;
 
@@ -140,5 +147,12 @@ public abstract class ArgumentBody {
         this.previousVersion = previousVersion;
     }
 
+    @JsonIgnore
+    public ArgumentNode getNode() {
+        return node;
+    }
 
+    public void setNode(ArgumentNode node) {
+        this.node = node;
+    }
 }

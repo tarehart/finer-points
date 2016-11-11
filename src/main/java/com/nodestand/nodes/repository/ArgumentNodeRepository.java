@@ -1,10 +1,12 @@
 package com.nodestand.nodes.repository;
 
+import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.ArgumentNode;
 import org.neo4j.ogm.model.Result;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
+import java.util.List;
 import java.util.Set;
 
 public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
@@ -68,4 +70,19 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
             " with c match p=c-[:DEFINED_BY]->(b:ArgumentBody)-[:AUTHORED_BY]->(a:User) where b.isPublic OR ID(a) = {1}" +
             " with p as p, b as b match q=b-[:VERSION_OF]->(:MajorVersion)-[:AUTHORED_BY]->(:User) return p, q")
     Set<ArgumentNode> getConsumerNodes(long nodeId, long userId);
+
+    /**
+     * At the moment, the ArgumentNode that this thing returns is rootNode, which is what I want.
+     * I'm assuming it does so because rootNode is the first thing in the return list.
+     * I'm not super sure that's part of the OGM contract, presently I'm too lazy to check.
+     * Hopefully it will not change on me.
+     */
+    @Query("MATCH p=(rootNode:ArgumentNode {stableId:{0}})-[:DEFINED_BY]->(rootBody:ArgumentBody)-[:PRECEDED_BY*0..]->(:ArgumentBody)" +
+            " WITH p as p, nodes(p) as pathNodes, rootBody as rootBody, rootNode as rootNode" +
+            " MATCH mvPath=rootBody-[:VERSION_OF]->(:MajorVersion)-[:AUTHORED_BY]->(:User)" +
+            " UNWIND pathNodes AS bdy" +
+            " MATCH editorPath=(bdy:ArgumentBody)-[:AUTHORED_BY]->(editor:User)" +
+            " MATCH argumentPath=(bdy:ArgumentBody)<-[:DEFINED_BY]-(argNode:ArgumentNode)" +
+            " RETURN rootNode, pathNodes, rels(p), nodes(mvPath), rels(mvPath), editor, rels(editorPath), argNode, rels(argumentPath)")
+    ArgumentNode getEditHistory(String stableId);
 }

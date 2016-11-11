@@ -10,6 +10,8 @@ require('../sass/common.scss');
     require('./controllers/profile-controller');
     require('./services/user-service');
     require('./directives/graph-directive');
+    require('./directives/edit-history-directive');
+    require('./controllers/route-params-controller');
 
     var nodeStandApp = angular.module('nodeStandApp', [
         'ngRoute',
@@ -38,6 +40,11 @@ require('../sass/common.scss');
                     templateUrl: 'partials/user.html',
                     controller: 'ProfileController',
                     controllerAs: 'profileCtrl'
+                }).
+                when('/history/:nodeStableId', {
+                    templateUrl: 'partials/history.html',
+                    controller: 'RouteParamsController',
+                    controllerAs: 'routeParamsCtrl'
                 }).
                 otherwise({
                     redirectTo: '/'
