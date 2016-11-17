@@ -52,6 +52,9 @@ public class EditController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/editInterpretation")
     public ArgumentNode editInterpretation(@RequestBody Map<String, Object> params) throws NotAuthorizedException, NodeRulesException {
+
+        // TODO: fix these casts, they can throw null pointers.
+
         Long userId = userService.getUserNodeIdFromSecurityContext();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
         String title = (String) params.get("title");

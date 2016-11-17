@@ -126,16 +126,44 @@
                     </md-card-content>
                 </md-card>
 
-                <md-card ng-if="graphCtrl.isPersisted(graphCtrl.rootNode)" class="comment-section-card">
+                <md-card ng-if="graphCtrl.rootNode.body.public" class="comment-section-card">
                     <div node="graphCtrl.rootNode" node-comments></div>
                 </md-card>
             </div>
 
-            <div flex="40" ng-if="graphCtrl.isPersisted(graphCtrl.rootNode)">
-                <div root-node="graphCtrl.rootNode" viva-graph></div>
-                <div class="child-nodes">
-                    <div ng-repeat="node in graphCtrl.rootNode.children" ng-include="'floatTree'"
-                         ng-init="parent = graphCtrl.rootNode"></div>
+            <div flex="40">
+                <div ng-if="graphCtrl.isPersisted(graphCtrl.rootNode)">
+                    <div root-node="graphCtrl.rootNode" viva-graph></div>
+                    <div class="child-nodes">
+                        <div ng-repeat="node in graphCtrl.rootNode.children" ng-include="'floatTree'"
+                             ng-init="parent = graphCtrl.rootNode"></div>
+                    </div>
+                </div>
+
+                <div ng-if="!graphCtrl.rootNode.children.length" class="child-nodes">
+                    <div class="card-margin" ng-if="graphCtrl.rootNode.type === 'assertion'">
+                        <div class="future-node">
+                            <div class="md-headline">Interpretation Node Needed Here</div>
+                            <p>
+                                Use the "Link Node" button to link a new or existing interpretation node. This will complete your tree
+                                so you can publish!
+                            </p>
+                        </div>
+                        <div class="future-node" style="margin-left: 20px; margin-top: 20px">
+                            <div class="md-headline">Source Node Needed Here</div>
+                            <p>You'll create a source too if the interpretation lacks one!</p>
+                        </div>
+                    </div>
+
+                    <div class="card-margin" ng-if="graphCtrl.rootNode.type === 'interpretation'">
+                        <div class="future-node">
+                            <div class="md-headline">Source Node Needed Here</div>
+                            <p>
+                                Use the "Link Node" button to link a new or existing source node. This will complete
+                                your tree so you can publish!
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
 

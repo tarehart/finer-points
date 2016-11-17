@@ -8,6 +8,7 @@ require('../sass/common.scss');
     require('./services/token-interceptor');
     require('./controllers/gateway-controller');
     require('./controllers/profile-controller');
+    require('./controllers/create-controller');
     require('./services/user-service');
     require('./directives/graph-directive');
     require('./directives/edit-history-directive');
@@ -34,7 +35,9 @@ require('../sass/common.scss');
                     templateUrl: 'partials/explorer.html'
                 }).
                 when('/create', {
-                    templateUrl: 'partials/create.html'
+                    templateUrl: 'partials/create.html',
+                    controller: 'CreateController',
+                    controllerAs: 'createCtrl'
                 }).
                 when('/user/:userStableId', {
                     templateUrl: 'partials/user.html',

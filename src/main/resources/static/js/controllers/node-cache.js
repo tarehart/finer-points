@@ -100,7 +100,7 @@
         cache.saveBlankSlateNode = function(successCallback, errorCallback) {
             var node = cache.get(DRAFT_ID);
             node.body.title = node.body.title || 'Untitled';
-            saveNewAssertion(node, function(data) {
+            saveNewNode(node, function(data) {
                 // Next time the draft node is requested, a fresh blank one should be built.
                 cache.nodes[DRAFT_ID] = null;
                 if (successCallback) {
@@ -187,10 +187,6 @@
         }
 
         function saveNewSource(node, successCallback, errorCallback) {
-
-            var links = node.children.map(function(child) {
-                return child.id;
-            });
 
             $http.post('/createSource',
                 {

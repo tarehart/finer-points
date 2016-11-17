@@ -19,7 +19,8 @@ require('./markdown-directive');
         return {
             restrict: "A",
             scope: {
-                starterNode: "=starterNode"
+                starterNode: "=",
+                draftType: "="
             },
             templateUrl: "partials/graph.html",
             controller: 'GraphController',
@@ -32,6 +33,28 @@ require('./markdown-directive');
         var self = this;
 
         self.publishableNodes = [];
+
+        $scope.$watch('draftType', function() {
+            var draftType = $scope.draftType;
+
+            if (draftType) {
+
+                if (self.rootNode) {
+                    self.rootNode.type = draftType;
+                } else {
+
+                    var starterNode = NodeCache.getOrCreateDraftNode(draftType);
+                    self.rootNodes = [starterNode];
+                    self.rootNode = self.rootNodes[0];
+                    self.draftNodes = [starterNode];
+                    self.enterEditMode(starterNode);
+                    starterNode.isSelected = true;
+                }
+
+                $scope.$broadcast("rootData", self.rootNode);
+            }
+        });
+
 
         function setHighlighted(node) {
             self.highlightedNode = node;
@@ -98,14 +121,6 @@ require('./markdown-directive');
             self.rootNodes = [$scope.starterNode];
             self.rootNode = self.rootNodes[0];
             $scope.$broadcast("rootData", self.rootNode);
-        } else {
-            var starterNode = NodeCache.getOrCreateDraftNode();
-            self.rootNodes = [starterNode];
-            self.rootNode = self.rootNodes[0];
-            $scope.$broadcast("rootData", self.rootNode);
-            self.draftNodes = [starterNode];
-            self.enterEditMode(starterNode);
-            starterNode.isSelected = true;
         }
 
         self.hasChild = function (node) {

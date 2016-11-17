@@ -72,6 +72,10 @@
                     iconlibrary: "fa", // Use font-awesome
                     additionalButtons: [additionalButtons]
                 });
+
+                scope.$on('$destroy', function() {
+                    $(element).parent().remove();
+                });
             }
         }
     }

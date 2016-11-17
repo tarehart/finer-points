@@ -133,6 +133,6 @@ public abstract class ArgumentNode {
 
     @Override
     public String toString() {
-        return "[" + getType() + " " + id + " " + stableId + " " + body.getTitle() + "]";
+        return "[" + getType() + " " + id + " " + stableId + " " + (body != null ? body.getTitle() : "(no body)") + "]";
     }
 }
