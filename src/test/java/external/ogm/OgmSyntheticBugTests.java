@@ -1,10 +1,12 @@
 package external.ogm;
 
-import external.ogm.domain.Candidate;
 import external.ogm.domain.ArrayHolder;
+import external.ogm.domain.Candidate;
 import external.ogm.domain.Voter;
-import org.junit.*;
-import org.neo4j.ogm.config.Configuration;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;

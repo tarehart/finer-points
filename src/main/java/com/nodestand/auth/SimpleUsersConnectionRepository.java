@@ -5,7 +5,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.social.connect.*;
 import org.springframework.social.connect.mem.TemporaryConnectionRepository;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class SimpleUsersConnectionRepository implements UsersConnectionRepository {
 

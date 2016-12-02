@@ -15,14 +15,6 @@
 
 package external.ogm;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.IOException;
-import java.util.Collections;
-
 import external.ogm.domain.Mappable;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -31,6 +23,11 @@ import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+
+import java.io.IOException;
+import java.util.Collections;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Luanne Misquitta
