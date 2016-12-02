@@ -97,7 +97,7 @@ public class VersionHelper {
             // Copy links to children into the previous version
             draftNode.copyContentTo(publicVersion);
 
-            publicVersion.setBody(draftNode.getBody());
+            bodyTransplant(draftNode, publicVersion);
 
             ArgumentBody freshlyPublishedBody = publicVersion.getBody();
             freshlyPublishedBody.setDateEdited(new Date());
@@ -135,6 +135,18 @@ public class VersionHelper {
         operations.save(resultingNode);
 
         return resultingNode;
+    }
+
+    private void bodyTransplant(ArgumentNode donor, ArgumentNode recipient) {
+        // Null out the back-references
+        recipient.getBody().setNode(null);
+        donor.getBody().setNode(null);
+
+        // Move the body
+        recipient.setBody(donor.getBody());
+
+        // Reciprocate the relationship
+        donor.getBody().setNode(recipient);
     }
 
     private void publishDescendants(ArgumentNode node) throws NodeRulesException {

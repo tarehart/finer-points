@@ -47,6 +47,7 @@ public abstract class ArgumentNode {
     public abstract ArgumentBody getBody();
 
     public void setBody(ArgumentBody body) {
+        assert body == null || body.getNode() == null || body.getNode() == this; // Relationship should be reciprocal or absent
         this.body = body;
     }
 

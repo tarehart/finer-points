@@ -202,7 +202,8 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         QuickGraphResponse latestTree = argumentService.getGraph(assertionNode.getStableId());
         InterpretationNode treeInterp = (InterpretationNode) latestTree.getRootNode().getGraphChildren().stream().findFirst().get();
         Assert.assertEquals(publishedInterp.getId(), treeInterp.getId());
-        Assert.assertEquals(publishedInterp.getBody().getTitle(), treeInterp.getBody().getTitle()); // TODO: this has started failing; figure out what commit did it.
+        Assert.assertEquals(publishedInterp.getStableId(), treeInterp.getStableId());
+        Assert.assertEquals(publishedInterp.getBody().getTitle(), treeInterp.getBody().getTitle());
         Assert.assertEquals("Edited interp", publishedInterp.getBody().getTitle());
         session.clear();
 

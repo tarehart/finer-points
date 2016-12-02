@@ -61,7 +61,9 @@ public class TwoWayUtil {
     }
 
     public static void forgetBody(ArgumentBody body) {
-        // Nothing to do?
+        if (body.getNode() != null) {
+            body.getNode().setBody(null);
+        }
     }
 
     // https://github.com/neo4j/neo4j-ogm/issues/86
@@ -101,6 +103,11 @@ public class TwoWayUtil {
             for (ArgumentNode subsequentVersion : node.getSubsequentVersions()) {
                 subsequentVersion.setPreviousVersion(null);
             }
+        }
+
+        // Shuffle off mortal coil
+        if (node.getBody() != null) {
+            node.getBody().setNode(null);
         }
     }
 }
