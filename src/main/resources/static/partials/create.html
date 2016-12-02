@@ -1,7 +1,3 @@
-<div ng-if="!user">
-    <div class="alert alert-warning" role="alert">Must <a href="/signin">log in</a> before creating content!</div>
-</div>
-
 <h2 class="card-margin">
     Create New Card
 </h2>
@@ -10,7 +6,10 @@
     <div flex="60">
         <md-card>
             <md-card-content>
-                <md-radio-group ng-model="createCtrl.type" layout="column" layout-gt-xs="row">
+                <div ng-if="!user">
+                    Must <a href="/#/login">log in</a> before creating content!
+                </div>
+                <md-radio-group ng-if="user" ng-model="createCtrl.type" layout="column" layout-gt-xs="row">
                     <div flex="33" class="radio-horizontal" ng-repeat="opt in createCtrl.createOptions">
                         <md-radio-button ng-value="opt.value">
                             {{opt.label}}
@@ -27,5 +26,3 @@
 <div ng-if="user">
     <div node-graph draft-type="createCtrl.type"></div>
 </div>
-
-
