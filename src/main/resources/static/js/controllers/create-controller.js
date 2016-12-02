@@ -12,7 +12,7 @@
         self.type = 'assertion'; // Default selection
 
         self.createOptions = [
-            { value: 'assertion', label: 'Assertion' },
+            { value: 'assertion', label: 'Opinion' },
             { value: 'interpretation', label: 'Interpretation' },
             { value: 'source', label: 'Source' }
         ];

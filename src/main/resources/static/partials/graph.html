@@ -143,24 +143,22 @@
                 <div ng-if="!graphCtrl.rootNode.children.length" class="child-nodes">
                     <div class="card-margin" ng-if="graphCtrl.rootNode.type === 'assertion'">
                         <div class="future-node">
-                            <div class="md-headline">Interpretation Node Needed Here</div>
+                            <div class="md-headline">Interpretation Card Needed Here</div>
                             <p>
-                                Use the "Link Node" button to link a new or existing interpretation node. This will complete your tree
-                                so you can publish!
+                                To meet the minimum requirements for a tree, use the "Attach Card" button to attach a new or existing interpretation card.
                             </p>
                         </div>
                         <div class="future-node" style="margin-left: 20px; margin-top: 20px">
-                            <div class="md-headline">Source Node Needed Here</div>
-                            <p>You'll create a source too if the interpretation lacks one!</p>
+                            <div class="md-headline">Source Card Needed Here</div>
+                            <p>Interpretation cards always have a source.</p>
                         </div>
                     </div>
 
                     <div class="card-margin" ng-if="graphCtrl.rootNode.type === 'interpretation'">
                         <div class="future-node">
-                            <div class="md-headline">Source Node Needed Here</div>
+                            <div class="md-headline">Source Card Needed Here</div>
                             <p>
-                                Use the "Link Node" button to link a new or existing source node. This will complete
-                                your tree so you can publish!
+                                Use the "Attach Card" button to link a new or existing source card.
                             </p>
                         </div>
                     </div>

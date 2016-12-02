@@ -37,8 +37,8 @@
                             name: 'nodelink',
                             toggle: false,
                             hotkey: 'Ctrl+K',
-                            title: 'Link Node',
-                            btnText: 'Link Node',
+                            title: 'Attach Card',
+                            btnText: 'Attach Card',
                             btnClass: 'btn btn-primary btn-sm md-accent',
                             icon: { glyph: 'glyphicon glyphicon-link', fa: 'fa fa-link', 'fa-3': 'icon-link' },
                             callback: function(e){
