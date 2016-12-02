@@ -39,6 +39,9 @@ public class SocialConfig extends SocialConfigurerAdapter {
     @Autowired
     private ConnectionSignUp autoSignUpHandler;
 
+    @Autowired
+    private TokenHandler tokenHandler;
+
     @Override
     public UsersConnectionRepository getUsersConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {
 
@@ -95,7 +98,7 @@ public class SocialConfig extends SocialConfigurerAdapter {
 
     @Bean
     public SignInAdapter signInAdapter() {
-        return new ImplicitSignInAdapter(new HttpSessionRequestCache());
+        return new ImplicitSignInAdapter(new HttpSessionRequestCache(), userDetailsService, tokenHandler);
     }
 
 }

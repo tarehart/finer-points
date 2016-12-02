@@ -16,11 +16,15 @@ import java.util.Map;
 @RestController
 public class CommentController {
 
-    @Autowired
-    CommentService commentService;
+    private final CommentService commentService;
+
+    private final UserService userService;
 
     @Autowired
-    UserService userService;
+    public CommentController(CommentService commentService, UserService userService) {
+        this.commentService = commentService;
+        this.userService = userService;
+    }
 
     @PreAuthorize("permitAll")
     @RequestMapping("/comments")

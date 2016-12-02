@@ -19,11 +19,15 @@ import java.util.stream.Collectors;
 @RestController
 public class CreateController {
 
-    @Autowired
-    ArgumentService argumentService;
+    private final ArgumentService argumentService;
+
+    private final UserService userService;
 
     @Autowired
-    UserService userService;
+    public CreateController(ArgumentService argumentService, UserService userService) {
+        this.argumentService = argumentService;
+        this.userService = userService;
+    }
 
     /**
      * For now, this will always mark the newly created node as a draft. There will be a separate operation

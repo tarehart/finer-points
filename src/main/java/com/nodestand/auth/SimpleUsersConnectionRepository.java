@@ -5,10 +5,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.social.connect.*;
 import org.springframework.social.connect.mem.TemporaryConnectionRepository;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class SimpleUsersConnectionRepository implements UsersConnectionRepository {
 
@@ -26,9 +23,9 @@ public class SimpleUsersConnectionRepository implements UsersConnectionRepositor
     public List<String> findUserIdsWithConnection(Connection<?> connection) {
         try {
             NodeUserDetails user = userService.loadUserByConnectionKey(connection.getKey());
-            return Arrays.asList(user.getUserId());
+            return Collections.singletonList(user.getUserId());
         } catch (AuthenticationException ae) {
-            return Arrays.asList(connectionSignUp.execute(connection));
+            return Collections.singletonList(connectionSignUp.execute(connection));
         }
     }
 

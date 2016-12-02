@@ -18,14 +18,18 @@ import java.util.Map;
 @RestController
 public class UserController {
 
-    @Autowired
-    Neo4jOperations operations;
+    private final Neo4jOperations operations;
+
+    private final UserService userService;
+
+    private final UserRepository userRepository;
 
     @Autowired
-    UserService userService;
-
-    @Autowired
-    UserRepository userRepository;
+    public UserController(Neo4jOperations operations, UserService userService, UserRepository userRepository) {
+        this.operations = operations;
+        this.userService = userService;
+        this.userRepository = userRepository;
+    }
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")

@@ -19,11 +19,15 @@ import java.util.Set;
 @Component
 public class CommentServiceNeo4j implements CommentService {
 
-    @Autowired
-    Neo4jOperations operations;
+    private final Neo4jOperations operations;
+
+    private final CommentableRepository commentRepo;
 
     @Autowired
-    CommentableRepository commentRepo;
+    public CommentServiceNeo4j(Neo4jOperations operations, CommentableRepository commentRepo) {
+        this.operations = operations;
+        this.commentRepo = commentRepo;
+    }
 
     @Override
     @Transactional

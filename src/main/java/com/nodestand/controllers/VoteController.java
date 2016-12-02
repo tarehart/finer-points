@@ -3,7 +3,6 @@ package com.nodestand.controllers;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.comment.Comment;
-import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.version.MajorVersion;
 import com.nodestand.nodes.vote.VoteType;
 import com.nodestand.service.user.UserService;
@@ -20,14 +19,15 @@ import java.util.Map;
 @RestController
 public class VoteController {
 
-    @Autowired
-    ArgumentNodeRepository argumentNodeRepository;
+    private final Neo4jOperations operations;
+
+    private final UserService userService;
 
     @Autowired
-    Neo4jOperations operations;
-
-    @Autowired
-    UserService userService;
+    public VoteController(Neo4jOperations operations, UserService userService) {
+        this.operations = operations;
+        this.userService = userService;
+    }
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")

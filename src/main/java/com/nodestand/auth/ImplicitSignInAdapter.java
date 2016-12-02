@@ -24,6 +24,7 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.web.SignInAdapter;
+import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import javax.servlet.http.Cookie;
@@ -37,16 +38,15 @@ public class ImplicitSignInAdapter implements SignInAdapter {
 
     private final RequestCache requestCache;
 
-    @Autowired
-    public ImplicitSignInAdapter(RequestCache requestCache) {
+    private final UserService userService;
+
+    private final TokenHandler tokenHandler;
+
+    public ImplicitSignInAdapter(RequestCache requestCache, UserService userService, TokenHandler tokenHandler) {
         this.requestCache = requestCache;
+        this.userService = userService;
+        this.tokenHandler = tokenHandler;
     }
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private TokenHandler tokenHandler;
 
     @Override
     public String signIn(String localUserId, Connection<?> connection, NativeWebRequest request) {

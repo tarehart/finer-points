@@ -10,7 +10,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 @NodeEntity
 public class AssertionBody extends ArgumentBody {
 
-    String body;
+    private String body;
 
     public AssertionBody() {}
 

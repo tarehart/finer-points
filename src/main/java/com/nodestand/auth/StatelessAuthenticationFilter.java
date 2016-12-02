@@ -20,13 +20,17 @@ public class StatelessAuthenticationFilter extends GenericFilterBean {
 
     private static final String TOKEN_HEADER_NAME = "X-AUTH-TOKEN";
 
-    @Autowired
-    TokenHandler tokenHandler;
+    private final TokenHandler tokenHandler;
+
+    private final UserService userService;
 
     @Autowired
-    UserService userService;
+    public StatelessAuthenticationFilter(TokenHandler tokenHandler, UserService userService) {
+        this.tokenHandler = tokenHandler;
+        this.userService = userService;
+    }
 
-	@Override
+    @Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
 			ServletException {
 

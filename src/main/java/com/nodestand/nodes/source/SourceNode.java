@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SourceNode extends ArgumentNode {
-    public final String type = "source";
 
     @Relationship(type="INTERPRETS", direction = Relationship.INCOMING)
     private Set<InterpretationNode> dependentNodes;
@@ -24,7 +23,7 @@ public class SourceNode extends ArgumentNode {
 
     @Override
     public String getType() {
-        return type;
+        return "source";
     }
 
     @Override

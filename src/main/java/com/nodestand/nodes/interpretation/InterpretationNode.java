@@ -14,7 +14,6 @@ import java.util.Set;
 
 @NodeEntity
 public class InterpretationNode extends ArgumentNode {
-    private final String type = "interpretation";
 
     @Relationship(type="INTERPRETS", direction = Relationship.OUTGOING)
     private SourceNode source;
@@ -31,7 +30,7 @@ public class InterpretationNode extends ArgumentNode {
 
     @Override
     public String getType() {
-        return type;
+        return "interpretation";
     }
 
     @Override

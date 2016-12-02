@@ -19,11 +19,15 @@ import java.util.stream.Collectors;
 @RestController
 public class EditController {
 
-    @Autowired
-    ArgumentService argumentService;
+    private final ArgumentService argumentService;
+
+    private final UserService userService;
 
     @Autowired
-    UserService userService;
+    public EditController(ArgumentService argumentService, UserService userService) {
+        this.argumentService = argumentService;
+        this.userService = userService;
+    }
 
     /**
      * Hyperlinks within body text have an id corresponding to a major version. That way we don't have to update them

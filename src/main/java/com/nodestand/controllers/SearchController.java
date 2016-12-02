@@ -18,11 +18,15 @@ import java.util.*;
 @RestController
 public class SearchController {
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
+
+    private final ArgumentBodyRepository argumentBodyRepository;
 
     @Autowired
-    ArgumentBodyRepository argumentBodyRepository;
+    public SearchController(UserService userService, ArgumentBodyRepository argumentBodyRepository) {
+        this.userService = userService;
+        this.argumentBodyRepository = argumentBodyRepository;
+    }
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @Transactional

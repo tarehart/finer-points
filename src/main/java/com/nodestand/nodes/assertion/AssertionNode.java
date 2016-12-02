@@ -18,8 +18,6 @@ import java.util.Set;
 @NodeEntity
 public class AssertionNode extends ArgumentNode {
 
-    private final String type = "assertion";
-
     @Relationship(type="SUPPORTED_BY", direction = Relationship.OUTGOING)
     private Set<ArgumentNode> supportingNodes;
 
@@ -39,7 +37,7 @@ public class AssertionNode extends ArgumentNode {
 
     @Override
     public String getType() {
-        return type;
+        return "assertion";
     }
 
 

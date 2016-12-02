@@ -16,11 +16,15 @@ import java.util.*;
 @RestController
 public class NodeMenuController {
 
-    @Autowired
-    ArgumentService argumentService;
+    private final ArgumentService argumentService;
+
+    private final UserService userService;
 
     @Autowired
-    UserService userService;
+    public NodeMenuController(ArgumentService argumentService, UserService userService) {
+        this.argumentService = argumentService;
+        this.userService = userService;
+    }
 
     @Transactional
     @RequestMapping("/rootNodes")

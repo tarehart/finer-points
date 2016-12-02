@@ -11,10 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class AutoSignUpHandler implements ConnectionSignUp {
 
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
     private volatile long userCount;
+
+    @Autowired
+    public AutoSignUpHandler(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     @Transactional

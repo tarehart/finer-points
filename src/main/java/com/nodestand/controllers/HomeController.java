@@ -12,11 +12,15 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class HomeController {
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
+
+    private final Neo4jOperations operations;
 
     @Autowired
-    Neo4jOperations operations;
+    public HomeController(UserService userService, Neo4jOperations operations) {
+        this.userService = userService;
+        this.operations = operations;
+    }
 
     @RequestMapping("/")
     public String getIndex(HttpServletRequest request, Model model) {

@@ -14,11 +14,15 @@ import java.util.Map;
 @RestController
 public class PublishController {
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
+
+    private final ArgumentService argumentService;
 
     @Autowired
-    ArgumentService argumentService;
+    public PublishController(UserService userService, ArgumentService argumentService) {
+        this.userService = userService;
+        this.argumentService = argumentService;
+    }
 
     /*
 
