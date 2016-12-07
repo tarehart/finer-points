@@ -84,9 +84,13 @@ public class EditController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/makeDraft")
     public EditResult makeDraft(@RequestBody Map<String, Object> params) throws NotAuthorizedException, NodeRulesException {
+
+        // TODO: make ajax pass authorStableId
+
         Long userId = userService.getUserNodeIdFromSecurityContext();
         Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
+        String authorStableId = (String) params.get("authorStableId");
 
-        return argumentService.makeDraft(userId, nodeId);
+        return argumentService.makeDraft(userId, authorStableId, nodeId);
     }
 }

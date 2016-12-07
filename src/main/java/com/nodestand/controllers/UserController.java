@@ -1,5 +1,6 @@
 package com.nodestand.controllers;
 
+import com.nodestand.nodes.Author;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.repository.UserRepository;
@@ -13,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 public class UserController {
@@ -36,11 +39,10 @@ public class UserController {
     @RequestMapping("/currentUser")
     public Map<String, Object> currentUser() throws NodeRulesException {
 
-        Long userId = userService.getUserNodeIdFromSecurityContext();
-        if (userId == null) {
+        User user = userService.getUserFromSecurityContext();
+        if (user == null) {
             return null;
         }
-        User user = operations.load(User.class, userId);
 
         Map<String, Object> map = new HashMap<>();
         map.put("user", user);

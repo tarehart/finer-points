@@ -33,7 +33,7 @@ public class NodeUserDetails implements SocialUserDetails {
 
     @Override
     public String getUsername() {
-        return user.getDisplayName();
+        return user.getStableId();
     }
 
     @Override

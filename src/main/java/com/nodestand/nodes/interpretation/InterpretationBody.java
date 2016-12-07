@@ -1,8 +1,8 @@
 package com.nodestand.nodes.interpretation;
 
 import com.nodestand.nodes.ArgumentBody;
+import com.nodestand.nodes.Author;
 import com.nodestand.nodes.ImmutableNodeException;
-import com.nodestand.nodes.User;
 import com.nodestand.nodes.version.MajorVersion;
 
 public class InterpretationBody extends ArgumentBody {
@@ -17,11 +17,11 @@ public class InterpretationBody extends ArgumentBody {
         return new InterpretationNode(this);
     }
 
-    public InterpretationBody(String title, String qualifier, String body, User author) {
+    public InterpretationBody(String title, String qualifier, String body, Author author) {
         this(title, qualifier, body, author, null);
     }
 
-    public InterpretationBody(String title, String qualifier, String body, User author, MajorVersion majorVersion) {
+    public InterpretationBody(String title, String qualifier, String body, Author author, MajorVersion majorVersion) {
         super(title, qualifier, author, majorVersion);
 
         this.body = body;

@@ -4,6 +4,7 @@ import com.nodestand.auth.NotAuthorizedException;
 import com.nodestand.controllers.serial.EditResult;
 import com.nodestand.controllers.serial.QuickGraphResponse;
 import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.Author;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionNode;
@@ -39,27 +40,28 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
     @Autowired
     private Session session;
 
-    private User registerUser(String socialId, String name) {
+    private Author registerUser(String socialId, String name) {
 
         final User user = new User(
                 "google",
                 socialId,
-                name,
                 User.Roles.ROLE_USER);
+
+        Author author = user.addNewAlias(name);
 
         userRepository.save(user);
 
-        return user;
+        return author;
     }
 
     @Test
     public void createAssertionTest() throws NodeRulesException {
 
-        User jim = registerUser("1234", "Jim");
+        Author jim = registerUser("1234", "Jim");
 
         List<Long> links = new LinkedList<>();
 
-        AssertionNode assertionNode = argumentService.createAssertion(jim.getNodeId(), "Test Title", "Test Qual",
+        AssertionNode assertionNode = argumentService.createAssertion(jim.getUser().getNodeId(), jim.getStableId(), "Test Title", "Test Qual",
                 "Hello, world!", links);
 
         Assert.assertNotNull(assertionNode);
@@ -85,11 +87,11 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
     @Test
     public void editingPublishedNodeTest() throws NotAuthorizedException, NodeRulesException {
 
-        User kyle = registerUser("5678", "Kyle");
+        Author kyle = registerUser("5678", "Kyle");
         AssertionNode assertionNode = createPublishedAssertion();
 
         try {
-            argumentService.editAssertion(kyle.getNodeId(), assertionNode.getId(), "Title", "Q", "Body", new LinkedList<>());
+            argumentService.editAssertion(kyle.getUser().getNodeId(), assertionNode.getId(), "Title", "Q", "Body", new LinkedList<>());
             Assert.fail("Should have thrown an exception because you can't edit a published node directly.");
         } catch (NodeRulesException e) {
             // Good.
@@ -98,10 +100,10 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
     @Test
     public void testEditingViaDraft() throws NotAuthorizedException, NodeRulesException {
-        User kyle = registerUser("5678", "Kyle");
+        Author kyle = registerUser("5678", "Kyle");
         AssertionNode assertionNode = createPublishedAssertion();
 
-        EditResult result = argumentService.makeDraft(kyle.getNodeId(), assertionNode.getId());
+        EditResult result = argumentService.makeDraft(kyle.getUser().getNodeId(), kyle.getStableId(), assertionNode.getId());
 
         Assert.assertNotEquals(assertionNode.getId(), result.getEditedNode().getId());
         Assert.assertEquals(result.getEditedNode().getId(), result.getGraph().getRootId());
@@ -111,12 +113,12 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         List<Long> links = new LinkedList<>();
         links.add(child.getId());
         String body = "New Body {{[" + child.getBody().getMajorVersion().getStableId() + "]link}}";
-        AssertionNode edited = argumentService.editAssertion(kyle.getNodeId(), result.getEditedNode().getId(), "New Title", "New Qual", body, links);
+        AssertionNode edited = argumentService.editAssertion(kyle.getUser().getNodeId(), result.getEditedNode().getId(), "New Title", "New Qual", body, links);
 
         Assert.assertFalse(edited.getBody().isPublic());
         Assert.assertEquals(assertionNode.getId(), edited.getPreviousVersion().getId());
 
-        AssertionNode resultingNode = (AssertionNode) argumentService.publishNode(kyle.getNodeId(), edited.getId()).getRootNode();
+        AssertionNode resultingNode = (AssertionNode) argumentService.publishNode(kyle.getUser().getNodeId(), edited.getId()).getRootNode();
 
         Assert.assertEquals(assertionNode.getId(), resultingNode.getId());
         Assert.assertEquals("New Title", resultingNode.getBody().getTitle());
@@ -128,7 +130,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
     @Test
     public void theGAUNTLET() throws NotAuthorizedException, NodeRulesException {
-        User kyle = registerUser("5678", "Kyle");
+        Author kyle = registerUser("5678", "Kyle");
         AssertionNode assertionNode = createPublishedAssertion();
 
         InterpretationNode interp = (InterpretationNode) assertionNode.getSupportingNodes().stream().findFirst().get();
@@ -137,7 +139,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         session.clear();
 
-        EditResult result = argumentService.makeDraft(kyle.getNodeId(), source.getId());
+        EditResult result = argumentService.makeDraft(kyle.getUser().getNodeId(), kyle.getStableId(), source.getId());
 
         Assert.assertNotEquals(source.getId(), result.getEditedNode().getId());
 
@@ -147,14 +149,14 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         session.clear();
 
-        SourceNode edited = argumentService.editSource(kyle.getNodeId(), result.getEditedNode().getId(), "New Title", "Q2", "new/url");
+        SourceNode edited = argumentService.editSource(kyle.getUser().getNodeId(), result.getEditedNode().getId(), "New Title", "Q2", "new/url");
 
         Assert.assertFalse(edited.getBody().isPublic());
         Assert.assertEquals(source.getId(), edited.getPreviousVersion().getId());
 
         session.clear();
 
-        SourceNode resultingNode = (SourceNode) argumentService.publishNode(kyle.getNodeId(), edited.getId()).getRootNode();
+        SourceNode resultingNode = (SourceNode) argumentService.publishNode(kyle.getUser().getNodeId(), edited.getId()).getRootNode();
 
         Assert.assertEquals(source.getId(), resultingNode.getId());
         Assert.assertEquals("New Title", resultingNode.getBody().getTitle());
@@ -172,7 +174,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         session.clear();
 
         // Make the interpretation a draft
-        EditResult interpDraftResult = argumentService.makeDraft(kyle.getNodeId(), interp.getId());
+        EditResult interpDraftResult = argumentService.makeDraft(kyle.getUser().getNodeId(), kyle.getStableId(), interp.getId());
 
         // Make sure the interpretation draft still points to the source
         InterpretationNode interpDraft = (InterpretationNode)interpDraftResult.getEditedNode();
@@ -180,11 +182,11 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         session.clear();
 
         // Edit the interp draft
-        argumentService.editInterpretation(kyle.getNodeId(), interpDraft.getId(), "Edited interp", "Q2", "Edited interp body", resultingNode.getId());
+        argumentService.editInterpretation(kyle.getUser().getNodeId(), interpDraft.getId(), "Edited interp", "Q2", "Edited interp body", resultingNode.getId());
         session.clear();
 
         // Make the assertion a draft
-        EditResult assertionDraftResult = argumentService.makeDraft(kyle.getNodeId(), assertionNode.getId());
+        EditResult assertionDraftResult = argumentService.makeDraft(kyle.getUser().getNodeId(), kyle.getStableId(), assertionNode.getId());
         AssertionNode assertionDraft = (AssertionNode) assertionDraftResult.getEditedNode();
 
         // Make sure the assertion points to the interp original, not the interp draft
@@ -195,7 +197,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         session.clear();
 
         // Publish the interp draft
-        InterpretationNode publishedInterp = (InterpretationNode) argumentService.publishNode(kyle.getNodeId(), interpDraft.getId()).getRootNode();
+        InterpretationNode publishedInterp = (InterpretationNode) argumentService.publishNode(kyle.getUser().getNodeId(), interpDraft.getId()).getRootNode();
         session.clear();
 
         // Make sure the original assertion points to the published changed interp
@@ -216,9 +218,9 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         // Edit and publish the assertion
         List<Long> links = new LinkedList<>();
         links.add(publishedInterp.getId());
-        argumentService.editAssertion(kyle.getNodeId(), assertionDraft.getId(), "Edited assertion", "Q2", "Edited assertion body " + assertionNode.getBody().getBody(), links);
+        argumentService.editAssertion(kyle.getUser().getNodeId(), assertionDraft.getId(), "Edited assertion", "Q2", "Edited assertion body " + assertionNode.getBody().getBody(), links);
         session.clear();
-        AssertionNode publishedAssertion = (AssertionNode) argumentService.publishNode(kyle.getNodeId(), assertionDraft.getId()).getRootNode();
+        AssertionNode publishedAssertion = (AssertionNode) argumentService.publishNode(kyle.getUser().getNodeId(), assertionDraft.getId()).getRootNode();
         session.clear();
 
         // Make sure the resulting graph looks good
@@ -233,13 +235,13 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
     @Test
     public void testChildDraftCreation() throws NotAuthorizedException, NodeRulesException {
-        User kyle = registerUser("5678", "Kyle");
+        Author kyle = registerUser("5678", "Kyle");
         AssertionNode assertionNode = createPublishedAssertion();
 
         InterpretationNode interp = (InterpretationNode) assertionNode.getGraphChildren().iterator().next();
         SourceNode sourceNode = interp.getSource();
 
-        EditResult result = argumentService.makeDraft(kyle.getNodeId(), sourceNode.getId());
+        EditResult result = argumentService.makeDraft(kyle.getUser().getNodeId(), kyle.getStableId(), sourceNode.getId());
 
         Assert.assertEquals(sourceNode.getId(), result.getEditedNode().getPreviousVersion().getId()); // The draft node shows the original as its previous version.
         Assert.assertEquals(result.getEditedNode().getId(), result.getGraph().getRootId()); // The root was the subject of editing
@@ -249,30 +251,30 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
     @Test
     public void testPublishWithSessionClears() throws NodeRulesException, NotAuthorizedException {
 
-        User jim = registerUser("1234", "Jim");
+        Author jim = registerUser("1234", "Jim");
         List<Long> links = new LinkedList<>();
 
-        AssertionNode assertionNode = argumentService.createAssertion(jim.getNodeId(), "Assertion Title", "Original",
+        AssertionNode assertionNode = argumentService.createAssertion(jim.getUser().getNodeId(), jim.getStableId(), "Assertion Title", "Original",
                 "Hello, world!", links);
         session.clear();
 
-        InterpretationNode interpretationNode = argumentService.createInterpretation(jim.getNodeId(), "Interp Title",
+        InterpretationNode interpretationNode = argumentService.createInterpretation(jim.getUser().getNodeId(), jim.getStableId(), "Interp Title",
                 "Original", "Interp body", null);
         session.clear();
 
         // Edit the assertion to point to the interpretation
         links.add(interpretationNode.getId());
-        assertionNode = argumentService.editAssertion(jim.getNodeId(), assertionNode.getId(), "Assertion Title", "Q", "Hello! {{[" +
+        assertionNode = argumentService.editAssertion(jim.getUser().getNodeId(), assertionNode.getId(), "Assertion Title", "Q", "Hello! {{[" +
                 interpretationNode.getBody().getMajorVersion().getStableId() + "]link}}", links);
         session.clear();
 
-        SourceNode sourceNode = argumentService.createSource(jim.getNodeId(), "Source Title", "Original", "http://google.com");
+        SourceNode sourceNode = argumentService.createSource(jim.getUser().getNodeId(), jim.getStableId(), "Source Title", "Original", "http://google.com");
         session.clear();
 
-        argumentService.editInterpretation(jim.getNodeId(), interpretationNode.getId(), "Interp Title", "Q2", "Interp body", sourceNode.getId());
+        argumentService.editInterpretation(jim.getUser().getNodeId(), interpretationNode.getId(), "Interp Title", "Q2", "Interp body", sourceNode.getId());
         session.clear();
 
-        AssertionNode published = (AssertionNode) argumentService.publishNode(jim.getNodeId(), assertionNode.getId()).getRootNode();
+        AssertionNode published = (AssertionNode) argumentService.publishNode(jim.getUser().getNodeId(), assertionNode.getId()).getRootNode();
 
         Assert.assertTrue(published.getBody().isPublic());
     }
@@ -280,28 +282,28 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
     @Test
     public void testPublishingChildOfDraft() throws NotAuthorizedException, NodeRulesException {
-        User kyle = registerUser("5678", "Kyle");
+        Author kyle = registerUser("5678", "Kyle");
         AssertionNode assertionNode = createPublishedAssertion();
 
-        EditResult rootDraft = argumentService.makeDraft(kyle.getNodeId(), assertionNode.getId());
+        EditResult rootDraft = argumentService.makeDraft(kyle.getUser().getNodeId(), kyle.getStableId(), assertionNode.getId());
 
         ArgumentNode childOriginal = assertionNode.getGraphChildren().iterator().next();
         Assert.assertEquals(childOriginal.getId(), rootDraft.getEditedNode().getGraphChildren().iterator().next().getId());
 
         session.clear();
 
-        ArgumentNode childDraft = argumentService.makeDraft(kyle.getNodeId(), childOriginal.getId()).getEditedNode();
+        ArgumentNode childDraft = argumentService.makeDraft(kyle.getUser().getNodeId(), kyle.getStableId(), childOriginal.getId()).getEditedNode();
 
         // The javascript will call edit on the parent (which is a draft) to make it point to this draft version of the child.
         List<Long> links = new LinkedList<>();
         links.add(childDraft.getId());
         String body = "New Body {{[" + childDraft.getBody().getMajorVersion().getStableId() + "]link}}";
-        argumentService.editAssertion(kyle.getNodeId(), rootDraft.getEditedNode().getId(), "Ed Root", "Qual", body, links);
+        argumentService.editAssertion(kyle.getUser().getNodeId(), rootDraft.getEditedNode().getId(), "Ed Root", "Qual", body, links);
 
         session.clear();
 
         // Now publish the child
-        ArgumentNode publishedChild = argumentService.publishNode(kyle.getNodeId(), childDraft.getId()).getRootNode();
+        ArgumentNode publishedChild = argumentService.publishNode(kyle.getUser().getNodeId(), childDraft.getId()).getRootNode();
 
         session.clear();
 
@@ -319,59 +321,71 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         Assert.assertEquals(publishedChild.getStableId(), rootNow.getGraphChildren().iterator().next().getStableId());
 
         // The published child should have two consumers
-        Set<ArgumentNode> consumers = argumentService.getConsumerNodesIncludingDrafts(kyle.getNodeId(), publishedChild.getId());
+        Set<ArgumentNode> consumers = argumentService.getConsumerNodesIncludingDrafts(kyle.getUser().getNodeId(), publishedChild.getId());
         Assert.assertEquals(2, consumers.size());
     }
 
     @Test
     public void testPublishingDraftWithDraftChild() throws NotAuthorizedException, NodeRulesException {
-        User kyle = registerUser("5678", "Kyle");
+        Author kyle = registerUser("5678", "Kyle");
         AssertionNode assertionNode = createPublishedAssertion();
 
-        EditResult rootDraft = argumentService.makeDraft(kyle.getNodeId(), assertionNode.getId());
+        EditResult rootDraft = argumentService.makeDraft(kyle.getUser().getNodeId(), kyle.getStableId(), assertionNode.getId());
 
         ArgumentNode childOriginal = assertionNode.getGraphChildren().iterator().next();
         Assert.assertEquals(childOriginal.getId(), rootDraft.getEditedNode().getGraphChildren().iterator().next().getId());
 
         session.clear();
 
-        ArgumentNode childDraft = argumentService.makeDraft(kyle.getNodeId(), childOriginal.getId()).getEditedNode();
+        ArgumentNode childDraft = argumentService.makeDraft(kyle.getUser().getNodeId(), kyle.getStableId(), childOriginal.getId()).getEditedNode();
 
         // The javascript will call edit on the parent (which is a draft) to make it point to this draft version of the child.
         List<Long> links = new LinkedList<>();
         links.add(childDraft.getId());
         String body = "New Body {{[" + childDraft.getBody().getMajorVersion().getStableId() + "]link}}";
-        argumentService.editAssertion(kyle.getNodeId(), rootDraft.getEditedNode().getId(), "Ed Root", "Qual", body, links);
+        argumentService.editAssertion(kyle.getUser().getNodeId(), rootDraft.getEditedNode().getId(), "Ed Root", "Qual", body, links);
 
         session.clear();
 
         // Now publish the parent. This used to throw a null pointer.
-        ArgumentNode publishedNode = argumentService.publishNode(kyle.getNodeId(), rootDraft.getEditedNode().getId()).getRootNode();
+        ArgumentNode publishedNode = argumentService.publishNode(kyle.getUser().getNodeId(), rootDraft.getEditedNode().getId()).getRootNode();
 
         Assert.assertEquals(publishedNode.getStableId(), assertionNode.getStableId());
 
     }
 
     @Test
+    public void testRegularConsumers() throws NotAuthorizedException, NodeRulesException {
+        Author kyle = registerUser("5678", "Kyle");
+        AssertionNode assertionNode = ArgumentTestUtil.createPublishedTriple(argumentService, kyle);
+        ArgumentNode childOriginal = assertionNode.getGraphChildren().iterator().next();
+
+        session.clear();
+
+        Set<ArgumentNode> consumers = argumentService.getConsumerNodes(childOriginal.getId());
+        Assert.assertEquals(1, consumers.size());
+    }
+
+    @Test
     public void testConsumersWhichAreDrafts() throws NotAuthorizedException, NodeRulesException {
-        User kyle = registerUser("5678", "Kyle");
+        Author kyle = registerUser("5678", "Kyle");
         AssertionNode assertionNode = ArgumentTestUtil.createPublishedTriple(argumentService, kyle);
 
-        EditResult rootDraft = argumentService.makeDraft(kyle.getNodeId(), assertionNode.getId());
+        EditResult rootDraft = argumentService.makeDraft(kyle.getUser().getNodeId(), kyle.getStableId(), assertionNode.getId());
 
         ArgumentNode childOriginal = assertionNode.getGraphChildren().iterator().next();
         Assert.assertEquals(childOriginal.getId(), rootDraft.getEditedNode().getGraphChildren().iterator().next().getId());
 
         session.clear();
 
-        Set<ArgumentNode> consumers = argumentService.getConsumerNodesIncludingDrafts(kyle.getNodeId(), childOriginal.getId());
+        Set<ArgumentNode> consumers = argumentService.getConsumerNodesIncludingDrafts(kyle.getUser().getNodeId(), childOriginal.getId());
         Assert.assertEquals(2, consumers.size());
     }
 
 
     private AssertionNode createPublishedAssertion() throws NodeRulesException, NotAuthorizedException {
 
-        User jim = registerUser("1234", "Jim");
+        Author jim = registerUser("1234", "Jim");
         return ArgumentTestUtil.createPublishedTriple(argumentService, jim);
     }
 

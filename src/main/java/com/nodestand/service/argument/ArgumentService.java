@@ -18,11 +18,11 @@ public interface ArgumentService {
 
     ArgumentNode getFullDetail(String stableId);
 
-    AssertionNode createAssertion(long userId, String title, String qualifier, String body, Collection<Long> links) throws NodeRulesException;
+    AssertionNode createAssertion(long userId, String authorStableId, String title, String qualifier, String body, Collection<Long> links) throws NodeRulesException;
 
-    InterpretationNode createInterpretation(long userId, String title, String qualifier, String body, Long sourceId);
+    InterpretationNode createInterpretation(long userId, String authorStableId, String title, String qualifier, String body, Long sourceId) throws NodeRulesException;
 
-    SourceNode createSource(long userId, String title, String qualifier, String url);
+    SourceNode createSource(long userId, String authorStableId, String title, String qualifier, String url) throws NodeRulesException;
 
     AssertionNode editAssertion(long userId, long nodeId, String title, String qualifier, String body, Collection<Long> links) throws NodeRulesException;
 
@@ -30,7 +30,7 @@ public interface ArgumentService {
 
     SourceNode editSource(long userId, long nodeId, String title, String qualifier, String url) throws NodeRulesException;
 
-    EditResult makeDraft(long userId, long nodeId) throws NodeRulesException;
+    EditResult makeDraft(long userId, String authorStableId, long nodeId) throws NodeRulesException;
 
     QuickGraphResponse publishNode(long userId, long nodeId) throws NotAuthorizedException, NodeRulesException;
 
@@ -38,13 +38,13 @@ public interface ArgumentService {
 
     Set<ArgumentNode> getRootNodes();
 
-    Set<ArgumentNode> getDraftNodes(long userId);
+    Set<ArgumentNode> getDraftNodes(long userId, String authorStableId) throws NodeRulesException;
 
     Set<ArgumentNode> getConsumerNodes(long nodeId);
 
     Set<ArgumentNode> getConsumerNodesIncludingDrafts(long userId, long nodeId);
 
-    Set<ArgumentNode> getNodesPublishedByUser(String userStableId);
+    Set<ArgumentNode> getNodesPublishedByAuthor(String authorStableId);
 
     ArgumentNode getEditHistory(String stableId);
 }

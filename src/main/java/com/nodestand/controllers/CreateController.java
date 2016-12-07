@@ -50,9 +50,10 @@ public class CreateController {
         String title = (String) params.get("title");
         String qualifier = (String) params.get("qualifier");
         String body = (String) params.get("body");
+        String authorStableId = (String) params.get("authorStableId");
         List<Integer> linkedNodes = (List<Integer>) params.get("links");
 
-        return argumentService.createAssertion(userId, title, qualifier, body, convertToLong(linkedNodes));
+        return argumentService.createAssertion(userId, authorStableId, title, qualifier, body, convertToLong(linkedNodes));
     }
 
     private List<Long> convertToLong(List<Integer> links) {
@@ -61,31 +62,33 @@ public class CreateController {
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/createInterpretation")
-    public ArgumentNode createInterpretation(@RequestBody Map<String, Object> params) {
+    public ArgumentNode createInterpretation(@RequestBody Map<String, Object> params) throws NodeRulesException {
 
         Long userId = userService.getUserNodeIdFromSecurityContext();
         String title = (String) params.get("title");
         String qualifier = (String) params.get("qualifier");
         String body = (String) params.get("body");
+        String authorStableId = (String) params.get("authorStableId");
 
         Long sourceId = null;
         if (params.get("sourceId") != null) {
             sourceId = Long.valueOf((Integer) params.get("sourceId"));
         }
 
-        return argumentService.createInterpretation(userId, title, qualifier, body, sourceId);
+        return argumentService.createInterpretation(userId, authorStableId, title, qualifier, body, sourceId);
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/createSource")
-    public ArgumentNode createSource(@RequestBody Map<String, Object> params) {
+    public ArgumentNode createSource(@RequestBody Map<String, Object> params) throws NodeRulesException {
 
         Long userId = userService.getUserNodeIdFromSecurityContext();
         String title = (String) params.get("title");
         String qualifier = (String) params.get("qualifier");
         String url = (String) params.get("url");
+        String authorStableId = (String) params.get("authorStableId");
 
-        return argumentService.createSource(userId, title, qualifier, url);
+        return argumentService.createSource(userId, authorStableId, title, qualifier, url);
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")

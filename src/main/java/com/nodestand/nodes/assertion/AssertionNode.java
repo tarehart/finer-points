@@ -2,6 +2,7 @@ package com.nodestand.nodes.assertion;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.Author;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.interpretation.InterpretationNode;
@@ -98,14 +99,14 @@ public class AssertionNode extends ArgumentNode {
         }
     }
 
-    private AssertionBody createDraftBody(User author) throws NodeRulesException {
+    private AssertionBody createDraftBody(Author author) throws NodeRulesException {
         AssertionBody freshBody = new AssertionBody(body.getTitle(), body.getQualifier(), getBody().getBody(), author, body.getMajorVersion());
         setupDraftBody(freshBody);
         return freshBody;
     }
 
     @Override
-    public AssertionNode createNewDraft(User author) throws NodeRulesException {
+    public AssertionNode createNewDraft(Author author) throws NodeRulesException {
 
         if (!body.isPublic()) {
             throw new NodeRulesException("Node is already a draft!");

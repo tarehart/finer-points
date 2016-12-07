@@ -2,6 +2,7 @@ package com.nodestand.nodes.interpretation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.Author;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionNode;
@@ -47,14 +48,14 @@ public class InterpretationNode extends ArgumentNode {
         existingChildNode.getDependentNodes().removeIf(n -> n.getId().equals(this.getId()));
     }
 
-    private InterpretationBody createDraftBody(User author) throws NodeRulesException {
+    private InterpretationBody createDraftBody(Author author) throws NodeRulesException {
         InterpretationBody freshBody = new InterpretationBody(getBody().getTitle(), getBody().getQualifier(), getBody().getBody(), author, getBody().getMajorVersion());
         setupDraftBody(freshBody);
         return freshBody;
     }
 
     @Override
-    public InterpretationNode createNewDraft(User author) throws NodeRulesException {
+    public InterpretationNode createNewDraft(Author author) throws NodeRulesException {
 
         if (!body.isPublic()) {
             throw new NodeRulesException("Node is already a draft!");

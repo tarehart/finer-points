@@ -1,6 +1,7 @@
 package com.nodestand.nodes.assertion;
 
 import com.nodestand.nodes.ArgumentBody;
+import com.nodestand.nodes.Author;
 import com.nodestand.nodes.ImmutableNodeException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.version.MajorVersion;
@@ -19,11 +20,11 @@ public class AssertionBody extends ArgumentBody {
         return new AssertionNode(this);
     }
 
-    public AssertionBody(String title, String qualifier, String body, User author) {
+    public AssertionBody(String title, String qualifier, String body, Author author) {
         this(title, qualifier, body, author, null);
     }
 
-    public AssertionBody(String title, String qualifier, String body, User author, MajorVersion majorVersion) {
+    public AssertionBody(String title, String qualifier, String body, Author author, MajorVersion majorVersion) {
         super(title, qualifier, author, majorVersion);
 
         this.body = body;

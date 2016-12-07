@@ -5,6 +5,7 @@ import com.nodestand.controllers.serial.EditResult;
 import com.nodestand.controllers.serial.QuickEdge;
 import com.nodestand.controllers.serial.QuickGraphResponse;
 import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.Author;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionBody;
@@ -12,8 +13,10 @@ import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationBody;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
+import com.nodestand.nodes.repository.UserRepository;
 import com.nodestand.nodes.source.SourceBody;
 import com.nodestand.nodes.source.SourceNode;
+import com.nodestand.service.AuthorRulesUtil;
 import com.nodestand.service.VersionHelper;
 import com.nodestand.util.TwoWayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +33,9 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Autowired
     ArgumentNodeRepository argumentRepo;
+
+    @Autowired
+    UserRepository userRepo;
 
     @Autowired
     VersionHelper versionHelper;
@@ -71,10 +77,11 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     @Transactional
-    public AssertionNode createAssertion(long userId, String title, String qualifier, String body, Collection<Long> links) throws NodeRulesException {
+    public AssertionNode createAssertion(long userId, String authorStableId, String title, String qualifier, String body, Collection<Long> links) throws NodeRulesException {
 
-        User user = operations.load(User.class, userId);
-        AssertionBody assertionBody = new AssertionBody(title, qualifier, body, user);
+        Author author = AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, authorStableId);
+
+        AssertionBody assertionBody = new AssertionBody(title, qualifier, body, author);
 
         AssertionNode node = assertionBody.constructNode();
 
@@ -86,12 +93,14 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         return node;
     }
 
+
+
     @Override
     @Transactional
-    public InterpretationNode createInterpretation(long userId, String title, String qualifier, String body, Long sourceId) {
+    public InterpretationNode createInterpretation(long userId, String authorStableId, String title, String qualifier, String body, Long sourceId) throws NodeRulesException {
 
-        User user = operations.load(User.class, userId);
-        InterpretationBody interpretationBody = new InterpretationBody(title, qualifier, body, user);
+        Author author = AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, authorStableId);
+        InterpretationBody interpretationBody = new InterpretationBody(title, qualifier, body, author);
 
         InterpretationNode node = interpretationBody.constructNode();
 
@@ -106,10 +115,11 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     @Transactional
-    public SourceNode createSource(long userId, String title, String qualifier, String url) {
-        User user = operations.load(User.class, userId);
+    public SourceNode createSource(long userId, String authorStableId, String title, String qualifier, String url) throws NodeRulesException {
 
-        SourceBody sourceBody = new SourceBody(title, qualifier, user, url);
+        Author author = AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, authorStableId);
+
+        SourceBody sourceBody = new SourceBody(title, qualifier, author, url);
         SourceNode node = sourceBody.constructNode();
 
         operations.save(node);
@@ -122,9 +132,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         AssertionNode existingNode = operations.load(AssertionNode.class, nodeId, 2);
 
-        if (userId != existingNode.getBody().author.getNodeId()) {
-            throw new NodeRulesException("Can't modify a private draft that you don't own");
-        }
+        AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, existingNode.getBody().author.getStableId());
 
         checkEditRules(existingNode);
 
@@ -159,9 +167,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         InterpretationNode existingNode = operations.load(InterpretationNode.class, nodeId, 2);
 
-        if (userId != existingNode.getBody().author.getNodeId()) {
-            throw new NodeRulesException("Can't modify a private draft that you don't own");
-        }
+        AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, existingNode.getBody().author.getStableId());
 
         checkEditRules(existingNode);
 
@@ -183,9 +189,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         SourceNode existingNode = operations.load(SourceNode.class, nodeId, 2);
 
-        if (userId != existingNode.getBody().author.getNodeId()) {
-            throw new NodeRulesException("Can't modify a private draft that you don't own");
-        }
+        AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, existingNode.getBody().author.getStableId());
 
         checkEditRules(existingNode);
 
@@ -199,7 +203,9 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     @Transactional
-    public EditResult makeDraft(long userId, long nodeId) throws NodeRulesException {
+    public EditResult makeDraft(long userId, String authorStableId, long nodeId) throws NodeRulesException {
+
+        Author author = AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, authorStableId);
 
         ArgumentNode existingNode = operations.load(ArgumentNode.class, nodeId, 2);
 
@@ -214,11 +220,9 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         // Create a new draft version
 
-        User user = operations.load(User.class, userId);
-
         // This will set the previous version on the draft. Later, when we publish the edit,
         // this draft will copy its contents to the previous version and then be destroyed.
-        ArgumentNode draftNode = existingNode.createNewDraft(user);
+        ArgumentNode draftNode = existingNode.createNewDraft(author);
 
         operations.save(draftNode);
 
@@ -234,9 +238,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         ArgumentNode existingNode = operations.load(ArgumentNode.class, nodeId, 2);
 
-        if (userId != existingNode.getBody().author.getNodeId()) {
-            throw new NotAuthorizedException("Not allowed to publish a draft that you did not create.");
-        }
+        AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, existingNode.getBody().author.getStableId());
 
         if (existingNode.isFinalized()) {
             throw new NodeRulesException("No new changes to publish!");
@@ -290,8 +292,9 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     }
 
     @Override
-    public Set<ArgumentNode> getDraftNodes(long userId) {
-        return argumentRepo.getDraftNodesRich(userId);
+    public Set<ArgumentNode> getDraftNodes(long userId, String authorStableId) throws NodeRulesException {
+        AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, authorStableId);
+        return argumentRepo.getDraftNodesRich(authorStableId);
     }
 
     @Override
@@ -305,8 +308,8 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     }
 
     @Override
-    public Set<ArgumentNode> getNodesPublishedByUser(String userStableId) {
-        return argumentRepo.getNodesOriginallyAuthoredByUser(userStableId);
+    public Set<ArgumentNode> getNodesPublishedByAuthor(String authorStableId) {
+        return argumentRepo.getNodesOriginallyAuthoredByUser(authorStableId);
     }
 
     @Override

@@ -30,7 +30,7 @@ public abstract class ArgumentBody {
     // From the big picture perspective, i.e. when looking at a major version in the UI, this will
     // be more of an "edited by" field.
     @Relationship(type="AUTHORED_BY", direction = Relationship.OUTGOING)
-    public User author;
+    public Author author;
 
     @Relationship(type="VERSION_OF", direction = Relationship.OUTGOING)
     private MajorVersion majorVersion;
@@ -58,7 +58,7 @@ public abstract class ArgumentBody {
 
     public ArgumentBody() {}
 
-    public ArgumentBody(String title, String qualifier, User author, MajorVersion majorVersion) {
+    public ArgumentBody(String title, String qualifier, Author author, MajorVersion majorVersion) {
         this.title = title;
         this.qualifier = qualifier;
         this.author = author;

@@ -3,6 +3,8 @@ package com.nodestand.controllers;
 import com.nodestand.auth.NotAuthorizedException;
 import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.NodeRulesException;
+import com.nodestand.service.AuthorRulesUtil;
 import com.nodestand.service.argument.ArgumentService;
 import com.nodestand.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,20 +39,20 @@ public class NodeMenuController {
 
     @Transactional
     @RequestMapping("/draftNodes")
-    public Set<ArgumentNode> getDraftNodes() {
+    public Set<ArgumentNode> getDraftNodes(@RequestParam String authorStableId) throws NodeRulesException {
 
         Long userId = userService.getUserNodeIdFromSecurityContext();
         if (userId == null) {
             throw new NotAuthorizedException("Must be logged in to retrieve drafts.");
         }
 
-        return argumentService.getDraftNodes(userId);
+        return argumentService.getDraftNodes(userId, authorStableId);
     }
 
     @Transactional
     @RequestMapping("/nodesPublishedByUser")
     public Set<ArgumentNode> getNodesPublishedByUser(@RequestParam String stableId) {
-        return argumentService.getNodesPublishedByUser(stableId);
+        return argumentService.getNodesPublishedByAuthor(stableId);
     }
 
     @Transactional

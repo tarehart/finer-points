@@ -1,6 +1,7 @@
 package com.nodestand.nodes.source;
 
 import com.nodestand.nodes.ArgumentBody;
+import com.nodestand.nodes.Author;
 import com.nodestand.nodes.ImmutableNodeException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.version.MajorVersion;
@@ -16,11 +17,11 @@ public class SourceBody extends ArgumentBody {
         return new SourceNode(this);
     }
 
-    public SourceBody(String title, String qualifier, User author, String url) {
+    public SourceBody(String title, String qualifier, Author author, String url) {
         this(title, qualifier, author, url, null);
     }
 
-    public SourceBody(String title, String qualifier, User author, String url, MajorVersion majorVersion) {
+    public SourceBody(String title, String qualifier, Author author, String url, MajorVersion majorVersion) {
         super(title, qualifier, author, majorVersion);
         this.url = url;
     }

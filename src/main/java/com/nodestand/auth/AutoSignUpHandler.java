@@ -27,8 +27,10 @@ public class AutoSignUpHandler implements ConnectionSignUp {
         final User user = new User(
                 connection.getKey().getProviderId(),
                 connection.getKey().getProviderUserId(),
-                generateUniqueUserName(connection.fetchUserProfile().getFirstName()),
                 User.Roles.ROLE_USER);
+
+
+        user.addNewAlias(generateUniqueUserName(connection.fetchUserProfile().getFirstName()));
 
         userRepository.save(user);
         return user.getStableId();
@@ -38,7 +40,7 @@ public class AutoSignUpHandler implements ConnectionSignUp {
     private String generateUniqueUserName(final String firstName) {
         String username = getUsernameFromFirstName(firstName);
         String option = username;
-        for (int i = 0; userRepository.findByUsername(option) != null; i++) {
+        for (int i = 0; userRepository.findByAlias(option) != null; i++) {
             option = username + i;
         }
         return option;

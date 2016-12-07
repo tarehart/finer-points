@@ -8,7 +8,7 @@ public interface CommentService {
 
     QuickCommentResponse getComments(long majorVersionId);
 
-    Comment createComment(String body, long parentId, long userId);
+    Comment createComment(String body, long parentId, String authorStableId, long userId) throws NodeRulesException;
 
-    Comment editComment(String body, long commentId, long userId) throws NodeRulesException;
+    Comment editComment(String body, long commentId, String userStableId) throws NodeRulesException;
 }

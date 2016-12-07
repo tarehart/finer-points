@@ -2,6 +2,7 @@ package com.nodestand.service.argument;
 
 import com.nodestand.auth.NotAuthorizedException;
 import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.Author;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionNode;
@@ -40,22 +41,24 @@ public class ArgumentNodeRepositoryTest extends Neo4jIntegrationTest {
     @Autowired
     private Session session;
 
-    private User registerUser(String socialId, String name) {
+    private Author registerUser(String socialId, String name) {
+
         final User user = new User(
                 "google",
                 socialId,
-                name,
                 User.Roles.ROLE_USER);
+
+        Author author = user.addNewAlias(name);
 
         userRepository.save(user);
 
-        return user;
+        return author;
     }
 
     @Test
     public void singlePathTest() throws NotAuthorizedException, NodeRulesException {
 
-        User jim = registerUser("1234", "Jim");
+        Author jim = registerUser("1234", "Jim");
 
         AssertionNode triple = ArgumentTestUtil.createPublishedTriple(argumentService, jim);
 

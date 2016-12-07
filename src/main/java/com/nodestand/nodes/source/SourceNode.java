@@ -2,6 +2,7 @@ package com.nodestand.nodes.source;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.Author;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.interpretation.InterpretationNode;
@@ -36,14 +37,14 @@ public class SourceNode extends ArgumentNode {
         // Do nothing
     }
 
-    private SourceBody createDraftBody(User author) throws NodeRulesException {
+    private SourceBody createDraftBody(Author author) throws NodeRulesException {
         SourceBody freshBody = new SourceBody(getBody().getTitle(), getBody().getQualifier(), author, getBody().getUrl(), getBody().getMajorVersion());
         setupDraftBody(freshBody);
         return freshBody;
     }
 
     @Override
-    public SourceNode createNewDraft(User author) throws NodeRulesException {
+    public SourceNode createNewDraft(Author author) throws NodeRulesException {
 
         if (!body.isPublic()) {
             throw new NodeRulesException("Node is already a draft!");

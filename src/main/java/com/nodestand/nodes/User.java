@@ -23,6 +23,9 @@ import java.util.stream.Collectors;
 public class User {
     @GraphId Long nodeId;
 
+    @Relationship(type = "CONTROLLED_BY", direction = Relationship.INCOMING)
+    private Set<Author> aliases;
+
     @Relationship(type="ARGUMENT_VOTE", direction = Relationship.OUTGOING)
     private Set<ArgumentVote> argumentVotes;
 
@@ -40,8 +43,6 @@ public class User {
     @Transient
     private Map<Long, Integer> commentVoteMap;
 
-    String displayName;
-
     private String stableId;
 
     private Roles[] roles;
@@ -52,26 +53,22 @@ public class User {
     public User() {
     }
 
-    public User(String providerId, String providerUserId, String displayName, Roles... roles) {
+    public User(String providerId, String providerUserId, Roles... roles) {
         this.roles = roles;
-        this.displayName = displayName;
         this.providerId = providerId;
         this.providerUserId = providerUserId;
         this.stableId = IdGenerator.newId();
+        this.aliases = new HashSet<>();
     }
 
     @Override
     public String toString() {
-        return String.format("%s (%s)", displayName, providerUserId);
+        return providerUserId;
     }
 
     @JsonIgnore
     public Roles[] getRole() {
         return roles;
-    }
-
-    public String getDisplayName() {
-        return displayName;
     }
 
     @JsonIgnore
@@ -108,6 +105,20 @@ public class User {
 
     public String getStableId() {
         return stableId;
+    }
+
+    public Set<Author> getAliases() {
+        return aliases;
+    }
+
+    public void setAliases(Set<Author> aliases) {
+        this.aliases = aliases;
+    }
+
+    public Author addNewAlias(String displayName) {
+        Author author = new Author(this, displayName);
+        aliases.add(author);
+        return author;
     }
 
     public enum Roles implements GrantedAuthority {
@@ -192,7 +203,7 @@ public class User {
             newVote.comment = comment;
             newVote.user = this;
             commentVotes.add(newVote);
-            commentVoteMap.put(comment.getId(), numericRepresentation);
+            commentVoteMap.put(comment.getId(), numericRepresentation); // TODO: commentVoteMap is null when this is the user's first vote. Fix.
             comment.modifyScore(numericRepresentation);
         }
     }

@@ -35,13 +35,14 @@ public class CommentController {
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/createComment")
-    public Comment createNewComment(@RequestBody Map<String, Object> params) {
+    public Comment createNewComment(@RequestBody Map<String, Object> params) throws NodeRulesException {
 
         String body = (String) params.get("body");
+        String authorStableId = (String) params.get("authorStableId");
         Long parentId = Long.valueOf((Integer) params.get("parentId"));
         Long userId = userService.getUserNodeIdFromSecurityContext();
 
-        return commentService.createComment(body, parentId, userId);
+        return commentService.createComment(body, parentId, authorStableId, userId);
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -50,9 +51,9 @@ public class CommentController {
 
         String body = (String) params.get("body");
         Long commentId = Long.valueOf((Integer) params.get("commentId"));
-        Long userId = userService.getUserNodeIdFromSecurityContext();
+        String userStableId = userService.getUserFromSecurityContext().getStableId();
 
-        return commentService.editComment(body, commentId, userId);
+        return commentService.editComment(body, commentId, userStableId);
     }
 
 }

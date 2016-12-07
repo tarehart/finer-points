@@ -93,7 +93,7 @@ public abstract class ArgumentNode {
         VersionHelper.decorateDraftBody(freshBody);
     }
 
-    public abstract ArgumentNode createNewDraft(User author) throws NodeRulesException;
+    public abstract ArgumentNode createNewDraft(Author author) throws NodeRulesException;
 
     public ArgumentNode getPreviousVersion() {
         return previousVersion;
