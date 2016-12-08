@@ -1,5 +1,6 @@
 require('../../sass/graph.scss');
 require('../controllers/node-cache');
+require('../services/user-service');
 require('./vivagraph-directive');
 require('./comments-directive');
 require('./consumers-directive');
@@ -28,7 +29,7 @@ require('./markdown-directive');
         }
     }
 
-    function GraphController($scope, $routeParams, $location, $mdDialog, NodeCache, ToastService) {
+    function GraphController($scope, $routeParams, $location, $mdDialog, NodeCache, ToastService, UserService) {
 
         var self = this;
 
@@ -82,7 +83,10 @@ require('./markdown-directive');
 
         self.enterEditMode = function (node) {
             if (node.body.public) {
-                NodeCache.makeDraft(node, function(draftNode, data) {
+
+                var alias = UserService.getActiveAlias();
+
+                NodeCache.makeDraft(node, alias, function(draftNode, data) {
 
                     if (node === self.rootNode) {
                         $location.path("/graph/" + data.graph.rootStableId);
@@ -190,7 +194,8 @@ require('./markdown-directive');
 
         function saveChanges(node, successCallback) {
             if (NodeCache.isBlankSlateNode(node)) {
-                NodeCache.saveBlankSlateNode(function(newNode) {
+                var alias = UserService.getActiveAlias();
+                NodeCache.saveBlankSlateNode(alias, function(newNode) {
 
                     // Change the page url and reload the graph. All the UI state should stay the same because
                     // the nodes are in the NodeCache.

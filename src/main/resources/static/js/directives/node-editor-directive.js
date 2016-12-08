@@ -2,6 +2,7 @@ require('../../sass/bootstrap-markdown-material.scss');
 require('../../sass/node-linker.scss');
 require('./markdown-directive');
 require('../services/toast-service');
+require('../services/user-service');
 
 (function() {
     'use strict';
@@ -26,7 +27,7 @@ require('../services/toast-service');
         }
     }
 
-    function NodeEditorController($scope, $rootScope, $http, $mdDialog, $location, ToastService, NodeCache) {
+    function NodeEditorController($scope, $rootScope, $http, $mdDialog, $location, ToastService, NodeCache, UserService) {
 
         var self = this;
 
@@ -41,7 +42,8 @@ require('../services/toast-service');
 
         function saveChanges(node, successCallback) {
             if (NodeCache.isBlankSlateNode(node)) {
-                NodeCache.saveBlankSlateNode(function(newNode) {
+                var alias = UserService.getActiveAlias();
+                NodeCache.saveBlankSlateNode(alias, function(newNode) {
 
                     // Change the page url and reload the graph. All the UI state should stay the same because
                     // the nodes are in the NodeCache.
@@ -131,7 +133,8 @@ require('../services/toast-service');
                     var child = NodeCache.addOrUpdateNode(result.chosenNode);
                     attachChild(child);
                 } else {
-                    NodeCache.createAndSaveNode(result.newTitle, result.newQualifier, result.type, attachChild, errorHandler);
+                    var alias = UserService.getActiveAlias();
+                    NodeCache.createAndSaveNode(result.newTitle, result.newQualifier, result.type, alias, attachChild, errorHandler);
                 }
             }
 

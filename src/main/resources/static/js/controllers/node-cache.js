@@ -97,10 +97,10 @@
             return node == cache.get(DRAFT_ID);
         };
 
-        cache.saveBlankSlateNode = function(successCallback, errorCallback) {
+        cache.saveBlankSlateNode = function(alias, successCallback, errorCallback) {
             var node = cache.get(DRAFT_ID);
             node.body.title = node.body.title || 'Untitled';
-            saveNewNode(node, function(data) {
+            saveNewNode(node, alias, function(data) {
                 // Next time the draft node is requested, a fresh blank one should be built.
                 cache.nodes[DRAFT_ID] = null;
                 if (successCallback) {
@@ -109,27 +109,27 @@
             }, errorCallback);
         };
 
-        cache.createAndSaveNode = function(title, qualifier, type, successCallback, errorCallback) {
+        cache.createAndSaveNode = function(title, qualifier, type, alias, successCallback, errorCallback) {
             var node = {
                 body: {title: title, qualifier:qualifier},
                 children: [],
                 getType: function() {return type;}
             };
 
-            saveNewNode(node, successCallback, errorCallback);
+            saveNewNode(node, alias, successCallback, errorCallback);
         };
 
-        function saveNewNode(node, successCallback, errorCallback) {
+        function saveNewNode(node, alias, successCallback, errorCallback) {
             if (node.getType() == "assertion") {
-                saveNewAssertion(node, successCallback, errorCallback);
+                saveNewAssertion(node, alias, successCallback, errorCallback);
             } else if (node.getType() == "interpretation") {
-                saveNewInterpretation(node, successCallback, errorCallback);
+                saveNewInterpretation(node, alias, successCallback, errorCallback);
             } else if (node.getType() == "source") {
-                saveNewSource(node, successCallback, errorCallback);
+                saveNewSource(node, alias, successCallback, errorCallback);
             }
         }
 
-        function saveNewAssertion(node, successCallback, errorCallback) {
+        function saveNewAssertion(node, alias, successCallback, errorCallback) {
 
             var links = node.children.map(function(child) {
                 return child.id;
@@ -140,7 +140,8 @@
                     title: node.body.title,
                     qualifier: node.body.qualifier,
                     body: node.body.body,
-                    links: links
+                    links: links,
+                    authorStableId: alias.stableId
                 })
                 .success(function (data) {
                     mergeIntoNode(node, data);
@@ -157,7 +158,7 @@
                 });
         }
 
-        function saveNewInterpretation(node, successCallback, errorCallback) {
+        function saveNewInterpretation(node, alias, successCallback, errorCallback) {
 
             var sourceId = null;
             if (node.children && node.children.length) {
@@ -169,7 +170,8 @@
                     title: node.body.title,
                     qualifier: node.body.qualifier,
                     body: node.body.body,
-                    sourceId: sourceId
+                    sourceId: sourceId,
+                    authorStableId: alias.stableId
                 })
                 .success(function (data) {
                     mergeIntoNode(node, data);
@@ -186,13 +188,14 @@
                 });
         }
 
-        function saveNewSource(node, successCallback, errorCallback) {
+        function saveNewSource(node, alias, successCallback, errorCallback) {
 
             $http.post('/createSource',
                 {
                     title: node.body.title,
                     qualifier: node.body.qualifier,
-                    url: node.body.url
+                    url: node.body.url,
+                    authorStableId: alias.stableId
                 })
                 .success(function (data) {
                     mergeIntoNode(node, data);
@@ -231,10 +234,11 @@
             return draftNode;
         }
 
-        cache.makeDraft = function(node, successCallback, errorCallback) {
+        cache.makeDraft = function(node, alias, successCallback, errorCallback) {
             $http.post('/makeDraft',
                 {
-                    nodeId: node.id
+                    nodeId: node.id,
+                    authorStableId: alias.stableId
                 })
                 .success(function (data) {
                     var draftNode = handleDraftCreation(data);

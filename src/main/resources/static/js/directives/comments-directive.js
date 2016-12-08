@@ -40,7 +40,7 @@ require('../services/toast-service');
 
         // saves a top-level comment
         ctrl.saveComment = function() {
-            createComment($http, ctrl.newComment.body, ctrl.node.body.majorVersion.id, function(comment) {
+            createComment($http, ctrl.newComment.body, ctrl.node.body.majorVersion.id, UserService.getActiveAlias(), function(comment) {
                 ctrl.node.comments = ctrl.node.comments || [];
                 ctrl.node.comments.push(comment);
                 ctrl.editingTopLevel = false;
@@ -88,7 +88,7 @@ require('../services/toast-service');
 
         ctrl.saveReply = function(comment) {
 
-            createComment($http, comment.newReply.body, comment.id, function(reply) {
+            createComment($http, comment.newReply.body, comment.id, UserService.getActiveAlias(), function(reply) {
                 comment.comments = comment.comments || [];
                 comment.comments.push(reply);
                 comment.writingReply = false;
@@ -133,12 +133,13 @@ require('../services/toast-service');
         }
     }
 
-    function createComment($http, body, parentId, successCallback, errorCallback) {
+    function createComment($http, body, parentId, alias, successCallback, errorCallback) {
 
         $http.post('/createComment',
             {
                 body: body,
-                parentId: parentId
+                parentId: parentId,
+                authorStableId: alias.stableId
             })
             .success(function (data) {
                 if (successCallback) {

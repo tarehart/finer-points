@@ -39,7 +39,7 @@ require('../sass/common.scss');
                     controller: 'CreateController',
                     controllerAs: 'createCtrl'
                 }).
-                when('/user/:userStableId', {
+                when('/profile/:authorStableId', {
                     templateUrl: 'partials/user.html',
                     controller: 'ProfileController',
                     controllerAs: 'profileCtrl'

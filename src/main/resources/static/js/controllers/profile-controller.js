@@ -12,7 +12,7 @@ require('../directives/node-list-directive');
         var self = this;
         
         self.subject = {};
-        self.stableId = $routeParams.userStableId;
+        self.stableId = $routeParams.authorStableId;
         self.draftNodes = [];
         self.publishedNodes = [];
 
@@ -20,7 +20,7 @@ require('../directives/node-list-directive');
             self.subject = data;
         });
         
-        $http.get('/draftNodes').success(function (data) {
+        $http.get('/draftNodes', {params: {authorStableId: self.stableId}}).success(function (data) {
             self.draftNodes.push.apply(self.draftNodes, data); // Push data to nodes
         });
 

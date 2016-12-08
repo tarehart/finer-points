@@ -11,7 +11,7 @@
         <span flex=""></span>
 
 
-        <span ng-if="user" class="header-text">Welcome, <a href="/#/user/{{user.stableId}}">{{user.displayName}}</a></span>
+        <span ng-if="user" class="header-text">Welcome, <a href="/#/profile/{{user.activeAlias.stableId}}">{{user.activeAlias.displayName}}</a></span>
         <md-button ng-if="user" ng-click="logout()">Sign Out</md-button>
 
 
