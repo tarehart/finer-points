@@ -1,6 +1,10 @@
 package com.nodestand.auth;
 
+import com.nodestand.controllers.ResourceNotFoundException;
 import com.nodestand.service.user.UserService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +28,8 @@ public class StatelessAuthenticationFilter extends GenericFilterBean {
 
     private final UserService userService;
 
+    private final Log logger = LogFactory.getLog(getClass());
+
     @Autowired
     public StatelessAuthenticationFilter(TokenHandler tokenHandler, UserService userService) {
         this.tokenHandler = tokenHandler;
@@ -39,13 +45,18 @@ public class StatelessAuthenticationFilter extends GenericFilterBean {
         String stableId = tokenHandler.getUserStableIdFromToken(authToken);
 
         if (stableId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            NodeUserDetails userDetails = this.userService.loadUserByUserId(stableId);
 
+            try {
 
-            if (tokenHandler.validateToken(authToken, userDetails)) {
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                NodeUserDetails userDetails = this.userService.loadUserByUserId(stableId);
+
+                if (tokenHandler.validateToken(authToken, userDetails)) {
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+            } catch (ResourceNotFoundException e) {
+                logger.error("Failed attempt to log in because matching user not found in database.", e);
             }
         }
 

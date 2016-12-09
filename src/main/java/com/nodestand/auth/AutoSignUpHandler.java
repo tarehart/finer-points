@@ -2,6 +2,8 @@ package com.nodestand.auth;
 
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.repository.UserRepository;
+import com.nodestand.util.AliasGenerator;
+import com.nodestand.util.IdGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionSignUp;
@@ -13,11 +15,12 @@ public class AutoSignUpHandler implements ConnectionSignUp {
 
     private final UserRepository userRepository;
 
-    private volatile long userCount;
+    private final AliasGenerator aliasGenerator;
 
     @Autowired
-    public AutoSignUpHandler(UserRepository userRepository) {
+    public AutoSignUpHandler(UserRepository userRepository, AliasGenerator aliasGenerator) {
         this.userRepository = userRepository;
+        this.aliasGenerator = aliasGenerator;
     }
 
     @Override
@@ -29,28 +32,26 @@ public class AutoSignUpHandler implements ConnectionSignUp {
                 connection.getKey().getProviderUserId(),
                 User.Roles.ROLE_USER);
 
-
-        user.addNewAlias(generateUniqueUserName(connection.fetchUserProfile().getFirstName()));
+        // Start with three aliases
+        user.addNewAlias(generateUniqueUserName());
+        user.addNewAlias(generateUniqueUserName());
+        user.addNewAlias(generateUniqueUserName());
 
         userRepository.save(user);
         return user.getStableId();
     }
 
 
-    private String generateUniqueUserName(final String firstName) {
-        String username = getUsernameFromFirstName(firstName);
-        String option = username;
-        for (int i = 0; userRepository.findByAlias(option) != null; i++) {
-            option = username + i;
-        }
-        return option;
-    }
+    private String generateUniqueUserName() {
 
-    private String getUsernameFromFirstName(final String userId) {
-        final int max = 25;
-        int index = userId.indexOf(' ');
-        index = index == -1 || index > max ? userId.length() : index;
-        index = index > max ? max : index;
-        return userId.substring(0, index);
+        for (int i = 0; i < 50; i++) {
+            String name = aliasGenerator.generateAlias();
+            if (userRepository.findByAlias(name) == null) {
+                return name;
+            }
+        }
+
+        // Very bad luck!
+        return IdGenerator.newId();
     }
 }

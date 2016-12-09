@@ -85,6 +85,12 @@ bootRun {
     jvmArgs = ['-Xdebug', '-Xrunjdwp:server=y,transport=dt_socket,address=5005,suspend=n']
 }
 
+task copyDictionary(type: Copy) {
+    from "${projectDir}/src/main/resources/dictionary"
+    into "${buildDir}/classes/test/dictionary"
+}
+processTestResources.dependsOn copyDictionary
+
 repositories {
     jcenter()
     mavenLocal()
