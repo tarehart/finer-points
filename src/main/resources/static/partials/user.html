@@ -5,7 +5,7 @@
 
 <div layout="column" layout-gt-sm="row">
 
-    <div ng-if="profileCtrl.subject.stableId === user.stableId" ng-show="profileCtrl.draftNodes.length">
+    <div ng-if="profileCtrl.subject.stableId === user.activeAlias.stableId" ng-show="profileCtrl.draftNodes.length">
         <md-card>
             <md-card-title>
                 <span class="md-headline">Drafts</span>
