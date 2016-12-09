@@ -7,7 +7,7 @@ import com.nodestand.nodes.repository.UserRepository;
 public final class AuthorRulesUtil {
 
     public static Author loadAuthorWithSecurityCheck(UserRepository userRepo, long userId, String authorStableId) throws NodeRulesException {
-        Author author = userRepo.loadAuthor(authorStableId);
+        Author author = userRepo.loadAuthorWithUser(authorStableId);
 
         if (!author.getUser().getNodeId().equals(userId)) {
             throw new NodeRulesException("User " + userId + " is not allowed to control the alias " + author.getDisplayName());

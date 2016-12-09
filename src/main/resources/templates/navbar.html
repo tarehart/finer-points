@@ -10,10 +10,23 @@
 
         <span flex=""></span>
 
+        <span ng-if="user" class="header-text">
+            Participating as <a href="/#/profile/{{user.activeAlias.stableId}}">{{user.activeAlias.displayName}}</a>
+            <md-menu style="padding:0">
+                <md-button class="md-raised" ng-click="$mdOpenMenu($event)" aria-label="Sort">
+                    Switch Alias
+                </md-button>
+                <md-menu-content width="4">
+                    <md-menu-item ng-repeat="alias in user.aliases">
+                        <md-button ng-click="user.activeAlias = alias">
+                            {{alias.displayName}}
+                        </md-button>
+                    </md-menu-item>
+                </md-menu-content>
+            </md-menu>
+        </span>
 
-        <span ng-if="user" class="header-text">Welcome, <a href="/#/profile/{{user.activeAlias.stableId}}">{{user.activeAlias.displayName}}</a></span>
         <md-button ng-if="user" ng-click="logout()">Sign Out</md-button>
-
 
         <md-button href="#/login" ng-if="!user" class="md-raised" aria-label="Sign In">
             Sign in

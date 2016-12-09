@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 @RestController
 public class UserController {
@@ -54,8 +52,8 @@ public class UserController {
 
     @Transactional
     @RequestMapping("/getProfile")
-    public User getProfile(@RequestParam String stableId) throws NodeRulesException {
+    public Author getProfile(@RequestParam String stableId) throws NodeRulesException {
 
-        return userRepository.getUser(stableId);
+        return userRepository.loadAuthor(stableId);
     }
 }

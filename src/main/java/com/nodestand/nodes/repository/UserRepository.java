@@ -17,5 +17,8 @@ public interface UserRepository extends GraphRepository<User> {
     User findByConnectionKey(String providerId, String providerUserId);
 
     @Query("match p=(:Author {stableId: {0}})-[:CONTROLLED_BY]->(:User) return p")
+    Author loadAuthorWithUser(String authorStableId);
+
+    @Query("match (a:Author {stableId: {0}}) return a")
     Author loadAuthor(String authorStableId);
 }
