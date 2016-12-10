@@ -114,10 +114,19 @@
                         <a ng-if="graphCtrl.rootNode.type === 'source'" ng-href="{{graphCtrl.rootNode.body.url}}" target="_blank">{{graphCtrl.rootNode.body.url}}</a>
                     </md-card-content>
                     <md-card-actions layout="row" layout-align="start center">
-                        <md-button ng-if="graphCtrl.rootNode.consumers.length" ng-click="graphCtrl.toggleConsumers()">Consumers</md-button>
+                        <md-button
+                                class="md-raised"
+                                ng-if="graphCtrl.rootNode.consumers.length"
+                                ng-click="graphCtrl.toggleConsumers()"><i style="color:gray" class="fa fa-arrow-left"></i> Consumers</md-button>
                         <span flex=""></span>
-                        <md-button ng-if="graphCtrl.authorizedForEdit(graphCtrl.rootNode) && !graphCtrl.rootNode.inEditMode" ng-click="graphCtrl.enterEditMode(graphCtrl.rootNode)">Edit</md-button>
-                        <md-button ng-if="graphCtrl.readyToPublish(graphCtrl.rootNode)" ng-click="graphCtrl.publishNode(graphCtrl.rootNode)" class="md-raised md-primary">Publish</md-button>
+                        <md-button
+                                ng-if="graphCtrl.authorizedForEdit(graphCtrl.rootNode) && !graphCtrl.rootNode.inEditMode"
+                                ng-click="graphCtrl.enterEditMode(graphCtrl.rootNode)"
+                                class="md-raised">Edit</md-button>
+                        <md-button
+                                ng-if="graphCtrl.readyToPublish(graphCtrl.rootNode)"
+                                ng-click="graphCtrl.publishNode(graphCtrl.rootNode)"
+                                class="md-raised md-primary">Publish</md-button>
                     </md-card-actions>
                     <div ng-if="graphCtrl.rootNode.body.public" node="graphCtrl.rootNode" vote-button></div>
                 </md-card>
