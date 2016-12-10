@@ -13,10 +13,7 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Transient;
 import org.springframework.security.core.GrantedAuthority;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @NodeEntity
@@ -187,6 +184,10 @@ public class User {
             commentVotes = new HashSet<>();
         }
 
+        if (commentVoteMap == null) {
+            commentVoteMap = new HashMap<>();
+        }
+
         Optional<CommentVote> existingVote = commentVotes.stream().filter(v -> v.comment.getId().equals(comment.getId())).findFirst();
         int numericRepresentation = isUpvote ? 1 : -1;
 
@@ -203,7 +204,7 @@ public class User {
             newVote.comment = comment;
             newVote.user = this;
             commentVotes.add(newVote);
-            commentVoteMap.put(comment.getId(), numericRepresentation); // TODO: commentVoteMap is null when this is the user's first vote. Fix.
+            commentVoteMap.put(comment.getId(), numericRepresentation);
             comment.modifyScore(numericRepresentation);
         }
     }

@@ -34,20 +34,20 @@ public class VoteController {
     @RequestMapping("/voteComment")
     public void voteComment(@RequestBody Map<String, Object> params) throws NodeRulesException {
 
-        Long userId = userService.getUserNodeIdFromSecurityContext();
-        User user = operations.load(User.class, userId);
+        User user = userService.getUserFromSecurityContext();
 
         Long commentId = Long.valueOf((Integer) params.get("commentId"));
         Boolean isUpvote = (Boolean) params.get("isUpvote");
 
         Comment comment = operations.load(Comment.class, commentId);
 
-//        if (comment.author.getNodeId().equals(user.getNodeId())) {
-//            throw new NodeRulesException("Can't upvote your own comment!");
-//        }
+        if (user.getAliases().stream().anyMatch(a -> a.getStableId().equals(comment.author.getStableId()))) {
+            throw new NodeRulesException("Can't upvote your own comment!");
+        }
 
         user.registerCommentVote(comment, isUpvote);
 
+        operations.save(comment);
         operations.save(user);
     }
 
@@ -62,6 +62,7 @@ public class VoteController {
         Comment comment = operations.load(Comment.class, commentId);
         user.revokeCommentVote(comment);
 
+        operations.save(comment);
         operations.save(user);
     }
 
@@ -79,6 +80,7 @@ public class VoteController {
 
         user.registerVote(mv, voteType);
 
+        operations.save(mv);
         operations.save(user);
     }
 
