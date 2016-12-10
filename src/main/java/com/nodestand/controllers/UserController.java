@@ -42,6 +42,8 @@ public class UserController {
             return null;
         }
 
+        user = userService.loadUserWithVotes(user.getStableId());
+
         Map<String, Object> map = new HashMap<>();
         map.put("user", user);
         map.put("bodyVotes", user.getBodyVotes());

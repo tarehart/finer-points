@@ -24,4 +24,6 @@ public interface UserService extends UserDetailsService, SocialUserDetailsServic
     NodeUserDetails loadUserByUserId(String userId);
 
     NodeUserDetails loadUserByConnectionKey(ConnectionKey key);
+
+    User loadUserWithVotes(String stableId);
 }

@@ -66,6 +66,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User loadUserWithVotes(String stableId) {
+        return userRepo.loadUserWithVotes(stableId);
+    }
+
+    @Override
     public NodeUserDetails loadUserByUserId(String stableId) throws UsernameNotFoundException {
         User user = userRepo.getUser(stableId);
 
