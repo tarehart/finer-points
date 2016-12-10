@@ -63,7 +63,29 @@ require('./markdown-directive');
 
         $scope.$on("nodeHighlighted", function(e, node) {
             setHighlighted(node);
+            revealChild(self.rootNode, node);
         });
+
+        function revealChild(node, child) {
+            if (node === child) {
+                return true;
+            }
+
+            var holdsChild = false;
+
+            $.each(node.children, function(index, n) {
+                 if (revealChild(n, child)) {
+                     holdsChild = true;
+                 }
+            });
+
+            if (holdsChild) {
+                node.hideChildren = false;
+                return true;
+            }
+
+            return false;
+        }
 
         function swapInChild(newChild, oldChild, rootNode) {
             if (!rootNode.body.public) {
@@ -119,6 +141,11 @@ require('./markdown-directive');
                 self.rootNodes.push(NodeCache.getByStableId($routeParams.rootStableId));
                 self.rootNode = self.rootNodes[0];
                 ensureDetail(self.rootNode);
+                if (self.rootNode.children && self.rootNode.children.length > 1) {
+                    $.each(self.rootNode.children, function (index, child) {
+                        child.hideChildren = true;
+                    });
+                }
                 $scope.$broadcast("rootData", self.rootNode);
             });
         } else if ($scope.starterNode) {
@@ -149,9 +176,11 @@ require('./markdown-directive');
                 ensureDetail(node);
             }
 
-            $scope.$broadcast("nodeHighlighted", node);
-
             return true;
+        };
+
+        self.highlightNode = function (node) {
+            $scope.$broadcast("nodeHighlighted", node);
         };
 
         self.toggleChildren = function (node) {

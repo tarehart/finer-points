@@ -127,6 +127,7 @@ require('../services/toast-service');
                     rootNode.body.majorVersion[getBodyVotesKey(currentVote)]--;
                     setUserVote(null);
                     setupMeters();
+                    $rootScope.$broadcast("voteChanged", rootNode);
                 })
                 .error(function(err) {
                     ToastService.error(err.message);

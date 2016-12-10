@@ -11,6 +11,11 @@
   margin-top: 8px;
   padding: 10px;
   font-size: 14px;
+
+  &.highlighted {
+    box-shadow: #5384e0 0 2px 5px;
+  }
+
 }
 
 

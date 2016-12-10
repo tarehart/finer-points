@@ -1,7 +1,9 @@
 <div>
 
     <script type="text/ng-template" id="floatTree">
-        <md-card ng-class="[{selected:graphCtrl.isSelected(node), highlighted: node === graphCtrl.highlightedNode }, 'nodeDiv']">
+        <md-card
+                ng-class="[{selected:graphCtrl.isSelected(node), highlighted: node === graphCtrl.highlightedNode }, 'nodeDiv']"
+                ng-click="graphCtrl.highlightNode(node)">
 
             <div ng-if="!node.inEditMode">
 
@@ -9,7 +11,6 @@
                     <div flex="">
                         <a class="child-node-title" href="#/graph/{{node.stableId}}">{{node.body.title}}</a>
                         <div ng-if="!graphCtrl.isSelected(node)">
-                            <span class="spaced-inline-right">{{node.body.qualifier}}</span>
                             <span ng-if="!node.body.public" class="draft-node-pill">
                                 Private draft
                             </span>
@@ -46,7 +47,7 @@
                     </div>
 
                     <div layout="row" layout-align="end center">
-                        <md-button ng-if="graphCtrl.authorizedForEdit(node, parent) && !node.inEditMode" ng-click="graphCtrl.enterEditMode(node)">Edit</md-button>
+                        <md-button ng-if="graphCtrl.authorizedForEdit(node, parent) && !node.inEditMode && !node.body.public" ng-click="graphCtrl.enterEditMode(node)">Edit</md-button>
                         <md-button ng-if="graphCtrl.readyToPublish(node)" ng-click="graphCtrl.publishNode(node)" class="md-raised md-primary">Publish</md-button>
                     </div>
                 </div>
@@ -60,11 +61,11 @@
 
         <div ng-if="graphCtrl.hasChild(node)" layout="row" layout-align="start start">
             <span class="child-visibility">
-                <span ng-if="node.hideChildren">
-                    <md-button class="md-icon-button md-micro" ng-click="graphCtrl.toggleChildren(node)">
+                <span ng-if="node.hideChildren" ng-click="graphCtrl.toggleChildren(node)">
+                    <md-button class="md-icon-button md-micro">
                         <i class="fa fa-plus-square-o"></i>
                     </md-button>
-                    <span>Show hidden children</span>
+                    <span>Show supporting cards</span>
                 </span>
                 <span ng-if="!node.hideChildren">
                     <md-button class="md-icon-button md-micro" ng-click="graphCtrl.toggleChildren(node)">

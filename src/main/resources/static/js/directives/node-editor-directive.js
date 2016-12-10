@@ -35,15 +35,15 @@ require('../services/user-service');
 
         self.saveNode = function(node) {
 
-            stopEditingBody(node, function() {
-                node.inEditMode = false;
-            });
+            stopEditingBody(node);
         };
 
-        function saveChanges(node, successCallback) {
+        function saveChanges(node) {
             if (NodeCache.isBlankSlateNode(node)) {
                 var alias = UserService.getActiveAlias();
                 NodeCache.saveBlankSlateNode(alias, function(newNode) {
+
+                    newNode.inEditMode = false;
 
                     // Change the page url and reload the graph. All the UI state should stay the same because
                     // the nodes are in the NodeCache.
@@ -54,9 +54,8 @@ require('../services/user-service');
             } else {
 
                 NodeCache.saveNodeEdit(node, function(editedNode, data) {
-                    if (successCallback) {
-                        successCallback();
-                    }
+
+                    editedNode.inEditMode = false;
                     ToastService.success("Saved successfully!");
                 }, function (err) {
                     ToastService.error(err.message);
@@ -64,7 +63,7 @@ require('../services/user-service');
             }
         }
 
-        function stopEditingBody(node, successCallback) {
+        function stopEditingBody(node) {
             node.editingBody = false;
 
             var idsInBody = [];
@@ -102,7 +101,7 @@ require('../services/user-service');
                 });
             }
 
-            saveChanges(node, successCallback);
+            saveChanges(node);
         }
 
         self.setBody = function(node, text) {

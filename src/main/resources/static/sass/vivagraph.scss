@@ -28,7 +28,7 @@
 }
 
 .greatArc {
-  stroke: #B2D6A7;
+  stroke: #c2e7b7;
 }
 
 .weakArc {
@@ -36,22 +36,29 @@
 }
 
 .toucheArc {
-  stroke: #BD8ACA;
+  stroke: #e0c6fa;
 }
 
 .trashArc {
-  stroke: #F1999F;
+  stroke: #ffa5ab;
 }
 
 .vivaDot {
-  fill: #c9cadf;
+  fill: #7b7b7b;
 
   .highlight {
-    stroke: #77F;
-    stroke-width: 2;
+    fill: #bdd3ff;
   }
 }
 
 .rootDot {
-  fill: #989da3;
+  fill: #383838;
+}
+
+.viva-node-description {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 5px;
+  color: #7bb8d6;
 }

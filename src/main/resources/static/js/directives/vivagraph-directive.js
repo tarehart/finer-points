@@ -27,7 +27,7 @@ require('../../sass/vivagraph.scss');
 
         var graph = Viva.Graph.graph();
 
-        var highlightedNode = null;
+        scope.highlightedNode = null;
 
         var vivaContainer = element.find("#viva-container")[0];
 
@@ -40,12 +40,12 @@ require('../../sass/vivagraph.scss');
 
         function appendVoteArcsFromNode(ui, argumentNode) {
             var majorVersion = argumentNode.body.majorVersion;
-            appendVoteArcs(ui, majorVersion.greatVotes, majorVersion.weakVotes, majorVersion.toucheVotes, majorVersion.trashVotes);
+            var radius = getRadius(argumentNode) + 2;
+            appendVoteArcs(ui, radius, majorVersion.greatVotes, majorVersion.weakVotes, majorVersion.toucheVotes, majorVersion.trashVotes);
         }
         
-        function appendVoteArcs(ui, greatVotes, weakVotes, toucheVotes, trashVotes) {
+        function appendVoteArcs(ui, r, greatVotes, weakVotes, toucheVotes, trashVotes) {
 
-            var r = 19;
             var totalVotes = greatVotes + weakVotes + toucheVotes + trashVotes;
             if (totalVotes === 0) {
                 return;
@@ -92,19 +92,29 @@ require('../../sass/vivagraph.scss');
                 ' A' + radius + ',' + radius + ' 0 ' + largeArcFlag + ',1 ' + radius * Math.cos(endRadians) + ',' + radius * Math.sin(endRadians);
         }
 
+        function getRadius(argumentNode) {
+            var type = argumentNode.getType();
+            return type === 'assertion' ? 14 :
+                type === 'interpretation' ? 11 : 9;
+        }
+
         var graphics = Viva.Graph.View.svgGraphics();
         graphics.node(function(node) {
             // The function is called every time renderer needs a ui to display node
+
+            var argumentNode = node.data.node;
+            var type = argumentNode.getType();
+
             var ui = Viva.Graph.svg('g', {
-                    class: 'vivaDot ' + node.data.node.getType() + 'Dot' + (node.data.isRoot ? ' rootDot' : '')
+                    class: 'vivaDot ' + type + 'Dot' + (node.data.isRoot ? ' rootDot' : '')
                 }),
                 circle = Viva.Graph.svg('circle', {
-                    r: 14
+                    r: getRadius(argumentNode)
                 });
 
             ui.append(circle);
 
-            appendVoteArcsFromNode(ui, node.data.node);
+            appendVoteArcsFromNode(ui, argumentNode);
 
             circle.addEventListener('click', tapListener);
             circle.addEventListener('touchend', tapListener);
@@ -168,12 +178,10 @@ require('../../sass/vivagraph.scss');
         });
 
         scope.$on("nodeHighlighted", function(e, node) {
-            if (node !== highlightedNode) {
-                if (highlightedNode) {
-                    var oldUI = graphics.getNodeUI(highlightedNode.id);
-                    $.each(oldUI.getElementsByClassName("highlight"), function(index, element) {
-                        element.remove();
-                    });
+            if (node !== scope.highlightedNode) {
+                if (scope.highlightedNode) {
+                    var oldUI = graphics.getNodeUI(scope.highlightedNode.id);
+                    $(oldUI).find('.highlight').remove();
                 }
 
                 var nodeUI = graphics.getNodeUI(node.id);
@@ -181,22 +189,19 @@ require('../../sass/vivagraph.scss');
                     nodeUI.append(
                         Viva.Graph.svg('circle', {
                             class: 'highlight',
-                            r: 13,
-                            fill: 'none'
+                            r: getRadius(node) - 5
                         })
                     );
 
-                    highlightedNode = node;
+
                 }
+                scope.highlightedNode = node;
             }
         });
 
         scope.$on("voteChanged", function(e, node) {
             var ui = graphics.getNodeUI(node.id);
-            $.each(ui.getElementsByClassName("voteArc"), function(index, element) {
-                element.remove();
-            });
-            
+            $(ui).find('.voteArc').remove();
             appendVoteArcsFromNode(ui, node);
         });
 
@@ -242,21 +247,6 @@ require('../../sass/vivagraph.scss');
         };
     }
 
-    function getColor(node) {
-        if (node.getType() === 'assertion') {
-            return "#8888DD";
-        }
-        if (node.getType() === 'interpretation') {
-            return "#88DD88";
-        }
-        if (node.getType() === 'source') {
-            return "#DD8888";
-        }
-
-        return "#000000";
-    }
-
-
     function addVivaNodesRecursive(node, parent, graph, addedNodes) {
 
         if (!addedNodes[node.id]) {
@@ -264,7 +254,6 @@ require('../../sass/vivagraph.scss');
 
             graph.addNode(node.id, {
                 node : node,
-                color: getColor(node),
                 isRoot: !parent
             });
 
