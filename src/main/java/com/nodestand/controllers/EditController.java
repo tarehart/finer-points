@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -38,59 +39,67 @@ public class EditController {
      */
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/editAssertion")
-    public ArgumentNode editAssertion(@RequestBody Map<String, Object> params) throws NotAuthorizedException, NodeRulesException {
+    public ArgumentNode editAssertion(@RequestBody EditAssertionInput input) throws NotAuthorizedException, NodeRulesException {
         Long userId = userService.getUserNodeIdFromSecurityContext();
-        Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
-        String title = (String) params.get("title");
-        String qualifier = (String) params.get("qualifier");
-        String body = (String) params.get("body");
-        List<Integer> links = (List<Integer>) params.get("links");
 
-        return argumentService.editAssertion(userId, nodeId, title, qualifier, body, convertToLong(links));
+        return argumentService.editAssertion(userId, input.nodeId, input.title, input.qualifier, input.body, input.links);
     }
 
-    private List<Long> convertToLong(List<Integer> links) {
-        return links.stream().map(Long::new).collect(Collectors.toList());
+    public static class EditAssertionInput {
+        public EditAssertionInput() {}
+        public Long nodeId;
+        public String title;
+        public String qualifier;
+        public String body;
+        public List<Long> links;
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/editInterpretation")
-    public ArgumentNode editInterpretation(@RequestBody Map<String, Object> params) throws NotAuthorizedException, NodeRulesException {
-
-        // TODO: fix these casts, they can throw null pointers.
+    public ArgumentNode editInterpretation(@RequestBody EditInterpretationInput input) throws NotAuthorizedException, NodeRulesException {
 
         Long userId = userService.getUserNodeIdFromSecurityContext();
-        Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
-        String title = (String) params.get("title");
-        String qualifier = (String) params.get("qualifier");
-        String body = (String) params.get("body");
-        Long sourceId = (long) (Integer) params.get("sourceId");
 
-        return argumentService.editInterpretation(userId, nodeId, title, qualifier, body, sourceId);
+        return argumentService.editInterpretation(userId, input.nodeId, input.title, input.qualifier, input.body, input.sourceId);
+    }
+
+    public static class EditInterpretationInput {
+        public EditInterpretationInput() {}
+        public Long nodeId;
+        public String title;
+        public String qualifier;
+        public String body;
+        public Long sourceId;
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/editSource")
-    public ArgumentNode editSource(@RequestBody Map<String, Object> params) throws NotAuthorizedException, NodeRulesException {
+    public ArgumentNode editSource(@RequestBody EditSourceInput input) throws NotAuthorizedException, NodeRulesException {
         Long userId = userService.getUserNodeIdFromSecurityContext();
-        Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
-        String title = (String) params.get("title");
-        String qualifier = (String) params.get("qualifier");
-        String url = (String) params.get("url");
 
-        return argumentService.editSource(userId, nodeId, title, qualifier, url);
+        return argumentService.editSource(userId, input.nodeId, input.title, input.qualifier, input.url);
+    }
+
+    public static class EditSourceInput {
+        public EditSourceInput() {}
+        public Long nodeId;
+        public String title;
+        public String qualifier;
+        public String url;
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/makeDraft")
-    public EditResult makeDraft(@RequestBody Map<String, Object> params) throws NotAuthorizedException, NodeRulesException {
-
-        // TODO: make ajax pass authorStableId
+    public EditResult makeDraft(@RequestBody MakeDraftInput input) throws NotAuthorizedException, NodeRulesException {
 
         Long userId = userService.getUserNodeIdFromSecurityContext();
-        Long nodeId = Long.valueOf((Integer) params.get("nodeId"));
-        String authorStableId = (String) params.get("authorStableId");
 
-        return argumentService.makeDraft(userId, authorStableId, nodeId);
+        return argumentService.makeDraft(userId, input.authorStableId, input.nodeId);
+    }
+
+    public static class MakeDraftInput {
+        public MakeDraftInput() {}
+        public Long nodeId;
+        public String authorStableId;
     }
 }

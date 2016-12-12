@@ -353,6 +353,13 @@
                 .success(function (data) {
                     inductQuickGraph(data);
 
+                    if (data.rootId != node.id) {
+                        // The publish has resulted in the draft node being replaced, and probably destroyed.
+                        // In any case, we should forget about the draft node. Remove it from the cache.
+
+                        forgetNode(node.id);
+                    }
+
                     if (successCallback) {
                         successCallback(data); // This callback probably ought to change the URL to incorporate the new id.
                     }
@@ -427,17 +434,13 @@
             }
 
             var childOrder = node.childOrder.split(",");
-            var oldChildren = node.children;
-            node.children = [];
-            $.each(oldChildren, function(i, child) {
-                var index = childOrder.indexOf(child.stableId);
-                if (index >= 0) {
-                    node.children[index] = child;
-                } else {
-                    console.log("The ids listed in childOrder are out of sync with the actual children!");
-                    node.children = oldChildren; // Give up on trying to sort
-                    return false; // Break out of the loop.
-                }
+
+            if (childOrder.length !== node.children.length) {
+                console.log("Child array has different length than childOrder.");
+            }
+
+            node.children.sort(function(a, b) {
+                return childOrder.indexOf(a.stableId) - childOrder.indexOf(b.stableId);
             });
         }
 
@@ -452,6 +455,34 @@
 
             node.children.push(child);
         };
+
+        function forgetNode(nodeId) {
+            var nodeToForget = cache.get(nodeId);
+            if (!nodeToForget) {
+                return;
+            }
+
+            $.each(cache, function(id, node) {
+                var idx;
+                if (node.children) {
+                    idx = node.children.indexOf(nodeToForget);
+                    if (idx > -1) {
+                        // Remove nodeToForget from the list of children.
+                        node.children.splice(idx, 1);
+                    }
+                }
+
+                if (node.consumers) {
+                    idx = node.consumers.indexOf(nodeToForget);
+                    if (idx > -1) {
+                        // Remove nodeToForget from the list of children.
+                        node.consumers.splice(idx, 1);
+                    }
+                }
+            });
+
+            delete cache[nodeId];
+        }
 
         function populateChildren(nodeMap, edgeList) {
             Object.keys(nodeMap).forEach(function (id) {
@@ -480,27 +511,27 @@
             });
         }
 
-        // TODO: make sure we don't throw false positives when two nodes have the same child.
         function isInfinite(node) {
-            var closedSet = {};
-            closedSet[node.id] = 1;
-            return isInfiniteHelper(node, closedSet);
-        }
 
-        function isInfiniteHelper(node, closedSet) {
-            for (var i = 0; i < node.children.length; i++) {
-                var child = node.children[i];
-                if (closedSet[child.id]) {
-                    return true;
-                } else {
-                    closedSet[child.id] = 1;
-                }
-                var clonedSet = $.extend({}, closedSet);
-                if (isInfiniteHelper(child, clonedSet)) {
+            var stackSet = new Set();
+
+            function isInfiniteHelper(node) {
+                if (stackSet.has(node)) {
                     return true;
                 }
+                stackSet.add(node);
+
+                for (var i = 0; i < node.children.length; i++) {
+                    if (isInfiniteHelper(node.children[i])) {
+                        return true;
+                    }
+                }
+
+                stackSet.delete(node);
+                return false;
             }
-            return false;
+
+            return isInfiniteHelper(node);
         }
 
         cache.fetchGraphForId = function(stableId, successCallback, errorCallback, force) {

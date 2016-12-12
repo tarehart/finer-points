@@ -79,6 +79,10 @@ public class NodeMenuController {
 
         ArgumentNode nodeWithHistory = argumentService.getEditHistory(stableId);
 
+        if (nodeWithHistory == null) {
+            throw new ResourceNotFoundException("Could not find history based on id " + stableId);
+        }
+
         HistoryResult historyResult = new HistoryResult();
 
         // latestBody is essentially the head of a linked list that we can convert to an array in javascript.

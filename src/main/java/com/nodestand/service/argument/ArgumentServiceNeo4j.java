@@ -1,6 +1,7 @@
 package com.nodestand.service.argument;
 
 import com.nodestand.auth.NotAuthorizedException;
+import com.nodestand.controllers.ResourceNotFoundException;
 import com.nodestand.controllers.serial.EditResult;
 import com.nodestand.controllers.serial.QuickEdge;
 import com.nodestand.controllers.serial.QuickGraphResponse;
@@ -175,7 +176,10 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         existingNode.getBody().setQualifier(qualifier);
         existingNode.getBody().setBody(body);
 
-        SourceNode sourceNode = operations.load(SourceNode.class, sourceId);
+        SourceNode sourceNode = null;
+        if (sourceId != null) {
+            sourceNode = operations.load(SourceNode.class, sourceId);
+        }
 
         TwoWayUtil.updateSupportingNodes(existingNode, sourceNode);
 
@@ -237,6 +241,10 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     public QuickGraphResponse publishNode(long userId, long nodeId) throws NotAuthorizedException, NodeRulesException {
 
         ArgumentNode existingNode = operations.load(ArgumentNode.class, nodeId, 2);
+
+        if (existingNode == null) {
+            throw new ResourceNotFoundException("Could not find node with id " + nodeId);
+        }
 
         AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, existingNode.getBody().author.getStableId());
 

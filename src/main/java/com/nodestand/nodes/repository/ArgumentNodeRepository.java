@@ -76,6 +76,12 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
      * I'm assuming it does so because rootNode is the first thing in the return list.
      * I'm not super sure that's part of the OGM contract, presently I'm too lazy to check.
      * Hopefully it will not change on me.
+     *
+     * Oh great, now I've recorded a case of
+     * Caused by: java.lang.RuntimeException: Result not of expected size. Expected 1 row but found 2
+     * at org.neo4j.ogm.session.delegates.ExecuteQueriesDelegate.queryForObject(ExecuteQueriesDelegate.java:65)
+     *
+     * Have not duped yet...
      */
     @Query("MATCH p=(rootNode:ArgumentNode {stableId:{0}})-[:DEFINED_BY]->(rootBody:ArgumentBody)-[:PRECEDED_BY*0..]->(:ArgumentBody)" +
             " WITH p as p, nodes(p) as pathNodes, rootBody as rootBody, rootNode as rootNode" +

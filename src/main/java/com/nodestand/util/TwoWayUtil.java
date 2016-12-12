@@ -48,13 +48,15 @@ public class TwoWayUtil {
     public static void updateSupportingNodes(InterpretationNode node, SourceNode sourceNode) {
 
         SourceNode existingSource = node.getSource();
-        if (existingSource != null && !Objects.equals(existingSource.getId(), sourceNode.getId())) {
+        if (existingSource != null && (sourceNode == null || !Objects.equals(existingSource.getId(), sourceNode.getId()))) {
             existingSource.getDependentNodes().remove(node);
 
-            if (sourceNode.getDependentNodes() == null) {
-                sourceNode.setDependentNodes(new HashSet<>());
+            if (sourceNode != null) {
+                if (sourceNode.getDependentNodes() == null) {
+                    sourceNode.setDependentNodes(new HashSet<>());
+                }
+                sourceNode.getDependentNodes().add(node);
             }
-            sourceNode.getDependentNodes().add(node);
         }
 
         node.setSource(sourceNode);

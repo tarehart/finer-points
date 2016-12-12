@@ -7,7 +7,7 @@ require('../directives/node-list-directive');
         .module('nodeStandControllers')
         .controller('ProfileController', ProfileController);
 
-    function ProfileController($scope, $routeParams, $http) {
+    function ProfileController($scope, $routeParams, $http, UserService) {
 
         var self = this;
         
@@ -19,10 +19,12 @@ require('../directives/node-list-directive');
         $http.get('/getProfile', {params: {stableId: self.stableId}}).success(function (data) {
             self.subject = data;
         });
-        
-        $http.get('/draftNodes', {params: {authorStableId: self.stableId}}).success(function (data) {
-            self.draftNodes.push.apply(self.draftNodes, data); // Push data to nodes
-        });
+
+        if (UserService.userControlsAlias(self.stableId)) {
+            $http.get('/draftNodes', {params: {authorStableId: self.stableId}}).success(function (data) {
+                self.draftNodes.push.apply(self.draftNodes, data); // Push data to nodes
+            });
+        }
 
         $http.get('/nodesPublishedByUser', {params: {stableId: self.stableId}}).success(function (data) {
             self.publishedNodes.push.apply(self.publishedNodes, data); // Push data to nodes

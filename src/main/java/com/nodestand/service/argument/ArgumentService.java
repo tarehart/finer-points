@@ -32,6 +32,10 @@ public interface ArgumentService {
 
     EditResult makeDraft(long userId, String authorStableId, long nodeId) throws NodeRulesException;
 
+    /**
+     * This may or may not result in a node with a different id.
+     * Examine the root node of the response to see if it matches the nodeId you passed in.
+     */
     QuickGraphResponse publishNode(long userId, long nodeId) throws NotAuthorizedException, NodeRulesException;
 
     Set<ArgumentNode> getNodesInMajorVersion(long majorVersionId);

@@ -23,6 +23,14 @@ require('./token-storage');
             return self.loggedInUser.activeAlias;
         };
 
+        self.userControlsAlias = function(aliasStableId) {
+            if (!self.loggedInUser || !self.loggedInUser.aliases) {
+                return false;
+            }
+
+            return !!$.grep(self.loggedInUser.aliases, function(val, idx) { return val.stableId = aliasStableId });
+        };
+
         // http://www.codelord.net/2015/05/04/angularjs-notifying-about-changes-from-services-to-controllers/
         self.subscribeSuccessfulLogin = function(scope, callback) {
             var handler = $rootScope.$on('successful-login', callback);

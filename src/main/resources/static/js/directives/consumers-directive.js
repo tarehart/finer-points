@@ -38,11 +38,6 @@ require('./node-list-directive');
 
     function fetchConsumers(node, NodeCache, successCallback, errorCallback) {
 
-        if (node.consumers) {
-            successCallback(node.consumers);
-            return;
-        }
-
         NodeCache.fetchConsumers(node.id, successCallback, errorCallback);
     }
 

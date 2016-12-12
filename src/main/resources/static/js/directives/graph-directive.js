@@ -66,6 +66,10 @@ require('./markdown-directive');
             revealChild(self.rootNode, node);
         });
 
+        $scope.$on("nodeSaved", function(e, node) {
+            self.problemReport = buildProblemReport(self.rootNode);
+        });
+
         function revealChild(node, child) {
             if (node === child) {
                 return true;
@@ -87,37 +91,19 @@ require('./markdown-directive');
             return false;
         }
 
-        function swapInChild(newChild, oldChild, rootNode) {
-            if (!rootNode.body.public) {
-                $.each(rootNode.children, function(index, child) {
-                    if (child === oldChild) {
-                        // modify rootNode to point to the draft instead of the original
-                        rootNode.children[index] = newChild;
-                        // Save root node
-                        saveChanges(rootNode);
-                        return false; // break out of $.each
-                    } else {
-                        swapInChild(newChild, oldChild, child);
-                    }
-                });
-            }
-        }
-
         self.enterEditMode = function (node) {
             if (node.body.public) {
+
+                if (node !== self.rootNode) {
+                    ToastService.error("Please navigate to the node before attempting to edit.");
+                }
 
                 var alias = UserService.getActiveAlias();
 
                 NodeCache.makeDraft(node, alias, function(draftNode, data) {
 
-                    if (node === self.rootNode) {
-                        $location.path("/graph/" + data.graph.rootStableId);
-                    } else {
-                        // Modify all the parent node so it points to the new draft. There may be multiple
-                        // parent nodes in the tree; modify them all.
-                        // TODO: consider doing this server side, as we do with publish
-                        swapInChild(data.editedNode, node, self.rootNode);
-                    }
+                    $location.path("/graph/" + data.graph.rootStableId);
+
                     self.enterEditMode(data.editedNode);
                     data.editedNode.isSelected = true;
 
@@ -137,15 +123,15 @@ require('./markdown-directive');
 
         if ($routeParams && $routeParams.rootStableId) {
             NodeCache.fetchGraphForId($routeParams.rootStableId, function() {
-                self.rootNodes = [];
-                self.rootNodes.push(NodeCache.getByStableId($routeParams.rootStableId));
-                self.rootNode = self.rootNodes[0];
+                self.rootNode = NodeCache.getByStableId($routeParams.rootStableId);
+                self.rootNodes = [self.rootNode]; // We have this in array form because it's handy for kicking off the angular template recursion.
                 ensureDetail(self.rootNode);
                 if (self.rootNode.children && self.rootNode.children.length > 1) {
                     $.each(self.rootNode.children, function (index, child) {
                         child.hideChildren = true;
                     });
                 }
+                self.problemReport = buildProblemReport(self.rootNode);
                 $scope.$broadcast("rootData", self.rootNode);
             });
         } else if ($scope.starterNode) {
@@ -215,36 +201,6 @@ require('./markdown-directive');
             return node.body && node.body.author && node.body.author.stableId;
         }
 
-        self.saveNode = function(node) {
-            saveChanges(node, function() {
-                node.inEditMode = false;
-            });
-        };
-
-        function saveChanges(node, successCallback) {
-            if (NodeCache.isBlankSlateNode(node)) {
-                var alias = UserService.getActiveAlias();
-                NodeCache.saveBlankSlateNode(alias, function(newNode) {
-
-                    // Change the page url and reload the graph. All the UI state should stay the same because
-                    // the nodes are in the NodeCache.
-                    $location.path("/graph/" + newNode.stableId);
-                }, function(err) {
-                    ToastService.error(err.message);
-                });
-            } else {
-
-                NodeCache.saveNodeEdit(node, function(editedNode, data) {
-                    if (successCallback) {
-                        successCallback();
-                    }
-                    ToastService.success("Saved successfully!");
-                }, function (err) {
-                    ToastService.error(err.message);
-                });
-            }
-        }
-
         self.setBody = function(node, text) {
             node.body.body = text;
         };
@@ -297,43 +253,65 @@ require('./markdown-directive');
             });
         }
 
-        function allowsPublish(node, publishableSet) {
+        function allowsPublish(node) {
+            return self.problemReport && !self.problemReport.find(n => n.node === node);
+        }
 
-            if (publishableSet[node.id] || node.body.draft === false) {
-                return true;
-            }
+        function buildProblemReport(node) {
 
-            if (!node.body.title) {
-                return false;
-            }
+            var visitedNodes = new Set();
 
-            if (node.type == "source") {
-                if (node.body.url) {
-                    publishableSet[node.id] = 1;
-                    return true;
+            var problemReport = [];
+
+            buildReport(node);
+
+            return problemReport;
+
+            function buildReport(node) {
+
+                if (visitedNodes.has(node) || node.body.draft === false) {
+                    return;
                 }
-                return false;
-            }
 
-            if (node.type == "interpretation") {
-                if (node.body.body && node.children.length == 1 && allowsPublish(node.children[0], publishableSet)) {
-                    publishableSet[node.id] = 1;
-                    return true;
+                visitedNodes.add(node);
+
+                if (!node.body.title) {
+                    problemReport.push({message: "You need to give your card a title.", node: node});
                 }
-                return false;
-            }
 
-            if (node.type == "assertion") {
-                if (node.body.body && node.children.length) {
-                    for (var i = 0; i < node.children.length; i++) {
-                        if (!allowsPublish(node.children[i], publishableSet)) {
-                            return false;
-                        }
+                if (node.body.title === 'Untitled') {
+                    problemReport.push({message: 'You need to write a title other than "Untitled."', node: node});
+                }
+
+                if (node.type == "source") {
+                    if (!node.body.url) {
+                        problemReport.push({message: "You need a URL for your source node.", node: node});
                     }
-                    publishableSet[node.id] = 1;
-                    return true;
-                } else {
-                    return false;
+                }
+                else if (node.type == "interpretation") {
+                    if (!node.body.body) {
+                        problemReport.push({message: "You need some text in your interpretation.", node: node});
+                    }
+
+                    if (!node.children.length) {
+                        problemReport.push({message: "You need to attach a source card support your interpretation.", node: node});
+                    }
+                    else {
+                        buildReport(node.children[0]);
+                    }
+                }
+                else if (node.type == "assertion") {
+                    if (!node.body.body) {
+                        problemReport.push({message: "You need some text in your opinion.", node: node});
+                    }
+
+                    if (!node.children.length) {
+                        problemReport.push({message: "You need to attach cards to support your opinion.", node: node});
+                    }
+
+                    for (var i = 0; i < node.children.length; i++) {
+                        buildReport(node.children[i]);
+                    }
                 }
             }
         }
