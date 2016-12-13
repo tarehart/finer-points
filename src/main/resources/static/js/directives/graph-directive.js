@@ -185,7 +185,7 @@ require('./markdown-directive');
             // This is because I don't intend to mess with draft propagation anymore.
             // If you want to edit a public child, the user needs to navigate to it first,
             // or start edit its parent.
-            return node === self.rootNode || !node.body.public || (parent && !parent.body.public);
+            return UserService.getUser() && (node === self.rootNode || !node.body.public || (parent && !parent.body.public));
         };
 
         function ensureDetail(node) {
