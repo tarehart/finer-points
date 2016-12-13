@@ -9,7 +9,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.3.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.2.RELEASE")
         classpath("be.filipblondeel.gradle:gradle-gulp-plugin:0.1")
         classpath("com.moowork.gradle:gradle-node-plugin:0.12")
     }
@@ -17,7 +17,7 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'idea'
-apply plugin: 'spring-boot'
+apply plugin: 'org.springframework.boot'
 apply plugin: 'war'
 apply plugin: 'com.moowork.node'
 
@@ -33,7 +33,7 @@ configurations.all {
 
 node {
     // Version of node to use. Keep webpack-watch.sh in sync with this.
-    version = '4.4.4'
+    version = '6.9.2'
     download = true
 }
 
@@ -77,12 +77,9 @@ jar {
     version =  '0.1.0'
 }
 
-run {
-    jvmArgs = ['-Xdebug', '-Xrunjdwp:server=y,transport=dt_socket,address=5005,suspend=n']
-}
-
 bootRun {
     jvmArgs = ['-Xdebug', '-Xrunjdwp:server=y,transport=dt_socket,address=5005,suspend=n']
+    addResources = true
 }
 
 task copyDictionary(type: Copy) {
@@ -113,16 +110,16 @@ dependencies {
     compile("org.springframework.social:spring-social-google:1.0.0.RELEASE")
     compile("org.springframework:spring-context")
     compile("org.springframework:spring-tx")
-    compile("org.springframework.data:spring-data-neo4j:4.1.2.RELEASE") // At this time this is the latest stable version. Feel free to upgrade.
+    compile("org.springframework.data:spring-data-neo4j:4.1.5.RELEASE") // At this time this is the latest stable version. Feel free to upgrade.
     compile("org.springframework:spring-webmvc")
     compile("joda-time:joda-time:2.8.1")
 
     testCompile("junit:junit")
-    testCompile(group: 'org.neo4j', name: 'neo4j-ogm-test', version: '2.0.1')
-    testCompile(group: 'org.neo4j.test', name: 'neo4j-harness', version: '2.3.5')
+    testCompile(group: 'org.neo4j', name: 'neo4j-ogm-test', version: '2.0.5')
+    testCompile(group: 'org.neo4j.test', name: 'neo4j-harness', version: '3.1.0')
     testCompile("org.springframework:spring-test")
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.3'
+    gradleVersion = '3.2.1'
 }
