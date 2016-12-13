@@ -57,16 +57,17 @@ require('./token-storage');
 
             $http.get('/currentUser')
                 .success(function (data) {
-                    data.user.bodyVotes = data.bodyVotes;
-                    data.user.commentVotes = data.commentVotes;
-                    self.loggedInUser = data.user;
-                    self.loggedInUser.activeAlias = data.user.aliases[0];
-                    notifySuccessfulLogin();
+                    if (data) {
+                        data.user.bodyVotes = data.bodyVotes;
+                        data.user.commentVotes = data.commentVotes;
+                        self.loggedInUser = data.user;
+                        self.loggedInUser.activeAlias = data.user.aliases[0];
+                        notifySuccessfulLogin();
+                    }
+
+                    // If there's no data, then the user is not signed in.
                 })
                 .error(function(err) {
-                    if (err.status === 403) {
-                        return; // This is expected, it just means that nobody is logged in right now.
-                    }
                     ToastService.error(err.message);
                 });
         }

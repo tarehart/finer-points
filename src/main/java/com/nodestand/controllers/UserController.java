@@ -33,7 +33,6 @@ public class UserController {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/currentUser")
     public Map<String, Object> currentUser() throws NodeRulesException {
 
