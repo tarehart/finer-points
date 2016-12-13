@@ -102,4 +102,13 @@ public class EditController {
         public Long nodeId;
         public String authorStableId;
     }
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @RequestMapping("/discardDraft")
+    public void makeDraft(@RequestBody String stableId) throws NotAuthorizedException, NodeRulesException {
+
+        Long userId = userService.getUserNodeIdFromSecurityContext();
+
+        argumentService.discardDraft(userId, stableId);
+    }
 }

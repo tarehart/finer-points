@@ -51,4 +51,6 @@ public interface ArgumentService {
     Set<ArgumentNode> getNodesPublishedByAuthor(String authorStableId);
 
     ArgumentNode getEditHistory(String stableId);
+
+    void discardDraft(Long userId, String stableId) throws NodeRulesException;
 }

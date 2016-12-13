@@ -11,7 +11,29 @@
                 <span class="md-headline">Drafts</span>
             </md-card-title>
             <md-card-content>
-                <div node-list list="profileCtrl.draftNodes"></div>
+                <md-list>
+                    <md-list-item class="md-3-line node-list-item" ng-repeat="node in profileCtrl.draftNodes">
+                        <div class="md-list-item-text" layout="column">
+                            <div class="node-list-title">
+                                <a ng-href="/graph/{{node.stableId}}">{{node.body.title}}</a>
+                            </div>
+                            <div>
+                                <span class="node-qualifier">{{node.body.qualifier}}</span>
+                            </div>
+                            <div class="node-list-author">
+                                <span>{{ node.body.majorVersion.author.displayName }},</span>
+                                <span ng-if="node.body.majorVersion.author.stableId !== node.body.author.stableId">edited by {{node.body.author.displayName}},</span>
+                                <span>{{node.body.dateCreated | date: 'short'}}</span>
+                                <md-button class="md-icon-button md-micro" ng-click="profileCtrl.discardDraft(node)">
+                                    <i class="fa fa-trash"></i>
+                                    <md-tooltip md-direction="right">
+                                        Discard draft
+                                    </md-tooltip>
+                                </md-button>
+                            </div>
+                        </div>
+                    </md-list-item>
+                </md-list>
             </md-card-content>
         </md-card>
     </div>

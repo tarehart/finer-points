@@ -456,6 +456,17 @@
             node.children.push(child);
         };
 
+        cache.discardDraft = function(node, successCallback) {
+            $http.post('/discardDraft', node.stableId).success(function () {
+
+                forgetNode(node.id);
+
+                if (successCallback) {
+                    successCallback();
+                }
+            });
+        };
+
         function forgetNode(nodeId) {
             var nodeToForget = cache.get(nodeId);
             if (!nodeToForget) {

@@ -326,6 +326,18 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         return editHistory;
     }
 
+    @Override
+    public void discardDraft(Long userId, String stableId) throws NodeRulesException {
+
+        ArgumentNode draftNode = argumentRepo.getNodeRich(stableId);
+
+        AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, draftNode.getBody().author.getStableId());
+
+        operations.delete(draftNode);
+        operations.delete(draftNode.getBody());
+        TwoWayUtil.forgetNode(draftNode);
+    }
+
     private void checkEditRules(ArgumentNode existingNode) throws NodeRulesException {
         if (!existingNode.getBody().isEditable()) {
             throw new NodeRulesException("Cannot edit this node!");
