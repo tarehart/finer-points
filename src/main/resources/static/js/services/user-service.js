@@ -28,7 +28,7 @@ require('./token-storage');
                 return false;
             }
 
-            return !!$.grep(self.loggedInUser.aliases, function(val, idx) { return val.stableId = aliasStableId });
+            return !!$.grep(self.loggedInUser.aliases, function(val, idx) { return val.stableId === aliasStableId });
         };
 
         // http://www.codelord.net/2015/05/04/angularjs-notifying-about-changes-from-services-to-controllers/

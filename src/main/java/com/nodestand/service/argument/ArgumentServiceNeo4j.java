@@ -331,6 +331,10 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         ArgumentNode draftNode = argumentRepo.getNodeRich(stableId);
 
+        if (draftNode.getBody().isPublic()) {
+            throw new NodeRulesException("Can't discard this node, it's not a draft!");
+        }
+
         AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, draftNode.getBody().author.getStableId());
 
         operations.delete(draftNode);
