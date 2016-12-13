@@ -4,14 +4,14 @@
 <md-toolbar th:fragment="main">
     <div class="md-toolbar-tools">
 
-        <md-button href="/#/" class="md-icon-button">
+        <md-button href="/" class="md-icon-button">
             <i class="fa fa-home"></i>
         </md-button>
 
         <span flex=""></span>
 
         <span ng-if="user" class="header-text">
-            Participating as <a href="/#/profile/{{user.activeAlias.stableId}}">{{user.activeAlias.displayName}}</a>
+            Participating as <a ng-href="/profile/{{user.activeAlias.stableId}}">{{user.activeAlias.displayName}}</a>
             <md-menu style="padding:0">
                 <md-button class="md-raised" ng-click="$mdOpenMenu($event)" aria-label="Sort">
                     Switch Alias
@@ -28,7 +28,7 @@
 
         <md-button ng-if="user" ng-click="logout()">Sign Out</md-button>
 
-        <md-button href="#/login" ng-if="!user" class="md-raised" aria-label="Sign In">
+        <md-button href="/login" ng-if="!user" class="md-raised" aria-label="Sign In">
             Sign in
         </md-button>
     </div>

@@ -2,7 +2,7 @@
     <md-list-item class="md-3-line node-list-item" ng-repeat="node in listCtrl.list">
         <div class="md-list-item-text" layout="column">
             <div class="node-list-title">
-                <a href="#/graph/{{node.stableId}}">{{node.body.title}}</a>
+                <a ng-href="/graph/{{node.stableId}}">{{node.body.title}}</a>
                 <span ng-if="!node.body.public">
                     (draft)
                 </span>

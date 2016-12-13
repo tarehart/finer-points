@@ -21,8 +21,7 @@ require('../sass/common.scss');
         'nodeStandControllers'
     ]);
 
-    nodeStandApp.config(['$routeProvider', '$mdThemingProvider',
-        function ($routeProvider, $mdThemingProvider) {
+    nodeStandApp.config(function ($routeProvider, $mdThemingProvider, $locationProvider) {
             $routeProvider.
                 when('/', {
                     templateUrl: 'partials/gateway.html',
@@ -56,7 +55,9 @@ require('../sass/common.scss');
             $mdThemingProvider.theme('default')
                 .primaryPalette('blue-grey')
                 .accentPalette('light-blue');
-        }]);
+
+            $locationProvider.html5Mode(true);
+        });
 
     nodeStandApp.run(['$rootScope', 'UserService', function ($rootScope, UserService) {
         $rootScope.user = UserService.getUser();

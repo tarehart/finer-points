@@ -7,7 +7,7 @@
         <md-card>
             <md-card-content>
                 <div ng-if="!user">
-                    Must <a href="/#/login">log in</a> before creating content!
+                    Must <a ng-href="/login">log in</a> before creating content!
                 </div>
                 <md-radio-group ng-if="user" ng-model="createCtrl.type" layout="column" layout-gt-xs="row">
                     <div flex="33" class="radio-horizontal" ng-repeat="opt in createCtrl.createOptions">

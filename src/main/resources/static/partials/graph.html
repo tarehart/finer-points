@@ -9,7 +9,7 @@
 
                 <div layout="row" layout-align="center">
                     <div flex="">
-                        <a class="child-node-title" href="#/graph/{{node.stableId}}">{{node.body.title}}</a>
+                        <a class="child-node-title" ng-href="/graph/{{node.stableId}}">{{node.body.title}}</a>
                         <div ng-if="!graphCtrl.isSelected(node)">
                             <span ng-if="!node.body.public" class="draft-node-pill">
                                 Private draft
@@ -30,10 +30,10 @@
                     <!--Subheader-->
                     <span>
                         {{node.body.qualifier}}, by
-                        <a href="/#/profile/{{node.body.majorVersion.author.stableId}}">{{node.body.majorVersion.author.displayName}}</a>
+                        <a ng-href="/profile/{{node.body.majorVersion.author.stableId}}">{{node.body.majorVersion.author.displayName}}</a>
                         <span ng-if="node.body.majorVersion.author.stableId !== node.body.author.stableId">
                             edited by
-                            <a href="/#/profile/{{node.body.author.stableId}}">{{node.body.author.displayName}}</a>
+                            <a ng-href="/profile/{{node.body.author.stableId}}">{{node.body.author.displayName}}</a>
                         </span>
                         <span ng-if="!node.body.public" class="draft-node-pill">
                             Private draft
@@ -95,17 +95,17 @@
                             </span>
                             <span class="md-subhead">
                                 {{graphCtrl.rootNode.body.qualifier}}, by
-                                <a href="/#/profile/{{graphCtrl.rootNode.body.majorVersion.author.stableId}}">
+                                <a ng-href="/profile/{{graphCtrl.rootNode.body.majorVersion.author.stableId}}">
                                     {{graphCtrl.rootNode.body.majorVersion.author.displayName}}</a>
                                 <span ng-if="graphCtrl.rootNode.body.majorVersion.author.stableId !== graphCtrl.rootNode.body.author.stableId">
                                     edited by
-                                    <a href="/#/profile/{{graphCtrl.rootNode.body.author.stableId}}">{{graphCtrl.rootNode.body.author.displayName}}</a>
+                                    <a ng-href="/profile/{{graphCtrl.rootNode.body.author.stableId}}">{{graphCtrl.rootNode.body.author.displayName}}</a>
                                 </span>
                                 <span ng-if="!graphCtrl.rootNode.body.public" class="draft-node-pill">
                                     Private draft
                                 </span>
                                 <br>
-                                <a href="/#/history/{{graphCtrl.rootNode.stableId}}">View History</a>
+                                <a ng-href="/history/{{graphCtrl.rootNode.stableId}}">View History</a>
                             </span>
                         </md-card-title-text>
                     </md-card-title>

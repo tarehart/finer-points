@@ -8,7 +8,7 @@
                 <div flex="">
                     <div layout="row" layout-align="start center" class="comment-heading">
                         <span class="spaced-inline">{{comment.score}} point{{comment.score === 1 ? '' : 's'}}</span>
-                        <a class="spaced-inline" ng-href="/#/profile/{{comment.author.stableId}}">{{comment.author.displayName}}</a>
+                        <a class="spaced-inline" ng-href="/profile/{{comment.author.stableId}}">{{comment.author.displayName}}</a>
                         <span class="created-date spaced-inline">{{comment.dateCreated | date: 'short'}}</span>
                         <span class="edited-date spaced-inline" ng-if="comment.dateEdited">Edited {{comment.dateEdited | date: 'short'}}</span>
                         <md-button class="md-icon-button md-micro" ng-click="commCtrl.toggleComment(comment); $event.stopPropagation();">
