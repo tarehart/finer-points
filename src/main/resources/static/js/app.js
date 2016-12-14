@@ -3,7 +3,8 @@ require('../sass/common.scss');
 (function() {
     'use strict';
 
-    angular.module('nodeStandControllers', ['ngCookies']);
+    angular.module('jsFatals', []);
+    angular.module('nodeStandControllers', ['ngCookies', 'jsFatals']);
 
     require('./services/token-interceptor');
     require('./controllers/gateway-controller');
@@ -13,6 +14,7 @@ require('../sass/common.scss');
     require('./directives/graph-directive');
     require('./directives/edit-history-directive');
     require('./controllers/route-params-controller');
+    require('./services/errorlog-service');
 
     var nodeStandApp = angular.module('nodeStandApp', [
         'ngRoute',
@@ -21,7 +23,7 @@ require('../sass/common.scss');
         'nodeStandControllers'
     ]);
 
-    nodeStandApp.config(function ($routeProvider, $mdThemingProvider, $locationProvider) {
+    nodeStandApp.config(function ($routeProvider, $mdThemingProvider, $locationProvider, $provide) {
             $routeProvider.
                 when('/', {
                     templateUrl: 'partials/gateway.html',
@@ -57,6 +59,14 @@ require('../sass/common.scss');
                 .accentPalette('light-blue');
 
             $locationProvider.html5Mode(true);
+
+            $provide.decorator('$exceptionHandler', function ($delegate, ErrorLogService) {
+                return function(exception, cause) {
+                    $delegate(exception, cause);
+                    ErrorLogService.log(exception, cause);
+                };
+            });
+
         });
 
     nodeStandApp.run(['$rootScope', 'UserService', function ($rootScope, UserService) {
