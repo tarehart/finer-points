@@ -66,7 +66,6 @@ require('../services/user-service');
         }
 
         function stopEditingBody(node) {
-            node.editingBody = false;
 
             var idsInBody = [];
             var regex = /{{\[([0-9a-z]{1,25})\](.+?)(?=}})}}/g;

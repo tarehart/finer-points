@@ -231,6 +231,11 @@ require('./markdown-directive');
             }
         };
 
+        self.discardDraft = function() {
+            NodeCache.discardDraft(self.rootNode, function() {
+                $location.path("/");
+            });
+        };
 
         self.toggleConsumers = function(node) {
 

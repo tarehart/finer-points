@@ -78,17 +78,40 @@
                 return cache.nodes[DRAFT_ID];
             }
 
-            // TODO: actually create something server-side
             var node = decorateWithRequiredProperties({
                 id: DRAFT_ID,
-                editingBody: true,
-                editingTitle: true,
+                inEditMode: true,
                 type: "assertion",
                 body: {draft: true, qualifier: "Original version"}
             });
 
             cache.nodes[node.id] = node;
             return node;
+        };
+
+        cache.createNodeWithSupport = function(supportingNode, alias, successCallback) {
+
+            var supportingType = supportingNode.type;
+            var newType = supportingType === 'source' ? 'interpretation' : 'assertion';
+
+            var node = decorateWithRequiredProperties({
+                id: DRAFT_ID,
+                inEditMode: true,
+                type: newType,
+                body: {draft: true, qualifier: "Original version"}
+            });
+
+            node.body.body = "{{[" + supportingNode.body.majorVersion.stableId + "]" + supportingNode.body.title + "}}";
+
+            cache.addChildToNode(node, supportingNode);
+
+            saveNewNode(node, alias, function(data) {
+                // Next time the draft node is requested, a fresh blank one should be built.
+                cache.nodes[DRAFT_ID] = null;
+                if (successCallback) {
+                    successCallback(data);
+                }
+            });
         };
 
         // This refers to whether this node is completely unsaved and does not exist in the database,

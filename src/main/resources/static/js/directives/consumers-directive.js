@@ -17,13 +17,13 @@ require('./node-list-directive');
             scope: {
                 node: "="
             },
-            template: '<div node-list list="consumersCtrl.nodes"></div>',
+            templateUrl: 'partials/consumers.html',
             controller: "NodeConsumersController",
             controllerAs: "consumersCtrl"
         }
     }
 
-    function NodeConsumersController($scope, NodeCache, ToastService) {
+    function NodeConsumersController($scope, $location, NodeCache, ToastService, UserService) {
 
         var self = this;
         self.nodes = [];
@@ -34,6 +34,17 @@ require('./node-list-directive');
         function(err) {
             ToastService.error(err.message);
         });
+
+        self.newConsumer = function() {
+            NodeCache.createNodeWithSupport($scope.node, UserService.getActiveAlias(), function(newNode) {
+                $location.path("/graph/" + newNode.stableId);
+            });
+        };
+
+        self.canCreateConsumer = function() {
+            return !!UserService.getUser();
+        }
+
     }
 
     function fetchConsumers(node, NodeCache, successCallback, errorCallback) {

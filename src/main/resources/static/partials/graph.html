@@ -104,6 +104,12 @@
                                 <span ng-if="!graphCtrl.rootNode.body.public" class="draft-node-pill">
                                     Private draft
                                 </span>
+                                <md-button ng-if="!graphCtrl.rootNode.body.public" class="md-icon-button md-micro" ng-click="graphCtrl.discardDraft()">
+                                    <i class="fa fa-trash"></i>
+                                    <md-tooltip md-direction="right">
+                                        Discard draft
+                                    </md-tooltip>
+                                </md-button>
                                 <br>
                                 <a ng-href="/history/{{graphCtrl.rootNode.stableId}}">View History</a>
                             </span>
@@ -114,10 +120,7 @@
                         <a ng-if="graphCtrl.rootNode.type === 'source'" ng-href="{{graphCtrl.rootNode.body.url}}" target="_blank">{{graphCtrl.rootNode.body.url}}</a>
                     </md-card-content>
                     <md-card-actions layout="row" layout-align="start center">
-                        <md-button
-                                class="md-raised"
-                                ng-if="graphCtrl.rootNode.consumers.length"
-                                ng-click="graphCtrl.toggleConsumers()"><i style="color:gray" class="fa fa-arrow-left"></i> Consumers</md-button>
+                        <span node-consumers node="graphCtrl.rootNode"></span>
                         <span flex=""></span>
                         <md-button
                                 ng-if="graphCtrl.authorizedForEdit(graphCtrl.rootNode) && !graphCtrl.rootNode.inEditMode"
