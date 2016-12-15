@@ -169,7 +169,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
 
         // Make sure the interpretation points to the edited source
-        QuickGraphResponse interpGraph =  argumentService.getGraph(interp.getStableId());
+        QuickGraphResponse interpGraph =  argumentService.getGraph(interp.getStableId(), kyle.getUser().getNodeId());
         Assert.assertEquals(resultingNode.getId(), ((InterpretationNode)interpGraph.getRootNode()).getSource().getId());
         session.clear();
 
@@ -201,7 +201,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         session.clear();
 
         // Make sure the original assertion points to the published changed interp
-        QuickGraphResponse latestTree = argumentService.getGraph(assertionNode.getStableId());
+        QuickGraphResponse latestTree = argumentService.getGraph(assertionNode.getStableId(), kyle.getUser().getNodeId());
         InterpretationNode treeInterp = (InterpretationNode) latestTree.getRootNode().getGraphChildren().stream().findFirst().get();
         Assert.assertEquals(publishedInterp.getId(), treeInterp.getId());
         Assert.assertEquals(publishedInterp.getStableId(), treeInterp.getStableId());
@@ -210,7 +210,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         session.clear();
 
         // Make sure the draft assertion does the same
-        QuickGraphResponse draftTree = argumentService.getGraph(assertionDraft.getStableId());
+        QuickGraphResponse draftTree = argumentService.getGraph(assertionDraft.getStableId(), kyle.getUser().getNodeId());
         treeInterp = (InterpretationNode) draftTree.getRootNode().getGraphChildren().stream().findFirst().get();
         Assert.assertEquals(publishedInterp.getId(), treeInterp.getId());
         session.clear();
@@ -224,7 +224,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         session.clear();
 
         // Make sure the resulting graph looks good
-        QuickGraphResponse finalTree = argumentService.getGraph(publishedAssertion.getStableId());
+        QuickGraphResponse finalTree = argumentService.getGraph(publishedAssertion.getStableId(), kyle.getUser().getNodeId());
         Assert.assertEquals(assertionNode.getId(), finalTree.getRootId());
 
         // Make sure the drafts are all gone
@@ -311,17 +311,17 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         Assert.assertEquals(childOriginal.getStableId(), publishedChild.getStableId());
 
         // The draft root should now be pointing to the published version of the child.
-        ArgumentNode draftNow = argumentService.getGraph(rootDraft.getEditedNode().getStableId()).getRootNode();
+        ArgumentNode draftNow = argumentService.getGraph(rootDraft.getEditedNode().getStableId(), kyle.getUser().getNodeId()).getRootNode();
         Assert.assertEquals(1, draftNow.getGraphChildren().size());
         Assert.assertEquals(publishedChild.getStableId(), draftNow.getGraphChildren().iterator().next().getStableId());
 
         // The original root should also be pointing to the published version of the child.
-        ArgumentNode rootNow = argumentService.getGraph(assertionNode.getStableId()).getRootNode();
+        ArgumentNode rootNow = argumentService.getGraph(assertionNode.getStableId(), kyle.getUser().getNodeId()).getRootNode();
         Assert.assertEquals(1, rootNow.getGraphChildren().size());
         Assert.assertEquals(publishedChild.getStableId(), rootNow.getGraphChildren().iterator().next().getStableId());
 
         // The published child should have two consumers
-        Set<ArgumentNode> consumers = argumentService.getConsumerNodesIncludingDrafts(kyle.getUser().getNodeId(), publishedChild.getId());
+        Set<ArgumentNode> consumers = argumentService.getGraph(publishedChild.getStableId(), kyle.getUser().getNodeId()).getConsumers();
         Assert.assertEquals(2, consumers.size());
     }
 
@@ -362,7 +362,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         session.clear();
 
-        Set<ArgumentNode> consumers = argumentService.getConsumerNodes(childOriginal.getId());
+        Set<ArgumentNode> consumers = argumentService.getGraph(childOriginal.getStableId(), kyle.getUser().getNodeId()).getConsumers();
         Assert.assertEquals(1, consumers.size());
     }
 
@@ -378,7 +378,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         session.clear();
 
-        Set<ArgumentNode> consumers = argumentService.getConsumerNodesIncludingDrafts(kyle.getUser().getNodeId(), childOriginal.getId());
+        Set<ArgumentNode> consumers = argumentService.getGraph(childOriginal.getStableId(), kyle.getUser().getNodeId()).getConsumers();
         Assert.assertEquals(2, consumers.size());
     }
 

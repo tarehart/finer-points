@@ -24,6 +24,8 @@ require('../sass/common.scss');
     ]);
 
     nodeStandApp.config(function ($routeProvider, $mdThemingProvider, $locationProvider, $provide) {
+
+            // If you edit this, edit MvcConfig.java!
             $routeProvider.
                 when('/', {
                     templateUrl: 'partials/gateway.html',

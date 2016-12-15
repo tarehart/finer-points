@@ -8,7 +8,10 @@
     function StacktraceService() {
         // Global object provided by Stacktrace.js
         this.print = function (exception, callback) {
-            window.StackTrace.fromError(exception).then(callback);
+            if (window.StackTrace) {
+                window.StackTrace.fromError(exception).then(callback);
+            }
+            callback(null);
         }
     }
 })();

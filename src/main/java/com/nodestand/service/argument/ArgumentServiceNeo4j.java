@@ -44,14 +44,23 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Autowired
     Neo4jOperations operations;
 
-
     @Override
     @Transactional
-    public QuickGraphResponse getGraph(String rootStableId) {
+    public QuickGraphResponse getGraph(String rootStableId, Long userId) {
         Set<ArgumentNode> nodes = argumentRepo.getGraph(rootStableId);
 
+        Set<ArgumentNode> consumers;
+        if (userId != null) {
+            consumers = argumentRepo.getConsumerNodes(rootStableId, userId);
+        } else {
+            consumers = argumentRepo.getConsumerNodes(rootStableId);
+        }
+
+        // This should enhance the node already in our set.
+        argumentRepo.getNodeRich(rootStableId);
+
         if (nodes.isEmpty()) {
-            throw new RuntimeException("Node not found!");
+            throw new ResourceNotFoundException("Node not found!");
         }
 
         Set<QuickEdge> edges = new HashSet<>();
@@ -67,7 +76,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
             }
         }
 
-        return new QuickGraphResponse(nodes, edges, rootId, rootStableId);
+        return new QuickGraphResponse(nodes, edges, rootId, rootStableId, consumers);
     }
 
     @Override
@@ -231,7 +240,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         operations.save(draftNode);
 
         EditResult result = new EditResult(draftNode);
-        result.setGraph(getGraph(draftNode.getStableId()));
+        result.setGraph(getGraph(draftNode.getStableId(), userId));
 
         return result;
     }
@@ -254,38 +263,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         ArgumentNode resultingNode = versionHelper.publish(existingNode);
 
-        // We're pretty confident at this point that the entire tree is in memory, so don't bother hitting the db again.
-        return buildGraphResponseFromNode(resultingNode);
-    }
-
-    private QuickGraphResponse buildGraphResponseFromNode(ArgumentNode node) {
-        Set<ArgumentNode> nodes = new HashSet<>();
-        Set<QuickEdge> edges = new HashSet<>();
-
-        collectDescendingNodesAndEdges(node, nodes, edges);
-        collectAscendingNodesAndEdges(node, nodes, edges);
-
-        return new QuickGraphResponse(nodes, edges, node.getId(), node.getStableId());
-    }
-
-    private void collectDescendingNodesAndEdges(ArgumentNode node, Set<ArgumentNode> nodes, Set<QuickEdge> edges) {
-        nodes.add(node);
-        if (node.getGraphChildren() != null) {
-            for (ArgumentNode child : node.getGraphChildren()) {
-                edges.add(new QuickEdge(node.getId(), child.getId()));
-                collectDescendingNodesAndEdges(child, nodes, edges);
-            }
-        }
-    }
-
-    private void collectAscendingNodesAndEdges(ArgumentNode node, Set<ArgumentNode> nodes, Set<QuickEdge> edges) {
-        nodes.add(node);
-        if (node.getDependentNodes() != null) {
-            for (ArgumentNode parent : node.getDependentNodes()) {
-                edges.add(new QuickEdge(parent.getId(), node.getId()));
-                collectAscendingNodesAndEdges(parent, nodes, edges);
-            }
-        }
+        return getGraph(resultingNode.getStableId(), userId);
     }
 
     @Override
@@ -303,16 +281,6 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     public Set<ArgumentNode> getDraftNodes(long userId, String authorStableId) throws NodeRulesException {
         AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, authorStableId);
         return argumentRepo.getDraftNodesRich(authorStableId);
-    }
-
-    @Override
-    public Set<ArgumentNode> getConsumerNodes(long nodeId) {
-        return argumentRepo.getConsumerNodes(nodeId);
-    }
-
-    @Override
-    public Set<ArgumentNode> getConsumerNodesIncludingDrafts(long userId, long nodeId) {
-        return argumentRepo.getConsumerNodes(nodeId, userId);
     }
 
     @Override

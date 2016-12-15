@@ -17,11 +17,12 @@ public class JSFatalController {
     @RequestMapping("/jsfatal")
     public void handleJsFatal(@RequestBody JsFatalInput jsFatal) {
 
-        List<String> stackList = jsFatal.stackTrace.stream().map(JsStackFrame::toString).collect(Collectors.toList());
-        String stack = String.join("\n", stackList);
+        String message = String.format("JavaScriptException: \"%s\" URL: %s", jsFatal.errorMessage, jsFatal.errorUrl);
 
-        String message = String.format("JavaScriptException: \"%s\" URL: %s\n%s",
-                jsFatal.errorMessage, jsFatal.errorUrl, stack);
+        if (jsFatal.stackTrace != null) {
+            List<String> stackList = jsFatal.stackTrace.stream().map(JsStackFrame::toString).collect(Collectors.toList());
+            message += "\n" + String.join("\n", stackList);
+        }
 
         logger.error(message);
     }

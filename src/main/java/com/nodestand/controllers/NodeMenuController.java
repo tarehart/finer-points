@@ -55,17 +55,6 @@ public class NodeMenuController {
         return argumentService.getNodesPublishedByAuthor(stableId);
     }
 
-    @Transactional
-    @RequestMapping("/consumerNodes")
-    public Set<ArgumentNode> getConsumerNodes(@RequestParam Long nodeId) {
-        Long userId = userService.getUserNodeIdFromSecurityContext();
-        if (userId != null) {
-            return argumentService.getConsumerNodesIncludingDrafts(userId, nodeId);
-        } else {
-            return argumentService.getConsumerNodes(nodeId);
-        }
-    }
-
     /**
      * I'm going to the trouble of returning a {@link HistoryResult} because there's not really a great way of
      * returning a simple collection without producing a very inefficient payload. For example, if I returned

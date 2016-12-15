@@ -61,15 +61,15 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
             " with p as p, b as b match q=(b)-[:AUTHORED_BY]->(:Author) return p, q")
     Set<ArgumentNode> getNodesOriginallyAuthoredByUser(String authorStableId);
 
-    @Query("start n=node({0}) match (c:ArgumentNode)-[:SUPPORTED_BY|INTERPRETS]->(n)" +
+    @Query("match (c:ArgumentNode)-[:SUPPORTED_BY|INTERPRETS]->(n:ArgumentNode {stableId: {0}})" +
             " with c match p=(c)-[:DEFINED_BY]->(b:ArgumentBody)-[:VERSION_OF]->(:MajorVersion)-[:AUTHORED_BY]->(:Author) where b.isPublic" +
             " with p as p, b as b match q=(b)-[:AUTHORED_BY]->(:Author) return p, q")
-    Set<ArgumentNode> getConsumerNodes(long nodeId);
+    Set<ArgumentNode> getConsumerNodes(String stableId);
 
-    @Query("MATCH (c:ArgumentNode)-[:SUPPORTED_BY|INTERPRETS]->(n) WHERE ID(n) = {0}" +
+    @Query("MATCH (c:ArgumentNode)-[:SUPPORTED_BY|INTERPRETS]->(n:ArgumentNode {stableId: {0}})" +
             " with c match p=(c)-[:DEFINED_BY]->(b:ArgumentBody)-[:AUTHORED_BY]->(:Author)-[:CONTROLLED_BY]->(u:User) where b.isPublic OR ID(u) = {1}" +
             " with p as p, b as b match q=(b)-[:VERSION_OF]->(:MajorVersion)-[:AUTHORED_BY]->(:Author) return p, q")
-    Set<ArgumentNode> getConsumerNodes(long nodeId, long userId);
+    Set<ArgumentNode> getConsumerNodes(String stableId, long userId);
 
     /**
      * At the moment, the ArgumentNode that this thing returns is rootNode, which is what I want.

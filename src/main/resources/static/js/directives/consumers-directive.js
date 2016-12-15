@@ -23,17 +23,10 @@ require('./node-list-directive');
         }
     }
 
-    function NodeConsumersController($scope, $location, NodeCache, ToastService, UserService) {
+    function NodeConsumersController($scope, $location, NodeCache, UserService) {
 
         var self = this;
-        self.nodes = [];
-
-        fetchConsumers($scope.node, NodeCache, function(data) {
-            self.nodes.push.apply(self.nodes, data); // Push data to nodes
-        },
-        function(err) {
-            ToastService.error(err.message);
-        });
+        self.nodes = $scope.node.consumers;
 
         self.newConsumer = function() {
             NodeCache.createNodeWithSupport($scope.node, UserService.getActiveAlias(), function(newNode) {
@@ -46,12 +39,5 @@ require('./node-list-directive');
         }
 
     }
-
-    function fetchConsumers(node, NodeCache, successCallback, errorCallback) {
-
-        NodeCache.fetchConsumers(node.id, successCallback, errorCallback);
-    }
-
-
 
 })();

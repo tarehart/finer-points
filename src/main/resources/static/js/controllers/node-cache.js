@@ -595,6 +595,10 @@
 
         function inductQuickGraph(quickGraphResponse) {
             var addedNodes = cache.addNodesUnlinked(quickGraphResponse.nodes);
+
+            var consumersMap = cache.addNodesUnlinked(quickGraphResponse.consumers);
+            cache.get(quickGraphResponse.rootId).consumers = $.map(consumersMap, function(n) {return n;});
+
             populateChildren(addedNodes, quickGraphResponse.edges);
         }
 
@@ -621,28 +625,6 @@
                     errorCallback(err);
                 }
             });
-        };
-
-        cache.fetchConsumers = function(nodeId, successCallback, errorCallback) {
-
-            $http.get('/consumerNodes', {params: {nodeId: nodeId}}).then(
-                function (response) {
-                    var nodeMap = cache.addNodesUnlinked(response.data);
-                    var node = cache.get(nodeId);
-                    node.consumers = [];
-                    Object.keys(nodeMap).forEach(function (id) {
-                        node.consumers.push(nodeMap[id]);
-                    });
-
-                    if (successCallback) {
-                        successCallback(response.data);
-                    }
-                },
-                function(err) {
-                    if (errorCallback) {
-                        errorCallback(err);
-                    }
-                });
         };
 
         return cache;

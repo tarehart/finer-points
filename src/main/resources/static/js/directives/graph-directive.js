@@ -125,7 +125,7 @@ require('./markdown-directive');
             NodeCache.fetchGraphForId($routeParams.rootStableId, function() {
                 self.rootNode = NodeCache.getByStableId($routeParams.rootStableId);
                 self.rootNodes = [self.rootNode]; // We have this in array form because it's handy for kicking off the angular template recursion.
-                ensureDetail(self.rootNode);
+
                 if (self.rootNode.children && self.rootNode.children.length > 1) {
                     $.each(self.rootNode.children, function (index, child) {
                         child.hideChildren = true;
@@ -191,9 +191,6 @@ require('./markdown-directive');
         function ensureDetail(node) {
             if (!hasFullDetail(node)) {
                 NodeCache.getFullDetail(node.stableId);
-            }
-            if (!node.consumers) {
-                NodeCache.fetchConsumers(node.id);
             }
         }
 

@@ -14,7 +14,7 @@ import java.util.Set;
 
 public interface ArgumentService {
 
-    QuickGraphResponse getGraph(String rootStableId);
+    QuickGraphResponse getGraph(String rootStableId, Long userId);
 
     ArgumentNode getFullDetail(String stableId);
 
@@ -43,10 +43,6 @@ public interface ArgumentService {
     Set<ArgumentNode> getRootNodes();
 
     Set<ArgumentNode> getDraftNodes(long userId, String authorStableId) throws NodeRulesException;
-
-    Set<ArgumentNode> getConsumerNodes(long nodeId);
-
-    Set<ArgumentNode> getConsumerNodesIncludingDrafts(long userId, long nodeId);
 
     Set<ArgumentNode> getNodesPublishedByAuthor(String authorStableId);
 
