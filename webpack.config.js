@@ -3,6 +3,7 @@ var webpack = require('webpack');
 var ROOT = path.resolve(__dirname, 'src/main/resources/static');
 var DEST = path.resolve(__dirname, 'src/main/resources/static/dist');
 
+var RawLoaderPlugin = require('raw-loader');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
@@ -30,6 +31,11 @@ module.exports = {
             {
                 test: /\.css$/,
                 loader: ExtractTextPlugin.extract("style-loader", "css-loader")
+            },
+            {
+                test: /\.html$/,
+                exclude: /node_modules/,
+                loader: 'raw'
             },
             { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=image/svg+xml&name=fonts/[name].[ext]' },
             { test: /\.woff(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=application/font-woff&name=fonts/[name].[ext]' },

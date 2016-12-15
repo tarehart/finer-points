@@ -20,10 +20,9 @@ require('./markdown-directive');
         return {
             restrict: "A",
             scope: {
-                starterNode: "=",
                 draftType: "="
             },
-            templateUrl: "partials/graph.html",
+            template: require("../../partials/graph.html"),
             controller: 'GraphController',
             controllerAs: 'graphCtrl'
         }
@@ -134,10 +133,6 @@ require('./markdown-directive');
                 self.problemReport = buildProblemReport(self.rootNode);
                 $scope.$broadcast("rootData", self.rootNode);
             });
-        } else if ($scope.starterNode) {
-            self.rootNodes = [$scope.starterNode];
-            self.rootNode = self.rootNodes[0];
-            $scope.$broadcast("rootData", self.rootNode);
         }
 
         self.hasChild = function (node) {

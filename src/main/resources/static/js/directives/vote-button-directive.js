@@ -15,7 +15,7 @@ require('../services/toast-service');
             scope: {
                 node: "="
             },
-            templateUrl: "partials/vote-button.html",
+            template: require("../../partials/vote-button.html"),
             controller: 'VoteButtonController'
         }
     }

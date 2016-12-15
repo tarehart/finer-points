@@ -28,27 +28,27 @@ require('../sass/common.scss');
             // If you edit this, edit MvcConfig.java!
             $routeProvider.
                 when('/', {
-                    templateUrl: 'partials/gateway.html',
+                    template: require('../partials/gateway.html'),
                     controller: 'GatewayController'
                 }).
                 when('/login', {
-                    templateUrl: 'partials/signin.html'
+                    template: require('../partials/signin.html')
                 }).
                 when('/graph/:rootStableId', {
-                    templateUrl: 'partials/explorer.html'
+                    template: require('../partials/explorer.html')
                 }).
                 when('/create', {
-                    templateUrl: 'partials/create.html',
+                    template: require('../partials/create.html'),
                     controller: 'CreateController',
                     controllerAs: 'createCtrl'
                 }).
                 when('/profile/:authorStableId', {
-                    templateUrl: 'partials/user.html',
+                    template: require('../partials/user.html'),
                     controller: 'ProfileController',
                     controllerAs: 'profileCtrl'
                 }).
                 when('/history/:nodeStableId', {
-                    templateUrl: 'partials/history.html',
+                    template: require('../partials/history.html'),
                     controller: 'RouteParamsController',
                     controllerAs: 'routeParamsCtrl'
                 }).

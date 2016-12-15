@@ -14,7 +14,7 @@ require('../services/toast-service');
             scope: {
                 comment: "="
             },
-            templateUrl: "partials/comment-vote-button.html",
+            template: require("../../partials/comment-vote-button.html"),
             controller: 'CommentVoteController'
         }
     }

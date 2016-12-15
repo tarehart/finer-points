@@ -15,7 +15,7 @@ require('../../sass/vivagraph.scss');
             scope: {
                 rootNode: "="
             },
-            templateUrl: "partials/viva-graph.html",
+            template: require("../../partials/viva-graph.html"),
             link: function (scope, element) {
                 setupEventHandlers(scope, element, $rootScope);
             }

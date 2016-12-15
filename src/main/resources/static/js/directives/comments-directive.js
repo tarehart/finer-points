@@ -17,7 +17,7 @@ require('../services/toast-service');
             scope: {
                 node: "="
             },
-            templateUrl: "partials/comments.html",
+            template: require("../../partials/comments.html"),
             controller: "CommentController",
             controllerAs: "commCtrl"
         }

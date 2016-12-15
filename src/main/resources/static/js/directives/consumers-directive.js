@@ -17,7 +17,7 @@ require('./node-list-directive');
             scope: {
                 node: "="
             },
-            templateUrl: 'partials/consumers.html',
+            template: require('../../partials/consumers.html'),
             controller: "NodeConsumersController",
             controllerAs: "consumersCtrl"
         }

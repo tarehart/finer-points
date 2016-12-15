@@ -16,7 +16,7 @@ require('../services/toast-service');
             scope: {
                 list: "="
             },
-            templateUrl: "partials/node-list.html",
+            template: require("../../partials/node-list.html"),
             controller: "NodeListController",
             controllerAs: "listCtrl"
         }
