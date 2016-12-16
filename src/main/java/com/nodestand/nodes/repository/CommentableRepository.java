@@ -8,6 +8,7 @@ import java.util.Set;
 
 public interface CommentableRepository extends GraphRepository<Commentable> {
 
-    @Query("start mv=node({0}) match path=mv<-[:RESPONDS_TO*0..]-(:Comment)-[:AUTHORED_BY]->author return path")
-    Set<Commentable> getComments(long majorVersionId);
+    @Query("match path=(:ArgumentNode {stableId: {0}})-[:DEFINED_BY]->(:ArgumentBody)-[:VERSION_OF]->(:MajorVersion)" +
+            "<-[:RESPONDS_TO*0..]-(:Comment)-[:AUTHORED_BY]->(:Author) return path")
+    Set<Commentable> getComments(String nodeStableId);
 }

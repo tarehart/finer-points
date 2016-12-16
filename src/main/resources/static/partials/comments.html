@@ -20,7 +20,7 @@
                             </span>
                         </md-button>
                         <span flex=""></span>
-                        <md-menu style="padding:0">
+                        <md-menu style="padding:0" ng-if="commCtrl.isSignedIn()">
                             <md-button ng-click="$mdOpenMenu($event)" aria-label="Comment actions" class="md-icon-button md-micro">
                                 <i class="fa fa-bars"></i>
                             </md-button>
@@ -75,7 +75,7 @@
         </md-card>
     </script>
 
-    <div class="commentSection">
+    <div class="commentSection" ng-if="commCtrl.node">
         <div layout="row" layout-align="start center">
             <span class="comments-header">Comments</span>
             <span flex=""></span>
@@ -97,28 +97,28 @@
                 </md-menu-content>
             </md-menu>
 
-            <md-button ng-click="commCtrl.beginEditingTopLevel()">
-                New comment
-            </md-button>
-        </div>
-
-        <div style="padding:10px; color:#AAA" ng-if="!commCtrl.hasComment(node)">
-            <span>No comments!</span>
-        </div>
-
-        <div class="editor-wrapper" ng-if="commCtrl.editingTopLevel">
-            <textarea node="commCtrl.newComment" set-text="commCtrl.setComment" markdown-editor>{{commCtrl.newComment.body}}</textarea>
-            <div layout="row" layout-align="end">
-                <md-button ng-click="commCtrl.saveComment()" class="md-raised md-primary">
-                    Save
-                </md-button>
-                <md-button ng-click="commCtrl.cancelTopLevelComment()" class="md-raised">
-                    Cancel
+                <md-button ng-if="commCtrl.isSignedIn()" ng-click="commCtrl.beginEditingTopLevel()">
+                    New comment
                 </md-button>
             </div>
-        </div>
 
-        <div class="comment-block" ng-repeat="comment in node.comments | orderBy : commCtrl.commentSort : true" ng-include="'commentTree'"></div>
+            <div style="padding:10px; color:#AAA" ng-if="!commCtrl.hasComment(node)">
+                <span>No comments!</span>
+            </div>
+
+            <div class="editor-wrapper" ng-if="commCtrl.editingTopLevel">
+                <textarea node="commCtrl.newComment" set-text="commCtrl.setComment" markdown-editor>{{commCtrl.newComment.body}}</textarea>
+                <div layout="row" layout-align="end">
+                    <md-button ng-click="commCtrl.saveComment()" class="md-raised md-primary">
+                        Save
+                    </md-button>
+                    <md-button ng-click="commCtrl.cancelTopLevelComment()" class="md-raised">
+                        Cancel
+                    </md-button>
+                </div>
+            </div>
+
+        <div class="comment-block" ng-repeat="comment in commCtrl.node.comments | orderBy : commCtrl.commentSort : true" ng-include="'commentTree'"></div>
     </div>
 
 </div>

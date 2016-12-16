@@ -28,9 +28,9 @@ public class CommentController {
 
     @PreAuthorize("permitAll")
     @RequestMapping("/comments")
-    public Object getCommentsOnMajorVersion(@RequestParam(value="id", required=true) Integer id) {
+    public Object getCommentsOnMajorVersion(@RequestParam(value="stableId", required=true) String stableId) {
 
-        return commentService.getComments(id);
+        return commentService.getComments(stableId);
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")

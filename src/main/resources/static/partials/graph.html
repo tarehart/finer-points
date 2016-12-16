@@ -86,8 +86,8 @@
     <div class="graph-wrapper">
 
         <div layout="column" layout-gt-sm="row">
-            <div flex="60" ng-if="graphCtrl.rootNode">
-                <md-card ng-if="!graphCtrl.rootNode.inEditMode" class="root-node-card">
+            <div flex="60" ng-show="graphCtrl.rootNode">
+                <md-card ng-if="graphCtrl.rootNode && !graphCtrl.rootNode.inEditMode" class="root-node-card">
                     <md-card-title>
                         <md-card-title-text>
                             <span class="md-title">
@@ -139,8 +139,9 @@
                     </md-card-content>
                 </md-card>
 
-                <md-card ng-if="graphCtrl.rootNode.body.public" class="comment-section-card">
-                    <div node="graphCtrl.rootNode" node-comments></div>
+                <!--<md-card ng-show="graphCtrl.rootNode.body.public" class="comment-section-card">-->
+                <md-card class="comment-section-card">
+                    <div node="graphCtrl.rootNode" node-stable-id="graphCtrl.rootStableId" node-comments></div>
                 </md-card>
 
                 <div class="card-margin" ng-if="!graphCtrl.rootNode.body.public && graphCtrl.problemReport.length">

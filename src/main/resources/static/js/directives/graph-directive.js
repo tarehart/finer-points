@@ -121,6 +121,9 @@ require('./markdown-directive');
         };
 
         if ($routeParams && $routeParams.rootStableId) {
+
+            self.rootStableId = $routeParams.rootStableId;
+
             NodeCache.fetchGraphForId($routeParams.rootStableId, function() {
                 self.rootNode = NodeCache.getByStableId($routeParams.rootStableId);
                 self.rootNodes = [self.rootNode]; // We have this in array form because it's handy for kicking off the angular template recursion.

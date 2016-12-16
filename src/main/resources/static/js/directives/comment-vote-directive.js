@@ -57,6 +57,11 @@ require('../services/toast-service');
                 return;
             }
 
+            if (UserService.userControlsAlias(comment.author.stableId)) {
+                ToastService.error("Can't vote on your own comment!");
+                return;
+            }
+
             var currentVote = getUserVote();
             if (voteType === currentVote) {
                 revokeVote(currentVote);

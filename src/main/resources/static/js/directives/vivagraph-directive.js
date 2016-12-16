@@ -146,7 +146,11 @@ require('../../sass/vivagraph.scss');
         }
 
         var renderer = makeRenderer(false);
-        renderer.run();
+
+        setTimeout(function() {
+            renderer.run(); // Wait a moment to let the page flow first. That way it will show up centered.
+        }, 400);
+
 
         if (scope.rootNode) {
             addVivaNodesRecursive(scope.rootNode, null, graph, {});

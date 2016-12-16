@@ -41,9 +41,9 @@ public class CommentServiceNeo4j implements CommentService {
 
     @Override
     @Transactional
-    public QuickCommentResponse getComments(long majorVersionId) {
+    public QuickCommentResponse getComments(String nodeStableId) {
 
-        Set<Commentable> comments = commentRepo.getComments(majorVersionId);
+        Set<Commentable> comments = commentRepo.getComments(nodeStableId);
 
         Set<QuickEdge> edges = new HashSet<>();
 
