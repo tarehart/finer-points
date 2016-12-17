@@ -45,7 +45,8 @@ module.exports = {
         ]
     },
     plugins: [
-        new ExtractTextPlugin("[name].bundle.css")
+        new ExtractTextPlugin("[name].bundle.css"),
+        new webpack.optimize.UglifyJsPlugin({minimize: true})
     ],
     debug: true
 };

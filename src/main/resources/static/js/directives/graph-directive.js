@@ -259,7 +259,7 @@ require('./markdown-directive');
 
         function buildProblemReport(node) {
 
-            var visitedNodes = new Set();
+            var visitedNodes = {};
 
             var problemReport = [];
 
@@ -269,11 +269,11 @@ require('./markdown-directive');
 
             function buildReport(node) {
 
-                if (visitedNodes.has(node) || node.body.draft === false) {
+                if (visitedNodes[node.id] || node.body.draft === false) {
                     return;
                 }
 
-                visitedNodes.add(node);
+                visitedNodes[node.id] = 1;
 
                 if (!node.body.title) {
                     problemReport.push({message: "You need to give your card a title.", node: node});

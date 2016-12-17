@@ -13,17 +13,7 @@ require('./stacktrace-service');
             try {
                 var errorMessage = exception.toString();
                 StacktraceService.print(exception, function(stack) {
-                    $.ajax({
-                        type: "POST",
-                        url: "/jsfatal",
-                        contentType: "application/json",
-                        data: angular.toJson({
-                            errorUrl: $window.location.href,
-                            errorMessage: errorMessage,
-                            stackTrace: stack,
-                            cause: ( cause || "" )
-                        })
-                    });
+                    sendError($window.location.href, errorMessage, stack, cause);
                 });
 
             } catch (loggingError) {
@@ -32,6 +22,24 @@ require('./stacktrace-service');
                 $log.log(loggingError);
             }
         };
+    }
+
+    function sendError(url, message, stack, cause) {
+        $.ajax({
+            type: "POST",
+            url: "/jsfatal",
+            contentType: "application/json",
+            data: JSON.stringify({
+                errorUrl: url,
+                errorMessage: message,
+                stackTrace: stack,
+                cause: ( cause || "" )
+            })
+        });
+    }
+
+    window.onerror = function(errorMsg, url) {
+        sendError(url, errorMsg, null, null);
     }
 
 })();

@@ -10,8 +10,9 @@
         this.print = function (exception, callback) {
             if (window.StackTrace) {
                 window.StackTrace.fromError(exception).then(callback);
+            } else {
+                callback(null);
             }
-            callback(null);
         }
     }
 })();

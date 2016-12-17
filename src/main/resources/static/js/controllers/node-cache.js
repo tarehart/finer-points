@@ -547,13 +547,13 @@
 
         function isInfinite(node) {
 
-            var stackSet = new Set();
+            var stackSet = {};
 
             function isInfiniteHelper(node) {
-                if (stackSet.has(node)) {
+                if (stackSet[node.id]) {
                     return true;
                 }
-                stackSet.add(node);
+                stackSet[node.id] = 1;
 
                 for (var i = 0; i < node.children.length; i++) {
                     if (isInfiniteHelper(node.children[i])) {
@@ -561,7 +561,7 @@
                     }
                 }
 
-                stackSet.delete(node);
+                delete stackSet[node.id];
                 return false;
             }
 
