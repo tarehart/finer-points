@@ -23,7 +23,7 @@ public interface UserRepository extends GraphRepository<User> {
     Author loadAuthor(String authorStableId);
 
     @Query("match p=(u:User {stableId: {0}})<-[:CONTROLLED_BY]-(:Author) " +
-            "with p, u optional match bv=u-[:ARGUMENT_VOTE]->(:MajorVersion) " +
-            "with p, u, bv optional match cv=u-[:COMMENT_VOTE]->(:Comment) return u, p, bv, cv")
+            "with p, u optional match bv=(u)-[:ARGUMENT_VOTE]->(:MajorVersion) " +
+            "with p, u, bv optional match cv=(u)-[:COMMENT_VOTE]->(:Comment) return u, p, bv, cv")
     User loadUserWithVotes(String stableId);
 }

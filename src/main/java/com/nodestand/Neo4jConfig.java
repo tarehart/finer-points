@@ -31,7 +31,7 @@ public class Neo4jConfig extends Neo4jConfiguration {
 
         Configuration config = new Configuration();
         config.driverConfiguration()
-                .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
+                .setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
                 .setURI(url)
                 .setCredentials(username, password);
 

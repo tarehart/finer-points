@@ -6,8 +6,6 @@ import com.nodestand.nodes.User;
 import com.nodestand.nodes.repository.UserRepository;
 import com.nodestand.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.template.Neo4jOperations;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,15 +17,12 @@ import java.util.Map;
 @RestController
 public class UserController {
 
-    private final Neo4jOperations operations;
-
     private final UserService userService;
 
     private final UserRepository userRepository;
 
     @Autowired
-    public UserController(Neo4jOperations operations, UserService userService, UserRepository userRepository) {
-        this.operations = operations;
+    public UserController(UserService userService, UserRepository userRepository) {
         this.userService = userService;
         this.userRepository = userRepository;
     }

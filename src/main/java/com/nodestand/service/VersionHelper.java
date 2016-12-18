@@ -13,7 +13,6 @@ import com.nodestand.nodes.version.VersionAggregator;
 import com.nodestand.util.TwoWayUtil;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -30,9 +29,6 @@ public class VersionHelper {
 
     @Autowired
     ArgumentBodyRepository bodyRepository;
-
-    @Autowired
-    Neo4jOperations operations;
 
     @Autowired
     Session session;
@@ -91,7 +87,7 @@ public class VersionHelper {
 
             // Make sure it's loaded
             if (publicVersion.getBody() == null) {
-                operations.load(publicVersion.getClass(), publicVersion.getId(), 1);
+                session.load(publicVersion.getClass(), publicVersion.getId(), 1);
             }
 
             // Copy links to children into the previous version
@@ -114,12 +110,12 @@ public class VersionHelper {
             }
 
             // Destroy the current version
-            operations.delete(draftNode);
+            session.delete(draftNode);
 
             TwoWayUtil.forgetNode(draftNode);
 
             for (ArgumentNode parent : dependentNodes) {
-                operations.save(parent);
+                session.save(parent);
             }
 
             resultingNode = publicVersion;
@@ -132,7 +128,7 @@ public class VersionHelper {
 
         body.setIsPublic(true);
 
-        operations.save(resultingNode);
+        session.save(resultingNode);
 
         return resultingNode;
     }
@@ -167,7 +163,7 @@ public class VersionHelper {
             InterpretationNode interpretation = (InterpretationNode) node;
 
             // If interpretation.getSource returns null, this will go awry. Keep an eye on it.
-            operations.load(SourceNode.class, interpretation.getSource().getId());
+            session.load(SourceNode.class, interpretation.getSource().getId());
 
             if (!interpretation.getSource().getBody().isPublic()) {
                 publish(interpretation.getSource());

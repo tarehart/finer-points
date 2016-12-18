@@ -111,11 +111,20 @@ dependencies {
     compile("org.springframework:spring-context")
     compile("org.springframework:spring-tx")
     compile("org.springframework.data:spring-data-neo4j:4.1.5.RELEASE") // At this time this is the latest stable version. Feel free to upgrade.
+
+    ext.ogmVersion = '2.1.0'
+
+    compile("org.neo4j:neo4j-ogm:$ogmVersion")
+    compile("org.neo4j:neo4j-ogm-api:$ogmVersion")
+    compile("org.neo4j:neo4j-ogm-bolt-driver:$ogmVersion")
+    compile("org.neo4j:neo4j-ogm-compiler:$ogmVersion")
+    compile("org.neo4j:neo4j-ogm-core:$ogmVersion")
+    compile("org.neo4j:neo4j-ogm-http-driver:$ogmVersion")
     compile("org.springframework:spring-webmvc")
     compile("joda-time:joda-time:2.8.1")
 
     testCompile("junit:junit")
-    testCompile(group: 'org.neo4j', name: 'neo4j-ogm-test', version: '2.0.5')
+    testCompile("org.neo4j:neo4j-ogm-test:$ogmVersion")
     testCompile(group: 'org.neo4j.test', name: 'neo4j-harness', version: '3.1.0')
     testCompile("org.springframework:spring-test")
 }

@@ -8,7 +8,6 @@ import com.nodestand.controllers.serial.QuickGraphResponse;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.Author;
 import com.nodestand.nodes.NodeRulesException;
-import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationBody;
@@ -20,8 +19,8 @@ import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.service.AuthorRulesUtil;
 import com.nodestand.service.VersionHelper;
 import com.nodestand.util.TwoWayUtil;
+import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +41,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     VersionHelper versionHelper;
 
     @Autowired
-    Neo4jOperations operations;
+    Session session;
 
     @Override
     @Transactional
@@ -99,7 +98,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         TwoWayUtil.updateSupportingNodes(node, children);
 
-        operations.save(node);
+        session.save(node);
         return node;
     }
 
@@ -115,11 +114,11 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         InterpretationNode node = interpretationBody.constructNode();
 
         if (sourceId != null) {
-            SourceNode source = operations.load(SourceNode.class, sourceId);
+            SourceNode source = session.load(SourceNode.class, sourceId);
             node.setSource(source);
         }
 
-        operations.save(node);
+        session.save(node);
         return node;
     }
 
@@ -132,7 +131,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         SourceBody sourceBody = new SourceBody(title, qualifier, author, url);
         SourceNode node = sourceBody.constructNode();
 
-        operations.save(node);
+        session.save(node);
         return node;
     }
 
@@ -140,7 +139,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Transactional
     public AssertionNode editAssertion(long userId, long nodeId, String title, String qualifier, String body, Collection<Long> links) throws NodeRulesException {
 
-        AssertionNode existingNode = operations.load(AssertionNode.class, nodeId, 2);
+        AssertionNode existingNode = session.load(AssertionNode.class, nodeId, 2);
 
         AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, existingNode.getBody().author.getStableId());
 
@@ -154,7 +153,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         TwoWayUtil.updateSupportingNodes(existingNode, children);
 
-        operations.save(existingNode);
+        session.save(existingNode);
         return existingNode;
     }
 
@@ -175,7 +174,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Transactional
     public InterpretationNode editInterpretation(long userId, long nodeId, String title, String qualifier, String body, Long sourceId) throws NodeRulesException {
 
-        InterpretationNode existingNode = operations.load(InterpretationNode.class, nodeId, 2);
+        InterpretationNode existingNode = session.load(InterpretationNode.class, nodeId, 2);
 
         AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, existingNode.getBody().author.getStableId());
 
@@ -187,12 +186,12 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         SourceNode sourceNode = null;
         if (sourceId != null) {
-            sourceNode = operations.load(SourceNode.class, sourceId);
+            sourceNode = session.load(SourceNode.class, sourceId);
         }
 
         TwoWayUtil.updateSupportingNodes(existingNode, sourceNode);
 
-        operations.save(existingNode);
+        session.save(existingNode);
         return existingNode;
     }
 
@@ -200,7 +199,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Transactional
     public SourceNode editSource(long userId, long nodeId, String title, String qualifier, String url) throws NodeRulesException {
 
-        SourceNode existingNode = operations.load(SourceNode.class, nodeId, 2);
+        SourceNode existingNode = session.load(SourceNode.class, nodeId, 2);
 
         AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, existingNode.getBody().author.getStableId());
 
@@ -210,7 +209,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         existingNode.getBody().setQualifier(qualifier);
         existingNode.getBody().setUrl(url);
 
-        operations.save(existingNode);
+        session.save(existingNode);
         return existingNode;
     }
 
@@ -220,7 +219,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         Author author = AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, authorStableId);
 
-        ArgumentNode existingNode = operations.load(ArgumentNode.class, nodeId, 2);
+        ArgumentNode existingNode = session.load(ArgumentNode.class, nodeId, 2);
 
         if (!existingNode.getBody().isEditable()) {
             throw new NodeRulesException("Cannot edit this node!");
@@ -237,7 +236,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         // this draft will copy its contents to the previous version and then be destroyed.
         ArgumentNode draftNode = existingNode.createNewDraft(author);
 
-        operations.save(draftNode);
+        session.save(draftNode);
 
         EditResult result = new EditResult(draftNode);
         result.setGraph(getGraph(draftNode.getStableId(), userId));
@@ -249,7 +248,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Transactional
     public QuickGraphResponse publishNode(long userId, long nodeId) throws NotAuthorizedException, NodeRulesException {
 
-        ArgumentNode existingNode = operations.load(ArgumentNode.class, nodeId, 2);
+        ArgumentNode existingNode = session.load(ArgumentNode.class, nodeId, 2);
 
         if (existingNode == null) {
             throw new ResourceNotFoundException("Could not find node with id " + nodeId);
@@ -305,8 +304,8 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, draftNode.getBody().author.getStableId());
 
-        operations.delete(draftNode);
-        operations.delete(draftNode.getBody());
+        session.delete(draftNode);
+        session.delete(draftNode.getBody());
         TwoWayUtil.forgetNode(draftNode);
     }
 

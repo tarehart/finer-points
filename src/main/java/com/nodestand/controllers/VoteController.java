@@ -6,8 +6,8 @@ import com.nodestand.nodes.comment.Comment;
 import com.nodestand.nodes.version.MajorVersion;
 import com.nodestand.nodes.vote.VoteType;
 import com.nodestand.service.user.UserService;
+import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,13 +19,13 @@ import java.util.Map;
 @RestController
 public class VoteController {
 
-    private final Neo4jOperations operations;
+    private final Session session;
 
     private final UserService userService;
 
     @Autowired
-    public VoteController(Neo4jOperations operations, UserService userService) {
-        this.operations = operations;
+    public VoteController(Session session, UserService userService) {
+        this.session = session;
         this.userService = userService;
     }
 
@@ -39,7 +39,7 @@ public class VoteController {
         Long commentId = Long.valueOf((Integer) params.get("commentId"));
         Boolean isUpvote = (Boolean) params.get("isUpvote");
 
-        Comment comment = operations.load(Comment.class, commentId);
+        Comment comment = session.load(Comment.class, commentId);
 
         if (user.getAliases().stream().anyMatch(a -> a.getStableId().equals(comment.author.getStableId()))) {
             throw new NodeRulesException("Can't upvote your own comment!");
@@ -47,8 +47,8 @@ public class VoteController {
 
         user.registerCommentVote(comment, isUpvote);
 
-        operations.save(comment);
-        operations.save(user);
+        session.save(comment);
+        session.save(user);
     }
 
     @Transactional
@@ -56,14 +56,14 @@ public class VoteController {
     @RequestMapping("/unvoteComment")
     public void unvoteComment(@RequestBody Map<String, Object> params) throws NodeRulesException {
         Long userId = userService.getUserNodeIdFromSecurityContext();
-        User user = operations.load(User.class, userId);
+        User user = session.load(User.class, userId);
 
         Long commentId = Long.valueOf((Integer) params.get("commentId"));
-        Comment comment = operations.load(Comment.class, commentId);
+        Comment comment = session.load(Comment.class, commentId);
         user.revokeCommentVote(comment);
 
-        operations.save(comment);
-        operations.save(user);
+        session.save(comment);
+        session.save(user);
     }
 
     @Transactional
@@ -71,17 +71,17 @@ public class VoteController {
     @RequestMapping("/voteBody")
     public void voteBody(@RequestBody Map<String, Object> params) throws NodeRulesException {
         Long userId = userService.getUserNodeIdFromSecurityContext();
-        User user = operations.load(User.class, userId);
+        User user = session.load(User.class, userId);
 
         Long majorVersionId = Long.valueOf((Integer) params.get("majorVersionId"));
-        MajorVersion mv = operations.load(MajorVersion.class, majorVersionId);
+        MajorVersion mv = session.load(MajorVersion.class, majorVersionId);
         String voteTypeStr = (String) params.get("voteType");
         VoteType voteType = VoteType.valueOf(voteTypeStr.toUpperCase());
 
         user.registerVote(mv, voteType);
 
-        operations.save(mv);
-        operations.save(user);
+        session.save(mv);
+        session.save(user);
     }
 
     @Transactional
@@ -89,14 +89,14 @@ public class VoteController {
     @RequestMapping("/unvoteBody")
     public void unvoteBody(@RequestBody Map<String, Object> params) throws NodeRulesException {
         Long userId = userService.getUserNodeIdFromSecurityContext();
-        User user = operations.load(User.class, userId);
+        User user = session.load(User.class, userId);
 
         Long majorVersionId = Long.valueOf((Integer) params.get("majorVersionId"));
-        MajorVersion mv = operations.load(MajorVersion.class, majorVersionId);
+        MajorVersion mv = session.load(MajorVersion.class, majorVersionId);
         user.revokeVote(mv);
 
-        operations.save(mv);
-        operations.save(user);
+        session.save(mv);
+        session.save(user);
     }
 
 
