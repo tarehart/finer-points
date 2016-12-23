@@ -109,7 +109,7 @@
             type: "lang",
             regex: /{{\[([0-9a-z]{1,25})\](.+?)(?=}})}}/g,
             replace: function(a, b, c) {
-                return '<span class="node-link"><span class="node-id">' + b + '</span>' + c + '</span>';
+                return '<span class="node-link" href="' + b + '">' + c + '</span>';
             }
         }]
     };

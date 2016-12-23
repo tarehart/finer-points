@@ -48,7 +48,7 @@ public class SearchController {
         // This is NOT the version number; it's the unique node id
         richHits.stream().filter(body -> acceptableClasses.contains(body.getClass())).forEach(body -> {
             String majorVersionId = body.getMajorVersion().getStableId(); // This is NOT the version number; it's the unique node id
-            if (!majorVersionIds.contains(majorVersionId) && (body.isPublic() || userId.equals(body.author.getNodeId()))) {
+            if (!majorVersionIds.contains(majorVersionId)) {
                 searchResults.add(body);
                 majorVersionIds.add(majorVersionId);
             }

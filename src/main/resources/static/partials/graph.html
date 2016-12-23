@@ -140,7 +140,7 @@
                 </md-card>
 
                 <!--<md-card ng-show="graphCtrl.rootNode.body.public" class="comment-section-card">-->
-                <md-card class="comment-section-card">
+                <md-card class="comment-section-card" ng-if="graphCtrl.rootStableId">
                     <div node="graphCtrl.rootNode" node-stable-id="graphCtrl.rootStableId" node-comments></div>
                 </md-card>
 
