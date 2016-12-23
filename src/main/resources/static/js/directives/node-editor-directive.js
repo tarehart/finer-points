@@ -33,10 +33,36 @@ require('../services/user-service');
 
         self.node = $scope.node;
 
-        self.saveNode = function(node) {
-
-            stopEditingBody(node);
+        self.backupCopy = {
+            body: {}
         };
+        copyFields(self.node, self.backupCopy);
+
+        self.saveNode = function() {
+
+            stopEditingBody(self.node);
+        };
+
+        self.cancel = function() {
+            copyFields(self.backupCopy, self.node);
+
+            // This will cause vivagraph to reset, and probably do other useful stuff too.
+            $scope.$emit("canceledEdit", self.node);
+
+            self.node.inEditMode = false;
+        };
+
+        function copyFields(sourceNode, targetNode) {
+            targetNode.body.title = sourceNode.body.title;
+            targetNode.body.body = sourceNode.body.body;
+            targetNode.body.url = sourceNode.body.url;
+            targetNode.body.qualifier = sourceNode.body.qualifier;
+
+            targetNode.children = [];
+            for (var i = 0; i < sourceNode.children.length; i++) {
+                targetNode.children.push(sourceNode.children[i]);
+            }
+        }
 
         function saveChanges(node, successCallback) {
             if (NodeCache.isBlankSlateNode(node)) {
@@ -114,10 +140,10 @@ require('../services/user-service');
             function attachChild(child) {
 
                 NodeCache.addChildToNode(node, child);
-                
+
+                // This thing inserts the proper majorVersionId into the text.
                 linkCallback(child.body.majorVersion.stableId, child.body.title);
 
-                saveChanges(node);
                 NodeCache.getFullDetail(child.stableId);
                 NodeCache.fetchGraphForId(child.stableId, function() {
                     $rootScope.$broadcast("nodeAdded", node, child);
@@ -130,9 +156,11 @@ require('../services/user-service');
 
             function nodeChosenForLinking(result) {
                 if (result.chosenNode) {
+                    // There's an existing node that we want to attach.
                     var child = NodeCache.addOrUpdateNode(result.chosenNode);
                     attachChild(child);
                 } else {
+                    // We have a brand new node that we want to save.
                     var alias = UserService.getActiveAlias();
                     NodeCache.createAndSaveNode(result.newTitle, result.newQualifier, result.type, alias, attachChild, errorHandler);
                 }

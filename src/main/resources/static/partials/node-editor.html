@@ -9,7 +9,7 @@
         <input ng-model="nodeEditCtrl.node.body.qualifier">
     </md-input-container>
 
-    <textarea ng-if="node.type !== 'source'" node="node" set-text="nodeEditCtrl.setBody" link-fn="nodeEditCtrl.linkChild" markdown-editor>{{nodeEditCtrl.node.body.body}}</textarea>
+    <textarea ng-if="nodeEditCtrl.node.type !== 'source'" node="nodeEditCtrl.node" set-text="nodeEditCtrl.setBody" link-fn="nodeEditCtrl.linkChild" markdown-editor>{{nodeEditCtrl.node.body.body}}</textarea>
 
     <md-input-container class="md-block" ng-if="nodeEditCtrl.node.type === 'source'">
         <label>Link</label>
@@ -17,6 +17,7 @@
     </md-input-container>
 
     <md-card-actions layout="row" layout-align="end center">
-        <md-button ng-click="nodeEditCtrl.saveNode(nodeEditCtrl.node)" class="md-raised md-primary">Save draft</md-button>
+        <md-button ng-if="nodeEditCtrl.node.stableId" ng-click="nodeEditCtrl.cancel()" class="md-raised">Cancel</md-button>
+        <md-button ng-click="nodeEditCtrl.saveNode()" class="md-raised md-primary">Save draft</md-button>
     </md-card-actions>
 </div>

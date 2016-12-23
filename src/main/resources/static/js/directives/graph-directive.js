@@ -69,6 +69,10 @@ require('./markdown-directive');
             self.problemReport = buildProblemReport(self.rootNode);
         });
 
+        $scope.$on("canceledEdit", function(e, node) {
+            $scope.$broadcast("rootData", self.rootNode);
+        });
+
         function revealChild(node, child) {
             if (node === child) {
                 return true;

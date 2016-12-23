@@ -157,6 +157,7 @@ require('../../sass/vivagraph.scss');
         }
 
         scope.$on("rootData", function(event, rootNode) {
+            graph.clear();
             addVivaNodesRecursive(rootNode, null, graph, {});
         });
 
