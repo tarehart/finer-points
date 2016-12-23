@@ -1,6 +1,7 @@
 package com.nodestand.util;
 
 import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.NodeInputException;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import org.apache.commons.lang3.StringUtils;
@@ -55,11 +56,11 @@ public final class BodyParser {
             List<ArgumentNode> matches = remainingChildren.stream().filter(n -> n.getBody().getMajorVersion().getStableId().equals(id)).collect(Collectors.toList());
 
             if (matches.isEmpty()) {
-                throw new NodeRulesException("Body text contained an unexpected link!");
+                throw new NodeInputException("Body text contained an unexpected link!");
             }
 
             if (matches.size() > 1) {
-                throw new NodeRulesException("Passed multiple children with the same major version!");
+                throw new NodeInputException("Passed multiple children with the same major version!");
             }
 
             ArgumentNode child = matches.get(0);
@@ -70,7 +71,7 @@ public final class BodyParser {
         }
 
         if (!remainingChildren.isEmpty()) {
-            throw new NodeRulesException("There were children not represented in the body text!");
+            throw new NodeInputException("There were children not represented in the body text!");
         }
 
         return argumentNodeStables.stream().toArray(String[]::new);

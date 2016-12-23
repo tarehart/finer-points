@@ -115,6 +115,11 @@ public class VersionHelper {
             TwoWayUtil.forgetNode(draftNode);
 
             for (ArgumentNode parent : dependentNodes) {
+                if (parent instanceof AssertionNode) {
+                    // This is probably unnecessary, I'm doing it just to be safe.
+                    // Consider removing this later for performance reasons.
+                    ((AssertionNode)parent).updateChildOrder(nodeRepository);
+                }
                 session.save(parent);
             }
 
@@ -128,6 +133,11 @@ public class VersionHelper {
 
         body.setIsPublic(true);
 
+        if (resultingNode instanceof AssertionNode) {
+            // This is probably unnecessary, I'm doing it just to be safe.
+            // Consider removing this later for performance reasons.
+            ((AssertionNode)resultingNode).updateChildOrder(nodeRepository);
+        }
         session.save(resultingNode);
 
         return resultingNode;

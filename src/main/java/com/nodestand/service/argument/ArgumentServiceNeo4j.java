@@ -98,6 +98,8 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         TwoWayUtil.updateSupportingNodes(node, children);
 
+        node.updateChildOrder(argumentRepo);
+
         session.save(node);
         return node;
     }
@@ -152,6 +154,8 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         Set<ArgumentNode> children = getAndValidateChildNodes(links);
 
         TwoWayUtil.updateSupportingNodes(existingNode, children);
+
+        existingNode.updateChildOrder(argumentRepo);
 
         session.save(existingNode);
         return existingNode;
