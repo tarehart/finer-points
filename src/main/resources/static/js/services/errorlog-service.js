@@ -53,7 +53,7 @@ require('./stacktrace-service');
 
         function sendError(url, message, stack, cause, consoleHistory) {
             $.ajax({
-                type: "GET",
+                type: "POST",
                 url: "/jsfatal",
                 contentType: "application/json",
                 data: JSON.stringify({
