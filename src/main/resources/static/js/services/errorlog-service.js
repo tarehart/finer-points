@@ -42,6 +42,7 @@ require('./stacktrace-service');
         // This will be called if there's an uncaught error outside angular.
         window.onerror = function(errorMsg, url, line, col, error) {
             try {
+                error = error || undefined;
                 sendError(url, errorMsg, null, JSON.stringify(error), buffer);
                 buffer = [];
             }
@@ -50,9 +51,9 @@ require('./stacktrace-service');
             }
         };
 
-        function sendError(url, message, stack, cause, console) {
+        function sendError(url, message, stack, cause, consoleHistory) {
             $.ajax({
-                type: "POST",
+                type: "GET",
                 url: "/jsfatal",
                 contentType: "application/json",
                 data: JSON.stringify({
@@ -60,8 +61,24 @@ require('./stacktrace-service');
                     errorMessage: message || "",
                     stackTrace: stack || null,
                     cause: cause || "",
-                    console: console || null
-                })
+                    console: consoleHistory || null
+                }),
+                error: function() {
+                    // If the POST failed, try GET instead.
+                    sendErrorGet(url, message);
+                }
+            });
+        }
+
+        function sendErrorGet(url, message) {
+            $.ajax({
+                type: "GET",
+                url: "/jsfatalGet",
+                contentType: "application/json",
+                data: {
+                    errorUrl: url || "",
+                    errorMessage: message || ""
+                }
             });
         }
 

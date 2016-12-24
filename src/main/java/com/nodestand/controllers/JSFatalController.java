@@ -2,9 +2,7 @@ package com.nodestand.controllers;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,8 +12,23 @@ public class JSFatalController {
 
     private final Log logger = LogFactory.getLog(getClass());
 
-    @RequestMapping("/jsfatal")
+    @RequestMapping(value = "/jsfatal", method = RequestMethod.POST)
     public void handleJsFatal(@RequestBody JsFatalInput jsFatal) {
+        logJsFatal(jsFatal);
+    }
+
+    /**
+     * The POST method is preferred, but sometimes Googlebot rewrites to GET, and I don't want to drop that on the floor.
+     */
+    @RequestMapping(value = "/jsfatalGet", method = RequestMethod.GET)
+    public void handleJsFatalGet(@RequestParam String errorUrl, @RequestParam String errorMessage) {
+        JsFatalInput jsFatal = new JsFatalInput();
+        jsFatal.errorUrl = errorUrl;
+        jsFatal.errorMessage = errorMessage;
+        logJsFatal(jsFatal);
+    }
+
+    private void logJsFatal(JsFatalInput jsFatal) {
 
         String message = String.format("JavaScriptException: \"%s\" URL: %s", jsFatal.errorMessage, jsFatal.errorUrl);
 
