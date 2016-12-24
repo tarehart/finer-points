@@ -24,6 +24,14 @@ public class JSFatalController {
             message += "\n" + String.join("\n", stackList);
         }
 
+        if (jsFatal.cause != null && !jsFatal.cause.isEmpty()) {
+            message += "\nCause: " + jsFatal.cause;
+        }
+
+        if (jsFatal.console != null && jsFatal.console.size() > 0) {
+            message += "\nConsole:\n" + String.join("\n", jsFatal.console);
+        }
+
         logger.error(message);
     }
 
@@ -33,6 +41,7 @@ public class JSFatalController {
         public String errorMessage;
         public String errorUrl;
         public List<JsStackFrame> stackTrace;
+        public List<String> console;
     }
 
     public static class JsStackFrame {
