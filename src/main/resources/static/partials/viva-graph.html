@@ -5,6 +5,6 @@
         <i class="fa fa-arrows-alt" aria-hidden="true"></i>
     </md-button>
     <div id="viva-container" ng-class="{fullscreen: fullscreen}"></div>
-    <span class="viva-node-description">{{highlightedNode.body.title}}</span>
+    <a class="viva-node-description" ng-href="/graph/{{highlightedNode.stableId}}">{{highlightedNode.body.title}}</a>
 </md-card>
 

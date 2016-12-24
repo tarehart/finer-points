@@ -5,6 +5,8 @@
         .module('nodeStandControllers')
         .provider('markdownConverter', markdownConverter)
         .directive("markdownEditor", markdownEditor)
+        .directive("bindHtmlCompile", bindHtmlCompile)
+        .directive("nodeLink", nodeLink)
         .directive("renderMarkdown", ['markdownConverter', renderMarkdown]);
 
     function markdownConverter() {
@@ -88,9 +90,9 @@
             },
             // ng-bind-html sanitizes the html behind the scenes to prevent XSS.
             // https://docs.angularjs.org/api/ngSanitize/service/$sanitize
-            template: '<div ng-bind-html="html"></div>',
+            template: '<div bind-html-compile="html"></div>',
             link: function (scope, element, attrs, ngModel) {
-                scope.$watch(function(scope) {return scope.ngMarkdown;}, function (v) {
+                scope.$watch('ngMarkdown', function (v) {
                     if (!v) {
                         v = "";
                     }
@@ -103,13 +105,49 @@
         }
     }
 
+    function bindHtmlCompile($compile) {
+        return {
+            restrict: 'A',
+            link: function (scope, element, attrs) {
+                scope.$watch(function () {
+                    return scope.$eval(attrs.bindHtmlCompile);
+                }, function (value) {
+                    // In case value is a TrustedValueHolderType, sometimes it
+                    // needs to be explicitly called into a string in order to
+                    // get the HTML string.
+                    element.html(value && value.toString());
+                    // If scope is provided use it, otherwise use parent scope
+                    var compileScope = scope;
+                    if (attrs.bindHtmlScope) {
+                        compileScope = scope.$eval(attrs.bindHtmlScope);
+                    }
+                    $compile(element.contents())(compileScope);
+                });
+            }
+        };
+    }
+
+    function nodeLink() {
+        return {
+            restrict: 'A',
+            link: function (scope, element, attrs) {
+                element.on('click', function(event) {
+                    scope.$emit("nodeLinkClick", attrs.nodeLink);
+                    event.stopPropagation();
+                    scope.$apply();
+                });
+            }
+        };
+    }
+
+
     // This used to live in js/local/showdown-node-stand.js
     var markdownExtension = function(a) {
         return [{
             type: "lang",
             regex: /{{\[([0-9a-z]{1,25})\](.+?)(?=}})}}/g,
             replace: function(a, b, c) {
-                return '<span class="node-link" href="' + b + '">' + c + '</span>';
+                return '<span class="node-link" node-link="' + b + '">' + c + '</span>';
             }
         }]
     };

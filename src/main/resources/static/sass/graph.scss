@@ -11,17 +11,21 @@
   margin-top: 8px;
   padding: 10px;
   font-size: 14px;
+  outline: none;
 
   &.highlighted {
-    background-color: #d4f0ff;
+    .child-node-title {
+      background-color: $node-highlight-color;
+    }
   }
-
 }
-
-
 
 .child-node-title {
   font-size: 16px;
+  padding: 2px;
+  border-radius: 2px;
+  display: inline-block;
+  margin-bottom: 6px;
 }
 
 .child-body {
@@ -39,11 +43,12 @@
 }
 
 .node-link {
-  border-bottom: solid 1px #bdbdbd;
-  background-color: #e9efec;
+  border-bottom: solid 1px #d1d1d1;
+  background-color: $node-link-color;
   padding-left: 2px;
   padding-right: 2px;
   border-radius: 2px;
+  cursor: pointer;
 }
 
 .node-id {
@@ -66,6 +71,17 @@
   md-card-title {
     padding-top: 10px;
   }
+
+  .root-node-title {
+    padding: 2px;
+    border-radius: 2px;
+  }
+
+  &.highlighted {
+    .root-node-title {
+      background-color: $node-highlight-color;
+    }
+  }
 }
 
 .draft-node-pill {
@@ -78,11 +94,6 @@
 
 .child-visibility {
   margin-top: 8px;
-}
-
-.child-node-title {
-  display: inline-block;
-  margin-bottom: 8px;
 }
 
 .radio-horizontal {

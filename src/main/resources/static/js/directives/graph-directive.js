@@ -73,6 +73,20 @@ require('./markdown-directive');
             $scope.$broadcast("rootData", self.rootNode);
         });
 
+        $scope.$on("nodeLinkClick", function(e, majorVersionId) {
+            var scope = e.targetScope;
+            while (scope && !scope.node) {
+                scope = scope.$parent;
+            }
+            var parentNode = scope ? scope.node : self.rootNode;
+            for (var i = 0; i < parentNode.children.length; i++) {
+                if (parentNode.children[i].body.majorVersion.stableId === majorVersionId) {
+                    $scope.$broadcast("nodeHighlighted", parentNode.children[i]);
+                    return;
+                }
+            }
+        });
+
         function revealChild(node, child) {
             if (node === child) {
                 return true;
