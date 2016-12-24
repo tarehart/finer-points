@@ -144,10 +144,10 @@
                     <div node="graphCtrl.rootNode" node-stable-id="graphCtrl.rootStableId" node-comments></div>
                 </md-card>
 
-                <div class="card-margin" ng-if="!graphCtrl.rootNode.body.public && graphCtrl.problemReport.length">
+                <div class="card-margin" ng-if="!graphCtrl.rootNode.body.public && graphCtrl.problemReport.messages.length">
                     <h4><i class="fa fa-exclamation-triangle" style="color:#da0000"></i> Before you can publish:</h4>
                     <ul>
-                        <li ng-repeat="problem in graphCtrl.problemReport">
+                        <li ng-repeat="problem in graphCtrl.problemReport.messages">
                             {{problem.message}}
                         </li>
                     </ul>

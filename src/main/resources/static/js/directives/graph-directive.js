@@ -258,14 +258,14 @@ require('./markdown-directive');
         }
 
         function allowsPublish(node) {
-            return self.problemReport && !self.problemReport.find(n => n.node === node);
+            return self.problemReport && !self.problemReport.problemNodes[node];
         }
 
         function buildProblemReport(node) {
 
             var visitedNodes = {};
 
-            var problemReport = [];
+            var problemReport = { messages: [], problemNodes: {}};
 
             buildReport(node);
 
@@ -273,50 +273,59 @@ require('./markdown-directive');
 
             function buildReport(node) {
 
+                var hasPublishBlockers = false;
+
                 if (visitedNodes[node.id] || node.body.draft === false) {
-                    return;
+                    return false;
                 }
 
                 visitedNodes[node.id] = 1;
 
                 if (!node.body.title) {
-                    problemReport.push({message: "You need to give your card a title.", node: node});
+                    problemReport.messages.push({message: "You need to give your card a title.", node: node});
                 }
 
                 if (node.body.title === 'Untitled') {
-                    problemReport.push({message: 'You need to write a title other than "Untitled."', node: node});
+                    problemReport.messages.push({message: 'You need to write a title other than "Untitled."', node: node});
                 }
 
                 if (node.type == "source") {
                     if (!node.body.url) {
-                        problemReport.push({message: "You need a URL for your source node.", node: node});
+                        problemReport.messages.push({message: "You need a URL for your source node.", node: node});
                     }
                 }
                 else if (node.type == "interpretation") {
                     if (!node.body.body) {
-                        problemReport.push({message: "You need some text in your interpretation.", node: node});
+                        problemReport.messages.push({message: "You need some text in your interpretation.", node: node});
+                        hasPublishBlockers = true;
                     }
 
                     if (!node.children.length) {
-                        problemReport.push({message: "You need to attach a source card support your interpretation.", node: node});
+                        problemReport.messages.push({message: "You need to attach a source card support your interpretation.", node: node});
+                        hasPublishBlockers = true;
                     }
                     else {
-                        buildReport(node.children[0]);
+                        hasPublishBlockers = buildReport(node.children[0]) || hasPublishBlockers;
                     }
                 }
                 else if (node.type == "assertion") {
                     if (!node.body.body) {
-                        problemReport.push({message: "You need some text in your opinion.", node: node});
+                        problemReport.messages.push({message: "You need some text in your opinion.", node: node});
                     }
 
                     if (!node.children.length) {
-                        problemReport.push({message: "You need to attach cards to support your opinion.", node: node});
+                        problemReport.messages.push({message: "You need to attach cards to support your opinion.", node: node});
                     }
 
                     for (var i = 0; i < node.children.length; i++) {
-                        buildReport(node.children[i]);
+                        hasPublishBlockers = buildReport(node.children[i]) || hasPublishBlockers;
                     }
                 }
+
+                if (hasPublishBlockers) {
+                    problemReport.problemNodes[node] = 1;
+                }
+                return hasPublishBlockers;
             }
         }
 
