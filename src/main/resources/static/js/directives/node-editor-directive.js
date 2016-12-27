@@ -3,6 +3,7 @@ require('../../sass/node-linker.scss');
 require('./markdown-directive');
 require('../services/toast-service');
 require('../services/user-service');
+require('../services/body-text-service');
 
 (function() {
     'use strict';
@@ -27,7 +28,7 @@ require('../services/user-service');
         }
     }
 
-    function NodeEditorController($scope, $rootScope, $http, $mdDialog, $location, ToastService, NodeCache, UserService) {
+    function NodeEditorController($scope, $rootScope, $http, $mdDialog, $location, ToastService, NodeCache, UserService, BodyTextService) {
 
         var self = this;
 
@@ -137,12 +138,27 @@ require('../services/user-service');
 
         self.linkChild = function(node, linkCallback) {
 
-            function attachChild(child) {
+            // idToReplace is optional.
+            function attachChild(child, idToReplace) {
 
                 NodeCache.addChildToNode(node, child);
 
+                if (idToReplace) {
+                    var oldChild = $.grep(node.children, function(c) {
+                        return c.body.majorVersion.stableId === idToReplace;
+                    })[0];
+
+                    // Remove the old child
+                    node.children = node.children.filter(function(c){
+                        return c !== oldChild;
+                    });
+
+                    $rootScope.$broadcast("edgeRemoved", node, oldChild);
+                }
+
                 // This thing inserts the proper majorVersionId into the text.
-                linkCallback(child.body.majorVersion.stableId, child.body.title);
+                // Probably defined in markdown-directive.js
+                linkCallback(child.body.majorVersion.stableId, child.body.title, idToReplace);
 
                 NodeCache.getFullDetail(child.stableId);
                 NodeCache.fetchGraphForId(child.stableId, function() {
@@ -162,16 +178,44 @@ require('../services/user-service');
                 } else {
                     // We have a brand new node that we want to save.
                     var alias = UserService.getActiveAlias();
-                    NodeCache.createAndSaveNode(result.newTitle, result.newQualifier, result.type, alias, attachChild, errorHandler);
+
+                    var node = {
+                        body: {title: result.newTitle, qualifier:result.newQualifier},
+                        children: [],
+                        type: result.type
+                    };
+
+                    var idToReplace;
+
+                    if (result.insertTarget) {
+                        node.children.push(result.insertTarget);
+                        console.log(result.insertTarget);
+
+                        node.body.body = BodyTextService.buildLinkCode(
+                            result.insertTarget.body.majorVersion.stableId,
+                            result.insertTarget.body.title);
+
+                        console.log("Insert target: " + result.insertTarget);
+
+                        // TODO: replace reference(s) to the target from root node's body text, replace child
+                        idToReplace = result.insertTarget.body.majorVersion.stableId;
+                    }
+
+                    NodeCache.createAndSaveNode(node, alias,
+                        function(result) { attachChild(result, idToReplace)},
+                        errorHandler);
                 }
             }
 
             $mdDialog.show({
                 templateUrl: "partials/link-child.html",
-                controller: LinkDialogController
+                controller: LinkDialogController,
+                controllerAs: "linkCtrl"
             });
 
             function LinkDialogController($scope, $mdDialog) {
+
+                var self = this;
 
                 var linkableTypes = [];
 
@@ -181,20 +225,20 @@ require('../services/user-service');
                     linkableTypes = ["source"];
 
                     // Go ahead and select it
-                    $scope.newNodeType = "source";
+                    self.newNodeType = "source";
                 }
 
-                $scope.newQualifier = "Original version"; // Default this field.
+                self.newQualifier = "Original version"; // Default this field.
 
-                $scope.canLinkTo = function(type) {
+                self.canLinkTo = function(type) {
                     return linkableTypes.indexOf(type) >= 0;
                 };
 
-                $scope.toggleMakeNew = function() {
-                    $scope.makeNew = !$scope.makeNew;
+                self.toggleMakeNew = function() {
+                    self.makeNew = !self.makeNew;
                 };
 
-                $scope.getSearchResults = function(query) {
+                self.getSearchResults = function(query) {
 
                     return $http.get('/search', {params: {query: query, types:linkableTypes}})
                         .then(function(response){
@@ -208,22 +252,22 @@ require('../services/user-service');
                         });
                 };
 
-                $scope.searchTextChanged = function() {
-                    $scope.newTitle = $scope.searchQuery;
+                self.searchTextChanged = function() {
+                    self.newTitle = self.searchQuery;
                 };
 
-                $scope.searchResultSelected = function(bodyNode) {
+                self.searchResultSelected = function(bodyNode) {
 
                     if (!bodyNode) {
-                        $scope.chosenNode = null;
-                        $scope.isResultSelected = false;
+                        self.chosenNode = null;
+                        self.isResultSelected = false;
                         return;
                     }
                     
                     if (bodyNode.createNew) {
-                        $scope.chosenNode = null;
-                        $scope.isResultSelected = false;
-                        $scope.toggleMakeNew();
+                        self.chosenNode = null;
+                        self.isResultSelected = false;
+                        self.toggleMakeNew();
                         return;
                     }
 
@@ -234,8 +278,8 @@ require('../services/user-service');
                         // For now, get the most recent node for linking.
                         sortNodesByVersion(nodes);
 
-                        $scope.chosenNode = nodes[nodes.length - 1];
-                        $scope.isResultSelected = true;
+                        self.chosenNode = nodes[nodes.length - 1];
+                        self.isResultSelected = true;
 
                     }, function(err) {
                         alert("There was an error: " + err);
@@ -259,22 +303,65 @@ require('../services/user-service');
                     });
                 }
 
-                $scope.clearSelection = function() {
-                    $scope.isResultSelected = false;
-                    $scope.chosenNode = null;
+                self.getInsertOptions = function() {
+                    var options = [];
+                    if (node.getType() === 'assertion' && self.newNodeType === 'assertion') {
+                        for (var i = 0; i < node.children.length; i++) {
+                            if (node.children[i].getType() !== 'source') {
+                                options.push(node.children[i]);
+                            }
+                        }
+                    }
+
+                    return options;
                 };
 
-                $scope.select = function() {
+                self.hasInsertOptions = function() {
+                    return !!self.getInsertOptions().length;
+                };
+
+                self.clearSelection = function() {
+                    self.isResultSelected = false;
+                    self.chosenNode = null;
+                };
+
+                self.select = function() {
                     $mdDialog.cancel();
-                    nodeChosenForLinking({chosenNode: $scope.chosenNode});
+                    nodeChosenForLinking({chosenNode: self.chosenNode});
                 };
 
-                $scope.createNewNode = function() {
+                self.createNewNode = function() {
                     $mdDialog.cancel();
-                    nodeChosenForLinking({newTitle: $scope.newTitle, newQualifier: $scope.newQualifier, type: $scope.newNodeType});
+                    var insertTarget;
+                    if (self.shouldInsertBefore && self.selectedInsertId) {
+                        insertTarget = getSelectedInsertNode();
+                    }
+
+                    nodeChosenForLinking({
+                        newTitle: self.newTitle,
+                        newQualifier: self.newQualifier,
+                        type: self.newNodeType,
+                        insertTarget: insertTarget
+                    });
                 };
 
-                $scope.cancel = function() {
+                function getSelectedInsertNode() {
+                    if (!self.selectedInsertId) {
+                        return null;
+                    }
+
+                    var insertOptions = self.getInsertOptions();
+                    return $.grep(insertOptions, function(opt) {return opt.stableId === self.selectedInsertId;})[0];
+                }
+
+
+
+                self.selectedInsertText = function() {
+                    var node = getSelectedInsertNode();
+                    return node ? node.body.title : "";
+                };
+
+                self.cancel = function() {
                     $mdDialog.cancel();
                 };
             }

@@ -132,14 +132,13 @@
             }, errorCallback);
         };
 
-        cache.createAndSaveNode = function(title, qualifier, type, alias, successCallback, errorCallback) {
-            var node = {
-                body: {title: title, qualifier:qualifier},
-                children: [],
-                getType: function() {return type;}
+        cache.createAndSaveNode = function(nodeSkeleton, alias, successCallback, errorCallback) {
+
+            nodeSkeleton.getType = function() {
+                return this.type;
             };
 
-            saveNewNode(node, alias, successCallback, errorCallback);
+            saveNewNode(nodeSkeleton, alias, successCallback, errorCallback);
         };
 
         function saveNewNode(node, alias, successCallback, errorCallback) {

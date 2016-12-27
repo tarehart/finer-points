@@ -1,3 +1,5 @@
+require('../services/body-text-service');
+
 (function() {
     'use strict';
 
@@ -20,7 +22,7 @@
         };
     }
 
-    function markdownEditor($timeout) {
+    function markdownEditor($timeout, BodyTextService) {
         return {
             restrict: "A",
             scope: {
@@ -48,11 +50,23 @@
 
                                 // The performReplace function will be called much later after some external
                                 // code decides what node should be inserted.
-                                function performReplace(nodeId, nodeTitle) {
-                                    var tagText = selection.text || nodeTitle;
-                                    e.replaceSelection("{{[" + nodeId + "]" + tagText + "}}");
-                                    var offset = ("" + nodeId).length + 4;
-                                    e.setSelection(selection.start + offset, selection.start + offset + tagText.length);
+                                function performReplace(nodeId, nodeTitle, idToReplace) {
+
+                                    if (idToReplace) {
+                                        var linkCode = BodyTextService.buildLinkCode(nodeId, nodeTitle);
+                                        // TODO: find and replace
+                                        var regex = new RegExp("\\{\\{\\[" + idToReplace + "\\].+?(?=}})\\}\\}");
+                                        e.setContent(e.getContent().replace(regex, linkCode));
+                                        //var match = regex.exec(e.getContent());
+                                        //e.replaceAll(regex, linkCode);
+                                    }
+                                    else {
+                                        var tagText = selection.text || nodeTitle;
+                                        e.replaceSelection(BodyTextService.buildLinkCode(nodeId, tagText));
+                                        var offset = ("" + nodeId).length + 4;
+                                        e.setSelection(selection.start + offset, selection.start + offset + tagText.length);
+                                    }
+
                                     scope.setText(scope.node, e.getContent());
                                 }
                                 scope.linkFn(scope.node, performReplace);

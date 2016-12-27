@@ -3,20 +3,19 @@
         <div class="md-toolbar-tools">
             <h2>Attach a Card</h2>
             <span flex></span>
-            <md-button class="md-icon-button" ng-click="cancel()">
+            <md-button class="md-icon-button" ng-click="linkCtrl.cancel()">
                 <i class="fa fa-times"></i>
             </md-button>
         </div>
     </md-toolbar>
     <md-dialog-content>
         <div class="md-dialog-content">
-            <div ng-show="!makeNew">
+            <div ng-show="!linkCtrl.makeNew">
                 <md-autocomplete
-                        md-selected-item="ctrl.selectedItem"
-                        md-search-text="searchQuery"
-                        md-search-text-change="searchTextChanged()"
-                        md-selected-item-change="searchResultSelected(item)"
-                        md-items="item in getSearchResults(searchQuery)"
+                        md-search-text="linkCtrl.searchQuery"
+                        md-search-text-change="linkCtrl.searchTextChanged()"
+                        md-selected-item-change="linkCtrl.searchResultSelected(item)"
+                        md-items="item in linkCtrl.getSearchResults(linkCtrl.searchQuery)"
                         md-item-text="item.title"
                         md-min-length="3"
                         placeholder="Search here"
@@ -33,32 +32,49 @@
                     </md-item-template>
                 </md-autocomplete>
             </div>
-            <div ng-show="makeNew">
+            <div ng-show="linkCtrl.makeNew">
                 <p>Create new</p>
                 <!--Radio buttons-->
-                <md-radio-group ng-model="newNodeType">
-                    <md-radio-button value="assertion" ng-show="canLinkTo('assertion')">Opinion</md-radio-button>
-                    <md-radio-button value="interpretation" ng-show="canLinkTo('interpretation')">Interpretation</md-radio-button>
-                    <md-radio-button value="source" ng-show="canLinkTo('source')" selecte>Source</md-radio-button>
+                <md-radio-group ng-model="linkCtrl.newNodeType">
+                    <md-radio-button value="assertion" ng-show="linkCtrl.canLinkTo('assertion')">Opinion</md-radio-button>
+                    <md-radio-button value="interpretation" ng-show="linkCtrl.canLinkTo('interpretation')">Interpretation</md-radio-button>
+                    <md-radio-button value="source" ng-show="linkCtrl.canLinkTo('source')" selecte>Source</md-radio-button>
                 </md-radio-group>
 
                 <br />
 
                 <md-input-container class="md-block md-input-compact">
                     <label>Title</label>
-                    <input ng-model="newTitle">
+                    <input ng-model="linkCtrl.newTitle">
                 </md-input-container>
 
                 <md-input-container class="md-block md-input-compact">
                     <label>Version Description</label>
-                    <input ng-model="newQualifier">
+                    <input ng-model="linkCtrl.newQualifier">
                 </md-input-container>
+
+                <div ng-if="linkCtrl.hasInsertOptions()">
+                    <md-input-container class="md-block md-input-compact" >
+                        <md-checkbox ng-model="linkCtrl.shouldInsertBefore">Insert before...</md-checkbox>
+                        <md-select ng-show="linkCtrl.shouldInsertBefore"
+                                   ng-model="linkCtrl.selectedInsertId"
+                                   md-selected-text="linkCtrl.selectedInsertText()">
+                            <md-option ng-value="opt.stableId" ng-repeat="opt in linkCtrl.getInsertOptions()">
+                                {{opt.body.title}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
             </div>
         </div>
     </md-dialog-content>
     <md-dialog-actions layout="row" layout-align="end center">
-        <md-button class="md-raised md-primary"  ng-show="makeNew" ng-disabled="!newNodeType || !newTitle" ng-click="createNewNode()">Create</md-button>
-        <md-button class="md-raised md-primary" ng-show="isResultSelected" ng-click="select()">Attach Card</md-button>
-        <md-button ng-click="cancel()">Cancel</md-button>
+        <md-button ng-click="linkCtrl.cancel()">Cancel</md-button>
+        <md-button class="md-raised md-primary"
+                   ng-show="linkCtrl.makeNew" ng-disabled="!linkCtrl.newNodeType || !linkCtrl.newTitle"
+                   ng-click="linkCtrl.createNewNode()">Create</md-button>
+        <md-button class="md-raised md-primary"
+                   ng-show="linkCtrl.isResultSelected"
+                   ng-click="linkCtrl.select()">Attach Card</md-button>
     </md-dialog-actions>
 </md-dialog>
