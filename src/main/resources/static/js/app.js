@@ -60,7 +60,10 @@ require('../sass/common.scss');
                 .primaryPalette('blue-grey')
                 .accentPalette('light-blue');
 
-            $locationProvider.html5Mode(true);
+            $locationProvider.html5Mode({
+                enabled: true,
+                requireBase: false
+            });
 
             $provide.decorator('$exceptionHandler', function ($delegate, ErrorLogService) {
                 return function(exception, cause) {
