@@ -35,7 +35,10 @@ require('../../sass/vivagraph.scss');
             springLength : 45, // default is 30
             springCoeff : 0.0008, // default is 0.0008, higher coeff = more stiffness
             dragCoeff : 0.03, // default is 0.02
-            gravity : -1.2 // default is -1.2. More negative is more node repulsion.
+            gravity : -1.2, // default is -1.2. More negative is more node repulsion.
+            springTransform: function (link, spring) {
+                spring.length = 45 * link.data.lengthRatio;
+            }
         });
 
         function appendVoteArcsFromNode(ui, argumentNode) {
@@ -270,7 +273,9 @@ require('../../sass/vivagraph.scss');
         }
 
         if (parent) {
-            graph.addLink(parent.id, node.id);
+            graph.addLink(parent.id, node.id, {
+                lengthRatio: node.getType() === 'source' ? .5 : 1
+            });
         }
 
     }
