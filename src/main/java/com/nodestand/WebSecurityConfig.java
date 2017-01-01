@@ -10,11 +10,8 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
-import org.springframework.social.UserIdSource;
-import org.springframework.social.security.SpringSocialConfigurer;
 
 @Configuration
 @EnableWebSecurity
@@ -26,9 +23,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private StatelessAuthenticationFilter statelessAuthenticationFilter;
 
-    @Autowired
-    private UserIdSource userIdSource;
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
@@ -37,13 +31,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                     .authorizeRequests()
-                    .antMatchers("/", "/signin/**", "/js/**", "/css/**", "/favicon.ico", "/robots.txt", "/partials/**").permitAll()
+                    .antMatchers("/", "/auth/**", "/js/**", "/css/**", "/favicon.ico", "/robots.txt", "/partials/**").permitAll()
                 .and()
                 // add custom authentication filter for complete stateless JWT based authentication
-                .addFilterBefore(statelessAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class)
-
-                // apply the configuration from the socialConfigurer (adds the SocialAuthenticationFilter)
-                .apply(new SpringSocialConfigurer().userIdSource(userIdSource));
+                .addFilterBefore(statelessAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class);
     }
 
     @Bean

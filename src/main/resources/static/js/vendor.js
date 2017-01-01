@@ -18,3 +18,4 @@ require('../../../../../node_modules/bootstrap-markdown/css/bootstrap-markdown.m
 require('expose?toastr!toastr');
 require('../../../../../node_modules/toastr/build/toastr.min.css');
 require('stacktrace-js');
+require('satellizer');

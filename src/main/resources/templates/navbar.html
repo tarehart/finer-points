@@ -28,7 +28,7 @@
 
         <md-button ng-if="user" ng-click="logout()">Sign Out</md-button>
 
-        <md-button href="/login" ng-if="!user" class="md-raised" aria-label="Sign In">
+        <md-button ng-if="!user" ng-click="showLogin()" class="md-raised" aria-label="Sign In">
             Sign in
         </md-button>
     </div>

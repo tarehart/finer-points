@@ -22,7 +22,7 @@ import java.io.IOException;
 @Component
 public class StatelessAuthenticationFilter extends GenericFilterBean {
 
-    private static final String TOKEN_HEADER_NAME = "X-AUTH-TOKEN";
+    private static final String TOKEN_HEADER_NAME = "Authorization";
 
     private final TokenHandler tokenHandler;
 
@@ -41,7 +41,7 @@ public class StatelessAuthenticationFilter extends GenericFilterBean {
 			ServletException {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        String authToken = httpRequest.getHeader(TOKEN_HEADER_NAME);
+        String authToken = getToken(httpRequest);
         String stableId = tokenHandler.getUserStableIdFromToken(authToken);
 
         if (stableId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -62,5 +62,11 @@ public class StatelessAuthenticationFilter extends GenericFilterBean {
 
 		chain.doFilter(request, response);
 	}
+
+    private String getToken(HttpServletRequest httpRequest) {
+        String authHeader = httpRequest.getHeader(TOKEN_HEADER_NAME);
+        // We are expecting something like "Bearer XYZ". Strip off the Bearer prefix.
+        return authHeader != null ? authHeader.split(" ")[1] : null;
+    }
 
 }

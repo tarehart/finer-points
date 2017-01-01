@@ -13,7 +13,6 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         // Keep this in sync with app.js!
         registry.addViewController("/").setViewName("index");
         registry.addViewController("/graph/**").setViewName("index");
-        registry.addViewController("/login").setViewName("index");
         registry.addViewController("/create").setViewName("index");
         registry.addViewController("/profile/**").setViewName("index");
         registry.addViewController("/history/**").setViewName("index");

@@ -10,8 +10,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.social.connect.ConnectionKey;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 public class UserServiceImpl implements UserService {
@@ -54,15 +55,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public NodeUserDetails loadUserByConnectionKey(ConnectionKey key) {
+    public Optional<NodeUserDetails> loadUserBySocialProvider(String providerId, String providerUserId) {
 
-        User user = userRepo.findByConnectionKey(key.getProviderId(), key.getProviderUserId());
+        User user = userRepo.findByConnectionKey(providerId, providerUserId);
 
         if (user == null) {
-            throw new UsernameNotFoundException(String.format("No user found with connection key (%s, %s)", key.getProviderId(), key.getProviderUserId()));
+            return Optional.empty();
         }
 
-        return new NodeUserDetails(user);
+        return Optional.of(new NodeUserDetails(user));
     }
 
     @Override

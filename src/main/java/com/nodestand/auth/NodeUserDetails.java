@@ -2,7 +2,7 @@ package com.nodestand.auth;
 
 import com.nodestand.nodes.User;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.social.security.SocialUserDetails;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -12,7 +12,7 @@ import java.util.Collections;
 * @author mh
 * @since 07.03.11
 */
-public class NodeUserDetails implements SocialUserDetails {
+public class NodeUserDetails implements UserDetails {
     private final User user;
 
     public NodeUserDetails(User user) {
@@ -60,7 +60,6 @@ public class NodeUserDetails implements SocialUserDetails {
         return user;
     }
 
-    @Override
     public String getUserId() {
         return user.getStableId();
     }

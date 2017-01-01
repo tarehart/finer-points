@@ -63,13 +63,13 @@ public class TokenHandler {
         return expiration;
     }
 
-    public String generateToken(NodeUserDetails userDetails) {
+    public Token generateToken(NodeUserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put(CLAIM_KEY_USERNAME, userDetails.getUserId());
         claims.put(CLAIM_KEY_SOCIAL_PROVIDER, userDetails.getProviderId());
         claims.put(CLAIM_KEY_SOCIAL_ID, userDetails.getProviderUserId());
         claims.put(CLAIM_KEY_CREATED, new Date());
-        return generateToken(claims);
+        return new Token(generateToken(claims));
     }
 
     private String generateToken(Map<String, Object> claims) {

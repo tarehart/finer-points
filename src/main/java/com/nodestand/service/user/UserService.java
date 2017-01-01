@@ -4,14 +4,14 @@ import com.nodestand.auth.NodeUserDetails;
 import com.nodestand.nodes.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.social.connect.ConnectionKey;
-import org.springframework.social.security.SocialUserDetailsService;
+
+import java.util.Optional;
 
 /**
  * @author mh
  * @since 08.11.11
  */
-public interface UserService extends UserDetailsService, SocialUserDetailsService {
+public interface UserService extends UserDetailsService {
 
     Long getUserNodeIdFromSecurityContext();
 
@@ -20,10 +20,9 @@ public interface UserService extends UserDetailsService, SocialUserDetailsServic
     @Override
     NodeUserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 
-    @Override
     NodeUserDetails loadUserByUserId(String userId);
 
-    NodeUserDetails loadUserByConnectionKey(ConnectionKey key);
+    Optional<NodeUserDetails> loadUserBySocialProvider(String providerId, String providerUserId);
 
     User loadUserWithVotes(String stableId);
 }

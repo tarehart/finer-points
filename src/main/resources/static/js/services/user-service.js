@@ -1,5 +1,4 @@
 require('./toast-service');
-require('./token-storage');
 
 (function () {
     'use strict';
@@ -8,7 +7,7 @@ require('./token-storage');
         .module('nodeStandControllers')
         .service('UserService', UserService);
 
-    function UserService($http, $rootScope, $cookies, ToastService, TokenStorage) {
+    function UserService($http, $auth, $rootScope, $mdDialog, ToastService) {
         var self = this;
 
         self.loggedInUser = null;
@@ -42,18 +41,43 @@ require('./token-storage');
         }
 
         $rootScope.logout = function () {
-            TokenStorage.clear();
+            $auth.logout();
             $rootScope.user = null;
             self.loggedInUser = null;
         };
 
-        function getUserFromServer() {
+        $rootScope.showLogin = function(ev) {
+            $mdDialog.show({
+                controller: LoginController,
+                controllerAs: 'loginCtrl',
+                templateUrl: 'partials/signin.html',
+                parent: angular.element(document.body),
+                targetEvent: ev,
+                clickOutsideToClose:true
+            });
+        };
 
-            var authCookie = $cookies.get('AUTH-TOKEN');
-            if (authCookie) {
-                TokenStorage.store(authCookie);
-                $cookies.remove('AUTH-TOKEN');
-            }
+        function LoginController($mdDialog, $auth) {
+            var self = this;
+
+            self.authenticate = function(provider) {
+                $auth.authenticate(provider)
+                    .then(function(response) {
+                        getUserFromServer();
+                        $mdDialog.cancel();
+                    })
+                    .catch(function(response) {
+                        ToastService.error(response);
+                    });
+
+            };
+
+            self.cancel = function() {
+                $mdDialog.cancel();
+            };
+        }
+
+        function getUserFromServer() {
 
             $http.get('/currentUser')
                 .success(function (data) {

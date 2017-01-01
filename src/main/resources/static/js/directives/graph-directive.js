@@ -250,27 +250,6 @@ require('./markdown-directive');
             });
         };
 
-        self.toggleConsumers = function(node) {
-
-            $mdDialog.show({
-                template: '<div node-consumers node="consumersCtrl.rootNode"></div>',
-                controller: ConsumersDialogController,
-                controllerAs: "consumersCtrl",
-                clickOutsideToClose: true,
-                openFrom: "#consumers-btn"
-            });
-
-        };
-
-        function ConsumersDialogController($scope, $mdDialog) {
-            var consumersCtrl = this;
-            consumersCtrl.rootNode = self.rootNode;
-
-            $scope.$on('$locationChangeStart', function() {
-                $mdDialog.hide();
-            });
-        }
-
         function allowsPublish(node) {
             return self.problemReport && !self.problemReport.problemNodes[node];
         }

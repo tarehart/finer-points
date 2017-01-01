@@ -21,16 +21,6 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'war'
 apply plugin: 'com.moowork.node'
 
-configurations.all {
-    resolutionStrategy {
-        // Keeping jackson old for the sake of spring-social-google, bless its heart.
-        // Google sign in fails if the version is allowed to move up to 2.7 or 2.7.1.
-        force 'com.fasterxml.jackson.core:jackson-core:2.6.5'
-        force 'com.fasterxml.jackson.core:jackson-databind:2.6.5'
-        force 'com.fasterxml.jackson.core:jackson-annotations:2.6.5'
-    }
-}
-
 node {
     // Version of node to use. Keep webpack-watch.sh in sync with this.
     version = '6.9.2'
@@ -106,8 +96,6 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-thymeleaf")
     compile("org.springframework.boot:spring-boot-starter-security")
     compile("io.jsonwebtoken:jjwt:0.6.0")
-    compile("org.springframework.social:spring-social-security:1.1.4.RELEASE")
-    compile("org.springframework.social:spring-social-google:1.0.0.RELEASE")
     compile("org.springframework:spring-context")
     compile("org.springframework:spring-tx")
     compile("org.springframework.data:spring-data-neo4j:4.1.5.RELEASE") // At this time this is the latest stable version. Feel free to upgrade.

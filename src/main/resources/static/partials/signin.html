@@ -1,18 +1,23 @@
-<md-card>
-    <md-card-title>
-        <md-card-title-text>
-            <span class="md-headline">Please sign in</span>
-        </md-card-title-text>
-    </md-card-title>
-    <md-card-content>
-        <p>Please sign in with a social account. No password required!</p>
-
-        <div>
-            <form action="signin/google" method="POST">
-                <md-button type="submit" class="md-primary md-raised">Sign in with Google</md-button>
-                <input type="hidden" name="scope" value="profile" />
-            </form>
+<md-dialog flex="90" flex-gt-sm="50" flex-gt-md="30">
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2>Please sign in</h2>
+            <span flex></span>
+            <md-button class="md-icon-button" ng-click="loginCtrl.cancel()">
+                <i class="fa fa-times"></i>
+            </md-button>
         </div>
+    </md-toolbar>
+    <md-dialog-content>
+        <div class="md-dialog-content">
+            <p>Please sign in with a social account.</p>
 
-    </md-card-content>
-</md-card>
+            <div>
+                <md-button class="md-primary md-raised" ng-click="loginCtrl.authenticate('google')">Sign in with Google</md-button>
+            </div>
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions layout="row" layout-align="end center">
+        <md-button ng-click="loginCtrl.cancel()">Cancel</md-button>
+    </md-dialog-actions>
+</md-dialog>

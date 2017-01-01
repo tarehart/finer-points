@@ -4,9 +4,8 @@ require('../sass/common.scss');
     'use strict';
 
     angular.module('jsFatals', []);
-    angular.module('nodeStandControllers', ['ngCookies', 'jsFatals']);
+    angular.module('nodeStandControllers', ['ngCookies', 'jsFatals', 'satellizer']);
 
-    require('./services/token-interceptor');
     require('./controllers/gateway-controller');
     require('./controllers/profile-controller');
     require('./controllers/create-controller');
@@ -23,7 +22,7 @@ require('../sass/common.scss');
         'nodeStandControllers'
     ]);
 
-    nodeStandApp.config(function ($routeProvider, $mdThemingProvider, $locationProvider, $provide) {
+    nodeStandApp.config(function ($routeProvider, $mdThemingProvider, $locationProvider, $provide, $authProvider) {
 
             // If you edit this, edit MvcConfig.java!
             $routeProvider.
@@ -72,6 +71,10 @@ require('../sass/common.scss');
                 };
             });
 
+            $authProvider.google({
+                clientId: '69522838262-ohoagcmcga8j45h4cvp81cii5vf0mnrn.apps.googleusercontent.com',
+                scope: []
+            });
         });
 
     nodeStandApp.run(['$rootScope', 'UserService', function ($rootScope, UserService) {
