@@ -4,8 +4,10 @@ import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.comment.Comment;
 import com.nodestand.nodes.version.MajorVersion;
+import com.nodestand.nodes.vote.ArgumentVote;
 import com.nodestand.nodes.vote.VoteType;
 import com.nodestand.service.user.UserService;
+import com.nodestand.service.vote.VoteService;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 public class VoteController {
@@ -23,10 +26,13 @@ public class VoteController {
 
     private final UserService userService;
 
+    private final VoteService voteService;
+
     @Autowired
-    public VoteController(Session session, UserService userService) {
+    public VoteController(Session session, UserService userService, VoteService voteService) {
         this.session = session;
         this.userService = userService;
+        this.voteService = voteService;
     }
 
     @Transactional
@@ -66,37 +72,34 @@ public class VoteController {
         session.save(user);
     }
 
+
+    public static class VoteBodyInput {
+        public String nodeStableId;
+        public String voteType;
+    }
+
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/voteBody")
-    public void voteBody(@RequestBody Map<String, Object> params) throws NodeRulesException {
-        Long userId = userService.getUserNodeIdFromSecurityContext();
-        User user = session.load(User.class, userId);
+    public void voteBody(@RequestBody VoteBodyInput voteBodyInput) throws NodeRulesException {
 
-        Long majorVersionId = Long.valueOf((Integer) params.get("majorVersionId"));
-        MajorVersion mv = session.load(MajorVersion.class, majorVersionId);
-        String voteTypeStr = (String) params.get("voteType");
-        VoteType voteType = VoteType.valueOf(voteTypeStr.toUpperCase());
+        User user = userService.getUserFromSecurityContext();
 
-        user.registerVote(mv, voteType);
+        voteService.voteNode(user.getStableId(), voteBodyInput.nodeStableId, VoteType.valueOf(voteBodyInput.voteType.toUpperCase()));
+    }
 
-        session.save(mv);
-        session.save(user);
+    public static class UnvoteBodyInput {
+        public String nodeStableId;
     }
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/unvoteBody")
-    public void unvoteBody(@RequestBody Map<String, Object> params) throws NodeRulesException {
-        Long userId = userService.getUserNodeIdFromSecurityContext();
-        User user = session.load(User.class, userId);
+    public void unvoteBody(@RequestBody UnvoteBodyInput unvoteBodyInput) throws NodeRulesException {
 
-        Long majorVersionId = Long.valueOf((Integer) params.get("majorVersionId"));
-        MajorVersion mv = session.load(MajorVersion.class, majorVersionId);
-        user.revokeVote(mv);
+        User user = userService.getUserFromSecurityContext();
 
-        session.save(mv);
-        session.save(user);
+        voteService.unvoteNode(unvoteBodyInput.nodeStableId, user.getStableId());
     }
 
 

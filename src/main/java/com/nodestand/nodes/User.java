@@ -142,40 +142,26 @@ public class User {
         return nodeId;
     }
 
-    public void registerVote(MajorVersion mv, VoteType voteType) throws NodeRulesException {
+    public Optional<ArgumentVote> getExistingVote(MajorVersion mv) {
+        if (argumentVotes == null) {
+            argumentVotes = new HashSet<>();
+        }
+
+        return argumentVotes.stream().filter(v -> v.majorVersion.getId().equals(mv.getId())).findFirst();
+    }
+
+    public void registerNewVote(ArgumentVote newVote) throws NodeRulesException {
 
         if (argumentVotes == null) {
             argumentVotes = new HashSet<>();
         }
 
-        Optional<ArgumentVote> existingVote = argumentVotes.stream().filter(v -> v.majorVersion.getId().equals(mv.getId())).findFirst();
-
-
-        if (existingVote.isPresent()) {
-            ArgumentVote vote = existingVote.get();
-            if (!vote.voteType.equals(voteType)) {
-                mv.decrementVote(vote.voteType);
-                mv.incrementVote(voteType);
-                existingVote.get().voteType = voteType;
-            }
-        } else {
-            ArgumentVote newVote = new ArgumentVote();
-            newVote.voteType = voteType;
-            newVote.majorVersion = mv;
-            newVote.user = this;
-            argumentVotes.add(newVote);
-            mv.incrementVote(voteType);
-        }
+        argumentVotes.add(newVote);
     }
 
 
-    public void revokeVote(MajorVersion mv) throws NodeRulesException {
-
-        Optional<ArgumentVote> existingVote = argumentVotes.stream().filter(v -> v.majorVersion.getId().equals(mv.getId())).findFirst();
-        if (existingVote.isPresent()) {
-            mv.decrementVote(existingVote.get().voteType);
-            argumentVotes.removeIf(v -> v.majorVersion.getId().equals(mv.getId()));
-        }
+    public void revokeVote(String majorVersionStableId) throws NodeRulesException {
+        argumentVotes.removeIf(v -> v.majorVersion.getStableId().equals(majorVersionStableId));
     }
 
     public void registerCommentVote(Comment comment, boolean isUpvote) {

@@ -9,6 +9,7 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.DateLong;
 
 import java.util.Date;
+import java.util.Set;
 
 @NodeEntity
 public abstract class ArgumentBody {
@@ -155,4 +156,7 @@ public abstract class ArgumentBody {
     public void setNode(ArgumentNode node) {
         this.node = node;
     }
+
+    @JsonIgnore
+    public abstract Set<String> getMajorVersionsFromBodyText();
 }

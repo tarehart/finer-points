@@ -7,6 +7,7 @@ import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
+import com.nodestand.nodes.repository.UserRepository;
 import com.nodestand.nodes.source.SourceNode;
 
 import java.util.LinkedList;
@@ -79,6 +80,20 @@ public class ArgumentTestUtil {
         root = (AssertionNode) argumentService.publishNode(jim.getUser().getNodeId(), root.getId()).getRootNode();
 
         return new NodeAndRoot(interpretationNode, root);
+    }
+
+    public static Author registerUser(UserRepository userRepository, String socialId, String name) {
+
+        final User user = new User(
+                "google",
+                socialId,
+                User.Roles.ROLE_USER);
+
+        Author author = user.addNewAlias(name);
+
+        userRepository.save(user);
+
+        return author;
     }
 
 

@@ -27,6 +27,8 @@ public class Author {
 
     private String stableId;
 
+    private long nodePoints;
+
     @Relationship(type = "CONTROLLED_BY", direction = Relationship.OUTGOING)
     private User user;
 
@@ -77,5 +79,13 @@ public class Author {
     @JsonIgnore
     public User getUser() {
         return user;
+    }
+
+    public void awardNodePoints(int points) {
+        this.nodePoints += points;
+    }
+
+    public long getNodePoints() {
+        return nodePoints;
     }
 }

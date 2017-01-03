@@ -1,5 +1,6 @@
 package com.nodestand.nodes.version;
 
+import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.Author;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
@@ -8,7 +9,10 @@ import com.nodestand.nodes.vote.VoteType;
 import com.nodestand.util.IdGenerator;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
+
+import java.util.*;
 
 @NodeEntity
 public class MajorVersion implements Commentable {
@@ -31,6 +35,9 @@ public class MajorVersion implements Commentable {
     public int weakVotes;
     public int toucheVotes;
     public int trashVotes;
+
+    @Property
+    private String[] edgeOwners;
 
     public MajorVersion() {}
 
@@ -90,5 +97,50 @@ public class MajorVersion implements Commentable {
             default:
                 throw new NodeRulesException("Unexpected vote type: " + voteType.name());
         }
+    }
+
+    /**
+     * This is a map of majorVersionStableId -> authorStableId.
+     *
+     * Mutating the returned map and then saving the node will have no effect.
+     * You need to use the setter.
+     */
+    public Map<String, String> getEdgeOwners() {
+
+        Map<String, String> owners = new HashMap<>();
+        if (edgeOwners == null) {
+            return owners; // TODO: some kind of backfill?
+        }
+
+        for (String s: edgeOwners) {
+            String[] entity = s.split(" ");
+            owners.put(entity[0], entity[1]);
+        }
+        return owners;
+    }
+
+    private void setEdgeOwners(Map<String, String> owners) {
+        edgeOwners = new String[owners.size()];
+
+        int i = 0;
+        for (Map.Entry<String, String> entry: owners.entrySet()) {
+            edgeOwners[i++] = String.format("%s %s", entry.getKey(), entry.getValue());
+        }
+    }
+
+    public void mergeEdgeOwner(Author author, String majorVersionStableId) {
+        Set<String> single = new HashSet<>();
+        single.add(majorVersionStableId);
+        mergeEdgeOwners(author, single);
+    }
+
+    public void mergeEdgeOwners(Author author, Collection<String> majorVersionStableId) {
+        Map<String, String> edgeOwners = getEdgeOwners();
+        for (String mvId: majorVersionStableId) {
+            if (!edgeOwners.containsKey(mvId)) {
+                edgeOwners.put(mvId, author.getStableId());
+            }
+        }
+        setEdgeOwners(edgeOwners);
     }
 }

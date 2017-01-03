@@ -102,7 +102,7 @@ require('../services/toast-service');
             $http.post('/voteBody',
                 {
                     voteType: voteType,
-                    majorVersionId: rootNode.body.majorVersion.id
+                    nodeStableId: rootNode.stableId
                 })
                 .success(function (data) {
                     if (currentVote) {
@@ -121,7 +121,7 @@ require('../services/toast-service');
         function revokeVote(currentVote) {
             $http.post('/unvoteBody',
                 {
-                    majorVersionId: rootNode.body.majorVersion.id
+                    nodeStableId: rootNode.stableId
                 })
                 .success(function (data) {
                     rootNode.body.majorVersion[getBodyVotesKey(currentVote)]--;

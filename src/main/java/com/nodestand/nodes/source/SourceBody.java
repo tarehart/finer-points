@@ -6,6 +6,9 @@ import com.nodestand.nodes.ImmutableNodeException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.version.MajorVersion;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class SourceBody extends ArgumentBody {
 
     private String url;
@@ -15,6 +18,11 @@ public class SourceBody extends ArgumentBody {
     @Override
     public SourceNode constructNode() {
         return new SourceNode(this);
+    }
+
+    @Override
+    public Set<String> getMajorVersionsFromBodyText() {
+        return new HashSet<>();
     }
 
     public SourceBody(String title, String qualifier, Author author, String url) {

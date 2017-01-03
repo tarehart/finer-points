@@ -26,7 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class ArgumentServiceNeo4j implements ArgumentService {
@@ -100,6 +102,12 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         node.updateChildOrder(argumentRepo);
 
+        List<String> mvIds = children.stream()
+                .map(c -> c.getBody().getMajorVersion().getStableId())
+                .collect(Collectors.toList());
+
+        assertionBody.getMajorVersion().mergeEdgeOwners(author, mvIds);
+
         session.save(node);
         return node;
     }
@@ -116,8 +124,10 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         InterpretationNode node = interpretationBody.constructNode();
 
         if (sourceId != null) {
-            SourceNode source = session.load(SourceNode.class, sourceId);
+
+            SourceNode source = (SourceNode) argumentRepo.loadWithMajorVersion(sourceId);
             node.setSource(source);
+            interpretationBody.getMajorVersion().mergeEdgeOwner(author, source.getBody().getMajorVersion().getStableId());
         }
 
         session.save(node);
@@ -141,9 +151,9 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Transactional
     public AssertionNode editAssertion(long userId, long nodeId, String title, String qualifier, String body, Collection<Long> links) throws NodeRulesException {
 
-        AssertionNode existingNode = session.load(AssertionNode.class, nodeId, 2);
+        AssertionNode existingNode = (AssertionNode) argumentRepo.loadWithMajorVersion(nodeId);
 
-        AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, existingNode.getBody().author.getStableId());
+        Author author = AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, existingNode.getBody().author.getStableId());
 
         checkEditRules(existingNode);
 
@@ -156,6 +166,12 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         TwoWayUtil.updateSupportingNodes(existingNode, children);
 
         existingNode.updateChildOrder(argumentRepo);
+
+        List<String> mvIds = children.stream()
+                .map(c -> c.getBody().getMajorVersion().getStableId())
+                .collect(Collectors.toList());
+
+        existingNode.getBody().getMajorVersion().mergeEdgeOwners(author, mvIds);
 
         session.save(existingNode);
         return existingNode;
@@ -180,7 +196,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         InterpretationNode existingNode = session.load(InterpretationNode.class, nodeId, 2);
 
-        AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, existingNode.getBody().author.getStableId());
+        Author author = AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, existingNode.getBody().author.getStableId());
 
         checkEditRules(existingNode);
 
@@ -190,10 +206,14 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         SourceNode sourceNode = null;
         if (sourceId != null) {
-            sourceNode = session.load(SourceNode.class, sourceId);
+            sourceNode = (SourceNode) argumentRepo.loadWithMajorVersion(sourceId);
+            existingNode.getBody().getMajorVersion().mergeEdgeOwner(author, sourceNode.getBody().getMajorVersion().getStableId());
+
         }
 
         TwoWayUtil.updateSupportingNodes(existingNode, sourceNode);
+
+
 
         session.save(existingNode);
         return existingNode;

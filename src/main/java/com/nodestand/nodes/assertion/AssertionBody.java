@@ -5,7 +5,10 @@ import com.nodestand.nodes.Author;
 import com.nodestand.nodes.ImmutableNodeException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.version.MajorVersion;
+import com.nodestand.util.BodyParser;
 import org.neo4j.ogm.annotation.NodeEntity;
+
+import java.util.Set;
 
 
 @NodeEntity
@@ -18,6 +21,11 @@ public class AssertionBody extends ArgumentBody {
     @Override
     public AssertionNode constructNode() {
         return new AssertionNode(this);
+    }
+
+    @Override
+    public Set<String> getMajorVersionsFromBodyText() {
+        return BodyParser.getMajorVersions(body);
     }
 
     public AssertionBody(String title, String qualifier, String body, Author author) {

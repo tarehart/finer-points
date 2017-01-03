@@ -13,20 +13,18 @@ import java.util.stream.Collectors;
 
 public final class BodyParser {
 
-    private static Pattern p = Pattern.compile("\\{\\{\\[([0-9a-z]{1,25})\\](.+?)(?=}})\\}\\}"); // {{[9t8io4jpiw7c1y28nq6rxyj1t]Hello world}}
 
-    public static Map<Long, String> getLinks(String bodyText) {
+    public static Set<String> getMajorVersions(String bodyText) {
 
-        Matcher m = p.matcher(bodyText);
+        BodyTextIterator iterator = new BodyTextIterator(bodyText);
 
-        Map<Long, String> links = new HashMap<>();
-        while (m.find()) {
-            links.put(Long.parseLong(m.group(1)), m.group(2));
+        Set<String> links = new HashSet<>();
+        while (iterator.hasNext()) {
+            links.add(iterator.next().getMajorVersionStableId());
         }
 
         return links;
     }
-
 
     public static String[] validateAndSortLinks(Collection<ArgumentNode> children, String assertionBodyText, ArgumentNodeRepository repo) throws NodeRulesException {
 
@@ -40,14 +38,16 @@ public final class BodyParser {
             }
         }
 
-        Matcher m = p.matcher(assertionBodyText);
+        BodyTextIterator iterator = new BodyTextIterator(assertionBodyText);
+
+        //Matcher m = p.matcher(assertionBodyText);
 
         List<ArgumentNode> remainingChildren = new ArrayList<>(children);
         List<String> argumentNodeStables = new LinkedList<>();
         Set<String> majorVersionStables = new HashSet<>();
 
-        while (m.find()) {
-            String id = m.group(1);
+        while (iterator.hasNext()) {
+            String id = iterator.next().getMajorVersionStableId();
 
             if (majorVersionStables.contains(id)) {
                 continue;

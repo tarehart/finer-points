@@ -4,22 +4,24 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class BodyParserTest {
 
     @Test
     public void testParser() {
 
-        String input = "Hello, {{[34]this}} text has some {links}} embedded {{[2]in it}}.";
+        String input = "Hello, {{[34ab]this}} text has some {links}} embedded {{[2cd]in it}}.";
 
-        Map<Long, String> expectedMap = new HashMap<>();
-        expectedMap.put(34L, "this");
-        expectedMap.put(2L, "in it");
+        Set<String> expectedSet = new HashSet<>();
+        expectedSet.add("34ab");
+        expectedSet.add("2cd");
 
-        Map<Long, String> actualMap = BodyParser.getLinks(input);
+        Set<String> actualSet = BodyParser.getMajorVersions(input);
 
-        Assert.assertEquals(expectedMap, actualMap);
+        Assert.assertEquals(expectedSet, actualSet);
     }
 
 }

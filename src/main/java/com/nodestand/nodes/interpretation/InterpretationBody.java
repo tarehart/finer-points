@@ -4,6 +4,9 @@ import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.Author;
 import com.nodestand.nodes.ImmutableNodeException;
 import com.nodestand.nodes.version.MajorVersion;
+import com.nodestand.util.BodyParser;
+
+import java.util.Set;
 
 public class InterpretationBody extends ArgumentBody {
 
@@ -15,6 +18,11 @@ public class InterpretationBody extends ArgumentBody {
     public InterpretationNode constructNode() {
 
         return new InterpretationNode(this);
+    }
+
+    @Override
+    public Set<String> getMajorVersionsFromBodyText() {
+        return BodyParser.getMajorVersions(body);
     }
 
     public InterpretationBody(String title, String qualifier, String body, Author author) {
