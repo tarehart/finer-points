@@ -39,6 +39,11 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
             " with p as p, b as b match q=(b)-[:AUTHORED_BY]->(:Author) return p, q")
     ArgumentNode getNodeRich(String stableId);
 
+    @Query("match p=(n:ArgumentNode)-[:DEFINED_BY]->(b:ArgumentBody)-[:VERSION_OF]->(:MajorVersion)-[:AUTHORED_BY]->(:Author)" +
+            " where ID(n) = {0}" +
+            " with p as p, b as b match q=(b)-[:AUTHORED_BY]->(:Author) return p, q")
+    ArgumentNode loadWithMajorVersion(long id);
+
     @Query("start n=node({0}) match (body)-[VERSION_OF]->(n) return max(body.minorVersion)")
     Integer getMaxMinorVersion(long majorVersionId);
 
@@ -49,9 +54,6 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
     @Query("start n=node({0}) match (n)-[:SUPPORTED_BY*0..]->(support:ArgumentNode) " +
             "WHERE NOT (support)-[:INTERPRETS]->(:SourceNode) AND NOT (support)-[:SUPPORTED_BY]->(:ArgumentNode) return support")
     Set<ArgumentNode> getUnsupportedNodes(long nodeId);
-
-    @Query("start n=node({0}) match p=(n)-[:DEFINED_BY]->(:ArgumentBody)-[:VERSION_OF]->(:MajorVersion)-[:AUTHORED_BY]->(:Author) return p")
-    ArgumentNode loadWithMajorVersion(long id);
 
     @Query("match p=(:Author {stableId: {0}})<-[:AUTHORED_BY]-(b:ArgumentBody)<-[:DEFINED_BY]-(n:ArgumentNode) where not b.isPublic" +
             " with p as p, b as b match q=(b)-[:VERSION_OF]->(:MajorVersion)-[:AUTHORED_BY]->(:Author) return p, q")

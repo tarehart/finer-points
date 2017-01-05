@@ -276,15 +276,18 @@ require('./markdown-directive');
 
                 if (!node.body.title) {
                     problemReport.messages.push({message: "You need to give your card a title.", node: node});
+                    hasPublishBlockers = true;
                 }
 
                 if (node.body.title === 'Untitled') {
                     problemReport.messages.push({message: 'You need to write a title other than "Untitled."', node: node});
+                    hasPublishBlockers = true;
                 }
 
                 if (node.type == "source") {
                     if (!node.body.url) {
                         problemReport.messages.push({message: "You need a URL for your source node.", node: node});
+                        hasPublishBlockers = true;
                     }
                 }
                 else if (node.type == "interpretation") {
@@ -304,10 +307,12 @@ require('./markdown-directive');
                 else if (node.type == "assertion") {
                     if (!node.body.body) {
                         problemReport.messages.push({message: "You need some text in your opinion.", node: node});
+                        hasPublishBlockers = true;
                     }
 
                     if (!node.children.length) {
                         problemReport.messages.push({message: "You need to attach cards to support your opinion.", node: node});
+                        hasPublishBlockers = true;
                     }
 
                     for (var i = 0; i < node.children.length; i++) {
