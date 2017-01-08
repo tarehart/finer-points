@@ -9,6 +9,7 @@ import com.nodestand.nodes.repository.UserRepository;
 import com.nodestand.nodes.version.MajorVersion;
 import com.nodestand.nodes.vote.ArgumentVote;
 import com.nodestand.nodes.vote.VoteType;
+import com.nodestand.service.ScoreLogger;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -33,12 +33,14 @@ public class VoteServiceNeo4j implements VoteService {
     private final ArgumentNodeRepository argumentNodeRepository;
     private final UserRepository userRepository;
     private final Session session;
+    private final ScoreLogger scoreLogger;
 
     @Autowired
-    public VoteServiceNeo4j(ArgumentNodeRepository argumentNodeRepository, UserRepository userRepository, Session session) {
+    public VoteServiceNeo4j(ArgumentNodeRepository argumentNodeRepository, UserRepository userRepository, Session session, ScoreLogger scoreLogger) {
         this.argumentNodeRepository = argumentNodeRepository;
         this.userRepository = userRepository;
         this.session = session;
+        this.scoreLogger = scoreLogger;
     }
 
     @Override
@@ -125,7 +127,7 @@ public class VoteServiceNeo4j implements VoteService {
         if ("source".equals(node.getType())) {
             Author author = node.getBody().getMajorVersion().author;
             if (!isOwnAuthor(author, voter)) { // Can't alter your own points.
-                updatePointsAndSave(node, voteType, voteTypeToNegate, author, 0);
+                updatePointsAndSave(node, voter, voteType, voteTypeToNegate, author, 0);
             }
         } else {
             MajorVersion mv = node.getBody().getMajorVersion();
@@ -142,7 +144,7 @@ public class VoteServiceNeo4j implements VoteService {
                 if (!entry.getKey().isEmpty()) { // Might be empty if the mapping on the MV was incomplete
                     Author author = userRepository.loadAuthor(entry.getKey());
                     if (!isOwnAuthor(author, voter)) { // Can't alter your own points.
-                        updatePointsAndSave(node, voteType, voteTypeToNegate, author, Math.toIntExact(entry.getValue()));
+                        updatePointsAndSave(node, voter, voteType, voteTypeToNegate, author, Math.toIntExact(entry.getValue()));
                     }
                 }
             }
@@ -150,20 +152,23 @@ public class VoteServiceNeo4j implements VoteService {
         }
     }
 
-    private void updatePointsAndSave(ArgumentNode node, VoteType voteType, VoteType voteTypeToNegate, Author author, int edgesOwned) {
-        int points = 0;
+    private void updatePointsAndSave(ArgumentNode node, User voter, VoteType voteType, VoteType voteTypeToNegate, Author author, int edgesOwned) {
 
-        if (voteType != null) {
-            points += getPoints(voteType, node.getType(), edgesOwned);
-        }
-
+        int negationPoints = 0;
         if (voteTypeToNegate != null) {
-            points += getPoints(voteTypeToNegate, node.getType(), edgesOwned) * -1;
+            negationPoints = getPoints(voteTypeToNegate, node.getType(), edgesOwned) * -1;
+            scoreLogger.logScore(author.getStableId(), voter.getStableId(), node.getStableId(), negationPoints, voteTypeToNegate, true);
         }
 
-        author.awardNodePoints(points);
+        int votePoints = 0;
+        if (voteType != null) {
+            votePoints = getPoints(voteType, node.getType(), edgesOwned);
+            scoreLogger.logScore(author.getStableId(), voter.getStableId(), node.getStableId(), votePoints, voteType, false);
+        }
 
-        // TODO: log the award
+        author.awardNodePoints(negationPoints + votePoints);
+
+
 
         session.save(author);
     }

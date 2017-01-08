@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <property name="SCORE_LOG_PATTERN" value="${SCORE_LOG_PATTERN:-%d{yyyy-MM-dd HH:mm:ss.SSS} %m%n}"/>
+
+    <!-- On a windows development environment, this file ends up in USER_HOME\AppData\Local\Temp -->
+    <property name="SCORE_LOG_FILE" value="${SCORE_LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/user-score.log}"/>
+
+    <appender name="SCORE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <pattern>${SCORE_LOG_PATTERN}</pattern>
+        </encoder>
+        <file>${SCORE_LOG_FILE}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${SCORE_LOG_FILE}.%i</fileNamePattern>
+        </rollingPolicy>
+        <triggeringPolicy
+                class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>10MB</MaxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <logger name="com.nodestand.service.ScoreLogger" level="INFO" additivity="false">
+        <appender-ref ref="SCORE"/>
+    </logger>
+</configuration>
