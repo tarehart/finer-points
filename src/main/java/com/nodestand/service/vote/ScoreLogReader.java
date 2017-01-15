@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -21,12 +22,14 @@ public class ScoreLogReader {
     private ObjectMapper objectMapper;
 
     @Autowired
-    public ScoreLogReader(@Value("${aws.accessKeyId}") String accessKeyId, @Value("${aws.secretKey}") String secretKey) {
+    public ScoreLogReader(Environment environment) {
 
         // In some cases it's OK if these are null.
         // I may decide not to provide them and let the AWS SDK fall back
         // to the EC2 role (if we're currently running on EC2).
         // If you're running a dev environment you'll need these though.
+        String accessKeyId = environment.getProperty("aws.accessKeyId");
+        String secretKey = environment.getProperty("aws.secretKey");
         if (accessKeyId != null && secretKey != null) {
             System.setProperty("aws.accessKeyId", accessKeyId);
             System.setProperty("aws.secretKey", secretKey);

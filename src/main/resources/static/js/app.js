@@ -4,7 +4,7 @@ require('../sass/common.scss');
     'use strict';
 
     angular.module('jsFatals', []);
-    angular.module('nodeStandControllers', ['ngCookies', 'jsFatals', 'satellizer']);
+    angular.module('nodeStandControllers', ['ngCookies', 'jsFatals', 'satellizer', 'chart.js']);
 
     require('./controllers/gateway-controller');
     require('./controllers/profile-controller');

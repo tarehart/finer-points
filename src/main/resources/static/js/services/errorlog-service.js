@@ -96,14 +96,17 @@ require('./stacktrace-service');
             console.log = function(message) {
                 console.olog(message);
                 try {
-                    buffer.push(JSON.stringify(message));
+                    if (typeof(message) !== 'string') {
+                        message = JSON.stringify(message);
+                    }
+                    buffer.push(message);
                 }
                 catch(e) {
                     console.olog("Failed to push to buffer!");
                 }
             };
 
-            console.error = console.debug = console.info =  console.log;
+            console.error = console.debug = console.info = console.trace = console.log;
         }
     }
 

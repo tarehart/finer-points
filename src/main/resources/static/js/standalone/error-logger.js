@@ -59,6 +59,9 @@
         console.log = function(message) {
             console.olog(message);
             try {
+                if (typeof(message) !== 'string') {
+                    message = JSON.stringify(message);
+                }
                 buffer.push(JSON.stringify(message));
             }
             catch(e) {
@@ -66,7 +69,7 @@
             }
         };
 
-        console.error = console.debug = console.info =  console.log;
+        console.error = console.debug = console.info = console.trace = console.log;
 
         window.onerror = function(errorMsg, url, line, col, error) {
             try {

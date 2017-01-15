@@ -19,3 +19,6 @@ require('expose?toastr!toastr');
 require('../../../../../node_modules/toastr/build/toastr.min.css');
 require('stacktrace-js');
 require('satellizer');
+require('moment');
+require('chart.js');
+require('angular-chart.js');

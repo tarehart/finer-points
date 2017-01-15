@@ -1,17 +1,38 @@
 
-<h2 class="card-margin">
-    {{profileCtrl.subject.displayName}}
-</h2>
+<md-card flex="">
+    <md-card-title>
+        <span class="md-headline">{{profileCtrl.subject.displayName}}: {{profileCtrl.subject.nodePoints}} points</span>
+    </md-card-title>
+    <md-card-content>
+        <div class="scoreChartContainer" ng-show="profileCtrl.scoreLog.length > 1">
+            <!--<canvas id="scoreChart" width="400" height="250"></canvas>-->
+            <canvas class="chart chart-line" chart-data="profileCtrl.chart.data" chart-dataset-override="profileCtrl.chart.datasetOverride"
+                    chart-options="profileCtrl.chart.options" width="400" height="250"></canvas>
+        </div>
+    </md-card-content>
+</md-card>
 
 <div layout="column" layout-gt-sm="row">
 
-    <div ng-if="profileCtrl.subject.stableId === user.activeAlias.stableId" ng-show="profileCtrl.draftNodes.length">
+    <div flex="">
+        <md-card>
+            <md-card-title>
+                <span class="md-headline">Published Cards</span>
+            </md-card-title>
+            <md-card-content>
+                <div ng-show="profileCtrl.publishedNodes.length" node-list list="profileCtrl.publishedNodes"></div>
+                <span ng-hide="profileCtrl.publishedNodes.length">No published cards.</span>
+            </md-card-content>
+        </md-card>
+    </div>
+
+    <div ng-if="profileCtrl.subject.stableId === user.activeAlias.stableId" flex="">
         <md-card>
             <md-card-title>
                 <span class="md-headline">Drafts</span>
             </md-card-title>
             <md-card-content>
-                <md-list>
+                <md-list ng-show="profileCtrl.draftNodes.length">
                     <md-list-item class="md-3-line node-list-item" ng-repeat="node in profileCtrl.draftNodes">
                         <div class="md-list-item-text" layout="column">
                             <div class="node-list-title">
@@ -34,22 +55,32 @@
                         </div>
                     </md-list-item>
                 </md-list>
+                <span ng-hide="profileCtrl.draftNodes.length">No drafts.</span>
             </md-card-content>
         </md-card>
     </div>
+</div>
 
-    <div ng-show="profileCtrl.publishedNodes.length">
-        <md-card>
-            <md-card-title>
-                <span class="md-headline">Published Cards</span>
-            </md-card-title>
-            <md-card-content>
-                <div node-list list="profileCtrl.publishedNodes"></div>
-                <p ng-show="profileCtrl.publishedNodes.length === 0">
-                    No published cards.
-                </p>
-            </md-card-content>
-        </md-card>
-    </div>
+<div flex="">
+    <md-card>
+        <md-card-title>
+            <span class="md-headline">Score Log</span>
+        </md-card-title>
+        <md-card-content>
+            <div class="scoreLogContainer" ng-if="profileCtrl.scoreLog.length">
+                <table>
+                    <tbody>
+                    <tr ng-repeat="log in profileCtrl.scoreLog | orderBy: '' : true ">
+                        <td class="scoreLogDate">{{profileCtrl.formatDate(log.timestamp)}}</td>
+                        <td align="right">{{log.points}}</td>
+                        <td><span ng-if="log.nodeTitle">on <a ng-href="/graph/{{log.nodeId}}">{{log.nodeTitle}}</a></span></td>
+                        <td>for {{profileCtrl.friendlyVoteName(log.voteType)}} {{log.isNegation ? 'removal' : '' }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <span ng-if="!profileCtrl.scoreLog.length">No recent score changes.</span>
+        </md-card-content>
+    </md-card>
 </div>
 
