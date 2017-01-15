@@ -5,6 +5,8 @@ import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.repository.UserRepository;
 import com.nodestand.service.user.UserService;
+import com.nodestand.service.vote.ScoreLog;
+import com.nodestand.service.vote.ScoreLogReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -21,10 +24,13 @@ public class UserController {
 
     private final UserRepository userRepository;
 
+    private final ScoreLogReader scoreLogReader;
+
     @Autowired
-    public UserController(UserService userService, UserRepository userRepository) {
+    public UserController(UserService userService, UserRepository userRepository, ScoreLogReader scoreLogReader) {
         this.userService = userService;
         this.userRepository = userRepository;
+        this.scoreLogReader = scoreLogReader;
     }
 
     @Transactional
@@ -51,5 +57,13 @@ public class UserController {
     public Author getProfile(@RequestParam String stableId) throws NodeRulesException {
 
         return userRepository.loadAuthor(stableId);
+    }
+
+    @RequestMapping("/getScoreLog")
+    public List<ScoreLog> getScoreLog(@RequestParam String stableId) throws NodeRulesException {
+
+        List<ScoreLog> scoreLogForUser = scoreLogReader.getScoreLogForUser(stableId);
+
+        return scoreLogForUser;
     }
 }

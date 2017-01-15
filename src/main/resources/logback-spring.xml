@@ -21,7 +21,7 @@
         </triggeringPolicy>
     </appender>
 
-    <logger name="com.nodestand.service.ScoreLogger" level="INFO" additivity="false">
+    <logger name="com.nodestand.service.vote.ScoreLogger" level="INFO" additivity="false">
         <appender-ref ref="SCORE"/>
     </logger>
 </configuration>

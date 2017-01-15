@@ -9,6 +9,8 @@
     - neo4jUsername=neo4j
     - neo4jPassword=( you'll be prompted to choose one when connecting to localhost:7474 )
     - jwt.secret=( type in a big random number )
+    - aws.accessKeyId=( make yourself one here https://console.aws.amazon.com/iam/ )
+    - aws.secretKey=( make yourself one here https://console.aws.amazon.com/iam/ )
 3. Create an Intellij project at the root directory
 4. On the command line, execute `./gradlew idea` which will configure your Intellij project with the right dependencies.
 

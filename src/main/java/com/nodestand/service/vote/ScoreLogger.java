@@ -1,4 +1,4 @@
-package com.nodestand.service;
+package com.nodestand.service.vote;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,11 +12,12 @@ public class ScoreLogger {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    public void logScore(String recipientId, String granterId, String nodeId, int points, VoteType voteType, boolean isNegation) {
+    public void logScore(String recipientId, String granterId, String nodeId, String nodeTitle, int points, VoteType voteType, boolean isNegation) {
 
         ScoreLog scoreLog = new ScoreLog();
         scoreLog.recipientId = recipientId;
         scoreLog.granterId = granterId;
+        scoreLog.nodeTitle = nodeTitle;
         scoreLog.nodeId = nodeId;
         scoreLog.points = points;
         scoreLog.voteType = voteType.name();
@@ -29,14 +30,5 @@ public class ScoreLogger {
         }
     }
 
-
-    public static class ScoreLog {
-        public String recipientId; // This is an authorStableId
-        public String granterId; // This is a userStableId
-        public String nodeId; // This is a nodeStableId
-        public Integer points;
-        public String voteType;
-        public Boolean isNegation;
-    }
 
 }

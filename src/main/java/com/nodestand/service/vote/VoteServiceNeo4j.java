@@ -9,7 +9,6 @@ import com.nodestand.nodes.repository.UserRepository;
 import com.nodestand.nodes.version.MajorVersion;
 import com.nodestand.nodes.vote.ArgumentVote;
 import com.nodestand.nodes.vote.VoteType;
-import com.nodestand.service.ScoreLogger;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -157,13 +156,13 @@ public class VoteServiceNeo4j implements VoteService {
         int negationPoints = 0;
         if (voteTypeToNegate != null) {
             negationPoints = getPoints(voteTypeToNegate, node.getType(), edgesOwned) * -1;
-            scoreLogger.logScore(author.getStableId(), voter.getStableId(), node.getStableId(), negationPoints, voteTypeToNegate, true);
+            scoreLogger.logScore(author.getStableId(), voter.getStableId(), node.getStableId(), node.getBody().getTitle(), negationPoints, voteTypeToNegate, true);
         }
 
         int votePoints = 0;
         if (voteType != null) {
             votePoints = getPoints(voteType, node.getType(), edgesOwned);
-            scoreLogger.logScore(author.getStableId(), voter.getStableId(), node.getStableId(), votePoints, voteType, false);
+            scoreLogger.logScore(author.getStableId(), voter.getStableId(), node.getStableId(), node.getBody().getTitle(), votePoints, voteType, false);
         }
 
         author.awardNodePoints(negationPoints + votePoints);
