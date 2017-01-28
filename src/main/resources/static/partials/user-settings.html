@@ -1,0 +1,37 @@
+
+<div ng-if="user" layout="column" layout-gt-sm="row">
+
+    <div flex="">
+        <md-card>
+            <md-card-title>
+                <span class="md-headline">Aliases</span>
+            </md-card-title>
+            <md-card-content>
+                <md-list>
+                    <md-list-item class="md-2-line node-list-item" ng-repeat="alias in user.aliases">
+                        <div class="md-list-item-text">
+                            <div>
+                                <a ng-href="/profile/{{alias.stableId}}">{{alias.displayName}}</a>
+                            </div>
+                            <div>
+                                {{alias.nodePoints}} points
+                            </div>
+                        </div>
+                    </md-list-item>
+                </md-list>
+            </md-card-content>
+        </md-card>
+    </div>
+</div>
+
+<div ng-if="!user">
+    <md-card>
+        <md-card-content>
+            You must
+            <md-button ng-click="showLogin()" class="md-raised md-primary" aria-label="Sign In">
+                Sign in
+            </md-button>
+            to see your settings.
+        </md-card-content>
+    </md-card>
+</div>

@@ -38,9 +38,12 @@
 
             <md-card-content>
                 <p ng-if="!user">
-                    <a ng-click="showLogin()" ng-href="/">Sign in</a> with Google.
+                    <md-button ng-click="showLogin()" class="md-raised md-primary" aria-label="Sign In">
+                        Sign in
+                    </md-button>
+                    So you can vote, comment, and publish!
                 </p>
-                <p>
+                <p ng-if="user">
                     <a ng-href="/create">Create</a> a new tree.
                 </p>
             </md-card-content>

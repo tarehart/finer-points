@@ -7,7 +7,11 @@
         <md-card>
             <md-card-content>
                 <div ng-if="!user">
-                    Must <a ng-href="/login">log in</a> before creating content!
+                    You need to
+                    <md-button ng-click="showLogin()" class="md-raised md-primary" aria-label="Sign In">
+                        Sign in
+                    </md-button>
+                    before creating content!
                 </div>
                 <md-radio-group ng-if="user" ng-model="createCtrl.type" layout="column" layout-gt-xs="row">
                     <div flex="33" class="radio-horizontal" ng-repeat="opt in createCtrl.createOptions">

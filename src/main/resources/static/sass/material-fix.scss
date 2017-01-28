@@ -45,3 +45,13 @@ md-list-item.md-3-line {
     overflow:hidden;
   }
 }
+
+.sub-menu-header {
+  padding-top: 12px;
+  padding-left: 16px;
+  color: #777777;
+}
+
+md-menu-item.sub-menu-item>.md-button {
+  padding-left: 32px;
+}

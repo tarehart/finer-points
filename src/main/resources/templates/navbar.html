@@ -11,26 +11,36 @@
         <span flex=""></span>
 
         <span ng-if="user" class="header-text">
-            Participating as <a ng-href="/profile/{{user.activeAlias.stableId}}">{{user.activeAlias.displayName}}</a>
-            <md-menu style="padding:0">
-                <md-button class="md-raised" ng-click="$mdOpenMenu($event)" aria-label="Sort">
-                    Switch Alias
-                </md-button>
-                <md-menu-content width="4">
-                    <md-menu-item ng-repeat="alias in user.aliases">
-                        <md-button ng-click="user.activeAlias = alias">
-                            {{alias.displayName}}
-                        </md-button>
-                    </md-menu-item>
-                </md-menu-content>
-            </md-menu>
+            <span>Using: <a ng-href="/profile/{{user.activeAlias.stableId}}">{{user.activeAlias.displayName}}</a></span>
         </span>
-
-        <md-button ng-if="user" ng-click="logout()">Sign Out</md-button>
 
         <md-button ng-if="!user" ng-click="showLogin()" class="md-raised" aria-label="Sign In">
             Sign in
         </md-button>
+
+        <md-menu ng-if="user">
+            <md-button aria-label="Open navbar menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">
+                <i class="fa fa-bars"></i>
+            </md-button>
+            <md-menu-content width="4">
+                <md-menu-item>
+                    <md-button ng-href="/settings">
+                        Settings
+                    </md-button>
+                </md-menu-item>
+                <md-menu-divider></md-menu-divider>
+                <span class="sub-menu-header">Use Alias</span>
+                <md-menu-item class="sub-menu-item" ng-repeat="alias in user.aliases">
+                    <md-button ng-click="user.activeAlias = alias">{{alias.displayName}}</md-button>
+                </md-menu-item>
+                <md-menu-divider></md-menu-divider>
+                <md-menu-item>
+                    <md-button ng-click="logout()">
+                        Sign Out
+                    </md-button>
+                </md-menu-item>
+            </md-menu-content>
+        </md-menu>
     </div>
 </md-toolbar>
 

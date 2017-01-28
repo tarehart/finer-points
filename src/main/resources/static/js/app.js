@@ -30,9 +30,6 @@ require('../sass/common.scss');
                     template: require('../partials/gateway.html'),
                     controller: 'GatewayController'
                 }).
-                when('/login', {
-                    template: require('../partials/signin.html')
-                }).
                 when('/graph/:rootStableId', {
                     template: require('../partials/explorer.html')
                 }).
@@ -45,6 +42,9 @@ require('../sass/common.scss');
                     template: require('../partials/user.html'),
                     controller: 'ProfileController',
                     controllerAs: 'profileCtrl'
+                }).
+                when('/settings', {
+                    template: require('../partials/user-settings.html')
                 }).
                 when('/history/:nodeStableId', {
                     template: require('../partials/history.html'),
