@@ -1,13 +1,11 @@
 package com.nodestand.nodes.assertion;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nodestand.nodes.ArgumentNode;
-import com.nodestand.nodes.Author;
-import com.nodestand.nodes.NodeRulesException;
-import com.nodestand.nodes.User;
+import com.nodestand.nodes.*;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.source.SourceNode;
+import com.nodestand.nodes.subject.SubjectNode;
 import com.nodestand.util.BodyParser;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -20,7 +18,7 @@ import java.util.Set;
 public class AssertionNode extends ArgumentNode {
 
     @Relationship(type="SUPPORTED_BY", direction = Relationship.OUTGOING)
-    private Set<ArgumentNode> supportingNodes;
+    private Set<Node> supportingNodes;
 
     @Relationship(type="SUPPORTED_BY", direction = Relationship.INCOMING)
     private Set<AssertionNode> dependentNodes;
@@ -42,7 +40,7 @@ public class AssertionNode extends ArgumentNode {
     }
 
 
-    private static void performChildReplacement(ArgumentNode replacement, ArgumentNode existing, AssertionNode targetNode) throws NodeRulesException {
+    private static void performChildReplacement(Node replacement, Node existing, AssertionNode targetNode) throws NodeRulesException {
         // Make sure we no longer depend on the previous version
         if (!targetNode.getSupportingNodes().removeIf(n -> n.getId().equals(existing.getId()))) {
             throw new NodeRulesException("Incorrect behavior when updating to point to new child. " +
@@ -78,7 +76,7 @@ public class AssertionNode extends ArgumentNode {
     }
 
     @Override
-    public void alterToPointToChild(ArgumentNode replacementChild, ArgumentNode existing) throws NodeRulesException {
+    public void alterToPointToChild(Node replacementChild, Node existing) throws NodeRulesException {
         if (!shouldEditInPlace()) {
             throw new NodeRulesException("Called alterToPointToChild on a node that should not be edited in place!");
         }
@@ -86,11 +84,11 @@ public class AssertionNode extends ArgumentNode {
     }
 
     @Override
-    public void copyContentTo(ArgumentNode target) throws NodeRulesException {
+    public void copyContentTo(Node target) throws NodeRulesException {
         AssertionNode assertionTarget = (AssertionNode) target;
         assertionTarget.setSupportingNodes(supportingNodes);
 
-        for (ArgumentNode supportingNode : supportingNodes) {
+        for (Node supportingNode : supportingNodes) {
             if (supportingNode instanceof AssertionNode) {
                 ((AssertionNode) supportingNode).getDependentNodes().add(assertionTarget);
             } else if (supportingNode instanceof InterpretationNode) {
@@ -121,24 +119,25 @@ public class AssertionNode extends ArgumentNode {
     }
 
     @Override
-    public Set<ArgumentNode> getGraphChildren() {
+    public Set<Node> getGraphChildren() {
         return supportingNodes != null? supportingNodes : new HashSet<>(0);
     }
 
     @JsonIgnore
     @Relationship(type="SUPPORTED_BY", direction = Relationship.OUTGOING)
-    public Set<ArgumentNode> getSupportingNodes() {
+    public Set<Node> getSupportingNodes() {
         return supportingNodes;
     }
 
     @Relationship(type="SUPPORTED_BY", direction = Relationship.OUTGOING)
-    public void setSupportingNodes(Set<ArgumentNode> nodes) {
+    public void setSupportingNodes(Set<Node> nodes) {
         supportingNodes = nodes;
     }
 
-    public void supportedBy(ArgumentNode a) {
+    public void supportedBy(Node a) {
 
         assert !(a instanceof SourceNode);
+        assert !(a instanceof SubjectNode);
 
         if (supportingNodes == null) {
             supportingNodes = new HashSet<>();

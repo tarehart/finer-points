@@ -1,10 +1,7 @@
 package com.nodestand.service.argument;
 
 import com.nodestand.auth.NotAuthorizedException;
-import com.nodestand.nodes.ArgumentNode;
-import com.nodestand.nodes.Author;
-import com.nodestand.nodes.NodeRulesException;
-import com.nodestand.nodes.User;
+import com.nodestand.nodes.*;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
@@ -63,7 +60,7 @@ public class ArgumentNodeRepositoryTest extends Neo4jIntegrationTest {
         AssertionNode triple = ArgumentTestUtil.createPublishedTriple(argumentService, jim);
 
         InterpretationNode interp = (InterpretationNode) triple.getGraphChildren().iterator().next();
-        SourceNode source = interp.getSource();
+        LeafNode source = interp.getSource();
 
         session.clear();
 

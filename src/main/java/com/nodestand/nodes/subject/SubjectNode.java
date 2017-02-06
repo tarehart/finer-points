@@ -1,27 +1,28 @@
-package com.nodestand.nodes.source;
+package com.nodestand.nodes.subject;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.*;
 import com.nodestand.nodes.interpretation.InterpretationNode;
+import com.nodestand.nodes.source.SourceBody;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class SourceNode extends ArgumentNode implements LeafNode {
+public class SubjectNode extends ArgumentNode implements LeafNode {
 
     @Relationship(type="INTERPRETS", direction = Relationship.INCOMING)
     private Set<InterpretationNode> dependentNodes;
 
-    public SourceNode() {};
+    public SubjectNode() {}
 
-    public SourceNode(SourceBody body) {
+    public SubjectNode(SubjectBody body) {
         super(body);
     }
 
     @Override
     public String getType() {
-        return "source";
+        return "subject";
     }
 
     @Override
@@ -34,22 +35,22 @@ public class SourceNode extends ArgumentNode implements LeafNode {
         // Do nothing
     }
 
-    private SourceBody createDraftBody(Author author) throws NodeRulesException {
-        SourceBody freshBody = new SourceBody(getBody().getTitle(), getBody().getQualifier(), author, getBody().getUrl(), getBody().getMajorVersion());
+    private SubjectBody createDraftBody(Author author) throws NodeRulesException {
+        SubjectBody freshBody = new SubjectBody(getBody().getTitle(), getBody().getQualifier(), author, getBody().getUrl(), getBody().getMajorVersion());
         setupDraftBody(freshBody);
         return freshBody;
     }
 
     @Override
-    public SourceNode createNewDraft(Author author) throws NodeRulesException {
+    public SubjectNode createNewDraft(Author author) throws NodeRulesException {
 
         if (!body.isPublic()) {
             throw new NodeRulesException("Node is already a draft!");
         }
 
-        SourceBody freshBody = createDraftBody(author);
+        SubjectBody freshBody = createDraftBody(author);
 
-        SourceNode copy = new SourceNode(freshBody);
+        SubjectNode copy = new SubjectNode(freshBody);
         copy.setPreviousVersion(this);
 
         return copy;

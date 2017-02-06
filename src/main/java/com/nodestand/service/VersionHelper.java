@@ -1,8 +1,6 @@
 package com.nodestand.service;
 
-import com.nodestand.nodes.ArgumentBody;
-import com.nodestand.nodes.ArgumentNode;
-import com.nodestand.nodes.NodeRulesException;
+import com.nodestand.nodes.*;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentBodyRepository;
@@ -66,12 +64,12 @@ public class VersionHelper {
         return 0;
     }
 
-    public ArgumentNode publish(ArgumentNode draftNode) throws NodeRulesException {
+    public Node publish(Node draftNode) throws NodeRulesException {
 
         // We'll need the reference to the major version later.
         nodeRepository.loadWithMajorVersion(draftNode.getId());
 
-        if (!draftNode.getType().equals("source")) {
+        if (!(draftNode instanceof LeafNode)) {
             // validate that the node and its descendants follow all the rules, e.g. being grounded in sources
             if (hasMissingSupport(draftNode)) {
                 throw new NodeRulesException("The roots of this node do not all end in sources!");
@@ -79,9 +77,9 @@ public class VersionHelper {
             publishDescendants(draftNode);
         }
 
-        ArgumentNode resultingNode = draftNode;
+        Node resultingNode = draftNode;
 
-        ArgumentNode publicVersion = draftNode.getPreviousVersion();
+        Node publicVersion = draftNode.getPreviousVersion();
         if (publicVersion != null && !publicVersion.isFinalized()) {
             // previous version is the edit target.
 
@@ -101,10 +99,10 @@ public class VersionHelper {
 
             // Any parents that had pointed to the draft should be modified so that they point to the
             // published version. The draft is going away. We will save them later when the dust has settled a bit.
-            Set<ArgumentNode> dependentNodes = new HashSet<>();
+            Set<Node> dependentNodes = new HashSet<>();
             if (draftNode.getDependentNodes() != null) {
                 dependentNodes.addAll(draftNode.getDependentNodes());
-                for (ArgumentNode parent : dependentNodes) {
+                for (Node parent : dependentNodes) {
                     parent.alterToPointToChild(publicVersion, draftNode);
                 }
             }
@@ -114,7 +112,7 @@ public class VersionHelper {
 
             TwoWayUtil.forgetNode(draftNode);
 
-            for (ArgumentNode parent : dependentNodes) {
+            for (Node parent : dependentNodes) {
                 if (parent instanceof AssertionNode) {
                     // This is probably unnecessary, I'm doing it just to be safe.
                     // Consider removing this later for performance reasons.
@@ -143,7 +141,7 @@ public class VersionHelper {
         return resultingNode;
     }
 
-    private void bodyTransplant(ArgumentNode donor, ArgumentNode recipient) {
+    private void bodyTransplant(Node donor, Node recipient) {
         // Null out the back-references
         recipient.getBody().setNode(null);
         donor.getBody().setNode(null);
@@ -155,14 +153,14 @@ public class VersionHelper {
         donor.getBody().setNode(recipient);
     }
 
-    private void publishDescendants(ArgumentNode node) throws NodeRulesException {
+    private void publishDescendants(Node node) throws NodeRulesException {
 
         if (node instanceof AssertionNode) {
             AssertionNode assertion = (AssertionNode) node;
 
             // If assertion.getSupportingNodes returns null, this will go awry. Keep an eye on it.
             Collection<ArgumentNode> support = session.loadAll(ArgumentNode.class,
-                    assertion.getSupportingNodes().stream().map(ArgumentNode::getId).collect(Collectors.toList()), 1);
+                    assertion.getSupportingNodes().stream().map(Node::getId).collect(Collectors.toList()), 1);
 
             for (ArgumentNode childNode : support) {
                 if (!childNode.getBody().isPublic()) {
@@ -181,7 +179,7 @@ public class VersionHelper {
         }
     }
 
-    private boolean hasMissingSupport(ArgumentNode node) {
+    private boolean hasMissingSupport(Node node) {
         // TODO: consider making the isFinalized attribute belong to nodes instead of bodies so that we can easily
         // short-circuit these queries.
 

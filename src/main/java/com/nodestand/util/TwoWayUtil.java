@@ -2,6 +2,8 @@ package com.nodestand.util;
 
 import com.nodestand.nodes.ArgumentBody;
 import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.LeafNode;
+import com.nodestand.nodes.Node;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.source.SourceNode;
@@ -14,17 +16,17 @@ import java.util.Set;
 public class TwoWayUtil {
 
 
-    public static void updateSupportingNodes(AssertionNode node, Set<ArgumentNode> children) {
+    public static void updateSupportingNodes(AssertionNode node, Set<Node> children) {
         if (node.getSupportingNodes() != null) {
 
-            for (ArgumentNode existingChild : node.getSupportingNodes()) {
+            for (Node existingChild : node.getSupportingNodes()) {
                 if (!children.contains(existingChild)) {
                     existingChild.getDependentNodes().remove(node);
                 }
             }
         }
 
-        for (ArgumentNode newChild : children) {
+        for (Node newChild : children) {
             if (node.getSupportingNodes() == null || !node.getSupportingNodes().contains(newChild)) {
                 if (newChild instanceof AssertionNode) {
                     AssertionNode assertionChild = (AssertionNode) newChild;
@@ -47,7 +49,7 @@ public class TwoWayUtil {
 
     public static void updateSupportingNodes(InterpretationNode node, SourceNode sourceNode) {
 
-        SourceNode existingSource = node.getSource();
+        LeafNode existingSource = node.getSource();
         if (existingSource != null && (sourceNode == null || !Objects.equals(existingSource.getId(), sourceNode.getId()))) {
             existingSource.getDependentNodes().remove(node);
 
@@ -69,12 +71,12 @@ public class TwoWayUtil {
     }
 
     // https://github.com/neo4j/neo4j-ogm/issues/86
-    public static void forgetNode(ArgumentNode node) {
+    public static void forgetNode(Node node) {
 
         // Orphan the children
         if (!CollectionUtils.isEmpty(node.getGraphChildren())) {
             if (node instanceof AssertionNode) {
-                for (ArgumentNode supportingNode : ((AssertionNode) node).getSupportingNodes()) {
+                for (Node supportingNode : ((AssertionNode) node).getSupportingNodes()) {
                     supportingNode.getDependentNodes().remove(node);
                 }
             } else if (node instanceof InterpretationNode) {
@@ -84,9 +86,9 @@ public class TwoWayUtil {
 
 
         // Notify the parents
-        Set<? extends ArgumentNode> dependentNodes = node.getDependentNodes();
+        Set<? extends Node> dependentNodes = node.getDependentNodes();
         if (dependentNodes != null) {
-            for (ArgumentNode dependentNode : dependentNodes) {
+            for (Node dependentNode : dependentNodes) {
                 if (dependentNode instanceof AssertionNode) {
                     ((AssertionNode)dependentNode).getSupportingNodes().remove(node);
                 } else if (dependentNode instanceof InterpretationNode) {
@@ -102,7 +104,7 @@ public class TwoWayUtil {
 
         // Make the future forget
         if (node.getSubsequentVersions() != null) {
-            for (ArgumentNode subsequentVersion : node.getSubsequentVersions()) {
+            for (Node subsequentVersion : node.getSubsequentVersions()) {
                 subsequentVersion.setPreviousVersion(null);
             }
         }

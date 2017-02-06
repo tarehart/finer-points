@@ -1,10 +1,7 @@
 package com.nodestand.service.vote;
 
 import com.nodestand.controllers.serial.EditResult;
-import com.nodestand.nodes.ArgumentNode;
-import com.nodestand.nodes.Author;
-import com.nodestand.nodes.NodeRulesException;
-import com.nodestand.nodes.User;
+import com.nodestand.nodes.*;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.repository.UserRepository;
 import com.nodestand.nodes.vote.VoteType;
@@ -95,7 +92,7 @@ public class VoteServiceNeo4jTest extends Neo4jIntegrationTest {
         ArgumentNode child = ArgumentTestUtil.createPublishedTriple(argumentService, firstAuthor);
         EditResult editResult = argumentService.makeDraft(secondAuthor.getUser().getNodeId(), secondAuthor.getStableId(), rootNode.getId());
 
-        List<Long> links = editResult.getEditedNode().getGraphChildren().stream().map(ArgumentNode::getId).collect(Collectors.toList());
+        List<Long> links = editResult.getEditedNode().getGraphChildren().stream().map(Node::getId).collect(Collectors.toList());
         links.add(child.getId());
 
         String body = rootNode.getBody().getBody() + " {{[" + child.getBody().getMajorVersion().getStableId() +
@@ -146,7 +143,7 @@ public class VoteServiceNeo4jTest extends Neo4jIntegrationTest {
         ArgumentNode child = ArgumentTestUtil.createPublishedTriple(argumentService, firstAuthor);
         EditResult editResult = argumentService.makeDraft(secondAuthor.getUser().getNodeId(), secondAuthor.getStableId(), rootNode.getId());
 
-        List<Long> links = editResult.getEditedNode().getGraphChildren().stream().map(ArgumentNode::getId).collect(Collectors.toList());
+        List<Long> links = editResult.getEditedNode().getGraphChildren().stream().map(Node::getId).collect(Collectors.toList());
         links.add(child.getId());
 
         String body = rootNode.getBody().getBody() + " {{[" + child.getBody().getMajorVersion().getStableId() +

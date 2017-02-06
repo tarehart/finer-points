@@ -37,7 +37,7 @@ public abstract class ArgumentBody {
     private MajorVersion majorVersion;
 
     @Relationship(type="DEFINED_BY", direction = Relationship.INCOMING)
-    private ArgumentNode node;
+    private Node node;
 
     /**
      * We use this for tracking edit history.
@@ -149,11 +149,11 @@ public abstract class ArgumentBody {
     }
 
     @JsonIgnore
-    public ArgumentNode getNode() {
+    public Node getNode() {
         return node;
     }
 
-    public void setNode(ArgumentNode node) {
+    public void setNode(Node node) {
         this.node = node;
     }
 

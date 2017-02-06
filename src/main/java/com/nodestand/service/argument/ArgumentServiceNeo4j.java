@@ -7,6 +7,7 @@ import com.nodestand.controllers.serial.QuickEdge;
 import com.nodestand.controllers.serial.QuickGraphResponse;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.Author;
+import com.nodestand.nodes.Node;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.assertion.AssertionNode;
@@ -33,17 +34,21 @@ import java.util.stream.Collectors;
 @Component
 public class ArgumentServiceNeo4j implements ArgumentService {
 
-    @Autowired
-    ArgumentNodeRepository argumentRepo;
+    private final ArgumentNodeRepository argumentRepo;
+
+    private final UserRepository userRepo;
+
+    private final VersionHelper versionHelper;
+
+    private final Session session;
 
     @Autowired
-    UserRepository userRepo;
-
-    @Autowired
-    VersionHelper versionHelper;
-
-    @Autowired
-    Session session;
+    public ArgumentServiceNeo4j(ArgumentNodeRepository argumentRepo, UserRepository userRepo, VersionHelper versionHelper, Session session) {
+        this.argumentRepo = argumentRepo;
+        this.userRepo = userRepo;
+        this.versionHelper = versionHelper;
+        this.session = session;
+    }
 
     @Override
     @Transactional
@@ -69,7 +74,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         Long rootId = null;
 
         for (ArgumentNode n: nodes) {
-            for (ArgumentNode child : n.getGraphChildren()) {
+            for (Node child : n.getGraphChildren()) {
                 edges.add(new QuickEdge(n.getId(), child.getId()));
             }
             if (n.getStableId().equals(rootStableId)) {
@@ -96,7 +101,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
         AssertionNode node = assertionBody.constructNode();
 
-        Set<ArgumentNode> children = getAndValidateChildNodes(links);
+        Set<Node> children = getAndValidateChildNodes(links);
 
         TwoWayUtil.updateSupportingNodes(node, children);
 
@@ -161,7 +166,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         existingNode.getBody().setQualifier(qualifier);
         existingNode.getBody().setBody(body);
 
-        Set<ArgumentNode> children = getAndValidateChildNodes(links);
+        Set<Node> children = getAndValidateChildNodes(links);
 
         TwoWayUtil.updateSupportingNodes(existingNode, children);
 
@@ -177,8 +182,8 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         return existingNode;
     }
 
-    private Set<ArgumentNode> getAndValidateChildNodes(Collection<Long> links) throws NodeRulesException {
-        Set<ArgumentNode> children = new HashSet<>();
+    private Set<Node> getAndValidateChildNodes(Collection<Long> links) throws NodeRulesException {
+        Set<Node> children = new HashSet<>();
         for (Long id : links) {
             ArgumentNode supportingNode = argumentRepo.loadWithMajorVersion(id);
             if (supportingNode instanceof SourceNode) {
@@ -284,7 +289,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
             throw new NodeRulesException("No new changes to publish!");
         }
 
-        ArgumentNode resultingNode = versionHelper.publish(existingNode);
+        Node resultingNode = versionHelper.publish(existingNode);
 
         return getGraph(resultingNode.getStableId(), userId);
     }

@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @NodeEntity
-public abstract class ArgumentNode {
+public abstract class ArgumentNode implements Node {
 
     @GraphId
     protected Long id;
@@ -28,14 +28,14 @@ public abstract class ArgumentNode {
      * it gets obliterated after publish.
      */
     @Relationship(type="PRECEDED_BY", direction = Relationship.OUTGOING)
-    protected ArgumentNode previousVersion;
+    protected Node previousVersion;
 
     /**
      * This is really just here to make the relationship two-way, which can avoid certain
      * bugs in Neo4j OGM.
      */
     @Relationship(type="PRECEDED_BY", direction = Relationship.INCOMING)
-    protected Set<ArgumentNode> subsequentVersions;
+    protected Set<Node> subsequentVersions;
 
     public ArgumentNode() {}
 
@@ -65,7 +65,7 @@ public abstract class ArgumentNode {
 
     @JsonIgnore
     @Relationship(type="PRECEDED_BY", direction = Relationship.INCOMING)
-    public Set<ArgumentNode> getSubsequentVersions() {
+    public Set<Node> getSubsequentVersions() {
         return subsequentVersions;
     }
 
@@ -74,19 +74,11 @@ public abstract class ArgumentNode {
      * https://github.com/neo4j/neo4j-ogm/issues/38
      */
     @Relationship(type="PRECEDED_BY", direction = Relationship.INCOMING)
-    public void setSubsequentVersions(Set<ArgumentNode> subsequentVersions) {
+    public void setSubsequentVersions(Set<Node> subsequentVersions) {
         this.subsequentVersions = subsequentVersions;
     }
 
     public abstract String getType();
-
-    public abstract void alterToPointToChild(ArgumentNode replacementChild, ArgumentNode existingChildNode) throws NodeRulesException;
-
-    /**
-     * This should be usable in a scenario where this node is a temporary repository of user edits destined for
-     * the target node. It should not muck around with any metadata, just user-editable stuff.
-     */
-    public abstract void copyContentTo(ArgumentNode target) throws NodeRulesException;
 
     protected void setupDraftBody(ArgumentBody freshBody) {
         freshBody.setPreviousVersion(body);
@@ -95,11 +87,11 @@ public abstract class ArgumentNode {
 
     public abstract ArgumentNode createNewDraft(Author author) throws NodeRulesException;
 
-    public ArgumentNode getPreviousVersion() {
+    public Node getPreviousVersion() {
         return previousVersion;
     }
 
-    public void setPreviousVersion(ArgumentNode previousVersion) {
+    public void setPreviousVersion(Node previousVersion) {
         this.previousVersion = previousVersion;
     }
 
@@ -123,10 +115,10 @@ public abstract class ArgumentNode {
     }
 
     @JsonIgnore
-    public abstract Set<ArgumentNode> getGraphChildren();
+    public abstract Set<Node> getGraphChildren();
 
     @JsonIgnore
-    public abstract Set<? extends ArgumentNode> getDependentNodes();
+    public abstract Set<? extends Node> getDependentNodes();
 
     public String getStableId() {
         return stableId;

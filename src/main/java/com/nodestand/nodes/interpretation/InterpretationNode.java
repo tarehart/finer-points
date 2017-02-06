@@ -1,10 +1,7 @@
 package com.nodestand.nodes.interpretation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nodestand.nodes.ArgumentNode;
-import com.nodestand.nodes.Author;
-import com.nodestand.nodes.NodeRulesException;
-import com.nodestand.nodes.User;
+import com.nodestand.nodes.*;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.source.SourceNode;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -17,7 +14,7 @@ import java.util.Set;
 public class InterpretationNode extends ArgumentNode {
 
     @Relationship(type="INTERPRETS", direction = Relationship.OUTGOING)
-    private SourceNode source;
+    private LeafNode source;
 
     @Relationship(type="SUPPORTED_BY", direction = Relationship.INCOMING)
     private Set<AssertionNode> dependentNodes;
@@ -35,9 +32,9 @@ public class InterpretationNode extends ArgumentNode {
     }
 
     @Override
-    public void alterToPointToChild(ArgumentNode updatedChildNode, ArgumentNode existingChildNode) throws NodeRulesException {
+    public void alterToPointToChild(Node updatedChildNode, Node existingChildNode) throws NodeRulesException {
 
-        if (!this.getSource().getId().equals(existingChildNode.getId())) {
+        if (!this.getSource().getStableId().equals(existingChildNode.getStableId())) {
             throw new NodeRulesException("Incorrect behavior while performing child replacement. " +
                     "The caller thought that " + this + " had " + existingChildNode + " as a child, but the current child is actually " + this.getSource());
         }
@@ -71,27 +68,27 @@ public class InterpretationNode extends ArgumentNode {
     }
 
     @Override
-    public void copyContentTo(ArgumentNode target) {
+    public void copyContentTo(Node target) {
         InterpretationNode interpretationTarget = (InterpretationNode) target;
         interpretationTarget.setSource(source);
         source.getDependentNodes().add(interpretationTarget);
     }
 
     @Override
-    public Set<ArgumentNode> getGraphChildren() {
-        Set<ArgumentNode> children = new HashSet<>(1);
+    public Set<Node> getGraphChildren() {
+        Set<Node> children = new HashSet<>(1);
         if (source != null) {
-            children.add(source);
+            children.add((ArgumentNode) source);
         }
         return children;
     }
 
     @JsonIgnore
-    public SourceNode getSource() {
+    public LeafNode getSource() {
         return source;
     }
 
-    public void setSource(SourceNode source) {
+    public void setSource(LeafNode source) {
         this.source = source;
     }
 

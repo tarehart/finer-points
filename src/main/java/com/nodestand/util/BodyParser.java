@@ -1,6 +1,7 @@
 package com.nodestand.util;
 
 import com.nodestand.nodes.ArgumentNode;
+import com.nodestand.nodes.Node;
 import com.nodestand.nodes.NodeInputException;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
@@ -26,13 +27,13 @@ public final class BodyParser {
         return links;
     }
 
-    public static String[] validateAndSortLinks(Collection<ArgumentNode> children, String assertionBodyText, ArgumentNodeRepository repo) throws NodeRulesException {
+    public static String[] validateAndSortLinks(Collection<Node> children, String assertionBodyText, ArgumentNodeRepository repo) throws NodeRulesException {
 
         if (StringUtils.isEmpty(assertionBodyText)) {
             return new String[0];
         }
 
-        for (ArgumentNode child: children) {
+        for (Node child: children) {
             if (child.getBody() == null || child.getBody().getMajorVersion() == null) {
                 repo.loadWithMajorVersion(child.getId());
             }
@@ -42,7 +43,7 @@ public final class BodyParser {
 
         //Matcher m = p.matcher(assertionBodyText);
 
-        List<ArgumentNode> remainingChildren = new ArrayList<>(children);
+        List<Node> remainingChildren = new ArrayList<>(children);
         List<String> argumentNodeStables = new LinkedList<>();
         Set<String> majorVersionStables = new HashSet<>();
 
@@ -53,7 +54,7 @@ public final class BodyParser {
                 continue;
             }
 
-            List<ArgumentNode> matches = remainingChildren.stream().filter(n -> n.getBody().getMajorVersion().getStableId().equals(id)).collect(Collectors.toList());
+            List<Node> matches = remainingChildren.stream().filter(n -> n.getBody().getMajorVersion().getStableId().equals(id)).collect(Collectors.toList());
 
             if (matches.isEmpty()) {
                 throw new NodeInputException("Body text contained an unexpected link!");
@@ -63,7 +64,7 @@ public final class BodyParser {
                 throw new NodeInputException("Passed multiple children with the same major version!");
             }
 
-            ArgumentNode child = matches.get(0);
+            Node child = matches.get(0);
 
             remainingChildren.remove(child);
             argumentNodeStables.add(child.getStableId());

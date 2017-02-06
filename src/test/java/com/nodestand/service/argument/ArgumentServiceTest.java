@@ -3,10 +3,7 @@ package com.nodestand.service.argument;
 import com.nodestand.auth.NotAuthorizedException;
 import com.nodestand.controllers.serial.EditResult;
 import com.nodestand.controllers.serial.QuickGraphResponse;
-import com.nodestand.nodes.ArgumentNode;
-import com.nodestand.nodes.Author;
-import com.nodestand.nodes.NodeRulesException;
-import com.nodestand.nodes.User;
+import com.nodestand.nodes.*;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.UserRepository;
@@ -109,7 +106,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         Assert.assertEquals(result.getEditedNode().getId(), result.getGraph().getRootId());
         Assert.assertFalse(result.getEditedNode().getBody().isPublic());
 
-        ArgumentNode child = assertionNode.getSupportingNodes().stream().findFirst().get();
+        Node child = assertionNode.getSupportingNodes().stream().findFirst().get();
         List<Long> links = new LinkedList<>();
         links.add(child.getId());
         String body = "New Body {{[" + child.getBody().getMajorVersion().getStableId() + "]link}}";
@@ -135,7 +132,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         InterpretationNode interp = (InterpretationNode) assertionNode.getSupportingNodes().stream().findFirst().get();
 
-        SourceNode source = interp.getSource();
+        LeafNode source = interp.getSource();
 
         session.clear();
 
@@ -239,7 +236,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         AssertionNode assertionNode = createPublishedAssertion();
 
         InterpretationNode interp = (InterpretationNode) assertionNode.getGraphChildren().iterator().next();
-        SourceNode sourceNode = interp.getSource();
+        LeafNode sourceNode = interp.getSource();
 
         EditResult result = argumentService.makeDraft(kyle.getUser().getNodeId(), kyle.getStableId(), sourceNode.getId());
 
@@ -287,7 +284,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         EditResult rootDraft = argumentService.makeDraft(kyle.getUser().getNodeId(), kyle.getStableId(), assertionNode.getId());
 
-        ArgumentNode childOriginal = assertionNode.getGraphChildren().iterator().next();
+        Node childOriginal = assertionNode.getGraphChildren().iterator().next();
         Assert.assertEquals(childOriginal.getId(), rootDraft.getEditedNode().getGraphChildren().iterator().next().getId());
 
         session.clear();
@@ -332,7 +329,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         EditResult rootDraft = argumentService.makeDraft(kyle.getUser().getNodeId(), kyle.getStableId(), assertionNode.getId());
 
-        ArgumentNode childOriginal = assertionNode.getGraphChildren().iterator().next();
+        Node childOriginal = assertionNode.getGraphChildren().iterator().next();
         Assert.assertEquals(childOriginal.getId(), rootDraft.getEditedNode().getGraphChildren().iterator().next().getId());
 
         session.clear();
@@ -358,7 +355,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
     public void testRegularConsumers() throws NotAuthorizedException, NodeRulesException {
         Author kyle = registerUser("5678", "Kyle");
         AssertionNode assertionNode = ArgumentTestUtil.createPublishedTriple(argumentService, kyle);
-        ArgumentNode childOriginal = assertionNode.getGraphChildren().iterator().next();
+        Node childOriginal = assertionNode.getGraphChildren().iterator().next();
 
         session.clear();
 
@@ -373,7 +370,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         EditResult rootDraft = argumentService.makeDraft(kyle.getUser().getNodeId(), kyle.getStableId(), assertionNode.getId());
 
-        ArgumentNode childOriginal = assertionNode.getGraphChildren().iterator().next();
+        Node childOriginal = assertionNode.getGraphChildren().iterator().next();
         Assert.assertEquals(childOriginal.getId(), rootDraft.getEditedNode().getGraphChildren().iterator().next().getId());
 
         session.clear();
