@@ -62,3 +62,9 @@
   padding: 5px;
   color: #adadad;
 }
+
+.vivaAnchor {
+  transition-property: transform;
+  transition-duration: .5s;
+  transform: scale(.8, .8);
+}

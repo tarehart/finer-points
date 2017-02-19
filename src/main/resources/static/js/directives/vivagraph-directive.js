@@ -7,9 +7,9 @@ require('../../sass/vivagraph.scss');
 
     angular
         .module('nodeStandControllers')
-        .directive('vivaGraph', ['$rootScope', vivaGraph]);
+        .directive('vivaGraph', vivaGraph);
 
-    function vivaGraph($rootScope) {
+    function vivaGraph($rootScope, $timeout) {
         return {
             restrict: "A",
             scope: {
@@ -17,13 +17,13 @@ require('../../sass/vivagraph.scss');
             },
             template: require("../../partials/viva-graph.html"),
             link: function (scope, element) {
-                setupEventHandlers(scope, element, $rootScope);
+                setupEventHandlers(scope, element, $rootScope, $timeout);
             }
         }
     }
 
 
-    function setupEventHandlers(scope, element, $rootScope) {
+    function setupEventHandlers(scope, element, $rootScope, $timeout) {
 
         var graph = Viva.Graph.graph();
 
@@ -97,8 +97,7 @@ require('../../sass/vivagraph.scss');
 
         function getRadius(argumentNode) {
             var type = argumentNode.getType();
-            return type === 'assertion' ? 14 :
-                type === 'interpretation' ? 11 : 9;
+            return type === 'assertion' ? 14 : 11;
         }
 
         var graphics = Viva.Graph.View.svgGraphics();
@@ -117,13 +116,19 @@ require('../../sass/vivagraph.scss');
 
             ui.append(circle);
 
+            if (type === 'source') {
+                $timeout(function() {
+                    layout.pinNode(node, true);
+                    $(circle).addClass('vivaAnchor');
+                }, 4000);
+            }
+
             appendVoteArcsFromNode(ui, argumentNode);
 
             circle.addEventListener('click', tapListener);
             circle.addEventListener('touchend', tapListener);
 
             function tapListener() {
-                layout.pinNode(node, true);
                 // Broadcasting downward from root, because sibling scopes need to know about the highlight.
                 $rootScope.$broadcast("nodeHighlighted", node.data.node);
 
