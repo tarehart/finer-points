@@ -2,6 +2,7 @@ package com.nodestand.controllers;
 
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.NodeRulesException;
+import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.service.argument.ArgumentService;
 import com.nodestand.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,57 +39,73 @@ public class CreateController {
      * publishing.
      * - Can we just say that draft-mode edits don't do anything at all to the version number?
      *
-     *
-     * @param params
      * @return
      */
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/createAssertion")
-    public ArgumentNode createAssertion(@RequestBody Map<String, Object> params) throws NodeRulesException {
+    public ArgumentNode createAssertion(@RequestBody CreateAssertionInput input) throws NodeRulesException {
 
         Long userId = userService.getUserNodeIdFromSecurityContext();
-        String title = (String) params.get("title");
-        String qualifier = (String) params.get("qualifier");
-        String body = (String) params.get("body");
-        String authorStableId = (String) params.get("authorStableId");
-        List<Integer> linkedNodes = (List<Integer>) params.get("links");
 
-        return argumentService.createAssertion(userId, authorStableId, title, qualifier, body, convertToLong(linkedNodes));
+        return argumentService.createAssertion(userId, input.authorStableId, input.title, input.qualifier, input.body, input.links);
     }
 
     private List<Long> convertToLong(List<Integer> links) {
         return links.stream().map(Long::new).collect(Collectors.toList());
     }
 
+    public static class CreateAssertionInput {
+        public CreateAssertionInput() {}
+        public String title;
+        public String qualifier;
+        public String body;
+        public String authorStableId;
+        public List<Long> links;
+    }
+
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/createInterpretation")
-    public ArgumentNode createInterpretation(@RequestBody Map<String, Object> params) throws NodeRulesException {
+    public ArgumentNode createInterpretation(@RequestBody CreateInterpretationInput input) throws NodeRulesException {
 
         Long userId = userService.getUserNodeIdFromSecurityContext();
-        String title = (String) params.get("title");
-        String qualifier = (String) params.get("qualifier");
-        String body = (String) params.get("body");
-        String authorStableId = (String) params.get("authorStableId");
 
-        Long sourceId = null;
-        if (params.get("sourceId") != null) {
-            sourceId = Long.valueOf((Integer) params.get("sourceId"));
-        }
+        return argumentService.createInterpretation(userId, input.authorStableId, input.title, input.qualifier,
+                input.body, input.leafId);
+    }
 
-        return argumentService.createInterpretation(userId, authorStableId, title, qualifier, body, sourceId);
+    public static class CreateInterpretationInput {
+        public CreateInterpretationInput() {}
+        public String title;
+        public String qualifier;
+        public String body;
+        public String authorStableId;
+        public Long leafId;
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/createSource")
-    public ArgumentNode createSource(@RequestBody Map<String, Object> params) throws NodeRulesException {
+    public ArgumentNode createSource(@RequestBody CreateLeafInput input) throws NodeRulesException {
 
         Long userId = userService.getUserNodeIdFromSecurityContext();
-        String title = (String) params.get("title");
-        String qualifier = (String) params.get("qualifier");
-        String url = (String) params.get("url");
-        String authorStableId = (String) params.get("authorStableId");
 
-        return argumentService.createSource(userId, authorStableId, title, qualifier, url);
+        return argumentService.createSource(userId, input.authorStableId, input.title, input.qualifier, input.url);
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @RequestMapping("/createSubject")
+    public ArgumentNode createSubject(@RequestBody CreateLeafInput input) throws NodeRulesException {
+
+        Long userId = userService.getUserNodeIdFromSecurityContext();
+
+        return argumentService.createSubject(userId, input.authorStableId, input.title, input.qualifier, input.url);
+    }
+
+    public static class CreateLeafInput {
+        public CreateLeafInput() {}
+        public String title;
+        public String qualifier;
+        public String url;
+        public String authorStableId;
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")

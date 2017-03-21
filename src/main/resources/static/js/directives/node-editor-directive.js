@@ -53,6 +53,13 @@ require('../services/body-text-service');
             self.node.inEditMode = false;
         };
 
+        self.getRenderType = function(node) {
+            if (node.type == 'assertion' || node.type == 'interpretation') {
+                return 'markdown';
+            }
+            return 'url';
+        };
+
         function copyFields(sourceNode, targetNode) {
             targetNode.body.title = sourceNode.body.title;
             targetNode.body.body = sourceNode.body.body;
@@ -222,10 +229,7 @@ require('../services/body-text-service');
                 if (node.getType() == "assertion") {
                     linkableTypes = ["assertion", "interpretation"];
                 } else if (node.getType() == "interpretation") {
-                    linkableTypes = ["source"];
-
-                    // Go ahead and select it
-                    self.newNodeType = "source";
+                    linkableTypes = ["source", "subject"];
                 }
 
                 self.newQualifier = "Original version"; // Default this field.
@@ -307,7 +311,8 @@ require('../services/body-text-service');
                     var options = [];
                     if (node.getType() === 'assertion' && self.newNodeType === 'assertion') {
                         for (var i = 0; i < node.children.length; i++) {
-                            if (node.children[i].getType() !== 'source') {
+                            var type = node.children[i].getType();
+                            if (type !== 'source' && type != 'subject') {
                                 options.push(node.children[i]);
                             }
                         }

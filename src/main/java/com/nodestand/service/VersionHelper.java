@@ -72,7 +72,7 @@ public class VersionHelper {
         if (!(draftNode instanceof LeafNode)) {
             // validate that the node and its descendants follow all the rules, e.g. being grounded in sources
             if (hasMissingSupport(draftNode)) {
-                throw new NodeRulesException("The roots of this node do not all end in sources!");
+                throw new NodeRulesException("The roots of this node do not all end in leaf nodes!");
             }
             publishDescendants(draftNode);
         }
@@ -170,11 +170,11 @@ public class VersionHelper {
         } else if (node instanceof InterpretationNode) {
             InterpretationNode interpretation = (InterpretationNode) node;
 
-            // If interpretation.getSource returns null, this will go awry. Keep an eye on it.
-            session.load(SourceNode.class, interpretation.getSource().getId());
+            // If interpretation.getLeafNode returns null, this will go awry. Keep an eye on it.
+            session.load(SourceNode.class, interpretation.getLeafNode().getId());
 
-            if (!interpretation.getSource().getBody().isPublic()) {
-                publish(interpretation.getSource());
+            if (!interpretation.getLeafNode().getBody().isPublic()) {
+                publish(interpretation.getLeafNode());
             }
         }
     }

@@ -116,7 +116,7 @@ require('../../sass/vivagraph.scss');
 
             ui.append(circle);
 
-            if (type === 'source') {
+            if (type === 'source' || type === 'subject') {
                 $timeout(function() {
                     layout.pinNode(node, true);
                     $(circle).addClass('vivaAnchor');
@@ -279,7 +279,7 @@ require('../../sass/vivagraph.scss');
 
         if (parent) {
             graph.addLink(parent.id, node.id, {
-                lengthRatio: node.getType() === 'source' ? .5 : 1
+                lengthRatio: node.getType() === 'source' || node.getType() === 'subject' ? .5 : 1
             });
         }
 

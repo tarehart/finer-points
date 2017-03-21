@@ -6,7 +6,6 @@ import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.repository.UserRepository;
-import com.nodestand.nodes.source.SourceNode;
 import com.nodestand.service.user.UserService;
 import com.nodestand.test.Neo4jIntegrationTest;
 import org.junit.Assert;
@@ -60,7 +59,7 @@ public class ArgumentNodeRepositoryTest extends Neo4jIntegrationTest {
         AssertionNode triple = ArgumentTestUtil.createPublishedTriple(argumentService, jim);
 
         InterpretationNode interp = (InterpretationNode) triple.getGraphChildren().iterator().next();
-        LeafNode source = interp.getSource();
+        LeafNode source = interp.getLeafNode();
 
         session.clear();
 

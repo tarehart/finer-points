@@ -10,12 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 public class EditController {
@@ -74,14 +71,22 @@ public class EditController {
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @RequestMapping("/editSource")
-    public ArgumentNode editSource(@RequestBody EditSourceInput input) throws NotAuthorizedException, NodeRulesException {
+    public ArgumentNode editSource(@RequestBody EditLeafInput input) throws NotAuthorizedException, NodeRulesException {
         Long userId = userService.getUserNodeIdFromSecurityContext();
 
         return argumentService.editSource(userId, input.nodeId, input.title, input.qualifier, input.url);
     }
 
-    public static class EditSourceInput {
-        public EditSourceInput() {}
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @RequestMapping("/editSubject")
+    public ArgumentNode editSubject(@RequestBody EditLeafInput input) throws NotAuthorizedException, NodeRulesException {
+        Long userId = userService.getUserNodeIdFromSecurityContext();
+
+        return argumentService.editSubject(userId, input.nodeId, input.title, input.qualifier, input.url);
+    }
+
+    public static class EditLeafInput {
+        public EditLeafInput() {}
         public Long nodeId;
         public String title;
         public String qualifier;

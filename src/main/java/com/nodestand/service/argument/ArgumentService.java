@@ -8,6 +8,7 @@ import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.source.SourceNode;
+import com.nodestand.nodes.subject.SubjectNode;
 
 import java.util.Collection;
 import java.util.Set;
@@ -20,15 +21,19 @@ public interface ArgumentService {
 
     AssertionNode createAssertion(long userId, String authorStableId, String title, String qualifier, String body, Collection<Long> links) throws NodeRulesException;
 
-    InterpretationNode createInterpretation(long userId, String authorStableId, String title, String qualifier, String body, Long sourceId) throws NodeRulesException;
+    InterpretationNode createInterpretation(long userId, String authorStableId, String title, String qualifier, String body, Long leafId) throws NodeRulesException;
 
     SourceNode createSource(long userId, String authorStableId, String title, String qualifier, String url) throws NodeRulesException;
+
+    SubjectNode createSubject(long userId, String authorStableId, String title, String qualifier, String url) throws NodeRulesException;
 
     AssertionNode editAssertion(long userId, long nodeId, String title, String qualifier, String body, Collection<Long> links) throws NodeRulesException;
 
     InterpretationNode editInterpretation(long userId, long nodeId, String title, String qualifier, String body, Long sourceId) throws NodeRulesException;
 
     SourceNode editSource(long userId, long nodeId, String title, String qualifier, String url) throws NodeRulesException;
+
+    SubjectNode editSubject(long userId, long nodeId, String title, String qualifier, String url) throws NodeRulesException;
 
     EditResult makeDraft(long userId, String authorStableId, long nodeId) throws NodeRulesException;
 

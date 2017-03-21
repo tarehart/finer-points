@@ -14,7 +14,8 @@
         self.createOptions = [
             { value: 'assertion', label: 'Opinion' },
             { value: 'interpretation', label: 'Interpretation' },
-            { value: 'source', label: 'Source' }
+            { value: 'source', label: 'Source' },
+            { value: 'subject', label: 'Subject' }
         ];
     }
 

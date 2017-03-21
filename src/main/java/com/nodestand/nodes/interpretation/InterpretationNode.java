@@ -14,7 +14,7 @@ import java.util.Set;
 public class InterpretationNode extends ArgumentNode {
 
     @Relationship(type="INTERPRETS", direction = Relationship.OUTGOING)
-    private LeafNode source;
+    private LeafNode leafNode;
 
     @Relationship(type="SUPPORTED_BY", direction = Relationship.INCOMING)
     private Set<AssertionNode> dependentNodes;
@@ -34,14 +34,14 @@ public class InterpretationNode extends ArgumentNode {
     @Override
     public void alterToPointToChild(Node updatedChildNode, Node existingChildNode) throws NodeRulesException {
 
-        if (!this.getSource().getStableId().equals(existingChildNode.getStableId())) {
+        if (!this.getLeafNode().getStableId().equals(existingChildNode.getStableId())) {
             throw new NodeRulesException("Incorrect behavior while performing child replacement. " +
-                    "The caller thought that " + this + " had " + existingChildNode + " as a child, but the current child is actually " + this.getSource());
+                    "The caller thought that " + this + " had " + existingChildNode + " as a child, but the current child is actually " + this.getLeafNode());
         }
 
-        this.setSource((SourceNode) updatedChildNode);
+        this.setLeafNode((SourceNode) updatedChildNode);
 
-        // Make sure the old source no longer claims this as a dependent.
+        // Make sure the old leafNode no longer claims this as a dependent.
         existingChildNode.getDependentNodes().removeIf(n -> n.getId().equals(this.getId()));
     }
 
@@ -61,7 +61,7 @@ public class InterpretationNode extends ArgumentNode {
         InterpretationBody freshBody = createDraftBody(author);
 
         InterpretationNode copy = new InterpretationNode(freshBody);
-        copy.setSource(this.getSource());
+        copy.setLeafNode(this.getLeafNode());
         copy.setPreviousVersion(this);
 
         return copy;
@@ -70,26 +70,26 @@ public class InterpretationNode extends ArgumentNode {
     @Override
     public void copyContentTo(Node target) {
         InterpretationNode interpretationTarget = (InterpretationNode) target;
-        interpretationTarget.setSource(source);
-        source.getDependentNodes().add(interpretationTarget);
+        interpretationTarget.setLeafNode(leafNode);
+        leafNode.getDependentNodes().add(interpretationTarget);
     }
 
     @Override
     public Set<Node> getGraphChildren() {
         Set<Node> children = new HashSet<>(1);
-        if (source != null) {
-            children.add((ArgumentNode) source);
+        if (leafNode != null) {
+            children.add(leafNode);
         }
         return children;
     }
 
     @JsonIgnore
-    public LeafNode getSource() {
-        return source;
+    public LeafNode getLeafNode() {
+        return leafNode;
     }
 
-    public void setSource(LeafNode source) {
-        this.source = source;
+    public void setLeafNode(LeafNode leafNode) {
+        this.leafNode = leafNode;
     }
 
     public InterpretationBody getBody() {

@@ -41,8 +41,9 @@
                     </span>
 
 
-                    <div ng-if="node.type !== 'source'" class="child-body" ng-markdown="node.body.body" render-markdown></div>
-                    <div ng-if="node.type === 'source'" class="child-body">
+                    <div ng-if="graphCtrl.getRenderType(node) === 'markdown'" class="child-body"
+                         ng-markdown="node.body.body" render-markdown></div>
+                    <div ng-if="graphCtrl.getRenderType(node) === 'url'" class="child-body">
                         <a ng-href="{{node.body.url}}" target="_blank">{{node.body.url}}</a>
                     </div>
 
@@ -117,8 +118,10 @@
                         </md-card-title-text>
                     </md-card-title>
                     <md-card-content>
-                        <div ng-if="graphCtrl.rootNode.type !== 'source'" ng-markdown="graphCtrl.rootNode.body.body" render-markdown></div>
-                        <a ng-if="graphCtrl.rootNode.type === 'source'" ng-href="{{graphCtrl.rootNode.body.url}}" target="_blank">{{graphCtrl.rootNode.body.url}}</a>
+                        <div ng-if="graphCtrl.getRenderType(graphCtrl.rootNode) === 'markdown'"
+                             ng-markdown="graphCtrl.rootNode.body.body" render-markdown></div>
+                        <a ng-if="graphCtrl.getRenderType(graphCtrl.rootNode) === 'url'"
+                           ng-href="{{graphCtrl.rootNode.body.url}}" target="_blank">{{graphCtrl.rootNode.body.url}}</a>
                     </md-card-content>
                     <md-card-actions layout="row" layout-align="start center">
                         <span node-consumers node="graphCtrl.rootNode"></span>
@@ -173,16 +176,16 @@
                             </p>
                         </div>
                         <div class="future-node" style="margin-left: 20px; margin-top: 20px">
-                            <div class="md-headline">Source Card Needed Here</div>
-                            <p>Interpretation cards always have a source.</p>
+                            <div class="md-headline">Card Needed Here</div>
+                            <p>Interpretation cards always have a source or subject.</p>
                         </div>
                     </div>
 
                     <div class="card-margin" ng-if="graphCtrl.rootNode.type === 'interpretation'">
                         <div class="future-node">
-                            <div class="md-headline">Source Card Needed Here</div>
+                            <div class="md-headline">Card Needed Here</div>
                             <p>
-                                Use the "Attach Card" button to link a new or existing source card.
+                                Use the "Attach Card" button to link a new or existing source or subject card.
                             </p>
                         </div>
                     </div>

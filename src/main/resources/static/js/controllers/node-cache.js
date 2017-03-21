@@ -92,7 +92,7 @@
         cache.createNodeWithSupport = function(supportingNode, alias, successCallback) {
 
             var supportingType = supportingNode.type;
-            var newType = supportingType === 'source' ? 'interpretation' : 'assertion';
+            var newType = supportingType === 'source' || supportingType === 'subject' ? 'interpretation' : 'assertion';
 
             var node = decorateWithRequiredProperties({
                 id: DRAFT_ID,
@@ -148,6 +148,8 @@
                 saveNewInterpretation(node, alias, successCallback, errorCallback);
             } else if (node.getType() == "source") {
                 saveNewSource(node, alias, successCallback, errorCallback);
+            } else if (node.getType() == "subject") {
+                saveNewSubject(node, alias, successCallback, errorCallback);
             }
         }
 
@@ -182,9 +184,9 @@
 
         function saveNewInterpretation(node, alias, successCallback, errorCallback) {
 
-            var sourceId = null;
+            var leafId = null;
             if (node.children && node.children.length) {
-                sourceId = node.children[0].id;
+                leafId = node.children[0].id;
             }
 
             $http.post('/createInterpretation',
@@ -192,7 +194,7 @@
                     title: node.body.title,
                     qualifier: node.body.qualifier,
                     body: node.body.body,
-                    sourceId: sourceId,
+                    leafId: leafId,
                     authorStableId: alias.stableId
                 })
                 .success(function (data) {
@@ -234,6 +236,30 @@
                 });
         }
 
+        function saveNewSubject(node, alias, successCallback, errorCallback) {
+
+            $http.post('/createSubject',
+                {
+                    title: node.body.title,
+                    qualifier: node.body.qualifier,
+                    url: node.body.url,
+                    authorStableId: alias.stableId
+                })
+                .success(function (data) {
+                    mergeIntoNode(node, data);
+                    insertNode(node);
+
+                    if (successCallback) {
+                        successCallback(node); // This callback probably ought to change the URL to incorporate the new id.
+                    }
+                })
+                .error(function(err) {
+                    if (errorCallback) {
+                        errorCallback(err);
+                    }
+                });
+        }
+
         cache.saveNodeEdit = function(node, successCallback, errorCallback) {
             if (node.getType() == "assertion") {
                 saveAssertionEdit(node, successCallback, errorCallback);
@@ -241,6 +267,8 @@
                 saveInterpretationEdit(node, successCallback, errorCallback);
             } else if (node.getType() == "source") {
                 saveSourceEdit(node, successCallback, errorCallback);
+            } else if (node.getType() == "subject") {
+                saveSubjectEdit(node, successCallback, errorCallback);
             } else {
                 console.log("Can't edit node because its type is unknown!");
             }
@@ -341,12 +369,32 @@
 
         function saveSourceEdit(node, successCallback, errorCallback) {
 
-            var links = node.children.map(function(child) {
-                return child.id;
-            });
-
             // Iff the node is not a draft, this operation will produce a new draft node with a new id.
             $http.post('/editSource',
+                {
+                    nodeId: node.id,
+                    title: node.body.title,
+                    qualifier: node.body.qualifier,
+                    url: node.body.url
+                })
+                .success(function (data) {
+                    var editedNode = handleNodeEdit(data);
+
+                    if (successCallback) {
+                        successCallback(editedNode);
+                    }
+                })
+                .error(function(err) {
+                    if (errorCallback) {
+                        errorCallback(err);
+                    }
+                });
+        }
+
+        function saveSubjectEdit(node, successCallback, errorCallback) {
+
+            // Iff the node is not a draft, this operation will produce a new draft node with a new id.
+            $http.post('/editSubject',
                 {
                     nodeId: node.id,
                     title: node.body.title,

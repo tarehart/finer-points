@@ -132,7 +132,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         InterpretationNode interp = (InterpretationNode) assertionNode.getSupportingNodes().stream().findFirst().get();
 
-        LeafNode source = interp.getSource();
+        LeafNode source = interp.getLeafNode();
 
         session.clear();
 
@@ -167,7 +167,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         // Make sure the interpretation points to the edited source
         QuickGraphResponse interpGraph =  argumentService.getGraph(interp.getStableId(), kyle.getUser().getNodeId());
-        Assert.assertEquals(resultingNode.getId(), ((InterpretationNode)interpGraph.getRootNode()).getSource().getId());
+        Assert.assertEquals(resultingNode.getId(), ((InterpretationNode)interpGraph.getRootNode()).getLeafNode().getId());
         session.clear();
 
         // Make the interpretation a draft
@@ -175,7 +175,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         // Make sure the interpretation draft still points to the source
         InterpretationNode interpDraft = (InterpretationNode)interpDraftResult.getEditedNode();
-        Assert.assertEquals(resultingNode.getId(), interpDraft.getSource().getId());
+        Assert.assertEquals(resultingNode.getId(), interpDraft.getLeafNode().getId());
         session.clear();
 
         // Edit the interp draft
@@ -236,7 +236,7 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         AssertionNode assertionNode = createPublishedAssertion();
 
         InterpretationNode interp = (InterpretationNode) assertionNode.getGraphChildren().iterator().next();
-        LeafNode sourceNode = interp.getSource();
+        LeafNode sourceNode = interp.getLeafNode();
 
         EditResult result = argumentService.makeDraft(kyle.getUser().getNodeId(), kyle.getStableId(), sourceNode.getId());
 

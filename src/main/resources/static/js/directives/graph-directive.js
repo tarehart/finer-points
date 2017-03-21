@@ -172,6 +172,13 @@ require('./markdown-directive');
             return node && node.id !== "draft";
         };
 
+        self.getRenderType = function(node) {
+            if (node.type == 'assertion' || node.type == 'interpretation') {
+                return 'markdown';
+            }
+            return 'url';
+        };
+
         self.toggleSelect = function (node) {
             node.isSelected = !node.isSelected;
             if (node.isSelected) {
@@ -289,8 +296,12 @@ require('./markdown-directive');
                         problemReport.messages.push({message: "You need a URL for your source node.", node: node});
                         hasPublishBlockers = true;
                     }
-                }
-                else if (node.type == "interpretation") {
+                } else if (node.type == "subject") {
+                    if (!node.body.url) {
+                        problemReport.messages.push({message: "You need a URL for your subject node.", node: node});
+                        hasPublishBlockers = true;
+                    }
+                } else if (node.type == "interpretation") {
                     if (!node.body.body) {
                         problemReport.messages.push({message: "You need some text in your interpretation.", node: node});
                         hasPublishBlockers = true;
@@ -303,8 +314,7 @@ require('./markdown-directive');
                     else {
                         hasPublishBlockers = buildReport(node.children[0]) || hasPublishBlockers;
                     }
-                }
-                else if (node.type == "assertion") {
+                } else if (node.type == "assertion") {
                     if (!node.body.body) {
                         problemReport.messages.push({message: "You need some text in your opinion.", node: node});
                         hasPublishBlockers = true;

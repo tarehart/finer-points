@@ -1,7 +1,6 @@
 package com.nodestand.util;
 
 import com.nodestand.nodes.ArgumentBody;
-import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.LeafNode;
 import com.nodestand.nodes.Node;
 import com.nodestand.nodes.assertion.AssertionNode;
@@ -47,21 +46,21 @@ public class TwoWayUtil {
         node.setSupportingNodes(children);
     }
 
-    public static void updateSupportingNodes(InterpretationNode node, SourceNode sourceNode) {
+    public static void updateSupportingNodes(InterpretationNode node, LeafNode leafNode) {
 
-        LeafNode existingSource = node.getSource();
-        if (existingSource != null && (sourceNode == null || !Objects.equals(existingSource.getId(), sourceNode.getId()))) {
+        LeafNode existingSource = node.getLeafNode();
+        if (existingSource != null && (leafNode == null || !Objects.equals(existingSource.getId(), leafNode.getId()))) {
             existingSource.getDependentNodes().remove(node);
 
-            if (sourceNode != null) {
-                if (sourceNode.getDependentNodes() == null) {
-                    sourceNode.setDependentNodes(new HashSet<>());
+            if (leafNode != null) {
+                if (leafNode.getDependentNodes() == null) {
+                    leafNode.setDependentNodes(new HashSet<>());
                 }
-                sourceNode.getDependentNodes().add(node);
+                leafNode.getDependentNodes().add(node);
             }
         }
 
-        node.setSource(sourceNode);
+        node.setLeafNode(leafNode);
     }
 
     public static void forgetBody(ArgumentBody body) {
@@ -80,7 +79,7 @@ public class TwoWayUtil {
                     supportingNode.getDependentNodes().remove(node);
                 }
             } else if (node instanceof InterpretationNode) {
-                ((InterpretationNode) node).getSource().getDependentNodes().remove(node);
+                ((InterpretationNode) node).getLeafNode().getDependentNodes().remove(node);
             }
         }
 
@@ -92,7 +91,7 @@ public class TwoWayUtil {
                 if (dependentNode instanceof AssertionNode) {
                     ((AssertionNode)dependentNode).getSupportingNodes().remove(node);
                 } else if (dependentNode instanceof InterpretationNode) {
-                    ((InterpretationNode)dependentNode).setSource(null);
+                    ((InterpretationNode)dependentNode).setLeafNode(null);
                 }
             }
         }

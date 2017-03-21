@@ -9,9 +9,12 @@
         <input ng-model="nodeEditCtrl.node.body.qualifier">
     </md-input-container>
 
-    <textarea ng-if="nodeEditCtrl.node.type !== 'source'" node="nodeEditCtrl.node" set-text="nodeEditCtrl.setBody" link-fn="nodeEditCtrl.linkChild" markdown-editor>{{nodeEditCtrl.node.body.body}}</textarea>
+    <textarea ng-if="nodeEditCtrl.getRenderType(node) == 'markdown'" node="nodeEditCtrl.node"
+              set-text="nodeEditCtrl.setBody" link-fn="nodeEditCtrl.linkChild" markdown-editor>
+        {{nodeEditCtrl.node.body.body}}
+    </textarea>
 
-    <md-input-container class="md-block" ng-if="nodeEditCtrl.node.type === 'source'">
+    <md-input-container class="md-block" ng-if="nodeEditCtrl.getRenderType(node) == 'url'">
         <label>Link</label>
         <input type="text" class="form-control" placeholder="http://..." ng-model="nodeEditCtrl.node.body.url" />
     </md-input-container>

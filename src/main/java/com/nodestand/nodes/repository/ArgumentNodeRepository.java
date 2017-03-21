@@ -52,7 +52,9 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
     Integer getMaxBuildVersion(long bodyId);
 
     @Query("start n=node({0}) match (n)-[:SUPPORTED_BY*0..]->(support:ArgumentNode) " +
-            "WHERE NOT (support)-[:INTERPRETS]->(:SourceNode) AND NOT (support)-[:SUPPORTED_BY]->(:ArgumentNode) return support")
+            "WHERE NOT (support)-[:INTERPRETS]->(:SourceNode) " +
+            "AND NOT (support)-[:INTERPRETS]->(:SubjectNode) " +
+            "AND NOT (support)-[:SUPPORTED_BY]->(:ArgumentNode) return support")
     Set<ArgumentNode> getUnsupportedNodes(long nodeId);
 
     @Query("match p=(:Author {stableId: {0}})<-[:AUTHORED_BY]-(b:ArgumentBody)<-[:DEFINED_BY]-(n:ArgumentNode) where not b.isPublic" +

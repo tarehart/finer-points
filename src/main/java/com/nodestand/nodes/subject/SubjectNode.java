@@ -61,8 +61,8 @@ public class SubjectNode extends ArgumentNode implements LeafNode {
         return new HashSet<>(0);
     }
 
-    public SourceBody getBody() {
-        return (SourceBody) body;
+    public SubjectBody getBody() {
+        return (SubjectBody) body;
     }
 
     @Override
