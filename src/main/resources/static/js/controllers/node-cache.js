@@ -72,7 +72,7 @@
             return node;
         };
 
-        cache.getOrCreateDraftNode = function() {
+        cache.getOrCreateDraftNode = function(nodeType) {
 
             if (cache.nodes[DRAFT_ID]) {
                 return cache.nodes[DRAFT_ID];
@@ -81,7 +81,7 @@
             var node = decorateWithRequiredProperties({
                 id: DRAFT_ID,
                 inEditMode: true,
-                type: "assertion",
+                type: nodeType,
                 body: {draft: true, qualifier: "Original version"}
             });
 

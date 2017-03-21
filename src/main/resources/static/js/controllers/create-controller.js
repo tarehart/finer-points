@@ -1,3 +1,5 @@
+require('../../sass/create.scss');
+
 (function() {
     'use strict';
 
@@ -9,13 +11,11 @@
 
         var self = this;
 
-        self.type = 'assertion'; // Default selection
-
         self.createOptions = [
-            { value: 'assertion', label: 'Opinion' },
-            { value: 'interpretation', label: 'Interpretation' },
             { value: 'source', label: 'Source' },
-            { value: 'subject', label: 'Subject' }
+            { value: 'subject', label: 'Subject' },
+            { value: 'interpretation', label: 'Interpretation' },
+            { value: 'assertion', label: 'Opinion' }
         ];
     }
 

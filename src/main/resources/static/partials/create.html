@@ -13,20 +13,47 @@
                     </md-button>
                     before creating content!
                 </div>
-                <md-radio-group ng-if="user" ng-model="createCtrl.type" layout="column" layout-gt-xs="row">
-                    <div flex="33" class="radio-horizontal" ng-repeat="opt in createCtrl.createOptions">
+                <md-radio-group ng-if="user && createCtrl.type" ng-model="createCtrl.type" layout="column" layout-gt-xs="row">
+                    <div flex="" class="radio-horizontal" ng-repeat="opt in createCtrl.createOptions">
                         <md-radio-button ng-value="opt.value">
                             {{opt.label}}
                         </md-radio-button>
                     </div>
                 </md-radio-group>
+                <md-radio-group ng-if="user && !createCtrl.type" ng-model="createCtrl.type" flex="60">
+                    <md-radio-button value="source">
+                        <div class="option-header">Source</div>
+                        A Source should link to trustworthy information about the world that can be used as evidence.
+                        Useful for articles, books, studies, etc. Sources will receive votes.
+                    </md-radio-button>
+                    <md-radio-button value="subject">
+                        <div class="option-header">Subject</div>
+                        A Subject is exempt from voting. Use it to link to anything that you want to reference, but not
+                        trust as direct evidence. You can analyze fiction, questionable articles, etc. without penalty.
+                    </md-radio-button>
+                    <md-radio-button value="interpretation">
+                        <div class="option-header">Interpretation</div>
+                        Use an Interpretation to make a claim about a particular source or subject. You will probably want
+                        to include a supporting quote. Interpretations should be brief and self-evident if possible.
+                        Interpretations receive votes.
+                    </md-radio-button>
+                    <md-radio-button value="assertion">
+                        <div class="option-header">Opinion</div>
+                        Opinions are the place for logical analysis and broad assertions. You can draw on
+                        multiple Interpretations and/or other Opinions to make your point.
+                    </md-radio-button>
+                </md-radio-group>
             </md-card-content>
         </md-card>
     </div>
-    <div flex="40"></div>
+    <div flex="40">
+        <img src="/img/finer-points-diagram.svg"
+             ng-if="user && !createCtrl.type"
+            alt="Diagram showing relationships between card types."
+            width="100%" />
+    </div>
 </div>
 
-
-<div ng-if="user">
+<div ng-if="user && createCtrl.type">
     <div node-graph draft-type="createCtrl.type"></div>
 </div>

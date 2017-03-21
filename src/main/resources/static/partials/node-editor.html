@@ -10,9 +10,8 @@
     </md-input-container>
 
     <textarea ng-if="nodeEditCtrl.getRenderType(node) == 'markdown'" node="nodeEditCtrl.node"
-              set-text="nodeEditCtrl.setBody" link-fn="nodeEditCtrl.linkChild" markdown-editor>
-        {{nodeEditCtrl.node.body.body}}
-    </textarea>
+              set-text="nodeEditCtrl.setBody" link-fn="nodeEditCtrl.linkChild"
+              markdown-editor>{{nodeEditCtrl.node.body.body}}</textarea>
 
     <md-input-container class="md-block" ng-if="nodeEditCtrl.getRenderType(node) == 'url'">
         <label>Link</label>
