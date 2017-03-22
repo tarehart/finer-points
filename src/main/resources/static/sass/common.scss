@@ -26,6 +26,20 @@ a:hover {
   text-decoration: underline;
 }
 
+.header-hero-block {
+  display:inline-block;
+  margin-left: 15px;
+  .hero-bullets {
+    margin-left: -15px;
+  }
+}
+
+@media (max-width: 959px) {
+  .header-hero-block .hero-bullets {
+    display: none;
+  }
+}
+
 .hero-bullets {
   list-style-type: circle;
   line-height: 1.5em;

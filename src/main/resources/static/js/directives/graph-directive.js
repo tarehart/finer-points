@@ -101,7 +101,7 @@ require('./markdown-directive');
             });
 
             if (holdsChild) {
-                node.hideChildren = false;
+                node.showChildren = true;
                 return true;
             }
 
@@ -146,14 +146,29 @@ require('./markdown-directive');
                 self.rootNode = NodeCache.getByStableId($routeParams.rootStableId);
                 self.rootNodes = [self.rootNode]; // We have this in array form because it's handy for kicking off the angular template recursion.
 
-                if (self.rootNode.children && self.rootNode.children.length > 1) {
-                    $.each(self.rootNode.children, function (index, child) {
-                        child.hideChildren = true;
-                    });
+                var currentNode = self.rootNode;
+                while (currentNode.children && currentNode.children.length === 1) {
+                    revealChildren(currentNode);
+                    currentNode = currentNode.children[0];
                 }
+
                 self.problemReport = buildProblemReport(self.rootNode);
                 $scope.$broadcast("rootData", self.rootNode);
             });
+        }
+
+        function revealChildren(node) {
+            node.showChildren = true;
+
+            // fetch body for any children that are leaf nodes
+            if (node.children) {
+                $.each(node.children, function (index, child) {
+                    if (child.type === 'source' || child.type === 'subject') {
+                        ensureDetail(child);
+                        child.isSelected = true;
+                    }
+                });
+            }
         }
 
         self.hasChild = function (node) {
@@ -193,7 +208,11 @@ require('./markdown-directive');
         };
 
         self.toggleChildren = function (node) {
-            node.hideChildren = !node.hideChildren;
+            if (node.showChildren) {
+                node.showChildren = false;
+            } else {
+                revealChildren(node);
+            }
         };
 
         self.navigateToNode = function (node) {
