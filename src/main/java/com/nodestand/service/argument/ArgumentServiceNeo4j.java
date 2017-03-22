@@ -168,7 +168,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Transactional
     public AssertionNode editAssertion(long userId, long nodeId, String title, String qualifier, String body, Collection<Long> links) throws NodeRulesException {
 
-        AssertionNode existingNode = (AssertionNode) argumentRepo.loadWithMajorVersion(nodeId);
+        AssertionNode existingNode = (AssertionNode) loadWithChildren(nodeId);
 
         Author author = AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, existingNode.getBody().author.getStableId());
 
@@ -194,6 +194,15 @@ public class ArgumentServiceNeo4j implements ArgumentService {
         return existingNode;
     }
 
+    private ArgumentNode loadWithChildren(long nodeId) throws NodeRulesException {
+        Set<ArgumentNode> argumentNodes = argumentRepo.loadWithMajorVersionAndChildren(nodeId);
+        List<ArgumentNode> matches = argumentNodes.stream().filter(n -> n.getId().equals(nodeId)).collect(Collectors.toList());
+        if (matches.size() != 1) {
+            throw new NodeRulesException("Expected query to return exactly one node with id " + nodeId);
+        }
+        return matches.get(0);
+    }
+
     private Set<Node> getAndValidateChildNodes(Collection<Long> links) throws NodeRulesException {
         Set<Node> children = new HashSet<>();
         for (Long id : links) {
@@ -211,7 +220,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Transactional
     public InterpretationNode editInterpretation(long userId, long nodeId, String title, String qualifier, String body, Long sourceId) throws NodeRulesException {
 
-        InterpretationNode existingNode = session.load(InterpretationNode.class, nodeId, 2);
+        InterpretationNode existingNode = (InterpretationNode) loadWithChildren(nodeId);
 
         Author author = AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, existingNode.getBody().author.getStableId());
 
@@ -238,7 +247,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Transactional
     public SourceNode editSource(long userId, long nodeId, String title, String qualifier, String url) throws NodeRulesException {
 
-        SourceNode existingNode = session.load(SourceNode.class, nodeId, 2);
+        SourceNode existingNode = (SourceNode) argumentRepo.loadWithMajorVersion(nodeId);
 
         AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, existingNode.getBody().author.getStableId());
 
@@ -256,7 +265,7 @@ public class ArgumentServiceNeo4j implements ArgumentService {
     @Transactional
     public SubjectNode editSubject(long userId, long nodeId, String title, String qualifier, String url) throws NodeRulesException {
 
-        SubjectNode existingNode = session.load(SubjectNode.class, nodeId, 2);
+        SubjectNode existingNode = (SubjectNode) argumentRepo.loadWithMajorVersion(nodeId);
 
         AuthorRulesUtil.loadAuthorWithSecurityCheck(userRepo, userId, existingNode.getBody().author.getStableId());
 
@@ -346,8 +355,10 @@ public class ArgumentServiceNeo4j implements ArgumentService {
 
     @Override
     public ArgumentNode getEditHistory(String stableId) {
-        ArgumentNode editHistory = argumentRepo.getEditHistory(stableId);
-        return editHistory;
+        Set<ArgumentNode> editHistory = argumentRepo.getEditHistory(stableId);
+        List<ArgumentNode> matches = editHistory.stream().filter(n -> n.getStableId().equals(stableId)).collect(Collectors.toList());
+        assert matches.size() == 1;
+        return matches.get(0);
     }
 
     @Override

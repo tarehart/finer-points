@@ -9,6 +9,7 @@ import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.UserRepository;
 import com.nodestand.nodes.source.SourceNode;
+import org.junit.Assert;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -19,23 +20,22 @@ import java.util.List;
 public class ArgumentTestUtil {
 
     public static AssertionNode createPublishedTriple(ArgumentService argumentService, Author jim) throws NodeRulesException, NotAuthorizedException {
-        List<Long> links = new LinkedList<>();
+        AssertionNode draftNode = createDraftTriple(argumentService, jim);
 
-        AssertionNode assertionNode = argumentService.createAssertion(jim.getUser().getNodeId(), jim.getStableId(), "Assertion Title", "Original", "Hello, world!", links);
+        return (AssertionNode) argumentService.publishNode(jim.getUser().getNodeId(), draftNode.getId()).getRootNode();
+    }
 
-        InterpretationNode interpretationNode = argumentService.createInterpretation(jim.getUser().getNodeId(), jim.getStableId(), "Interp Title", "Orig int", "Interp body", null);
-
-        // Edit the assertion to point to the interpretation
-        links.add(interpretationNode.getId());
-        assertionNode = argumentService.editAssertion(jim.getUser().getNodeId(), assertionNode.getId(), "Assertion Title", "QA", "Hello! {{[" +
-                interpretationNode.getBody().getMajorVersion().getStableId() + "]link}}", links);
+    public static AssertionNode createDraftTriple(ArgumentService argumentService, Author jim) throws NodeRulesException, NotAuthorizedException {
 
         SourceNode sourceNode = argumentService.createSource(jim.getUser().getNodeId(), jim.getStableId(), "Source Title", "Original src", "http://google.com");
 
-        argumentService.editInterpretation(jim.getUser().getNodeId(), interpretationNode.getId(), "Interp Title", "QI", "Interp body", sourceNode.getId());
+        InterpretationNode interpretationNode = argumentService.createInterpretation(jim.getUser().getNodeId(), jim.getStableId(), "Interp Title", "Orig int", "Interp body", sourceNode.getId());
 
+        List<Long> links = new LinkedList<>();
+        links.add(interpretationNode.getId());
 
-        return (AssertionNode) argumentService.publishNode(jim.getUser().getNodeId(), assertionNode.getId()).getRootNode();
+        return argumentService.createAssertion(jim.getUser().getNodeId(), jim.getStableId(), "Assertion Title", "Original", "Hello! {{[" +
+                interpretationNode.getBody().getMajorVersion().getStableId() + "]link}}", links);
     }
 
     public static AssertionNode createPublishedTreeSmall(ArgumentService argumentService, Author jim) throws NotAuthorizedException, NodeRulesException {

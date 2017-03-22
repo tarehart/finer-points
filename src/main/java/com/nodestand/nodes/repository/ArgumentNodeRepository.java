@@ -44,6 +44,13 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
             " with p as p, b as b match q=(b)-[:AUTHORED_BY]->(:Author) return p, q")
     ArgumentNode loadWithMajorVersion(long id);
 
+    @Query("match p=(n:ArgumentNode)-[:DEFINED_BY]->(b:ArgumentBody)-[:VERSION_OF]->(:MajorVersion)-[:AUTHORED_BY]->(:Author)" +
+            " where ID(n) = {0}" +
+            " with p as p, b as b, n as n match q=(b)-[:AUTHORED_BY]->(:Author)" +
+            " with p as p, b as b, n as n, q as q match c=(n)-[:SUPPORTED_BY|INTERPRETS*0..1]->(:ArgumentNode)" +
+            " return p, q, c")
+    Set<ArgumentNode> loadWithMajorVersionAndChildren(long id);
+
     @Query("start n=node({0}) match (body)-[VERSION_OF]->(n) return max(body.minorVersion)")
     Integer getMaxMinorVersion(long majorVersionId);
 
@@ -75,18 +82,6 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
             " with p as p, b as b match q=(b)-[:VERSION_OF]->(:MajorVersion)-[:AUTHORED_BY]->(:Author) return p, q")
     Set<ArgumentNode> getConsumerNodes(String stableId, long userId);
 
-    /**
-     * At the moment, the ArgumentNode that this thing returns is rootNode, which is what I want.
-     * I'm assuming it does so because rootNode is the first thing in the return list.
-     * I'm not super sure that's part of the OGM contract, presently I'm too lazy to check.
-     * Hopefully it will not change on me.
-     *
-     * Oh great, now I've recorded a case of
-     * Caused by: java.lang.RuntimeException: Result not of expected size. Expected 1 row but found 2
-     * at org.neo4j.ogm.session.delegates.ExecuteQueriesDelegate.queryForObject(ExecuteQueriesDelegate.java:65)
-     *
-     * Have not duped yet...
-     */
     @Query("MATCH p=(rootNode:ArgumentNode {stableId:{0}})-[:DEFINED_BY]->(rootBody:ArgumentBody)-[:PRECEDED_BY*0..]->(:ArgumentBody)" +
             " WITH p as p, nodes(p) as pathNodes, rootBody as rootBody, rootNode as rootNode" +
             " MATCH mvPath=(rootBody)-[:VERSION_OF]->(:MajorVersion)-[:AUTHORED_BY]->(:Author)" +
@@ -94,5 +89,5 @@ public interface ArgumentNodeRepository extends GraphRepository<ArgumentNode> {
             " MATCH editorPath=(bdy:ArgumentBody)-[:AUTHORED_BY]->(editor:Author)" +
             " MATCH argumentPath=(bdy:ArgumentBody)<-[:DEFINED_BY]-(argNode:ArgumentNode)" +
             " RETURN rootNode, pathNodes, rels(p), nodes(mvPath), rels(mvPath), editor, rels(editorPath), argNode, rels(argumentPath)")
-    ArgumentNode getEditHistory(String stableId);
+    Set<ArgumentNode> getEditHistory(String stableId);
 }

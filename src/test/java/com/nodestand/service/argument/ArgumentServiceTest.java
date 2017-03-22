@@ -4,6 +4,7 @@ import com.nodestand.auth.NotAuthorizedException;
 import com.nodestand.controllers.serial.EditResult;
 import com.nodestand.controllers.serial.QuickGraphResponse;
 import com.nodestand.nodes.*;
+import com.nodestand.nodes.assertion.AssertionBody;
 import com.nodestand.nodes.assertion.AssertionNode;
 import com.nodestand.nodes.interpretation.InterpretationNode;
 import com.nodestand.nodes.repository.UserRepository;
@@ -149,6 +150,10 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
         SourceNode edited = argumentService.editSource(kyle.getUser().getNodeId(), result.getEditedNode().getId(), "New Title", "Q2", "new/url");
 
         Assert.assertFalse(edited.getBody().isPublic());
+        argumentService.getEditHistory(edited.getStableId());
+        Assert.assertEquals(source.getBody().getId(), edited.getBody().getPreviousVersion().getId());
+
+        session.load(SourceNode.class, edited.getId(), 2);
         Assert.assertEquals(source.getId(), edited.getPreviousVersion().getId());
 
         session.clear();
@@ -377,6 +382,38 @@ public class ArgumentServiceTest extends Neo4jIntegrationTest {
 
         Set<ArgumentNode> consumers = argumentService.getGraph(childOriginal.getStableId(), kyle.getUser().getNodeId()).getConsumers();
         Assert.assertEquals(2, consumers.size());
+    }
+
+    @Test
+    public void testDeletingExtraChild() throws NodeRulesException {
+
+        Author jim = registerUser("1234", "Jim");
+        AssertionNode middleNode = ArgumentTestUtil.createDraftTriple(argumentService, jim);
+        InterpretationNode interp = (InterpretationNode) middleNode.getSupportingNodes().stream().findFirst().get();
+
+        List<Long> links = new LinkedList<>();
+        links.add(middleNode.getId());
+        links.add(interp.getId());
+        AssertionNode rootNode = argumentService.createAssertion(jim.getUser().getNodeId(), jim.getStableId(), "Root",
+                "Original", String.format("{{[%s]hi}} {{[%s]there}}",
+                        middleNode.getBody().getMajorVersion().getStableId(),
+                        interp.getBody().getMajorVersion().getStableId()), links);
+
+        Assert.assertEquals(2, rootNode.getSupportingNodes().size());
+
+        session.clear();
+
+        links.remove(1);
+        AssertionNode editedRoot = argumentService.editAssertion(jim.getUser().getNodeId(), rootNode.getId(), "Root",
+                "Original", String.format("{{[%s]hi}}",
+                        middleNode.getBody().getMajorVersion().getStableId()), links);
+
+        Assert.assertEquals(1, editedRoot.getSupportingNodes().size());
+
+        session.clear();
+
+        argumentService.publishNode(jim.getUser().getNodeId(), editedRoot.getId());
+
     }
 
 
