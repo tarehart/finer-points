@@ -9,7 +9,10 @@
 
                 <div layout="row" layout-align="center">
                     <div flex="">
-                        <a class="child-node-title" ng-href="/graph/{{node.stableId}}">{{node.body.title}}</a>
+                        <span class="child-node-title">
+                            <span node-type="node.type" show-tooltip="true"></span>
+                            <a ng-href="/graph/{{node.stableId}}">{{node.body.title}}</a>
+                        </span>
                         <div ng-if="!graphCtrl.isSelected(node)">
                             <span ng-if="!node.body.public" class="draft-node-pill">
                                 Private draft
@@ -93,6 +96,7 @@
                     <md-card-title>
                         <md-card-title-text>
                             <span class="md-title">
+                                <span node-type="graphCtrl.rootNode.type" show-tooltip="true"></span>
                                 <span class="root-node-title">{{graphCtrl.rootNode.body.title}}</span>
                             </span>
                             <span class="md-subhead">

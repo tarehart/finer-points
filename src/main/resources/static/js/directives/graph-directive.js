@@ -7,6 +7,7 @@ require('./consumers-directive');
 require('./node-editor-directive');
 require('./vote-button-directive');
 require('./markdown-directive');
+require('./node-type-directive');
 
 (function() {
     'use strict';

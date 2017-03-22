@@ -22,23 +22,23 @@
                 </md-radio-group>
                 <md-radio-group ng-if="user && !createCtrl.type" ng-model="createCtrl.type" flex="60">
                     <md-radio-button value="source">
-                        <div class="option-header">Source</div>
+                        <div class="option-header"><span node-type="'source'"></span> Source</div>
                         A Source should link to trustworthy information about the world that can be used as evidence.
                         Useful for articles, books, studies, etc. Sources will receive votes.
                     </md-radio-button>
                     <md-radio-button value="subject">
-                        <div class="option-header">Subject</div>
+                        <div class="option-header"><span node-type="'subject'"></span> Subject</div>
                         A Subject is exempt from voting. Use it to link to anything that you want to reference, but not
                         trust as direct evidence. You can analyze fiction, questionable articles, etc. without penalty.
                     </md-radio-button>
                     <md-radio-button value="interpretation">
-                        <div class="option-header">Interpretation</div>
+                        <div class="option-header"><span node-type="'interpretation'"></span> Interpretation</div>
                         Use an Interpretation to make a claim about a particular source or subject. You will probably want
                         to include a supporting quote. Interpretations should be brief and self-evident if possible.
                         Interpretations receive votes.
                     </md-radio-button>
                     <md-radio-button value="assertion">
-                        <div class="option-header">Opinion</div>
+                        <div class="option-header"><span node-type="'assertion'"></span> Opinion</div>
                         Opinions are the place for logical analysis and broad assertions. You can draw on
                         multiple Interpretations and/or other Opinions to make your point.
                     </md-radio-button>
@@ -50,7 +50,8 @@
         <img src="/img/finer-points-diagram.svg"
              ng-if="user && !createCtrl.type"
             alt="Diagram showing relationships between card types."
-            width="100%" />
+            width="100%"
+            style="max-width: 340px"/>
     </div>
 </div>
 
