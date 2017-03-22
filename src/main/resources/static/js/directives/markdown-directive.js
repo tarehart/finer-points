@@ -54,14 +54,12 @@ require('../services/body-text-service');
 
                                     if (idToReplace) {
                                         var linkCode = BodyTextService.buildLinkCode(nodeId, nodeTitle);
-                                        // TODO: find and replace
                                         var regex = new RegExp("\\{\\{\\[" + idToReplace + "\\].+?(?=}})\\}\\}");
                                         e.setContent(e.getContent().replace(regex, linkCode));
-                                        //var match = regex.exec(e.getContent());
-                                        //e.replaceAll(regex, linkCode);
                                     }
                                     else {
-                                        var tagText = selection.text || nodeTitle;
+                                        var tagText = nodeTitle;
+                                        e.setSelection(e.getContent().length, e.getContent().length); // Put cursor at end
                                         e.replaceSelection(BodyTextService.buildLinkCode(nodeId, tagText));
                                         var offset = ("" + nodeId).length + 4;
                                         e.setSelection(selection.start + offset, selection.start + offset + tagText.length);
