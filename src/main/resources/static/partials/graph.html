@@ -157,6 +157,7 @@
                     <ul>
                         <li ng-repeat="problem in graphCtrl.problemReport.messages">
                             {{problem.message}}
+                            <span class="node-link" ng-click="graphCtrl.highlightNode(problem.node)">Highlight</span>
                         </li>
                     </ul>
                 </div>

@@ -64,6 +64,8 @@ require('./node-type-directive');
         $scope.$on("nodeHighlighted", function(e, node) {
             setHighlighted(node);
             revealChild(self.rootNode, node);
+            ensureDetail(node);
+            node.isSelected = true;
         });
 
         $scope.$on("nodeSaved", function(e, node) {
@@ -102,7 +104,7 @@ require('./node-type-directive');
             });
 
             if (holdsChild) {
-                node.showChildren = true;
+                revealChildren(node);
                 return true;
             }
 
@@ -311,17 +313,17 @@ require('./node-type-directive');
                     hasPublishBlockers = true;
                 }
 
-                if (node.type == "source") {
+                if (node.type === "source") {
                     if (!node.body.url) {
                         problemReport.messages.push({message: "You need a URL for your source node.", node: node});
                         hasPublishBlockers = true;
                     }
-                } else if (node.type == "subject") {
+                } else if (node.type === "subject") {
                     if (!node.body.url) {
                         problemReport.messages.push({message: "You need a URL for your subject node.", node: node});
                         hasPublishBlockers = true;
                     }
-                } else if (node.type == "interpretation") {
+                } else if (node.type === "interpretation") {
                     if (!node.body.body) {
                         problemReport.messages.push({message: "You need some text in your interpretation.", node: node});
                         hasPublishBlockers = true;
@@ -334,7 +336,7 @@ require('./node-type-directive');
                     else {
                         hasPublishBlockers = buildReport(node.children[0]) || hasPublishBlockers;
                     }
-                } else if (node.type == "assertion") {
+                } else if (node.type === "assertion") {
                     if (!node.body.body) {
                         problemReport.messages.push({message: "You need some text in your opinion.", node: node});
                         hasPublishBlockers = true;

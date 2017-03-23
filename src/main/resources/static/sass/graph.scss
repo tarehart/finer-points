@@ -16,6 +16,7 @@
   &.highlighted {
     .child-node-title {
       background-color: $node-highlight-color;
+      animation: highlight-pulse 200ms 4;
     }
   }
 }
@@ -80,8 +81,14 @@
   &.highlighted {
     .root-node-title {
       background-color: $node-highlight-color;
+      animation: highlight-pulse 200ms 4;
     }
   }
+}
+
+@keyframes highlight-pulse {
+  0% { background-color: rgba(255, 255, 255, 0); }
+  100% { background-color: $node-highlight-color; }
 }
 
 .draft-node-pill {

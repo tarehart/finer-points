@@ -48,7 +48,13 @@
 
   .highlight {
     fill: $node-highlight-color;
+    animation: highlight-pulse-fill 200ms 4;
   }
+}
+
+@keyframes highlight-pulse-fill {
+  0% { fill: rgba(255, 255, 255, 0); }
+  100% { fill: $node-highlight-color; }
 }
 
 .rootDot {
