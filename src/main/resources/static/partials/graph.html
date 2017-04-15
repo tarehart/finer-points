@@ -139,7 +139,7 @@
                                 ng-click="graphCtrl.publishNode(graphCtrl.rootNode)"
                                 class="md-raised md-primary">Publish</md-button>
                     </md-card-actions>
-                    <div ng-if="graphCtrl.rootNode.body.public" node="graphCtrl.rootNode" vote-button></div>
+                    <div ng-if="graphCtrl.rootNode.body.public && graphCtrl.rootNode.type !== 'subject'" node="graphCtrl.rootNode" vote-button></div>
                 </md-card>
                 <md-card ng-if="graphCtrl.rootNode.inEditMode">
                     <md-card-content>

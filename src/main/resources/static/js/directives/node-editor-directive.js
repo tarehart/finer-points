@@ -169,6 +169,7 @@ require('../services/body-text-service');
 
                 NodeCache.getFullDetail(child.stableId);
                 NodeCache.fetchGraphForId(child.stableId, function() {
+                    node.showChildren = true;
                     $rootScope.$broadcast("nodeAdded", node, child);
                 });
             }

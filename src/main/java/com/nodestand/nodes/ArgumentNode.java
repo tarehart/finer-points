@@ -128,4 +128,8 @@ public abstract class ArgumentNode implements Node {
     public String toString() {
         return "[" + getType() + " " + id + " " + stableId + " " + (body != null ? body.getTitle() : "(no body)") + "]";
     }
+
+    public boolean acceptsVotes() {
+        return true;
+    }
 }

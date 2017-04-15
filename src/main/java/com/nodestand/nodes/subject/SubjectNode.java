@@ -80,4 +80,9 @@ public class SubjectNode extends ArgumentNode implements LeafNode {
     public void setDependentNodes(Set<InterpretationNode> dependentNodes) {
         this.dependentNodes = dependentNodes;
     }
+
+    @Override
+    public boolean acceptsVotes() {
+        return false;
+    }
 }

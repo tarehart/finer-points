@@ -6,6 +6,8 @@ import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.repository.ArgumentNodeRepository;
 import com.nodestand.nodes.repository.UserRepository;
+import com.nodestand.nodes.source.SourceNode;
+import com.nodestand.nodes.subject.SubjectNode;
 import com.nodestand.nodes.version.MajorVersion;
 import com.nodestand.nodes.vote.ArgumentVote;
 import com.nodestand.nodes.vote.VoteType;
@@ -47,6 +49,10 @@ public class VoteServiceNeo4j implements VoteService {
 
         User user = userRepository.loadUserWithVotes(userStableId);
         ArgumentNode node = argumentNodeRepository.getNodeRich(nodeStableId);
+
+        if (!node.acceptsVotes()) {
+            throw new NodeRulesException("Cannot vote on a node of type " + node.getType());
+        }
 
         Author originalAuthor = node.getBody().getMajorVersion().author;
         if (isOwnAuthor(originalAuthor, user)) {
@@ -97,6 +103,10 @@ public class VoteServiceNeo4j implements VoteService {
         User user = userRepository.loadUserWithVotes(userStableId);
         ArgumentNode node = argumentNodeRepository.getNodeRich(nodeStableId);
 
+        if (!node.acceptsVotes()) {
+            throw new NodeRulesException("Cannot vote on a node of type " + node.getType());
+        }
+
         MajorVersion mv = node.getBody().getMajorVersion();
 
         Optional<ArgumentVote> existingVote = user.getExistingVote(mv);
@@ -123,7 +133,7 @@ public class VoteServiceNeo4j implements VoteService {
     }
 
     private void updateScore(ArgumentNode node, VoteType voteType, VoteType voteTypeToNegate, User voter) {
-        if ("source".equals(node.getType())) {
+        if (node instanceof SourceNode) {
             Author author = node.getBody().getMajorVersion().author;
             if (!isOwnAuthor(author, voter)) { // Can't alter your own points.
                 updatePointsAndSave(node, voter, voteType, voteTypeToNegate, author, 0);
