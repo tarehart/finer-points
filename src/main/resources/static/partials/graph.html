@@ -89,7 +89,7 @@
 
     <div class="graph-wrapper">
 
-        <div layout="column" layout-gt-sm="row">
+        <div layout="row" layout-sm="column" layout-xs="column">
             <div flex="60" ng-show="graphCtrl.rootNode">
                 <md-card ng-if="graphCtrl.rootNode && !graphCtrl.rootNode.inEditMode" class="root-node-card"
                          ng-class="[{highlighted: graphCtrl.rootNode === graphCtrl.highlightedNode }, 'root-node-card']">

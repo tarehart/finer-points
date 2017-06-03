@@ -12,6 +12,8 @@
   padding: 10px;
   font-size: 14px;
   outline: none;
+  -ms-word-wrap:break-word;
+  word-wrap:break-word;
 
   &.highlighted {
     .child-node-title {
@@ -65,6 +67,10 @@
 }
 
 .root-node-card {
+
+  -ms-word-wrap:break-word;
+  word-wrap:break-word;
+
   md-card-content {
     padding-bottom: 0;
   }
