@@ -1,48 +1,21 @@
+require('./node-factory');
+
+
 (function() {
     'use strict';
 
     angular
         .module('nodeStandControllers')
-        .factory('NodeCache', ['$http', NodeCache]);
+        .factory('NodeCache', NodeCache);
 
-    function NodeCache($http) {
+    function NodeCache($http, Node) {
 
         var cache = {};
 
         cache.nodes = {};
         cache.edges = [];
 
-        var DRAFT_ID = "draft";
-
-        // This is supposed to be idempotent.
-        function decorateWithRequiredProperties(node) {
-            node.children = node.children || [];
-            node.body = node.body || {};
-            node.body.author = node.body.author || {};
-
-            node.getType = function() {
-                if (node.type) {
-                    return node.type;
-                }
-                return null;
-            };
-
-            node.getVersionString = function() {
-
-                var version = "";
-                if (node.body.majorVersion) {
-                    version = node.body.majorVersion.versionNumber + ".";
-                    if (node.body.minorVersion < 0) {
-                        return version + "x";
-                    }
-                    version += node.body.minorVersion;
-                }
-
-                return version;
-            };
-
-            return node;
-        }
+        var DRAFT_ID = Node.DRAFT_ID;
 
         cache.get = function(id) {
             return cache.nodes[id];
@@ -66,9 +39,9 @@
                 return cache.get(id);
             }
 
-            var node = decorateWithRequiredProperties({id: id});
-
-            cache.nodes[id] = node;
+            var node = new Node();
+            node.id = id;
+            insertNode(node);
             return node;
         };
 
@@ -78,32 +51,30 @@
                 return cache.nodes[DRAFT_ID];
             }
 
-            var node = decorateWithRequiredProperties({
-                id: DRAFT_ID,
-                inEditMode: true,
-                type: nodeType,
-                body: {draft: true, qualifier: "Original version"}
-            });
-
-            cache.nodes[node.id] = node;
+            var node = makeDraftNode(nodeType);
+            insertNode(node);
             return node;
         };
+
+        function makeDraftNode(nodeType) {
+            var node = new Node();
+            node.id = Node.DRAFT_ID;
+            node.inEditMode = true;
+            node.type = nodeType;
+            node.body = {draft: true, qualifier: "Original version"};
+            return node;
+        }
 
         cache.createNodeWithSupport = function(supportingNode, alias, successCallback) {
 
             var supportingType = supportingNode.type;
             var newType = supportingType === 'source' || supportingType === 'subject' ? 'interpretation' : 'assertion';
 
-            var node = decorateWithRequiredProperties({
-                id: DRAFT_ID,
-                inEditMode: true,
-                type: newType,
-                body: {draft: true, qualifier: "Original version"}
-            });
+            var node = makeDraftNode(newType);
 
             node.body.body = "{{[" + supportingNode.body.majorVersion.stableId + "]" + supportingNode.body.title + "}}";
 
-            cache.addChildToNode(node, supportingNode);
+            node.addChild(supportingNode);
 
             saveNewNode(node, alias, function(data) {
                 // Next time the draft node is requested, a fresh blank one should be built.
@@ -117,7 +88,7 @@
         // This refers to whether this node is completely unsaved and does not exist in the database,
         // NOT whether it has been published (which is what node.isDraft determines).
         cache.isBlankSlateNode = function(node) {
-            return node == cache.get(DRAFT_ID);
+            return node === cache.get(DRAFT_ID);
         };
 
         cache.saveBlankSlateNode = function(alias, successCallback, errorCallback) {
@@ -134,9 +105,8 @@
 
         cache.createAndSaveNode = function(nodeSkeleton, alias, successCallback, errorCallback) {
 
-            nodeSkeleton.getType = function() {
-                return this.type;
-            };
+            var node = new Node();
+            node.assimilateData(nodeSkeleton);
 
             saveNewNode(nodeSkeleton, alias, successCallback, errorCallback);
         };
@@ -168,7 +138,7 @@
                     authorStableId: alias.stableId
                 })
                 .success(function (data) {
-                    mergeIntoNode(node, data);
+                    node.assimilateData(data);
                     insertNode(node);
 
                     if (successCallback) {
@@ -198,7 +168,7 @@
                     authorStableId: alias.stableId
                 })
                 .success(function (data) {
-                    mergeIntoNode(node, data);
+                    node.assimilateData(data);
                     insertNode(node);
 
                     if (successCallback) {
@@ -222,7 +192,7 @@
                     authorStableId: alias.stableId
                 })
                 .success(function (data) {
-                    mergeIntoNode(node, data);
+                    node.assimilateData(data);
                     insertNode(node);
 
                     if (successCallback) {
@@ -246,7 +216,7 @@
                     authorStableId: alias.stableId
                 })
                 .success(function (data) {
-                    mergeIntoNode(node, data);
+                    node.assimilateData(data);
                     insertNode(node);
 
                     if (successCallback) {
@@ -441,89 +411,34 @@
                 });
         };
 
-        function mergeIntoNode(cachedNode, newData) {
-            if (newData.body) {
-                if (newData.body.majorVersion) {
-                    // This is a good indicator that node's body is fully fleshed out and should be trusted.
-                    cachedNode.body = newData.body;
-                    cachedNode.type = newData.type;
-                } else {
-                    cachedNode.body = cachedNode.body || newData.body;
-                    cachedNode.body.body = newData.body.body;
-                    cachedNode.body.title = newData.body.title;
-                    cachedNode.body.qualifier = newData.body.qualifier;
-                    cachedNode.body.public = newData.body.public;
-                }
-            }
-
-            if (!cachedNode.id || cachedNode.id === DRAFT_ID) {
-                cachedNode.id = newData.id;
-                cachedNode.stableId = newData.stableId;
-            }
-
-            if (newData.draft != undefined && newData.draft != null) {
-                cachedNode.draft = newData.draft;
-            }
-
-            cachedNode.childOrder = newData.childOrder;
-
-            sortChildren(cachedNode);
-        }
-
         function insertNode(node) {
-            cache.nodes[node.id] = decorateWithRequiredProperties(node);
+            cache.nodes[node.id] = node;
         }
 
-        cache.addOrUpdateNode = function(node) {
-            var cachedNode = cache.get(node.id);
+        cache.addOrUpdateNode = function(data) {
+            var cachedNode = cache.get(data.id);
             if (cachedNode) {
                 // Node is already in the cache, so perform updates
-                mergeIntoNode(cachedNode, node);
+                cachedNode.assimilateData(data);
 
             } else {
                 // node must be created and added to the cache
+                var node = new Node();
+                node.assimilateData(data);
                 insertNode(node);
             }
 
-            return cache.get(node.id);
+            return cache.get(data.id);
         };
 
         // nodes is a list of objects that have ids. Returns a map of the added nodes for further processing.
-        cache.addNodesUnlinked = function(nodes) {
+        cache.addNodesUnlinked = function(nodeData) {
             var addedNodes = {};
-            for (var i = 0; i < nodes.length; i++) {
-                var node = cache.addOrUpdateNode(nodes[i]);
+            for (var i = 0; i < nodeData.length; i++) {
+                var node = cache.addOrUpdateNode(nodeData[i]);
                 addedNodes[node.id] = node;
             }
             return addedNodes;
-        };
-
-        function sortChildren(node) {
-            if (!node.childOrder || !node.children || !node.children.length > 1) {
-                return;
-            }
-
-            var childOrder = node.childOrder.split(",");
-
-            if (childOrder.length !== node.children.length) {
-                console.log("Child array has different length than childOrder.");
-            }
-
-            node.children.sort(function(a, b) {
-                return childOrder.indexOf(a.stableId) - childOrder.indexOf(b.stableId);
-            });
-        }
-
-        cache.addChildToNode = function(node, child) {
-            // TODO: insert the child in the right order
-
-            for (var i = 0; i < node.children.length; i++) {
-                if (node.children[i].id === child.id) {
-                    return;
-                }
-            }
-
-            node.children.push(child);
         };
 
         cache.discardDraft = function(node, successCallback) {
@@ -570,7 +485,7 @@
                 var node = cache.get(id);
                 node.children = [];
                 var edges = edgeList.filter(function (el) {
-                    return el.start == id;
+                    return el.start.toString() === id;
                 });
 
                 for (var j = 0; j < edges.length; j++) {
@@ -578,11 +493,11 @@
                     if (child === undefined) {
                         console.error("Could not locate child in cache with id of " + edges[j].end);
                     } else {
-                        node.children.push(child);
+                        node.addChild(child);
                     }
                 }
 
-                sortChildren(node);
+                node.sortChildren();
 
                 if (isInfinite(node)) {
                     // That's illegal! Remove those children.
@@ -647,6 +562,8 @@
             cache.get(quickGraphResponse.rootId).consumers = $.map(consumersMap, function(n) {return n;});
 
             populateChildren(addedNodes, quickGraphResponse.edges);
+
+            console.log(cache.get(quickGraphResponse.rootId));
         }
 
         cache.getFullDetail = function(nodeStableId) {

@@ -1,5 +1,5 @@
 require('../../sass/graph.scss');
-require('../controllers/node-cache');
+require('../services/node-cache');
 require('../services/user-service');
 require('./vivagraph-directive');
 require('./comments-directive');

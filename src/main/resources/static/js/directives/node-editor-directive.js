@@ -104,7 +104,7 @@ require('../services/body-text-service');
             var idsInBody = [];
             var regex = /{{\[([0-9a-z]{1,25})\](.+?)(?=}})}}/g;
             var match = regex.exec(node.body.body);
-            while (match != null) {
+            while (match !== null) {
                 idsInBody.push(match[1]);
                 match = regex.exec(node.body.body);
             }
@@ -148,7 +148,7 @@ require('../services/body-text-service');
             // idToReplace is optional.
             function attachChild(child, idToReplace) {
 
-                NodeCache.addChildToNode(node, child);
+                node.addChild(child);
 
                 if (idToReplace) {
                     var oldChild = $.grep(node.children, function(c) {
