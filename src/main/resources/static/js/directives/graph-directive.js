@@ -58,18 +58,26 @@ require('./node-type-directive');
 
 
         function setHighlighted(node) {
-            if (self.highlightNode !== node) {
+            if (self.highlightedNode !== node) {
                 self.highlightedNode = node;
                 $scope.$broadcast("nodeHighlighted", node);
             }
         }
 
         $scope.$on("nodeTapped", function(e, node) {
+            spotlightNode(node);
+        });
+
+        function spotlightNode(node) {
             setHighlighted(node);
             revealChild(self.rootNode, node);
             ensureDetail(node);
             node.isSelected = true;
-        });
+        }
+
+        self.spotlightNode = function (node) {
+            spotlightNode(node);
+        };
 
         $scope.$on("nodeSaved", function(e, node) {
             self.problemReport = buildProblemReport(self.rootNode);
@@ -87,7 +95,7 @@ require('./node-type-directive');
             var parentNode = scope ? scope.node : self.rootNode;
             for (var i = 0; i < parentNode.children.length; i++) {
                 if (parentNode.children[i].body.majorVersion.stableId === majorVersionId) {
-                    $scope.$broadcast("nodeHighlighted", parentNode.children[i]);
+                    spotlightNode(parentNode.children[i]);
                     return;
                 }
             }
@@ -200,10 +208,6 @@ require('./node-type-directive');
             }
 
             return true;
-        };
-
-        self.highlightNode = function (node) {
-            $scope.$broadcast("nodeHighlighted", node);
         };
 
         self.toggleChildren = function (node) {

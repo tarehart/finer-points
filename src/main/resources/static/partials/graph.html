@@ -3,7 +3,7 @@
     <script type="text/ng-template" id="floatTree">
         <md-card
                 ng-class="[{selected:graphCtrl.isSelected(node), highlighted: node === graphCtrl.highlightedNode }, 'nodeDiv']"
-                ng-click="graphCtrl.highlightNode(node)">
+                ng-click="graphCtrl.spotlightNode(node)">
 
             <div ng-if="!node.inEditMode">
 
@@ -157,7 +157,7 @@
                     <ul>
                         <li ng-repeat="problem in graphCtrl.problemReport.messages">
                             {{problem.message}}
-                            <span class="node-link" ng-click="graphCtrl.highlightNode(problem.node)">Highlight</span>
+                            <span class="node-link" ng-click="graphCtrl.spotlightNode(problem.node)">Highlight</span>
                         </li>
                     </ul>
                 </div>
