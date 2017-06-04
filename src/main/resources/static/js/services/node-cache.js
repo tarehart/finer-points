@@ -103,12 +103,17 @@ require('./node-factory');
             }, errorCallback);
         };
 
+        cache.saveSketchNode = function(node, alias, successCallback, errorCallback) {
+
+            saveNewNode(node, alias, successCallback, errorCallback);
+        };
+
         cache.createAndSaveNode = function(nodeSkeleton, alias, successCallback, errorCallback) {
 
             var node = new Node();
             node.assimilateData(nodeSkeleton);
 
-            saveNewNode(nodeSkeleton, alias, successCallback, errorCallback);
+            saveNewNode(node, alias, successCallback, errorCallback);
         };
 
         function saveNewNode(node, alias, successCallback, errorCallback) {
@@ -507,11 +512,28 @@ require('./node-factory');
             });
         }
 
-        function isInfinite(node) {
+        cache.hasCycle = function(nodeMap) {
+            var safeNodes = {};
+
+            for (var id in nodeMap) {
+                if (nodeMap.hasOwnProperty(id)) {
+                    if (isInfinite(nodeMap[id], safeNodes)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+
+        function isInfinite(node, safeNodes) {
 
             var stackSet = {};
+            safeNodes = safeNodes || {};
 
             function isInfiniteHelper(node) {
+                if (safeNodes[node.id]) {
+                    return false;
+                }
                 if (stackSet[node.id]) {
                     return true;
                 }
@@ -523,6 +545,7 @@ require('./node-factory');
                     }
                 }
 
+                safeNodes[node.id] = 1;
                 delete stackSet[node.id];
                 return false;
             }

@@ -1,6 +1,5 @@
 <div layout="row" layout-sm="column" layout-xs="column" class="graph-sketch">
     <div layout="column">
-        <md-button ng-click="sketchCtrl.addNode()" class="md-raised md-accent">Add Node</md-button>
         <md-card>
             <md-card-content>
                 <md-radio-group ng-model="sketchCtrl.activeTool" ng-change="sketchCtrl.activeToolChanged()">
@@ -16,10 +15,17 @@
                 </md-radio-group>
             </md-card-content>
         </md-card>
+        <md-button ng-click="sketchCtrl.addNode()" class="md-raised md-accent">Add Node</md-button>
+        <md-button ng-show="user" ng-click="sketchCtrl.convertToReal()" class="md-raised md-primary">Convert to Cards</md-button>
     </div>
-
-    <div flex="">
+    <div flex="" style="position:relative">
         <div viva-graph></div>
+        <span ng-if="sketchCtrl.isSeekingParent() || sketchCtrl.isSeekingChild()" class="arrow-tool-hint-box">
+            <ol>
+                <li ng-class="{arrowToolHint: sketchCtrl.isSeekingParent()}">Click a starting circle</li>
+                <li ng-class="{arrowToolHint: sketchCtrl.isSeekingChild()}">Click a target circle</li>
+            </ol>
+        </span>
     </div>
 </div>
 

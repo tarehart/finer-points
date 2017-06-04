@@ -28,6 +28,7 @@ require('../../sass/vivagraph.scss');
         var graph = Viva.Graph.graph();
 
         scope.highlightedNode = null;
+        scope.currentHighlightClass = null;
 
         var vivaContainer = element.find("#viva-container")[0];
 
@@ -194,16 +195,16 @@ require('../../sass/vivagraph.scss');
                 .attr('stroke-width', 2)
                 .attr('marker-end', 'url(#Triangle)');
         }).placeLink(function(linkUI, fromPos, toPos) {
-            var unit = getUnitVector(fromPos, toPos);
-            var radius = 10;
-
-            var from = addVector(fromPos, multiplyVector(unit, radius));
-            var to = addVector(toPos, multiplyVector(unit, -1 * radius));
-            var data = 'M' + from.x + ',' + from.y +
-                'L' + to.x + ',' + to.y;
-            linkUI.attr("d", data);
+            linkUI.attr("d", calculateArrowPositionData(fromPos, toPos, 10, 10));
         });
 
+        function calculateArrowPositionData(fromPos, toPos, fromRadius, toRadius) {
+            var unit = getUnitVector(fromPos, toPos);
+            var from = addVector(fromPos, multiplyVector(unit, fromRadius));
+            var to = addVector(toPos, multiplyVector(unit, -1 * toRadius));
+            return 'M' + from.x + ',' + from.y +
+                'L' + to.x + ',' + to.y;
+        }
 
         function makeRenderer(forFullscreen) {
             return Viva.Graph.View.renderer(graph, {
@@ -251,20 +252,35 @@ require('../../sass/vivagraph.scss');
             }
         }
 
-        scope.$on("nodeHighlighted", function(e, node) {
-            if (node !== scope.highlightedNode) {
-                if (scope.highlightedNode) {
-                    var oldUI = graphics.getNodeUI(scope.highlightedNode.id);
-                    $(oldUI).removeClass('highlight');
-                }
+        scope.$on("nodeHighlighted", function(e, node, highlightClass) {
+
+            highlightClass = highlightClass || 'highlight';
+
+            if (node !== scope.highlightedNode || highlightClass !== scope.currentHighlightClass) {
+                clearHighlighting();
 
                 var nodeUI = graphics.getNodeUI(node.id);
                 if (nodeUI) {
-                    $(nodeUI).addClass('highlight');
+                    scope.currentHighlightClass = highlightClass;
+                    $(nodeUI).addClass(highlightClass);
                 }
                 scope.highlightedNode = node;
             }
         });
+
+        scope.$on("highlightRemoved", function(e, node) {
+            clearHighlighting();
+        });
+
+        function clearHighlighting() {
+            if (scope.highlightedNode && scope.currentHighlightClass) {
+                var oldUI = graphics.getNodeUI(scope.highlightedNode.id);
+                $(oldUI).removeClass(scope.currentHighlightClass);
+            }
+
+            scope.highlightedNode = null;
+            scope.currentHighlightClass = null;
+        }
 
         scope.$on("voteChanged", function(e, node) {
             var ui = graphics.getNodeUI(node.id);

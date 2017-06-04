@@ -46,6 +46,11 @@
         Node.prototype.assimilateData = function(data) {
             var self = this;
 
+            if (!self.isPersisted()) {
+                self.id = data.id;
+                self.stableId = data.stableId;
+            }
+
             if (data.body) {
                 if (data.body.majorVersion) {
                     // This is a good indicator that node's body is fully fleshed out and should be trusted.
@@ -58,11 +63,6 @@
                     self.body.qualifier = data.body.qualifier;
                     self.body.public = data.body.public;
                 }
-            }
-
-            if (!self.id || self.id === Node.DRAFT_ID) {
-                self.id = data.id;
-                self.stableId = data.stableId;
             }
 
             if (data.draft !== undefined && data.draft !== null) {

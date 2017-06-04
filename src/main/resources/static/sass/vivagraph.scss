@@ -56,11 +56,46 @@
     stroke: black;
     animation: highlight-pulse-fill 200ms 4;
   }
+
+  &.edge-parent {
+    fill: $md-accent-color;
+    stroke-width: 3;
+    stroke: black;
+    animation: edge-parent-fill 800ms;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
+  }
+}
+
+@keyframes edge-parent-fill {
+  0% { fill: rgba(255, 255, 255, 0); }
+  100% { fill: $md-accent-color; }
 }
 
 @keyframes highlight-pulse-fill {
   0% { fill: rgba(255, 255, 255, 0); }
   100% { fill: $node-highlight-color; }
+}
+
+.arrow-tool-hint-box {
+  position:absolute;
+  left: 0;
+  bottom: 10px;
+  padding: 2px;
+  font-weight: bold;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.arrowToolHint {
+  animation: arrow-hint-pulse 800ms;
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
+}
+
+@keyframes arrow-hint-pulse {
+  0% { background-color: $md-accent-color }
+  100% { background-color: $node-highlight-color; }
 }
 
 .rootDot {

@@ -343,7 +343,7 @@ require('./node-type-directive');
                     }
 
                     if (!node.children.length) {
-                        problemReport.messages.push({message: "You need to attach cards to support your opinion.", node: node});
+                        problemReport.messages.push({message: "You need to attach cards to support your opinion. On the card, click Edit, then Attach Card.", node: node});
                         hasPublishBlockers = true;
                     }
 

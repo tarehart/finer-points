@@ -16,10 +16,11 @@ require('./vivagraph-directive');
         }
     }
 
-    function sketchController($scope, Node, ToastService) {
+    function sketchController($scope, $location, Node, ToastService, NodeCache, UserService) {
         var self = this;
         self.activeTool = 'selectionTool';
         self.highlightedNode = null;
+        self.nodes = {};
 
         var SEEKING_PARENT = 1;
         var SEEKING_CHILD = 2;
@@ -32,7 +33,61 @@ require('./vivagraph-directive');
         self.addNode = function() {
             var node = new Node();
             node.id = "sketch-" + sketchNum++;
+            node.type = 'assertion';
+            node.body.qualifier = 'Original Version';
+            self.nodes[node.id] = node;
             $scope.$broadcast("nodeAdded", null, node);
+        };
+
+        // Recursively saves nodes with no un-persisted children, one at a time, until all are saved.
+        function saveNodesBottomUp(nodes) {
+
+            var numNodes = Object.keys(nodes).length;
+            var numSaved = 0;
+
+            saveBottomUpHelper();
+
+            function saveBottomUpHelper() {
+
+                nodeLoop:
+                for (var id in nodes) {
+                    if (nodes.hasOwnProperty(id)) {
+                        var node = nodes[id];
+                        if (node.isPersisted()) {
+                            continue;
+                        }
+                        for (var i = 0; i < node.children.length; i++) {
+                            if (!node.children[i].isPersisted()) {
+                                continue nodeLoop;
+                            }
+                        }
+                        node.body.title = node.body.title || 'Untitled';
+                        NodeCache.saveSketchNode(node, UserService.getActiveAlias(),
+                            function (data) {
+                                numSaved++;
+                                if (numSaved < numNodes) {
+                                    saveBottomUpHelper(); // Continue on to save more nodes.
+                                } else {
+                                    $location.path("/graph/" + data.stableId);
+                                }
+                            }, function (err) {
+                                ToastService.error(err.message);
+                            }
+                        );
+                        break;
+                    }
+                }
+            }
+        }
+
+        self.convertToReal = function() {
+
+            if (NodeCache.hasCycle(self.nodes)) {
+                ToastService.error("You have a cycle that you need to get rid of! Look for arrows going in a circle.")
+            }
+
+            saveNodesBottomUp(self.nodes);
+
         };
 
         self.activeToolChanged = function() {
@@ -160,8 +215,8 @@ require('./vivagraph-directive');
         function runEdgeTool(node) {
             if (edgeState === SEEKING_PARENT) {
                 edgeParent = node;
+                $scope.$broadcast("nodeHighlighted", node, 'edge-parent');
                 edgeState = SEEKING_CHILD;
-                return;
             } else if (edgeState === SEEKING_CHILD) {
                 if (!edgeParent) {
                     // Should never happen.
@@ -196,6 +251,8 @@ require('./vivagraph-directive');
                 }
 
                 $scope.$broadcast("edgeAdded", edgeParent, node);
+                $scope.$broadcast("highlightRemoved", node);
+                ToastService.success("Arrow Created!");
                 edgeState = SEEKING_PARENT;
             }
         }
