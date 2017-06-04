@@ -19,6 +19,10 @@
             toastr.success(message);
         };
 
+        self.info = function(message) {
+            toastr.info(message);
+        };
+
         self.error = function (message) {
             toastr.error(message);
         };

@@ -90,7 +90,7 @@
     <div class="graph-wrapper">
 
         <div layout="row" layout-sm="column" layout-xs="column">
-            <div flex="60" ng-show="graphCtrl.rootNode">
+            <div flex-gt-sm="60" flex="100" ng-show="graphCtrl.rootNode">
                 <md-card ng-if="graphCtrl.rootNode && !graphCtrl.rootNode.inEditMode" class="root-node-card"
                          ng-class="[{highlighted: graphCtrl.rootNode === graphCtrl.highlightedNode }, 'root-node-card']">
                     <md-card-title>
@@ -163,8 +163,8 @@
                 </div>
             </div>
 
-            <div flex="40">
-                <div ng-if="graphCtrl.isPersisted(graphCtrl.rootNode)">
+            <div flex-gt-sm="40" flex="100">
+                <div ng-if="graphCtrl.rootNode.isPersisted()">
                     <div root-node="graphCtrl.rootNode" viva-graph></div>
                     <div class="child-nodes">
                         <div ng-repeat="node in graphCtrl.rootNode.children" ng-include="'floatTree'"

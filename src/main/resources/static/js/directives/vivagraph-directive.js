@@ -34,13 +34,8 @@ require('../../sass/vivagraph.scss');
         var layout = Viva.Graph.Layout.forceDirected(graph, {
             springLength : 45, // default is 30
             springCoeff : 0.0008, // default is 0.0008, higher coeff = more stiffness
-            dragCoeff : 0.03, // default is 0.02
-            gravity : -1.2, // default is -1.2. More negative is more node repulsion.
-            springTransform: function (link, spring) {
-                if (link.data && link.data.lengthRatio) {
-                    spring.length = 45 * link.data.lengthRatio;
-                }
-            }
+            dragCoeff : 0.04, // default is 0.02
+            gravity : -1.0 // default is -1.2. More negative is more node repulsion.
         });
 
         function appendVoteArcsFromNode(ui, argumentNode) {
@@ -240,7 +235,6 @@ require('../../sass/vivagraph.scss');
         });
 
         scope.$on("edgeAdded", function(event, parent, child) {
-            removeLink(child, parent); // just in case
             if (!graph.getLink(parent.id, child.id)) {
                 graph.addLink(parent.id, child.id);
             }
@@ -338,9 +332,7 @@ require('../../sass/vivagraph.scss');
         }
 
         if (parent) {
-            graph.addLink(parent.id, node.id, {
-                lengthRatio: node.getType() === 'source' || node.getType() === 'subject' ? .5 : 1
-            });
+            graph.addLink(parent.id, node.id);
         }
 
     }

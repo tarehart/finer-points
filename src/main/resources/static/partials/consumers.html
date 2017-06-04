@@ -1,19 +1,19 @@
 <md-button aria-label="Create a new consumer" class="md-raised"
            ng-if="!consumersCtrl.nodes.length && consumersCtrl.canCreateConsumer()"
            ng-click="consumersCtrl.newConsumer()">
-    New Consumer
+    Create Card Using This
 </md-button>
 
 <md-menu ng-if="consumersCtrl.nodes.length">
     <md-button aria-label="Open consumers menu" class="md-raised" ng-click="$mdOpenMenu($event)">
-        <i style="color:gray" class="fa fa-arrow-left"></i> Consumers
+        <i style="color:gray" class="fa fa-arrow-left"></i> Cards Using This
     </md-button>
     <md-menu-content width="4">
         <div node-list list="consumersCtrl.nodes"></div>
         <md-menu-divider ng-if="consumersCtrl.canCreateConsumer()"></md-menu-divider>
         <md-menu-item ng-if="consumersCtrl.canCreateConsumer()">
             <md-button ng-click="consumersCtrl.newConsumer()">
-                Create New Consumer
+                Create New Card Using This
             </md-button>
         </md-menu-item>
     </md-menu-content>

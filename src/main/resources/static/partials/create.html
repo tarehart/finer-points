@@ -3,7 +3,7 @@
 </h2>
 
 <div layout="row" layout-sm="column" layout-xs="column">
-    <div flex="60">
+    <div flex-gt-sm="60" flex="100">
         <md-card>
             <md-card-content>
                 <div ng-if="!user">
@@ -46,7 +46,7 @@
             </md-card-content>
         </md-card>
     </div>
-    <div flex="40">
+    <div flex-gt-sm="40" flex="100">
         <img src="/img/finer-points-diagram.svg"
              ng-if="user && !createCtrl.type"
             alt="Diagram showing relationships between card types."

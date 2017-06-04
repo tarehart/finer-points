@@ -127,8 +127,8 @@ require('./node-type-directive');
 
                     $location.path("/graph/" + data.graph.rootStableId);
 
-                    self.enterEditMode(data.editedNode);
-                    data.editedNode.isSelected = true;
+                    self.enterEditMode(draftNode);
+                    draftNode.isSelected = true;
 
                 }, function (err) {
                     ToastService.error(err.message);
@@ -189,15 +189,8 @@ require('./node-type-directive');
             return node.isSelected;
         };
 
-        self.isPersisted = function (node) {
-            return node && node.id !== "draft";
-        };
-
         self.getRenderType = function(node) {
-            if (node.type == 'assertion' || node.type == 'interpretation') {
-                return 'markdown';
-            }
-            return 'url';
+            return node.isLeaf() ? 'url' : 'markdown';
         };
 
         self.toggleSelect = function (node) {

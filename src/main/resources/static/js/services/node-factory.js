@@ -10,18 +10,22 @@
         var Node = function() {
             var self = this;
             self.children = [];
+            self.parents = {};
             self.body = { author: {} };
 
         };
 
         Node.DRAFT_ID = "draft";
+        Node.isLeaf = function(nodeType) {
+            return isLeaf(nodeType);
+        };
 
         Node.prototype.getType = function() {
             return this.type;
         };
 
         Node.prototype.isLeaf = function() {
-            return this.getType() === 'source' || this.getType() === 'subject';
+            return isLeaf(this.getType());
         };
 
         Node.prototype.getVersionString = function() {
@@ -82,6 +86,23 @@
             }
 
             self.children.push(child);
+            child.parents[self.id] = self;
+        };
+
+        Node.prototype.removeChild = function(child) {
+            // TODO: insert the child in the right order
+
+            var self = this;
+
+            for (var i = 0; i < self.children.length; i++) {
+                if (self.children[i].id === child.id) {
+                    self.children.splice(i, 1);
+                    delete child.parents[self.id];
+                    return true;
+                }
+            }
+
+            return false;
         };
 
         Node.prototype.sortChildren = function() {
@@ -100,6 +121,30 @@
                 return childOrder.indexOf(a.stableId) - childOrder.indexOf(b.stableId);
             });
         };
+
+        Node.prototype.isLegalType = function(nodeType) {
+            var self = this;
+
+            if (!nodeType) {
+                return false;
+            }
+            if (isLeaf(nodeType) && self.children.length) {
+                return false;
+            }
+            if (nodeType === 'interpretation' &&
+                (self.children.length > 1 || self.children.length && self.children[0].children.length)) {
+                return false;
+            }
+            return true;
+        };
+
+        Node.prototype.isPersisted = function() {
+            return !!this.body.majorVersion;
+        };
+
+        function isLeaf(nodeType) {
+            return nodeType === 'source' || nodeType === 'subject';
+        }
 
         return Node;
     }

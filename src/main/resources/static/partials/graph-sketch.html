@@ -1,9 +1,64 @@
+<div layout="row" layout-sm="column" layout-xs="column" class="graph-sketch">
+    <div layout="column">
+        <md-button ng-click="sketchCtrl.addNode()" class="md-raised md-accent">Add Node</md-button>
+        <md-card>
+            <md-card-content>
+                <md-radio-group ng-model="sketchCtrl.activeTool" ng-change="sketchCtrl.activeToolChanged()">
+                    <md-radio-button value="selectionTool">
+                        Selection Tool
+                    </md-radio-button>
+                    <md-radio-button value="edgeTool">
+                        Arrow Tool
+                    </md-radio-button>
+                    <md-radio-button value="detachTool">
+                        Detach Tool
+                    </md-radio-button>
+                </md-radio-group>
+            </md-card-content>
+        </md-card>
+    </div>
 
-<div layout="row">
-    <md-button ng-click="sketchCtrl.addNode()" class="md-raised">Add Node</md-button>
-    <md-switch ng-model="sketchCtrl.edgeToolActive" ng-change="sketchCtrl.edgeToolToggled()" aria-label="Edge Tool">
-        Edge Tool: {{ sketchCtrl.isSeekingParent() ? "Click parent!" : sketchCtrl.isSeekingChild() ? "Click child!" : "Off" }}
-    </md-switch>
+    <div flex="">
+        <div viva-graph></div>
+    </div>
 </div>
-<div viva-graph></div>
 
+<div ng-if="sketchCtrl.highlightedNode">
+    <md-card>
+        <md-card-content>
+            <md-input-container class="md-block">
+                <label>Title</label>
+                <input ng-model="sketchCtrl.highlightedNode.body.title">
+            </md-input-container>
+
+            <md-radio-group ng-model="sketchCtrl.highlightedNode.type" ng-change="sketchCtrl.typeChanged()" flex="60">
+                <md-radio-button value="assertion" ng-disabled="!sketchCtrl.highlightedNode.isLegalType('assertion')">
+                    <div class="option-header"><span node-type="'assertion'"></span> Opinion</div>
+                    An argument supported by unlimited opinion and interpretation cards.
+                </md-radio-button>
+                <md-radio-button value="interpretation" ng-disabled="!sketchCtrl.highlightedNode.isLegalType('interpretation')">
+                    <div class="option-header"><span node-type="'interpretation'"></span> Interpretation</div>
+                    A claim about exactly one source or subject card.
+                </md-radio-button>
+                <md-radio-button value="source" ng-disabled="!sketchCtrl.highlightedNode.isLegalType('source')">
+                    <div class="option-header"><span node-type="'source'"></span> Source</div>
+                    Contains an external link to trustworthy evidence about the world. Has no supporting cards.
+                </md-radio-button>
+                <md-radio-button value="subject" ng-disabled="!sketchCtrl.highlightedNode.isLegalType('subject')">
+                    <div class="option-header"><span node-type="'subject'"></span> Subject</div>
+                    Contains an external link to something you want to discuss, without relying on it being true.
+                    Has no supporting cards. Not subject to votes.
+                </md-radio-button>
+            </md-radio-group>
+    
+            <textarea ng-if="!sketchCtrl.highlightedNode.isLeaf()" node="sketchCtrl.highlightedNode"
+                      set-text="sketchCtrl.setBody" markdown-editor>{{sketchCtrl.highlightedNode.body.body}}</textarea>
+    
+            <md-input-container class="md-block" ng-if="sketchCtrl.highlightedNode.isLeaf()">
+                <label>Link</label>
+                <input type="text" class="form-control" placeholder="http://..." ng-model="sketchCtrl.highlightedNode.body.url" />
+            </md-input-container>
+
+        </md-card-content>
+    </md-card>
+</div>
