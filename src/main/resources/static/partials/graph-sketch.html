@@ -1,0 +1,9 @@
+
+<div layout="row">
+    <md-button ng-click="sketchCtrl.addNode()" class="md-raised">Add Node</md-button>
+    <md-switch ng-model="sketchCtrl.edgeToolActive" ng-change="sketchCtrl.edgeToolToggled()" aria-label="Edge Tool">
+        Edge Tool: {{ sketchCtrl.isSeekingParent() ? "Click parent!" : sketchCtrl.isSeekingChild() ? "Click child!" : "Off" }}
+    </md-switch>
+</div>
+<div viva-graph></div>
+

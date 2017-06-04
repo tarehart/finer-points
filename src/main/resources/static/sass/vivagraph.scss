@@ -46,8 +46,10 @@
 .vivaDot {
   fill: #7b7b7b;
 
-  .highlight {
+  &.highlight {
     fill: $node-highlight-color;
+    stroke-width: 2;
+    stroke: black;
     animation: highlight-pulse-fill 200ms 4;
   }
 }
@@ -61,16 +63,26 @@
   fill: #383838;
 }
 
+$arrow-gray: #aeaeae;
+
 .viva-node-description {
   position: absolute;
   bottom: 0;
   right: 0;
   padding: 5px;
-  color: #adadad;
+  color: $arrow-gray;
 }
 
 .vivaAnchor {
   transition-property: transform;
   transition-duration: .5s;
   transform: scale(.8, .8);
+}
+
+.viva-edge {
+  stroke: $arrow-gray;
+}
+
+.viva-arrowhead {
+  fill: $arrow-gray;
 }

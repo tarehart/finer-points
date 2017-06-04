@@ -11,6 +11,7 @@ require('../sass/common.scss');
     require('./controllers/create-controller');
     require('./services/user-service');
     require('./directives/graph-directive');
+    require('./directives/graph-sketch-directive');
     require('./directives/edit-history-directive');
     require('./controllers/route-params-controller');
     require('./services/errorlog-service');
@@ -37,6 +38,9 @@ require('../sass/common.scss');
                     template: require('../partials/create.html'),
                     controller: 'CreateController',
                     controllerAs: 'createCtrl'
+                }).
+                when('/sketch', {
+                    template: '<div graph-sketch></div>'
                 }).
                 when('/profile/:authorStableId', {
                     template: require('../partials/user.html'),

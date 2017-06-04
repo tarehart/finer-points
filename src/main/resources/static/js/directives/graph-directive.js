@@ -58,10 +58,13 @@ require('./node-type-directive');
 
 
         function setHighlighted(node) {
-            self.highlightedNode = node;
+            if (self.highlightNode !== node) {
+                self.highlightedNode = node;
+                $scope.$broadcast("nodeHighlighted", node);
+            }
         }
 
-        $scope.$on("nodeHighlighted", function(e, node) {
+        $scope.$on("nodeTapped", function(e, node) {
             setHighlighted(node);
             revealChild(self.rootNode, node);
             ensureDetail(node);

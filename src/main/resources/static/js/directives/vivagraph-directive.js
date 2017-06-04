@@ -9,7 +9,7 @@ require('../../sass/vivagraph.scss');
         .module('nodeStandControllers')
         .directive('vivaGraph', vivaGraph);
 
-    function vivaGraph($rootScope, $timeout) {
+    function vivaGraph($timeout) {
         return {
             restrict: "A",
             scope: {
@@ -17,13 +17,13 @@ require('../../sass/vivagraph.scss');
             },
             template: require("../../partials/viva-graph.html"),
             link: function (scope, element) {
-                setupEventHandlers(scope, element, $rootScope, $timeout);
+                setupEventHandlers(scope, element, $timeout);
             }
         }
     }
 
 
-    function setupEventHandlers(scope, element, $rootScope, $timeout) {
+    function setupEventHandlers(scope, element, $timeout) {
 
         var graph = Viva.Graph.graph();
 
@@ -37,14 +37,18 @@ require('../../sass/vivagraph.scss');
             dragCoeff : 0.03, // default is 0.02
             gravity : -1.2, // default is -1.2. More negative is more node repulsion.
             springTransform: function (link, spring) {
-                spring.length = 45 * link.data.lengthRatio;
+                if (link.data && link.data.lengthRatio) {
+                    spring.length = 45 * link.data.lengthRatio;
+                }
             }
         });
 
         function appendVoteArcsFromNode(ui, argumentNode) {
             var majorVersion = argumentNode.body.majorVersion;
-            var radius = getRadius(argumentNode) + 2;
-            appendVoteArcs(ui, radius, majorVersion.greatVotes, majorVersion.weakVotes, majorVersion.toucheVotes, majorVersion.trashVotes);
+            if (majorVersion) {
+                var radius = getRadius(argumentNode) + 2;
+                appendVoteArcs(ui, radius, majorVersion.greatVotes, majorVersion.weakVotes, majorVersion.toucheVotes, majorVersion.trashVotes);
+            }
         }
         
         function appendVoteArcs(ui, r, greatVotes, weakVotes, toucheVotes, trashVotes) {
@@ -100,7 +104,27 @@ require('../../sass/vivagraph.scss');
             return type === 'assertion' ? 14 : 11;
         }
 
+        function createMarker(id) {
+            return Viva.Graph.svg('marker')
+                .attr('id', id)
+                .attr('viewBox', "0 0 10 10")
+                .attr('class', "viva-arrowhead")
+                .attr('refX', "10")
+                .attr('refY', "5")
+                .attr('markerUnits', "strokeWidth")
+                .attr('markerWidth', "10")
+                .attr('markerHeight', "5")
+                .attr('orient', "auto");
+        }
+
         var graphics = Viva.Graph.View.svgGraphics();
+
+        var marker = createMarker('Triangle');
+        marker.append('path').attr('d', 'M 0 0 L 10 5 L 0 10 z');
+
+        var defs = graphics.getSvgRoot().append('defs');
+        defs.append(marker);
+
         graphics.node(function(node) {
             // The function is called every time renderer needs a ui to display node
 
@@ -129,10 +153,8 @@ require('../../sass/vivagraph.scss');
             circle.addEventListener('touchend', tapListener);
 
             function tapListener() {
-                // Broadcasting downward from root, because sibling scopes need to know about the highlight.
-                $rootScope.$broadcast("nodeHighlighted", node.data.node);
-
-                $rootScope.$apply();
+                scope.$emit("nodeTapped", node.data.node);
+                scope.$apply();
             }
 
             return ui;
@@ -143,6 +165,50 @@ require('../../sass/vivagraph.scss');
             // we have to deal with transforms: http://www.w3.org/TR/SVG/coords.html#SVGGlobalTransformAttribute
             nodeUI.attr('transform', 'translate(' + pos.x + ',' + pos.y + ')');
         });
+
+        function getDistance(p1, p2) {
+            return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+        }
+
+        function getUnitVector(p1, p2) {
+            var distance = getDistance(p1, p2);
+            return {
+                x: (p2.x - p1.x) / distance,
+                y: (p2.y - p1.y) / distance
+            };
+        }
+
+        function multiplyVector(v, scale) {
+            return {
+                x: v.x * scale,
+                y: v.y * scale
+            };
+        }
+
+        function addVector(v1, v2) {
+            return {
+                x: v1.x + v2.x,
+                y: v1.y + v2.y
+            };
+        }
+
+        graphics.link(function(link){
+            // Notice the Triangle marker-end attribe:
+            return Viva.Graph.svg('path')
+                .attr('class', 'viva-edge')
+                .attr('stroke-width', 2)
+                .attr('marker-end', 'url(#Triangle)');
+        }).placeLink(function(linkUI, fromPos, toPos) {
+            var unit = getUnitVector(fromPos, toPos);
+            var radius = 10;
+
+            var from = addVector(fromPos, multiplyVector(unit, radius));
+            var to = addVector(toPos, multiplyVector(unit, -1 * radius));
+            var data = 'M' + from.x + ',' + from.y +
+                'L' + to.x + ',' + to.y;
+            linkUI.attr("d", data);
+        });
+
 
         function makeRenderer(forFullscreen) {
             return Viva.Graph.View.renderer(graph, {
@@ -174,39 +240,33 @@ require('../../sass/vivagraph.scss');
         });
 
         scope.$on("edgeAdded", function(event, parent, child) {
-            graph.addLink(parent.id, child.id);
+            removeLink(child, parent); // just in case
+            if (!graph.getLink(parent.id, child.id)) {
+                graph.addLink(parent.id, child.id);
+            }
         });
 
         scope.$on("edgeRemoved", function(event, parent, child) {
-
-            var linkToRemove = null;
-
-            graph.forEachLinkedNode(parent.id, function(linkedNode, link){
-                if (linkedNode.id === child.id) {
-                    linkToRemove = link;
-                }
-            });
-
-            graph.removeLink(linkToRemove);
+            removeLink(parent, child);
         });
+
+        function removeLink(parent, child) {
+            var link = graph.getLink(parent.id, child.id);
+            if (link) {
+                graph.removeLink(link);
+            }
+        }
 
         scope.$on("nodeHighlighted", function(e, node) {
             if (node !== scope.highlightedNode) {
                 if (scope.highlightedNode) {
                     var oldUI = graphics.getNodeUI(scope.highlightedNode.id);
-                    $(oldUI).find('.highlight').remove();
+                    $(oldUI).removeClass('highlight');
                 }
 
                 var nodeUI = graphics.getNodeUI(node.id);
                 if (nodeUI) {
-                    nodeUI.append(
-                        Viva.Graph.svg('circle', {
-                            class: 'highlight',
-                            r: getRadius(node) - 5
-                        })
-                    );
-
-
+                    $(nodeUI).addClass('highlight');
                 }
                 scope.highlightedNode = node;
             }
