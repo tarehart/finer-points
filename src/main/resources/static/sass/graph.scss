@@ -118,3 +118,36 @@
   border-radius: 8px;
   padding: 10px;
 }
+
+.orphan-pill {
+  background-color: #eeeeee;
+  border-radius: 2px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-right: 10px;
+  padding: 4px;
+  display: inline-block;
+
+  .orphan-pill-title {
+    max-width: 175px;
+    display: inline-block;
+  }
+
+  .orphan-button {
+    margin-left: 4px;
+
+    &.orphan-restore {
+      color: $md-accent-color;
+    }
+
+    &.orphan-detach {
+      color: #c2504f;
+    }
+  }
+}
+
+.sketch-save-menu {
+  position: absolute;
+  top: 10px;
+  left: -4px;
+}

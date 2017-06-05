@@ -63,20 +63,9 @@
             </md-card-title>
 
             <md-card-content>
-                <p ng-if="!user">
-                    <md-button ng-click="showLogin()" class="md-raised md-primary" aria-label="Sign In">
-                        Sign in
-                    </md-button>
-                    So you can vote, comment, and publish!
-                </p>
-                <p ng-if="user">
-                    <md-button ng-href="/create" class="md-raised md-primary" aria-label="Create new tree">
-                        Create a new tree
-                    </md-button>
-                    <!--<md-button ng-href="/sketch" class="md-raised" aria-label="Sketch">-->
-                        <!--Sketch-->
-                    <!--</md-button>-->
-                </p>
+                <md-button ng-href="/sketch" class="md-raised md-primary" aria-label="Sketch">
+                    Create a new tree
+                </md-button>
             </md-card-content>
 
         </md-card>

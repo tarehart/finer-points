@@ -33,11 +33,13 @@ require('../services/body-text-service');
         var self = this;
 
         self.node = $scope.node;
+        self.orphanChildren = {};
 
         self.backupCopy = {
             body: {}
         };
         copyFields(self.node, self.backupCopy);
+        updateOrphanChildren();
 
         self.saveNode = function() {
 
@@ -53,11 +55,21 @@ require('../services/body-text-service');
             self.node.inEditMode = false;
         };
 
-        self.getRenderType = function(node) {
-            if (node.type == 'assertion' || node.type == 'interpretation') {
-                return 'markdown';
-            }
-            return 'url';
+        self.restoreOrphan = function(orphanNode) {
+
+            self.node.body.body = self.node.body.body || "";
+
+            self.node.body.body += "\n" + BodyTextService.buildLinkCode(
+                orphanNode.body.majorVersion.stableId,
+                orphanNode.body.title);
+
+            updateOrphanChildren();
+        };
+
+        self.detachOrphan = function(orphanNode) {
+            self.node.removeChild(orphanNode);
+            $rootScope.$broadcast("edgeRemoved", self.node, orphanNode);
+            delete self.orphanChildren[orphanNode.body.majorVersion.stableId];
         };
 
         function copyFields(sourceNode, targetNode) {
@@ -99,8 +111,8 @@ require('../services/body-text-service');
             }
         }
 
-        function stopEditingBody(node) {
-
+        function updateOrphanChildren() {
+            var node = self.node;
             var idsInBody = [];
             var regex = /{{\[([0-9a-z]{1,25})\](.+?)(?=}})}}/g;
             var match = regex.exec(node.body.body);
@@ -109,39 +121,32 @@ require('../services/body-text-service');
                 match = regex.exec(node.body.body);
             }
 
-            // Remove any children that are no longer supported by the body text.
             for (var i = node.children.length - 1; i >= 0; i--) {
                 var child = node.children[i];
                 var expectedId = child.body.majorVersion.stableId; // This is a pretty deep reference chain, make sure you populate
                 if (idsInBody.indexOf(expectedId) < 0) {
-                    // Remove the child
-                    node.children.splice(i, 1);
-                    $rootScope.$broadcast("edgeRemoved", node, child);
-
-                    // Keep the removed child around to support a text-based undo of the deletion.
-                    node.deletedChildren = node.deletedChildren || {};
-                    node.deletedChildren[child.body.majorVersion.stableId] = child;
+                    self.orphanChildren[child.body.majorVersion.stableId] = child;
                 }
             }
 
-            // If the user manually restored the text of a link that they previously deleted,
-            // restore the link.
-            if (node.deletedChildren) {
-                $.each(idsInBody, function (index, id) {
-                    var nodeForId = node.deletedChildren[id];
-                    if (nodeForId && node.children.indexOf(nodeForId) < 0) {
-                        node.children.push(nodeForId);
-                        $rootScope.$broadcast("edgeAdded", node, nodeForId);
-                    }
-                });
+            // If the user manually restored the text of a link that they previously deleted, remove the orphan
+            $.each(idsInBody, function (index, id) {
+                delete self.orphanChildren[id];
+            });
+
+        }
+
+        function stopEditingBody(node) {
+
+            updateOrphanChildren();
+
+            if (Object.keys(self.orphanChildren).length) {
+                ToastService.error("You have supporting cards not referenced in the card text!");
+                return;
             }
 
             saveChanges(node, function() { node.inEditMode = false });
         }
-
-        self.setBody = function(node, text) {
-            node.body.body = text;
-        };
 
         self.linkChild = function(node, linkCallback) {
 

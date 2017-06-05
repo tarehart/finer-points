@@ -16,7 +16,6 @@
             </md-card-content>
         </md-card>
         <md-button ng-click="sketchCtrl.addNode()" class="md-raised md-accent">Add Node</md-button>
-        <md-button ng-show="user" ng-click="sketchCtrl.convertToReal()" class="md-raised md-primary">Convert to Cards</md-button>
     </div>
     <div flex="" style="position:relative">
         <div viva-graph></div>
@@ -26,8 +25,15 @@
                 <li ng-class="{arrowToolHint: sketchCtrl.isSeekingChild()}">Click a target circle</li>
             </ol>
         </span>
+        <div ng-if="sketchCtrl.hasNodes()" class="sketch-save-menu">
+            <md-button ng-if="user" ng-click="sketchCtrl.convertToReal()" class="md-raised md-primary">Save as Cards</md-button>
+            <md-button ng-if="!user" ng-click="showLogin()" class="md-raised md-primary" aria-label="Sign In">
+                Sign in to save
+            </md-button>
+        </div>
     </div>
 </div>
+
 
 <div ng-if="sketchCtrl.highlightedNode">
     <md-card>

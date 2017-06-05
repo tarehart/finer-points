@@ -90,8 +90,6 @@
         };
 
         Node.prototype.removeChild = function(child) {
-            // TODO: insert the child in the right order
-
             var self = this;
 
             for (var i = 0; i < self.children.length; i++) {

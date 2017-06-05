@@ -9,14 +9,26 @@
         <input ng-model="nodeEditCtrl.node.body.qualifier">
     </md-input-container>
 
-    <textarea ng-if="nodeEditCtrl.getRenderType(node) == 'markdown'" node="nodeEditCtrl.node"
-              set-text="nodeEditCtrl.setBody" link-fn="nodeEditCtrl.linkChild"
-              markdown-editor>{{nodeEditCtrl.node.body.body}}</textarea>
+    <textarea ng-if="!node.isLeaf()" node="nodeEditCtrl.node"
+              link-fn="nodeEditCtrl.linkChild" ng-model="nodeEditCtrl.node.body.body"
+              markdown-editor></textarea>
 
-    <md-input-container class="md-block" ng-if="nodeEditCtrl.getRenderType(node) == 'url'">
+    <md-input-container class="md-block" ng-if="node.isLeaf()">
         <label>Link</label>
         <input type="text" class="form-control" placeholder="http://..." ng-model="nodeEditCtrl.node.body.url" />
     </md-input-container>
+
+    <div>
+        <div ng-repeat="(mvId, child) in nodeEditCtrl.orphanChildren" class="orphan-pill md-whiteframe-2dp">
+            <div layout="row" layout-align="start center">
+                <div md-truncate class="orphan-pill-title">
+                    <span>{{child.body.title}}</span>
+                </div>
+                <md-button ng-click="nodeEditCtrl.restoreOrphan(child)" class="md-icon-button md-micro orphan-button orphan-restore"><i class="fa fa-indent"></i></md-button>
+                <md-button ng-click="nodeEditCtrl.detachOrphan(child)" class="md-icon-button md-micro orphan-button orphan-detach"><i class="fa fa-times"></i></md-button>
+            </div>
+        </div>
+    </div>
 
     <md-card-actions layout="row" layout-align="end center">
         <md-button ng-if="nodeEditCtrl.node.stableId" ng-click="nodeEditCtrl.cancel()" class="md-raised">Cancel</md-button>

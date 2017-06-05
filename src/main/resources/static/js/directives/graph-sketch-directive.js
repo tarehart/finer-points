@@ -39,6 +39,10 @@ require('./vivagraph-directive');
             $scope.$broadcast("nodeAdded", null, node);
         };
 
+        self.hasNodes = function () {
+            return Object.keys(self.nodes).length;
+        };
+
         // Recursively saves nodes with no un-persisted children, one at a time, until all are saved.
         function saveNodesBottomUp(nodes) {
 

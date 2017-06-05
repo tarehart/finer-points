@@ -27,7 +27,6 @@ require('../services/body-text-service');
             restrict: "A",
             scope: {
                 node: "=",
-                setText: "=",
                 linkFn: "="
             },
             link:     function (scope, element, attrs, ngModel) {
@@ -64,8 +63,6 @@ require('../services/body-text-service');
                                         var offset = ("" + nodeId).length + 4;
                                         e.setSelection(selection.start + offset, selection.start + offset + tagText.length);
                                     }
-
-                                    scope.setText(scope.node, e.getContent());
                                 }
                                 scope.linkFn(scope.node, performReplace);
                             }
@@ -75,12 +72,6 @@ require('../services/body-text-service');
 
                 $(element).markdown({
                     savable:false,
-                    onChange: function(e){
-                        $timeout(function() {
-                            var text = e.getContent();
-                            scope.setText(scope.node, text);
-                        }, 0);
-                    },
                     hiddenButtons: ['Preview', 'Image', 'cmdUrl'],
                     fullscreen: {enable: false},
                     iconlibrary: "fa", // Use font-awesome
