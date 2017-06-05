@@ -26,7 +26,7 @@ require('./node-list-directive');
     function NodeConsumersController($scope, $location, NodeCache, UserService) {
 
         var self = this;
-        self.nodes = $scope.node.consumers;
+        self.nodes = Object.values($scope.node.parents);
 
         self.newConsumer = function() {
             NodeCache.createNodeWithSupport($scope.node, UserService.getActiveAlias(), function(newNode) {

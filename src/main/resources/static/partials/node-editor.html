@@ -24,8 +24,18 @@
                 <div md-truncate class="orphan-pill-title">
                     <span>{{child.body.title}}</span>
                 </div>
-                <md-button ng-click="nodeEditCtrl.restoreOrphan(child)" class="md-icon-button md-micro orphan-button orphan-restore"><i class="fa fa-indent"></i></md-button>
-                <md-button ng-click="nodeEditCtrl.detachOrphan(child)" class="md-icon-button md-micro orphan-button orphan-detach"><i class="fa fa-times"></i></md-button>
+                <md-button ng-click="nodeEditCtrl.restoreOrphan(child)" class="md-icon-button md-micro orphan-button orphan-restore">
+                    <i class="fa fa-indent"></i>
+                    <md-tooltip md-direction="bottom">
+                        Insert into card text.
+                    </md-tooltip>
+                </md-button>
+                <md-button ng-click="nodeEditCtrl.detachOrphan(child)" class="md-icon-button md-micro orphan-button orphan-detach">
+                    <i class="fa fa-times"></i>
+                    <md-tooltip md-direction="bottom">
+                        Detach from card.
+                    </md-tooltip>
+                </md-button>
             </div>
         </div>
     </div>

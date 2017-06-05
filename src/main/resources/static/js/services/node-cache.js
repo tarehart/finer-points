@@ -391,6 +391,14 @@ require('./node-factory');
         }
 
         cache.publishNode = function(node, successCallback, errorCallback) {
+
+            // Dirty the parents so they get re-fetched when displayed.
+            for (var id in node.parents) {
+                if (node.parents.hasOwnProperty(id)) {
+                    node.parents[id].hasFullGraph = false;
+                }
+            }
+
             $http.post('/publishNode',
                 {
                     nodeId: node.id
@@ -398,11 +406,19 @@ require('./node-factory');
                 .success(function (data) {
                     inductQuickGraph(data);
 
+                    var newNode = cache.get(data.rootId);
                     if (data.rootId != node.id) {
                         // The publish has resulted in the draft node being replaced, and probably destroyed.
                         // In any case, we should forget about the draft node. Remove it from the cache.
 
                         forgetNode(node.id);
+
+                        for (var id in node.parents) {
+                            if (node.parents.hasOwnProperty(id)) {
+                                var parent = node.parents[id];
+                                parent.addChild(newNode);
+                            }
+                        }
                     }
 
                     if (successCallback) {
@@ -463,24 +479,17 @@ require('./node-factory');
                 return;
             }
 
-            $.each(cache, function(id, node) {
-                var idx;
-                if (node.children) {
-                    idx = node.children.indexOf(nodeToForget);
-                    if (idx > -1) {
-                        // Remove nodeToForget from the list of children.
-                        node.children.splice(idx, 1);
-                    }
-                }
+            // Make the children forget
+            for (var i = 0; i < nodeToForget.children.length; i++) {
+                delete nodeToForget.children[i].parents[nodeToForget.id];
+            }
 
-                if (node.consumers) {
-                    idx = node.consumers.indexOf(nodeToForget);
-                    if (idx > -1) {
-                        // Remove nodeToForget from the list of children.
-                        node.consumers.splice(idx, 1);
-                    }
+            for (var id in nodeToForget.parents) {
+                if (nodeToForget.parents.hasOwnProperty(id)) {
+                    var node = nodeToForget.parents[id];
+                    node.removeChild(nodeToForget);
                 }
-            });
+            }
 
             delete cache[nodeId];
         }
@@ -581,8 +590,8 @@ require('./node-factory');
         function inductQuickGraph(quickGraphResponse) {
             var addedNodes = cache.addNodesUnlinked(quickGraphResponse.nodes);
 
-            var consumersMap = cache.addNodesUnlinked(quickGraphResponse.consumers);
-            cache.get(quickGraphResponse.rootId).consumers = $.map(consumersMap, function(n) {return n;});
+            var parents = cache.addNodesUnlinked(quickGraphResponse.consumers);
+            cache.get(quickGraphResponse.rootId).parents = parents;
 
             populateChildren(addedNodes, quickGraphResponse.edges);
 
