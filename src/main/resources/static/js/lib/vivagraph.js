@@ -3342,6 +3342,7 @@ function dragndrop(element) {
 
         move = function (e, clientX, clientY) {
             if (drag) {
+                stopPropagation(e);
                 drag(e, {x : clientX - startX, y : clientY - startY });
             }
 
@@ -3471,8 +3472,6 @@ function dragndrop(element) {
 
         handleTouchMove = function (e) {
             if (e.touches.length === 1) {
-                stopPropagation(e);
-
                 var touch = e.touches[0];
                 move(e, touch.clientX, touch.clientY);
             } else if (e.touches.length === 2) {
@@ -3501,8 +3500,19 @@ function dragndrop(element) {
         },
 
         handleSignleFingerTouch = function (e, touch) {
-            stopPropagation(e);
-            preventDefault(e);
+
+            if (!drag) {  // This allows us to scroll the page when graph drag is turned off.
+              return;
+            }
+
+            for (var i = 0; i < e.path.length; i++) {
+              if (e.path[i].tagName === 'svg') {
+                // Only doing this when the click hits the SVG allows us to still click on buttons.
+                stopPropagation(e);
+                preventDefault(e);
+                break;
+              }
+            }
 
             startX = touch.clientX;
             startY = touch.clientY;
@@ -4330,6 +4340,16 @@ function renderer(graph, settings) {
     off: function(eventName, callback) {
       publicEvents.off(eventName, callback);
       return this;
+    },
+
+    setScrollEnabled: function(enable) {
+      containerDrag.onScroll(enable ? scrollHandler : null);
+      return this;
+    },
+
+    setDragEnabled: function(enable) {
+      containerDrag.onDrag(enable ? dragHandler : null);
+      return this;
     }
   };
 
@@ -4589,26 +4609,29 @@ function renderer(graph, settings) {
     return transform.scale;
   }
 
+  function scrollHandler(e, scaleOffset, scrollPoint, pinchOffset) {
+    scale(scaleOffset < 0, scrollPoint, pinchOffset);
+  }
+
+  function dragHandler(e, offset) {
+    graphics.translateRel(offset.x, offset.y);
+    renderGraph();
+  }
+
   function listenToEvents() {
     windowEvents.on('resize', onWindowResized);
 
     releaseContainerDragManager();
     if (isInteractive('drag')) {
       containerDrag = dragndrop(container);
-      containerDrag.onDrag(function(e, offset) {
-        graphics.translateRel(offset.x, offset.y);
-
-        renderGraph();
-      });
+      containerDrag.onDrag(dragHandler);
     }
 
     if (isInteractive('scroll')) {
       if (!containerDrag) {
         containerDrag = dragndrop(container);
       }
-      containerDrag.onScroll(function(e, scaleOffset, scrollPoint, pinchOffset) {
-        scale(scaleOffset < 0, scrollPoint, pinchOffset);
-      });
+      containerDrag.onScroll(scrollHandler);
     }
 
     graph.forEachNode(listenNodeEvents);

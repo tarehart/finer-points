@@ -1,10 +1,14 @@
 
 
 <md-card class="vivagraph-card" style="position:relative">
-    <md-button class="md-fab md-fab-top-right md-mini md-primary" aria-label="Fullscreen" ng-click="goFullscreen()">
-        <i class="fa fa-arrows-alt" aria-hidden="true"></i>
-    </md-button>
-    <div id="viva-container" ng-class="{fullscreen: fullscreen}"></div>
+    <div id="viva-container" ng-class="{fullscreen: fullscreen}">
+        <md-button class="md-fab md-fab-top-right md-mini md-primary enter-fullscreen-btn" aria-label="Enter fullscreen" ng-click="enterFullscreen()">
+            <i class="fa fa-arrows-alt" aria-hidden="true"></i>
+        </md-button>
+        <md-button class="md-fab md-fab-top-right md-mini md-primary exit-fullscreen-btn" aria-label="Exit fullscreen" ng-click="exitFullscreen()">
+            <i class="fa fa-compress" aria-hidden="true"></i>
+        </md-button>
+    </div>
     <a class="viva-node-description" ng-href="/graph/{{highlightedNode.stableId}}">{{highlightedNode.body.title}}</a>
 </md-card>
 

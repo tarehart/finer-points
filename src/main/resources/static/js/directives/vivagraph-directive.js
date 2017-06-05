@@ -211,14 +211,15 @@ require('../../sass/vivagraph.scss');
                 container  : vivaContainer,
                 graphics: graphics,
                 layout: layout,
-                interactive: forFullscreen? 'scroll drag node': 'node' // Only allow zooming and panning in fullscreen
+                interactive: 'scroll drag node'
             });
         }
 
-        var renderer = makeRenderer(false);
+        var renderer = makeRenderer();
 
         setTimeout(function() {
             renderer.run(); // Wait a moment to let the page flow first. That way it will show up centered.
+            renderer.setDragEnabled(false).setScrollEnabled(false); // We only want these enabled in fullscreen.
         }, 400);
 
 
@@ -302,20 +303,19 @@ require('../../sass/vivagraph.scss');
 
             console.log("scope.fullscreen: " + scope.fullscreen);
 
-            renderer.dispose();
-            renderer = makeRenderer(scope.fullscreen); // Get a renderer with the appropriate interactivity
-            renderer.run();
+            renderer.setDragEnabled(scope.fullscreen).setScrollEnabled(scope.fullscreen);
 
             // Give the browser a moment to get to the right dimensions.
             setTimeout(function() {
                 renderer.reset(); // This will cause the graph to re-center.
             }, 200);
 
-
             scope.$apply();
         }
 
-        scope.goFullscreen = function() {
+        scope.enterFullscreen = function() {
+
+            scope.fullscreen = true;
 
             var elem = vivaContainer;
             if (elem.requestFullscreen) {
@@ -328,6 +328,16 @@ require('../../sass/vivagraph.scss');
                 elem.webkitRequestFullscreen();
             }
         };
+
+        scope.exitFullscreen = function() {
+            if(document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if(document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if(document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
+        }
     }
 
     function addVivaNodesRecursive(node, parent, graph, addedNodes) {

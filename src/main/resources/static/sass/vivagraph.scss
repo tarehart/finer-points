@@ -15,6 +15,18 @@
   margin: 0;
   border: none;
   border-radius: 0;
+
+  .enter-fullscreen-btn {
+    display: none;
+  }
+
+  .exit-fullscreen-btn {
+    display: block;
+  }
+}
+
+.exit-fullscreen-btn {
+  display: none;
 }
 
 #viva-container svg {
