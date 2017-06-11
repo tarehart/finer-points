@@ -62,14 +62,18 @@
 .vivaDot {
   fill: #7b7b7b;
 
-  &.highlight {
+  &.highlight circle {
     fill: $node-highlight-color;
     stroke-width: 2;
     stroke: black;
     animation: highlight-pulse-fill 200ms 4;
   }
 
-  &.edge-parent {
+  .type-symbol {
+    fill: #b9b9b9;
+  }
+
+  &.edge-parent circle {
     fill: $md-accent-color;
     stroke-width: 3;
     stroke: black;
@@ -124,7 +128,7 @@ $arrow-gray: #aeaeae;
   color: $arrow-gray;
 }
 
-.vivaAnchor {
+.vivaAnchor circle {
   transition-property: transform;
   transition-duration: .5s;
   transform: scale(.8, .8);

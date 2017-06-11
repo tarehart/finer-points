@@ -139,6 +139,8 @@ require('./vivagraph-directive');
 
             node.type = nodeType;
 
+            $scope.$broadcast('nodeChanged', node);
+
             if (node.isLeaf()) {
                 $.each(node.parents, function(id, parent) {
                     if (!parent.isPersisted()) {

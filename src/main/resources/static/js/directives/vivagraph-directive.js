@@ -33,7 +33,7 @@ require('../../sass/vivagraph.scss');
         var vivaContainer = element.find("#viva-container")[0];
 
         var layout = Viva.Graph.Layout.forceDirected(graph, {
-            springLength : 45, // default is 30
+            springLength : 55, // default is 30
             springCoeff : 0.0008, // default is 0.0008, higher coeff = more stiffness
             dragCoeff : 0.04, // default is 0.02
             gravity : -1.0 // default is -1.2. More negative is more node repulsion.
@@ -96,8 +96,7 @@ require('../../sass/vivagraph.scss');
         }
 
         function getRadius(argumentNode) {
-            var type = argumentNode.getType();
-            return type === 'assertion' ? 14 : 11;
+            return 15;
         }
 
         function createMarker(id) {
@@ -129,24 +128,12 @@ require('../../sass/vivagraph.scss');
 
             var ui = Viva.Graph.svg('g', {
                     class: 'vivaDot ' + type + 'Dot' + (node.data.isRoot ? ' rootDot' : '')
-                }),
-                circle = Viva.Graph.svg('circle', {
-                    r: getRadius(argumentNode)
                 });
 
-            ui.append(circle);
+            decorateNode(ui, node);
 
-            if (type === 'source' || type === 'subject') {
-                $timeout(function() {
-                    layout.pinNode(node, true);
-                    $(circle).addClass('vivaAnchor');
-                }, 4000);
-            }
-
-            appendVoteArcsFromNode(ui, argumentNode);
-
-            circle.addEventListener('click', tapListener);
-            circle.addEventListener('touchend', tapListener);
+            ui.addEventListener('click', tapListener);
+            ui.addEventListener('touchend', tapListener);
 
             function tapListener() {
                 scope.$emit("nodeTapped", node.data.node);
@@ -161,6 +148,68 @@ require('../../sass/vivagraph.scss');
             // we have to deal with transforms: http://www.w3.org/TR/SVG/coords.html#SVGGlobalTransformAttribute
             nodeUI.attr('transform', 'translate(' + pos.x + ',' + pos.y + ')');
         });
+
+        function decorateNode(ui, node) {
+
+            var argumentNode = node.data.node;
+            var $ui = $(ui);
+            $ui.empty();
+
+            var type = argumentNode.getType();
+
+            var circle = Viva.Graph.svg('circle', {
+                r: getRadius(argumentNode)
+            });
+
+            ui.append(circle);
+
+            var shape = getShape(type);
+
+            if (shape) {
+                shape.attr('class', 'type-symbol');
+                ui.append(shape);
+            }
+
+            if (argumentNode.isLeaf()) {
+                $timeout(function() {
+                    $ui.addClass('vivaAnchor');
+                    layout.pinNode(node, true);
+                }, 4000);
+            } else {
+                $ui.removeClass('vivaAnchor');
+                layout.pinNode(node, false);
+            }
+
+            appendVoteArcsFromNode(ui, argumentNode);
+        }
+
+        function getShape(type) {
+
+            var leafLongAxis = 16;
+            var leafShortAxis = 6;
+
+            if (type === 'interpretation') {
+                return Viva.Graph.svg('path', {
+                    // Drew this in inkscape, then copied this string out of the resulting file.
+                    d: "m -7,-7 5,0 0,2 -3,0 0,3 -2,0 z m 0,14 0,-5 2,0 0,3 3,0 0,2 z M 7,7 2,7 2,5 5,5 5,2 7,2 Z m 0,-14 0,5 -2,0 0,-3 -3,0 0,-2 z"
+                });
+            } else if (type === 'source') {
+                return Viva.Graph.svg('rect', {
+                    width: leafLongAxis,
+                    height: leafShortAxis,
+                    x: -leafLongAxis / 2,
+                    y: -leafShortAxis / 2,
+                });
+            } else if (type === 'subject') {
+                return Viva.Graph.svg('rect', {
+                    width: leafShortAxis,
+                    height: leafLongAxis,
+                    x: -leafShortAxis / 2,
+                    y: -leafLongAxis / 2
+                });
+            }
+
+        }
 
         function getDistance(p1, p2) {
             return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
@@ -195,7 +244,7 @@ require('../../sass/vivagraph.scss');
                 .attr('stroke-width', 2)
                 .attr('marker-end', 'url(#Triangle)');
         }).placeLink(function(linkUI, fromPos, toPos) {
-            linkUI.attr("d", calculateArrowPositionData(fromPos, toPos, 10, 10));
+            linkUI.attr("d", calculateArrowPositionData(fromPos, toPos, 15, 15));
         });
 
         function calculateArrowPositionData(fromPos, toPos, fromRadius, toRadius) {
@@ -271,6 +320,10 @@ require('../../sass/vivagraph.scss');
 
         scope.$on("highlightRemoved", function(e, node) {
             clearHighlighting();
+        });
+
+        scope.$on("nodeChanged", function(event, node) {
+            decorateNode(graphics.getNodeUI(node.id), graph.getNode(node.id));
         });
 
         function clearHighlighting() {
