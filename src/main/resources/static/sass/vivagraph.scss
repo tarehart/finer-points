@@ -70,7 +70,13 @@
   }
 
   .type-symbol {
-    fill: #b9b9b9;
+    fill: #8f8f8f;
+  }
+
+  &.subjectDot, &.sourceDot{
+    .type-symbol {
+      fill: #b4b4b4;
+    }
   }
 
   &.edge-parent circle {
@@ -80,6 +86,11 @@
     animation: edge-parent-fill 800ms;
     animation-direction: alternate;
     animation-iteration-count: infinite;
+  }
+
+  text.type-symbol {
+    font-family: FontAwesome;
+    cursor: default;
   }
 }
 
@@ -131,7 +142,7 @@ $arrow-gray: #aeaeae;
 .vivaAnchor circle {
   transition-property: transform;
   transition-duration: .5s;
-  transform: scale(.8, .8);
+  transform: scale(.9, .9);
 }
 
 .viva-edge {

@@ -3,6 +3,7 @@ require('../../sass/vivagraph.scss');
 (function() {
     'use strict';
 
+    var RADIUS = 17;
     var Viva = require('../lib/vivagraph');
 
     angular
@@ -42,7 +43,7 @@ require('../../sass/vivagraph.scss');
         function appendVoteArcsFromNode(ui, argumentNode) {
             var majorVersion = argumentNode.body.majorVersion;
             if (majorVersion) {
-                var radius = getRadius(argumentNode) + 2;
+                var radius = RADIUS + 2;
                 appendVoteArcs(ui, radius, majorVersion.greatVotes, majorVersion.weakVotes, majorVersion.toucheVotes, majorVersion.trashVotes);
             }
         }
@@ -95,10 +96,6 @@ require('../../sass/vivagraph.scss');
                 ' A' + radius + ',' + radius + ' 0 ' + largeArcFlag + ',1 ' + radius * Math.cos(endRadians) + ',' + radius * Math.sin(endRadians);
         }
 
-        function getRadius(argumentNode) {
-            return 15;
-        }
-
         function createMarker(id) {
             return Viva.Graph.svg('marker')
                 .attr('id', id)
@@ -126,9 +123,7 @@ require('../../sass/vivagraph.scss');
             var argumentNode = node.data.node;
             var type = argumentNode.getType();
 
-            var ui = Viva.Graph.svg('g', {
-                    class: 'vivaDot ' + type + 'Dot' + (node.data.isRoot ? ' rootDot' : '')
-                });
+            var ui = Viva.Graph.svg('g');
 
             decorateNode(ui, node);
 
@@ -153,12 +148,13 @@ require('../../sass/vivagraph.scss');
 
             var argumentNode = node.data.node;
             var $ui = $(ui);
-            $ui.empty();
-
             var type = argumentNode.getType();
 
+            $ui.empty(); // Remove all svg child elements
+            $ui.removeClass(); // Remove all css classes
+
             var circle = Viva.Graph.svg('circle', {
-                r: getRadius(argumentNode)
+                r: RADIUS
             });
 
             ui.append(circle);
@@ -168,6 +164,11 @@ require('../../sass/vivagraph.scss');
             if (shape) {
                 shape.attr('class', 'type-symbol');
                 ui.append(shape);
+            }
+
+            $ui.addClass('vivaDot ' + type + 'Dot');
+            if (node.data.isRoot) {
+                $ui.addClass('rootDot');
             }
 
             if (argumentNode.isLeaf()) {
@@ -185,30 +186,15 @@ require('../../sass/vivagraph.scss');
 
         function getShape(type) {
 
-            var leafLongAxis = 16;
-            var leafShortAxis = 6;
-
-            if (type === 'interpretation') {
-                return Viva.Graph.svg('path', {
-                    // Drew this in inkscape, then copied this string out of the resulting file.
-                    d: "m -7,-7 5,0 0,2 -3,0 0,3 -2,0 z m 0,14 0,-5 2,0 0,3 3,0 0,2 z M 7,7 2,7 2,5 5,5 5,2 7,2 Z m 0,-14 0,5 -2,0 0,-3 -3,0 0,-2 z"
-                });
+            if (type === 'assertion') {
+                return Viva.Graph.svg('text', {x: -8, y: 6}).text('\uf1b2'); // This is a unicode character that will render nicely if the font is FontAwesome
+            } else if (type === 'interpretation') {
+                return Viva.Graph.svg('text', {x: -8, y: 6}).text('\uf10d');
             } else if (type === 'source') {
-                return Viva.Graph.svg('rect', {
-                    width: leafLongAxis,
-                    height: leafShortAxis,
-                    x: -leafLongAxis / 2,
-                    y: -leafShortAxis / 2,
-                });
+                return Viva.Graph.svg('text', {x: -8, y: 6}).text('\uf02d');
             } else if (type === 'subject') {
-                return Viva.Graph.svg('rect', {
-                    width: leafShortAxis,
-                    height: leafLongAxis,
-                    x: -leafShortAxis / 2,
-                    y: -leafLongAxis / 2
-                });
+                return Viva.Graph.svg('text', {x: -9, y: 6}).text('\uf2bc');
             }
-
         }
 
         function getDistance(p1, p2) {
@@ -244,7 +230,7 @@ require('../../sass/vivagraph.scss');
                 .attr('stroke-width', 2)
                 .attr('marker-end', 'url(#Triangle)');
         }).placeLink(function(linkUI, fromPos, toPos) {
-            linkUI.attr("d", calculateArrowPositionData(fromPos, toPos, 15, 15));
+            linkUI.attr("d", calculateArrowPositionData(fromPos, toPos, RADIUS, RADIUS));
         });
 
         function calculateArrowPositionData(fromPos, toPos, fromRadius, toRadius) {
