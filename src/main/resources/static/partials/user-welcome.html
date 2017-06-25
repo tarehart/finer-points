@@ -1,0 +1,33 @@
+<md-dialog flex="90" flex-gt-sm="70" flex-gt-md="50">
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2>Welcome!</h2>
+            <span flex></span>
+            <md-button class="md-icon-button" ng-click="welcomeCtrl.cancel()">
+                <i class="fa fa-times"></i>
+            </md-button>
+        </div>
+    </md-toolbar>
+    <md-dialog-content>
+        <div class="md-dialog-content">
+            <p>Welcome to Finer Points!</p>
+            <p>
+                You now have three different aliases you can use to create cards and leave comments.
+                Nobody will know that these belong to the same person.
+            </p>
+
+            <ol>
+                <li ng-repeat="alias in welcomeCtrl.aliases">
+                    <div alias-editor alias="alias"></div>
+                </li>
+            </ol>
+
+            <p>
+                You may change the aliases by clicking the edit icons above!
+            </p>
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions layout="row" layout-align="end center">
+        <md-button ng-click="welcomeCtrl.cancel()">Continue</md-button>
+    </md-dialog-actions>
+</md-dialog>

@@ -86,6 +86,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean isAuthorNameInUse(String displayName) {
+        return userRepo.findByAlias(displayName) != null;
+    }
+
+    @Override
     public NodeUserDetails loadUserByUserId(String stableId) throws UsernameNotFoundException {
         User user = userRepo.getUser(stableId);
 

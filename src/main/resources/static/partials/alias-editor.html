@@ -1,6 +1,7 @@
 
 <span ng-if="!aliasEditorCtrl.editingAlias">
-    <a ng-href="/profile/{{alias.stableId}}">{{alias.displayName}}</a>
+    <a ng-if="aliasEditorCtrl.showHyperlink" ng-href="/profile/{{alias.stableId}}">{{alias.displayName}}</a>
+    <span ng-if="!aliasEditorCtrl.showHyperlink">{{alias.displayName}}</span>
     <md-button ng-if="aliasEditorCtrl.canEditAlias" class="md-icon-button md-micro" ng-click="aliasEditorCtrl.startEditingAlias()">
         <i class="fa fa-pencil-square-o">
             <md-tooltip md-direction="right">Change name</md-tooltip>

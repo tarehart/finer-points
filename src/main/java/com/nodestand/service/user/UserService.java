@@ -30,4 +30,6 @@ public interface UserService extends UserDetailsService {
     boolean isPublishedAuthor(String authorStableId);
 
     Author changeAuthorName(String authorStableId, String authorName);
+
+    boolean isAuthorNameInUse(String displayName);
 }

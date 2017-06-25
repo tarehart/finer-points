@@ -81,6 +81,10 @@ public class UserController {
             throw new ForbiddenNodeOperationException("Not allowed to change the name of this author!");
         }
 
+        if (userService.isAuthorNameInUse(authorName)) {
+            throw new ForbiddenNodeOperationException("Sorry, this alias is already taken!");
+        }
+
         return userService.changeAuthorName(authorStableId, authorName);
     }
 }

@@ -11,6 +11,7 @@ import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Transient;
+import org.neo4j.ogm.annotation.typeconversion.DateLong;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.*;
@@ -46,6 +47,9 @@ public class User {
     private String providerId;
     private String providerUserId;
 
+    @DateLong
+    private Date dateCreated;
+
 
     public User() {
     }
@@ -56,6 +60,7 @@ public class User {
         this.providerUserId = providerUserId;
         this.stableId = IdGenerator.newId();
         this.aliases = new HashSet<>();
+        this.dateCreated = new Date();
     }
 
     @Override
@@ -140,6 +145,10 @@ public class User {
 
     public Long getNodeId() {
         return nodeId;
+    }
+
+    public Date getDateCreated() {
+        return dateCreated;
     }
 
     public Optional<ArgumentVote> getExistingVote(MajorVersion mv) {

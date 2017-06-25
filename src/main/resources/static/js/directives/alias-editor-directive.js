@@ -15,15 +15,17 @@ require('../services/toast-service');
             controller: AliasEditorController,
             controllerAs: 'aliasEditorCtrl',
             scope: {
-                alias: "="
+                alias: "=",
+                showHyperlink: "@"
             }
         }
     }
 
-    function AliasEditorController($scope, $rootScope, $http, UserService, ToastService) {
+    function AliasEditorController($scope, $http, ToastService) {
 
         var self = this;
         self.alias = $scope.alias;
+        self.showHyperlink = !!$scope.showHyperlink;
 
         self.startEditingAlias = function() {
             self.editingAlias = true;

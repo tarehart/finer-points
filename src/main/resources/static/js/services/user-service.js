@@ -89,6 +89,24 @@ require('./toast-service');
                         self.loggedInUser = data.user;
                         self.loggedInUser.activeAlias = data.user.aliases[0];
                         notifySuccessfulLogin();
+
+                        // If the user was created within the last minute
+                        if (data.user.dateCreated && Date.now() - new Date(data.user.dateCreated) < 60000) {
+                            $mdDialog.show({
+                                templateUrl: 'partials/user-welcome.html',
+                                parent: angular.element(document.body),
+                                clickOutsideToClose:true,
+                                controller: function () {
+                                    var welcomeCtrl = this;
+                                    welcomeCtrl.aliases = data.user.aliases;
+                                    welcomeCtrl.cancel = function() {
+                                        $mdDialog.cancel();
+                                    };
+                                },
+                                controllerAs: 'welcomeCtrl',
+                            });
+                        }
+
                     }
 
                     // If there's no data, then the user is not signed in.
