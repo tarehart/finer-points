@@ -44,21 +44,22 @@
 
                 <br />
 
-                <md-input-container class="md-block md-input-compact">
+                <md-input-container class="md-block">
                     <label>Title</label>
                     <input ng-model="linkCtrl.newTitle">
                 </md-input-container>
 
-                <md-input-container class="md-block md-input-compact">
+                <md-input-container class="md-block">
                     <label>Version Description</label>
                     <input ng-model="linkCtrl.newQualifier">
                 </md-input-container>
 
                 <div ng-if="linkCtrl.hasInsertOptions()">
-                    <md-input-container class="md-block md-input-compact" >
+                    <md-input-container class="md-block md-input-compact md-input-no-label">
                         <md-checkbox ng-model="linkCtrl.shouldInsertBefore">Insert before...</md-checkbox>
-                        <md-select ng-show="linkCtrl.shouldInsertBefore"
-                                   ng-model="linkCtrl.selectedInsertId"
+                    </md-input-container>
+                    <md-input-container ng-show="linkCtrl.shouldInsertBefore" class="md-block md-input-compact md-input-no-label">
+                        <md-select ng-model="linkCtrl.selectedInsertId"
                                    md-selected-text="linkCtrl.selectedInsertText()">
                             <md-option ng-value="opt.stableId" ng-repeat="opt in linkCtrl.getInsertOptions()">
                                 {{opt.body.title}}

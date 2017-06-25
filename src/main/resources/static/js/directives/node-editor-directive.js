@@ -263,7 +263,9 @@ require('../services/body-text-service');
                 };
 
                 self.searchTextChanged = function() {
-                    self.newTitle = self.searchQuery;
+                    if (!self.makeNew) {
+                        self.newTitle = self.searchQuery;
+                    }
                 };
 
                 self.searchResultSelected = function(bodyNode) {
