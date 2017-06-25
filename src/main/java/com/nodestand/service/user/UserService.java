@@ -1,6 +1,7 @@
 package com.nodestand.service.user;
 
 import com.nodestand.auth.NodeUserDetails;
+import com.nodestand.nodes.Author;
 import com.nodestand.nodes.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,4 +26,8 @@ public interface UserService extends UserDetailsService {
     Optional<NodeUserDetails> loadUserBySocialProvider(String providerId, String providerUserId);
 
     User loadUserWithVotes(String stableId);
+
+    boolean isPublishedAuthor(String authorStableId);
+
+    Author changeAuthorName(String authorStableId, String authorName);
 }

@@ -13,6 +13,7 @@ require('../sass/common.scss');
     require('./directives/graph-directive');
     require('./directives/graph-sketch-directive');
     require('./directives/edit-history-directive');
+    require('./directives/alias-editor-directive');
     require('./controllers/route-params-controller');
     require('./services/errorlog-service');
 

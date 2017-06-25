@@ -1,0 +1,20 @@
+
+<span ng-if="!aliasEditorCtrl.editingAlias">
+    <a ng-href="/profile/{{alias.stableId}}">{{alias.displayName}}</a>
+    <md-button ng-if="aliasEditorCtrl.canEditAlias" class="md-icon-button md-micro" ng-click="aliasEditorCtrl.startEditingAlias()">
+        <i class="fa fa-pencil-square-o">
+            <md-tooltip md-direction="right">Change name</md-tooltip>
+        </i>
+    </md-button>
+</span>
+<span ng-if="aliasEditorCtrl.editingAlias">
+    <md-input-container class="md-input-compact md-input-no-label">
+        <input ng-model="aliasEditorCtrl.modifiedAliasName">
+    </md-input-container>
+    <md-button class="md-raised md-primary" ng-click="aliasEditorCtrl.saveAlias()">
+        Save
+    </md-button>
+    <md-button class="md-raised" ng-click="aliasEditorCtrl.cancel()">
+        Cancel
+    </md-button>
+</span>

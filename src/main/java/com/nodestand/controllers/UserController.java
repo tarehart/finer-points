@@ -1,6 +1,7 @@
 package com.nodestand.controllers;
 
 import com.nodestand.nodes.Author;
+import com.nodestand.nodes.ForbiddenNodeOperationException;
 import com.nodestand.nodes.NodeRulesException;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.repository.UserRepository;
@@ -65,5 +66,21 @@ public class UserController {
         List<ScoreLog> scoreLogForUser = scoreLogReader.getScoreLogForUser(stableId);
 
         return scoreLogForUser;
+    }
+
+    @RequestMapping("/canChangeAuthorName")
+    public boolean canChangeAuthorName(@RequestParam String authorStableId) throws NodeRulesException {
+
+        return !userService.isPublishedAuthor(authorStableId);
+    }
+
+    @RequestMapping("/changeAuthorName")
+    public Author changeAuthorName(@RequestParam String authorStableId, @RequestParam String authorName) throws NodeRulesException {
+
+        if (!canChangeAuthorName(authorStableId)) {
+            throw new ForbiddenNodeOperationException("Not allowed to change the name of this author!");
+        }
+
+        return userService.changeAuthorName(authorStableId, authorName);
     }
 }

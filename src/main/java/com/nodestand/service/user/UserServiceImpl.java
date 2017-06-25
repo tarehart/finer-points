@@ -2,6 +2,7 @@ package com.nodestand.service.user;
 
 import com.nodestand.auth.NodeUserDetails;
 import com.nodestand.controllers.ResourceNotFoundException;
+import com.nodestand.nodes.Author;
 import com.nodestand.nodes.User;
 import com.nodestand.nodes.repository.UserRepository;
 import org.neo4j.ogm.session.Session;
@@ -69,6 +70,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public User loadUserWithVotes(String stableId) {
         return userRepo.loadUserWithVotes(stableId);
+    }
+
+    @Override
+    public boolean isPublishedAuthor(String authorStableId) {
+        return userRepo.isPublishedAuthor(authorStableId);
+    }
+
+    @Override
+    public Author changeAuthorName(String authorStableId, String authorName) {
+        Author author = userRepo.loadAuthor(authorStableId);
+        author.setDisplayName(authorName);
+        session.save(author);
+        return author;
     }
 
     @Override

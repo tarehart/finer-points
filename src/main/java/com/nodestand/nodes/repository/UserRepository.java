@@ -26,4 +26,7 @@ public interface UserRepository extends GraphRepository<User> {
             "with p, u optional match bv=(u)-[:ARGUMENT_VOTE]->(:MajorVersion) " +
             "with p, u, bv optional match cv=(u)-[:COMMENT_VOTE]->(:Comment) return u, p, bv, cv")
     User loadUserWithVotes(String stableId);
+
+    @Query("return exists( (:Author {stableId: {0}})<-[:AUTHORED_BY]-(:ArgumentBody {isPublic: true}) )")
+    boolean isPublishedAuthor(String authorStableId);
 }
