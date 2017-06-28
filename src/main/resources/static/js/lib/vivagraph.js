@@ -3505,13 +3505,15 @@ function dragndrop(element) {
               return;
             }
 
-            for (var i = 0; i < e.path.length; i++) {
-              if (e.path[i].tagName === 'svg') {
-                // Only doing this when the click hits the SVG allows us to still click on buttons.
-                stopPropagation(e);
-                preventDefault(e);
-                break;
-              }
+            if (e && e.path && e.path.length) {
+                for (var i = 0; i < e.path.length; i++) {
+                    if (e.path[i].tagName === 'svg') {
+                        // Only doing this when the click hits the SVG allows us to still click on buttons.
+                        stopPropagation(e);
+                        preventDefault(e);
+                        break;
+                    }
+                }
             }
 
             startX = touch.clientX;
