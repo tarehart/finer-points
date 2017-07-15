@@ -43,8 +43,7 @@ require('../../sass/vivagraph.scss');
         function appendVoteArcsFromNode(ui, argumentNode) {
             var majorVersion = argumentNode.body.majorVersion;
             if (majorVersion) {
-                var radius = RADIUS + 2;
-                appendVoteArcs(ui, radius, majorVersion.greatVotes, majorVersion.weakVotes, majorVersion.toucheVotes, majorVersion.trashVotes);
+                appendVoteArcs(ui, RADIUS, majorVersion.greatVotes, majorVersion.weakVotes, majorVersion.toucheVotes, majorVersion.trashVotes);
             }
         }
         

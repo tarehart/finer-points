@@ -40,7 +40,7 @@
 }
 
 .voteArc {
-  stroke-width: 5;
+  stroke-width: 4;
 }
 
 .greatArc {
@@ -139,10 +139,12 @@ $arrow-gray: #aeaeae;
   color: $arrow-gray;
 }
 
-.vivaAnchor circle {
-  transition-property: transform;
-  transition-duration: .5s;
-  transform: scale(.9, .9);
+.vivaAnchor {
+  circle, .voteArc {
+    transition-property: transform;
+    transition-duration: .5s;
+    transform: scale(.9, .9);
+  }
 }
 
 .viva-edge {

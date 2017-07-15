@@ -35,8 +35,13 @@ require('./vivagraph-directive');
             node.id = "sketch-" + sketchNum++;
             node.type = 'assertion';
             node.body.qualifier = 'Original Version';
+
+            var isFirstNode = $.isEmptyObject(self.nodes);
             self.nodes[node.id] = node;
             $scope.$broadcast("nodeAdded", null, node);
+            if (isFirstNode) {
+                highlightNode(node);
+            }
         };
 
         self.hasNodes = function () {
@@ -213,14 +218,19 @@ require('./vivagraph-directive');
                     }
                 });
             } else {
-                self.highlightedNode = node;
-                $scope.$broadcast("nodeHighlighted", node);
+                highlightNode(node);
             }
         });
+
+        function highlightNode(node) {
+            self.highlightedNode = node;
+            $scope.$broadcast("nodeHighlighted", node);
+        }
 
         function runEdgeTool(node) {
             if (edgeState === SEEKING_PARENT) {
                 edgeParent = node;
+                self.highlightedNode = null;
                 $scope.$broadcast("nodeHighlighted", node, 'edge-parent');
                 edgeState = SEEKING_CHILD;
             } else if (edgeState === SEEKING_CHILD) {
@@ -248,11 +258,15 @@ require('./vivagraph-directive');
                     node.type = 'assertion';
                 }
 
-                if (edgeParent.isLegalType(edgeParent.getType()) && !node.isPersisted()) {
-                    console.log("propagating down because parent looks legal.");
+
+
+                if (edgeParent.isLegalType(edgeParent.getType()) && !node.isPersisted() &&
+                    !(hasBodyText(node) && !hasBodyText(edgeParent))) {
+
+                    console.log("propagating down because parent looks stronger.");
                     propagateTypeChange(edgeParent, edgeParent.getType(), null, true);
                 } else {
-                    console.log("propagating up because parent is now illegal.");
+                    console.log("propagating up because child looks stronger.");
                     propagateTypeChange(node, findLegalType(node), null, true);
                 }
 
@@ -261,6 +275,10 @@ require('./vivagraph-directive');
                 ToastService.success("Arrow Created!");
                 edgeState = SEEKING_PARENT;
             }
+        }
+
+        function hasBodyText(n) {
+            return !!(n.body.body || n.body.url);
         }
 
     }
