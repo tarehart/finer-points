@@ -1,5 +1,6 @@
 package com.nodestand.nodes.version;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.ArgumentNode;
 import com.nodestand.nodes.Author;
 import com.nodestand.nodes.NodeRulesException;
@@ -7,10 +8,7 @@ import com.nodestand.nodes.User;
 import com.nodestand.nodes.comment.Commentable;
 import com.nodestand.nodes.vote.VoteType;
 import com.nodestand.util.IdGenerator;
-import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Property;
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.*;
 
 import java.util.*;
 
@@ -55,6 +53,14 @@ public class MajorVersion implements Commentable {
     @Override
     public Long getId() {
         return id;
+    }
+
+    @Override
+    @JsonIgnore
+    @Transient
+    public Set<User> getCommentWatchers() {
+        // TODO: Allow people to watch / unwatch major versions.
+        return Collections.emptySet();
     }
 
     public String getStableId() {

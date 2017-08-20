@@ -32,6 +32,10 @@ require('./toast-service');
             }).length;
         };
 
+        self.refreshUser = function() {
+            getUserFromServer();
+        };
+
         // http://www.codelord.net/2015/05/04/angularjs-notifying-about-changes-from-services-to-controllers/
         self.subscribeSuccessfulLogin = function(scope, callback) {
             var handler = $rootScope.$on('successful-login', callback);

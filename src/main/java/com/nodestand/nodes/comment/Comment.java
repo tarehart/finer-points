@@ -3,18 +3,25 @@ package com.nodestand.nodes.comment;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nodestand.nodes.Author;
 import com.nodestand.nodes.User;
+import com.nodestand.util.IdGenerator;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Transient;
 import org.neo4j.ogm.annotation.typeconversion.DateLong;
 
 import java.util.Date;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @NodeEntity
 public class Comment implements Commentable {
 
     @GraphId
     protected Long id;
+
+    private String stableId;
 
     @Relationship(type="AUTHORED_BY", direction = Relationship.OUTGOING)
     public Author author;
@@ -42,6 +49,13 @@ public class Comment implements Commentable {
         return id;
     }
 
+    @Override
+    @JsonIgnore
+    @Transient
+    public Set<User> getCommentWatchers() {
+        return Stream.of(author.getUser()).collect(Collectors.toSet());
+    }
+
     public void modifyScore(int delta) {
         score += delta;
     }
@@ -52,6 +66,7 @@ public class Comment implements Commentable {
         this.body = body;
 
         this.dateCreated = new Date();
+        this.stableId = IdGenerator.newId();
     }
 
     public Date getDateCreated() {
@@ -64,5 +79,13 @@ public class Comment implements Commentable {
 
     public void setDateEdited(Date dateEdited) {
         this.dateEdited = dateEdited;
+    }
+
+    public Commentable getParent() {
+        return parent;
+    }
+
+    public String getStableId() {
+        return stableId;
     }
 }

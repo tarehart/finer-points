@@ -46,6 +46,7 @@ public class User {
     private Roles[] roles;
     private String providerId;
     private String providerUserId;
+    private String emailAddress;
 
     @DateLong
     private Date dateCreated;
@@ -121,6 +122,19 @@ public class User {
         Author author = new Author(this, displayName);
         aliases.add(author);
         return author;
+    }
+
+    public boolean isEmailEnrolled() {
+        return emailAddress != null;
+    }
+
+    @JsonIgnore
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
     }
 
     public enum Roles implements GrantedAuthority {

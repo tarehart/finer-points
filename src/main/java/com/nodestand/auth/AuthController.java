@@ -73,7 +73,16 @@ public class AuthController {
         ResponseEntity<GoogleUserInfo> exchange = restTemplate.exchange(peopleApiUrl, HttpMethod.GET, entity, GoogleUserInfo.class);
 
         // Step 3. Process the authenticated the user.
-        return processUser(PROVIDER_GOOGLE, exchange.getBody().sub);
+        GoogleUserInfo googleInfo = exchange.getBody();
+
+        final String emailAddress;
+        if (Boolean.parseBoolean(googleInfo.email_verified)) {
+            emailAddress = googleInfo.email;
+        } else {
+            emailAddress = null;
+        }
+
+        return processUser(PROVIDER_GOOGLE, googleInfo.sub, emailAddress);
     }
 
     private HttpEntity<String> getInfoEntity(String accessToken) {
@@ -102,11 +111,14 @@ public class AuthController {
         public String access_token;
     }
 
+    // See https://developers.google.com/identity/sign-in/web/backend-auth
     public static class GoogleUserInfo {
         public String sub;
+        public String email;
+        public String email_verified;
     }
 
-    private Token processUser(final String providerId, final String providerUserId) {
+    private Token processUser(final String providerId, final String providerUserId, final String emailAddress) {
 
         Optional<NodeUserDetails> userDetails = userService.loadUserBySocialProvider(providerId, providerUserId);
 
@@ -115,6 +127,13 @@ public class AuthController {
         // Step 3b. Create a new user account or return an existing one.
         if (userDetails.isPresent()) {
             concreteUser = userDetails.get();
+
+            if (concreteUser.getUser().getEmailAddress() == null) {
+                final User user = concreteUser.getUser();
+                user.setEmailAddress(emailAddress);
+                userRepository.save(user);
+            }
+
         } else {
 
             //add new users to the db with its default roles for later use in SocialAuthenticationSuccessHandler
@@ -127,6 +146,8 @@ public class AuthController {
             user.addNewAlias(generateUniqueUserName());
             user.addNewAlias(generateUniqueUserName());
             user.addNewAlias(generateUniqueUserName());
+
+            user.setEmailAddress(emailAddress);
 
             userRepository.save(user);
 

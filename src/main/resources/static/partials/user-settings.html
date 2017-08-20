@@ -21,6 +21,22 @@
                 </md-list>
             </md-card-content>
         </md-card>
+        <md-card>
+            <md-card-title>
+                <span class="md-headline">Notification Settings</span>
+            </md-card-title>
+            <md-card-content>
+                <p ng-if="user.emailEnrolled">
+                    Email notifications are active!
+                </p>
+                <p ng-if="!user.emailEnrolled">
+                    Email notifications not activated!
+                    <md-button class="md-raised" ng-click="settingsCtrl.enrollEmail()">
+                        Activate Email
+                    </md-button>
+                </p>
+            </md-card-content>
+        </md-card>
     </div>
 </div>
 

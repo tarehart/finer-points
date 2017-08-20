@@ -8,6 +8,7 @@ require('../sass/common.scss');
 
     require('./controllers/gateway-controller');
     require('./controllers/profile-controller');
+    require('./controllers/settings-controller');
     require('./controllers/create-controller');
     require('./services/user-service');
     require('./directives/graph-directive');
@@ -49,7 +50,9 @@ require('../sass/common.scss');
                     controllerAs: 'profileCtrl'
                 }).
                 when('/settings', {
-                    template: require('../partials/user-settings.html')
+                    template: require('../partials/user-settings.html'),
+                    controller: 'SettingsController',
+                    controllerAs: 'settingsCtrl'
                 }).
                 when('/history/:nodeStableId', {
                     template: require('../partials/history.html'),

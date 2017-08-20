@@ -64,7 +64,9 @@
             </md-radio-group>
     
             <textarea ng-if="!sketchCtrl.highlightedNode.isLeaf()" node="sketchCtrl.highlightedNode"
-                      set-text="sketchCtrl.setBody" markdown-editor>{{sketchCtrl.highlightedNode.body.body}}</textarea>
+                      ng-model="sketchCtrl.highlightedNode.body.body" markdown-editor>
+                {{sketchCtrl.highlightedNode.body.body}}
+            </textarea>
     
             <md-input-container class="md-block" ng-if="sketchCtrl.highlightedNode.isLeaf()">
                 <label>Link</label>

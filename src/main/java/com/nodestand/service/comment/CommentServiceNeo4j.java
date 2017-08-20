@@ -83,4 +83,9 @@ public class CommentServiceNeo4j implements CommentService {
 
         return comment;
     }
+
+    @Override
+    public Comment loadWithWatchers(long commentId) {
+        return commentRepo.loadWithAuthor(commentId);
+    }
 }

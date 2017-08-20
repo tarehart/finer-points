@@ -84,14 +84,6 @@ require('../services/toast-service');
             comment.newReply.body = null;
         };
 
-        ctrl.setReplyText = function (comment, text) {
-            comment.newReply.body = text;
-        };
-
-        ctrl.setEditText = function (comment, text) {
-            comment.editedBody = text;
-        };
-
         ctrl.saveReply = function (comment) {
 
             createComment($http, comment.newReply.body, comment.id, UserService.getActiveAlias(), function (reply) {

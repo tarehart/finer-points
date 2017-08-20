@@ -1,9 +1,11 @@
 package com.nodestand.service;
 
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.AWSLogsClient;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +35,9 @@ public class AmazonServiceConfig {
 
     @Bean
     public AmazonSimpleEmailService simpleEmailService() {
-        return new AmazonSimpleEmailServiceClient();
+        return AmazonSimpleEmailServiceClientBuilder.standard()
+                .withRegion(Regions.US_EAST_1)
+                .build();
     }
 
 }

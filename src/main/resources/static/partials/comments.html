@@ -43,7 +43,7 @@
                             <div class="comment-text" ng-markdown="comment.body" render-markdown></div>
                         </div>
                         <div class="editor-wrapper" ng-if="comment.editing">
-                            <textarea node="comment" set-text="commCtrl.setEditText" markdown-editor>{{comment.body}}</textarea>
+                            <textarea node="comment" ng-model="comment.editedBody" markdown-editor>{{comment.body}}</textarea>
                             <div layout="row" layout-align="end">
                                 <md-button ng-click="commCtrl.saveEdit(comment)" class="md-raised md-primary">
                                     Save
@@ -56,7 +56,7 @@
 
 
                         <div class="editor-wrapper" ng-if="comment.writingReply">
-                            <textarea node="comment" set-text="commCtrl.setReplyText" markdown-editor>{{newComment.body}}</textarea>
+                            <textarea node="comment" ng-model="comment.newReply.body" markdown-editor>{{newComment.body}}</textarea>
                             <div layout="row" layout-align="end">
                                 <md-button ng-click="commCtrl.saveReply(comment)" class="md-raised md-primary">
                                     Save
@@ -107,7 +107,7 @@
             </div>
 
             <div class="editor-wrapper" ng-if="commCtrl.editingTopLevel">
-                <textarea node="commCtrl.newComment" set-text="commCtrl.setComment" markdown-editor>{{commCtrl.newComment.body}}</textarea>
+                <textarea node="commCtrl.newComment" ng-model="commCtrl.newComment.body" markdown-editor>{{commCtrl.newComment.body}}</textarea>
                 <div layout="row" layout-align="end">
                     <md-button ng-click="commCtrl.saveComment()" class="md-raised md-primary">
                         Save

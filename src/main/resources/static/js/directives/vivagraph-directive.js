@@ -181,6 +181,10 @@ require('../../sass/vivagraph.scss');
             }
 
             appendVoteArcsFromNode(ui, argumentNode);
+
+            if (argumentNode === scope.highlightedNode) {
+                addHighlightDecoration(ui, scope.currentHighlightClass);
+            }
         }
 
         function getShape(type) {
@@ -289,19 +293,23 @@ require('../../sass/vivagraph.scss');
 
         scope.$on("nodeHighlighted", function(e, node, highlightClass) {
 
-            highlightClass = highlightClass || 'highlight';
-
             if (node !== scope.highlightedNode || highlightClass !== scope.currentHighlightClass) {
                 clearHighlighting();
 
                 var nodeUI = graphics.getNodeUI(node.id);
-                if (nodeUI) {
-                    scope.currentHighlightClass = highlightClass;
-                    $(nodeUI).addClass(highlightClass);
-                }
+                addHighlightDecoration(nodeUI, highlightClass);
                 scope.highlightedNode = node;
             }
         });
+
+        function addHighlightDecoration(nodeUI, highlightClass) {
+            highlightClass = highlightClass || 'highlight';
+
+            if (nodeUI) {
+                scope.currentHighlightClass = highlightClass;
+                $(nodeUI).addClass(highlightClass);
+            }
+        }
 
         scope.$on("highlightRemoved", function(e, node) {
             clearHighlighting();
