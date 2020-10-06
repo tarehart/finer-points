@@ -1,7 +1,7 @@
 {
   "name": "finer-points",
   "devDependencies": {
-    "angular": "~1.5.5",
+    "angular": "~1.8.1",
     "angular-animate": "~1.5.5",
     "angular-aria": "~1.5.5",
     "angular-chart.js": "^1.1.1",
